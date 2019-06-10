@@ -29,7 +29,9 @@ async function insertAppointment(req, res) {
     // save the model to the database
     await appointment.save(function (err, newAppointment) {
         if (err) {
-            res.status(500).send({error: "Error creating appointment."});
+            res.status(500).send({
+                error: "Error creating appointment."
+            });
             console.log(err);
         } else {
             res.send(newAppointment);
@@ -39,6 +41,6 @@ async function insertAppointment(req, res) {
 
 
 module.exports = {
-    insertAppointment: insertAppointment,
-    getAllAppointments: getAllAppointments
+    insertAppointment,
+    getAllAppointments
 };

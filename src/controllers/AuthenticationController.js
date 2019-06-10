@@ -5,9 +5,10 @@ const UserModel = require("../models/UserModel");
 function jwtSignUser(user) {
   console.log(user)
   const ONE_WEEK = 60 * 60 * 24 * 7;
-  return jwt.sign(user, process.env.JWT_SECRET, {
+  var token = jwt.sign(user, process.env.JWT_SECRET, {
     expiresIn: ONE_WEEK
   });
+  return token;
 }
 
 
@@ -46,15 +47,16 @@ async function register(req, res) {
         return;
       }
 
-      let userJSON = {
-        username: newUser.username,
-        email: newUser.email,
-        id: newUser._id
-      }
       res.send({
+        success: true,
         message: "User added.",
-        user: userJSON,
-        token: jwtSignUser(newUser)
+        user: {
+          email: newUser.email,
+          username: newUser.username,
+          role: newUser.role,
+          id: newUser._id
+        },
+        token: jwtSignUser(newUser.toJSON())
       });
     });
   });
@@ -90,15 +92,19 @@ async function login(req, res) {
       })
     }
 
-    let userJSON = {
-      username: user.username,
-      email: user.email,
-      id: user._id
-    }
+    let {
+      email,
+      _id
+    } = user;
+
 
     res.send({
-      user: userJSON,
-      token: jwtSignUser(userJSON)
+      user: {
+        username,
+        email,
+        _id
+      },
+      token: jwtSignUser(user.toJSON())
     });
 
 

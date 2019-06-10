@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt"); // for salting and hashing
 
+const Role = require("./Role");
+
 let UserSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -17,6 +19,10 @@ let UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+  },
+  role: {
+    type: Number,
+    default: Role.User
   }
 });
 
