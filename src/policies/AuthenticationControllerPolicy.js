@@ -3,7 +3,7 @@ const Joi = require("joi");
 function register(req, res, next) {
 
   const joiSchema = {
-    username: Joi.string().min(3).max(30).required(),
+    username: Joi.string().min(1).max(50).required(),
     email: Joi.string().email().required(),
     password: Joi.string().regex(
       new RegExp("^[a-zA-Z0-9]{5,32}$")

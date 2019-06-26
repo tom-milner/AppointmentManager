@@ -1,6 +1,6 @@
 const AppointmentModel = require("../models/AppointmentModel");
 
-// send all appointments regardless 
+// Fetch all appointments regardless 
 async function getAllAppointments(req, res) {
     await AppointmentModel.find({}, function (err, allAppointments) {
         if (err) {
@@ -14,19 +14,17 @@ async function getAllAppointments(req, res) {
     });
 }
 
-// insert new appointment into db
+// Insert new appointment into db
 async function insertAppointment(req, res) {
-
-    // create date object to store
     let appointmentDate = new Date(req.body.date);
-
-    // create new model
+    // Create new appointment model
     let appointment = new AppointmentModel({
         title: req.body.title,
-        date: appointmentDate
+        date: appointmentDate,
+        client: req.user
     });
-
-    // save the model to the database
+    console.log(appointment);
+    // Save the model to the database
     await appointment.save(function (err, newAppointment) {
         if (err) {
             res.status(500).send({
@@ -34,7 +32,11 @@ async function insertAppointment(req, res) {
             });
             console.log(err);
         } else {
-            res.send(newAppointment);
+            // Send back newly created appointment
+            res.send({
+                success: true,
+                newAppointment
+            });
         }
     });
 }

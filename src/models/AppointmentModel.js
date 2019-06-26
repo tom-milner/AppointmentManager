@@ -11,7 +11,11 @@ let appointmentSchema = new Schema({
         type: String,
         require: true,
         max: 100
-    }
+    },
+    client: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    },
 });
 
 

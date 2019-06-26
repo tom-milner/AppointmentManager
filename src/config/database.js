@@ -1,21 +1,27 @@
 // import necessary packages
-const mongoose = require("mongoose");
+const mongoose = require("mongoose"); // needed for interacting with database
 
+// function to establish connection to database
+async function initialize(url) {
 
-function init() {
+  // make sure url is given
+  if (url == null) {
+    console.errror("You have not specified a mongoose connection URL.")
+    return false;
+  }
 
-  // get database location 
-  let mongoURL = process.env.DB_URL;
+  try {
+    // connect to database
+    mongoose.connect(url);
+    return true;
+  } catch (error) {
+    console.log(`Error connecting to MongoDB database at ${url}`);
+    console.log(error);
+  }
 
-  // connect to database
-  mongoose.connect(mongoURL);
-
-  mongoose.Promise = global.Promise;
-  let db = mongoose.connections;
-  db.concat("error", console.error.bind(console, "MongoDB Connection Error"))
+  return false;
 }
 
-// export function as module
 module.exports = {
-  init: init
+  initialize
 };
