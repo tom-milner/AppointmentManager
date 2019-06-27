@@ -15,6 +15,7 @@ function register(req, res, next) {
     value
   } = Joi.validate(req.body, joiSchema);
 
+
   if (error) {
     switch (error.details[0].context.key) {
       case "email":

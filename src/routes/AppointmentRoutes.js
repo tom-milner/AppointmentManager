@@ -6,14 +6,16 @@ var AuthenticationMiddleware = require("../middleware/AuthenticationMiddleware")
 
 var Role = require("../models/Role");
 
-// always requires users to be logged on
+// Always requires users to be logged on
 router.use(AuthenticationMiddleware.isLoggedIn);
 
+// Get all appointments of a specific user
+router.get("/:userId", AuthenticationMiddleware.roleCheck(Role.Admin), AppointmentController.getAppointmentsOfUser);
 
-// get all appointments
+// Get all appointments
 router.get("/", AuthenticationMiddleware.roleCheck(Role.Admin), AppointmentController.getAllAppointments);
 
-// insert new appointment
+// Insert new appointment
 router.post("/", AppointmentController.insertAppointment);
 
 

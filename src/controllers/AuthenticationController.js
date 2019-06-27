@@ -14,82 +14,72 @@ function jwtSignUser(user) {
 
 // sign up a new user
 async function register(req, res) {
-  // create user
-  let newUser = new UserModel({
-    email: req.body.email,
-    username: req.body.username
-  });
+  try {
+    // create user
+    let newUser = new UserModel({
+      email: req.body.email,
+      username: req.body.username
+    });
 
+    // Hash password and store in database.
+    // First, generate salt. saltRounds is the cost factor of hashing algorithm.
+    // For example, a saltRounds of 10 will mean that the bcrypt calculation is performed 2^10 (1024) times.
+    // The higher the saltRounds, the longer the salt takes to generate, but the more secure the hash.
+    const saltRounds = 10;
+    const salt = await bcrypt.genSalt(saltRounds);
 
-  // Hash password and store in database.
+    const hash = await bcrypt.hash(req.body.password, salt);
 
-  // Generate salt. saltRounds is the cost factor of hashing algorithm.
-  // For example, a saltRounds of 10 will mean that the bcrypt calculation is performed 2^10 (1024) times.
-  // The higher the saltRounds, the longer the salt takes to generate, but the more secure the hash.
-  const saltRounds = 10;
-  const salt = await bcrypt.genSalt(saltRounds);
+    // Store hash in user object, ready to be saved.
+    newUser.password = hash;
 
-  const hash = await bcrypt.hash(req.body.password, salt);
-  console.log(hash);
-  if (hash == null) {
-    res.json({
-      error: "Error adding user."
+    // Save user to database
+    newUser.save(function(err, newUser) {
+      if (err) {
+        if (err.code == 11000) {
+          throw "User already exists.";
+        }
+        console.log(err);
+        throw "Error saving user.";
+      }
+      // Return newly created user
+      res.send({
+        success: true,
+        message: "User added.",
+        user: {
+          email: newUser.email,
+          username: newUser.username,
+          role: newUser.role,
+          id: newUser._id
+        },
+        // Sign user with new token
+        token: jwtSignUser(newUser.toJSON())
+      });
+    });
+  } catch (errorMessage) {
+    res.status(500).send({
+      success: false,
+      message: errorMessage || "Error registering user."
     });
   }
-  // Store hash in user object, ready to be saved.
-  newUser.password = hash;
-
-  // Save user to database
-  newUser.save(function (err, newUser) {
-    if (err) {
-      let errorMessage;
-      switch (err.code) {
-        case 11000:
-          errorMessage = "User already exists.";
-          break;
-        default:
-          errorMessage = "Error creating user.";
-          break;
-      }
-      console.log(err);
-      res.status(400).send({
-        error: errorMessage
-      });
-      return;
-    }
-    // Return newly created user 
-    res.send({
-      success: true,
-      message: "User added.",
-      user: {
-        email: newUser.email,
-        username: newUser.username,
-        role: newUser.role,
-        id: newUser._id
-      },
-      // Sign user with new token
-      token: jwtSignUser(newUser.toJSON())
-    });
-  });
 }
 
 // Login the client and provide them with an access token
 async function login(req, res) {
   try {
-    const {
-      inputUsername,
-      password
-    } = req.body;
+    const { inputUsername, password } = req.body;
 
     // Find matching users in database
     const userMatches = await UserModel.find({
-      username: inputUsername
+      // username: inputUsername
     });
 
     // Only 1 user should be found - use 0th term just in case
     const user = userMatches[0];
 
-    // Check user could be found
+    console.log(userMatches);
+
+    // Check user exists
     if (!user) {
       return res.status(403).send({
         error: "Incorrect login information."
@@ -98,16 +88,14 @@ async function login(req, res) {
 
     // Hash password and check against hash in database
     const isPasswordValid = await bcrypt.compare(password, user.password);
+
     if (!isPasswordValid) {
       return res.status(403).send({
         error: "Incorrect password."
       });
     }
 
-    let {
-      email,
-      _id
-    } = user;
+    let { username, email, _id } = user;
 
     // return user with new access token.
     res.send({
@@ -120,7 +108,6 @@ async function login(req, res) {
     });
   } catch (err) {
     console.log(err);
-
     res.status(500).send({
       error: "An error has occured."
     });

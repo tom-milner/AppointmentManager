@@ -6,7 +6,7 @@ async function initialize(url) {
 
   // make sure url is given
   if (url == null) {
-    console.errror("You have not specified a mongoose connection URL.")
+    console.error("You have not specified a mongoose connection URL.")
     return false;
   }
 
