@@ -1,7 +1,8 @@
 import Api from "@/services/Api.js";
 
-// fetch all available appointments
 export default {
+
+  // Fetch all available appointments
   getAllAppointments() {
     return Api().get("/appointments");
   }

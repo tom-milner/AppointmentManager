@@ -47,7 +47,7 @@ export default {
   top: 0;
   left: 0;
   color: $color-black;
-  padding: 2rem;
+  padding: 1.5rem;
 
   .icon {
     height: 2rem;

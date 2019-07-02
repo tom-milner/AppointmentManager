@@ -6,14 +6,15 @@
         <div class="login-items">
           <div class="login-field">
             <h3>Username/Email</h3>
-            <input>
+            <input />
           </div>
           <div class="login-field">
             <h3>Password</h3>
-            <input type="password">
+            <input type="password" />
           </div>
         </div>
-        <button class="primary-btn" v-on:click="sendLogin">Submit</button>
+        <p class="errorText">{{errorMessage}}</p>
+        <button class="primary-btn" v-on:click="login()">Submit</button>
       </div>
     </card>
   </div>
@@ -21,13 +22,30 @@
 
 <script>
 import Card from "@/components/layout/Card";
+import AuthenticationService from "@/services/AuthenticationService";
 
 export default {
   components: {
     Card
   },
+  data() {
+    return {
+      username: null,
+      password: null,
+      errorMessage: null
+    };
+  },
   methods: {
-    
+    login: async function() {
+      const data = await AuthenticationService.loginUser(
+        this.username,
+        this.password
+      );
+      if (data.success != true) {
+        console.log(data.message);
+        this.errorMessage = data.message;
+      }
+    }
   }
 };
 </script>
@@ -44,6 +62,10 @@ export default {
 }
 
 .item-container {
+  &:not(:last-child) {
+    margin-bottom: 1.5rem;
+  }
+
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -51,11 +73,12 @@ export default {
 }
 .login-items {
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
   flex-direction: column;
   align-items: center;
-  height: 20rem;
+  margin: 2rem 0;
+  // height: 15rem;
 }
 
 .login-field {
@@ -82,10 +105,10 @@ export default {
       border: 1px solid $color-primary;
     }
   }
+}
 
-  &:not(:last-child) {
-    margin-bottom: 1rem;
-  }
+.errorText {
+  margin-bottom: 1rem;
 }
 </style>
 
