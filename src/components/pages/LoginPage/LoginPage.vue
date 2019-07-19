@@ -6,11 +6,11 @@
         <div class="login-items">
           <div class="login-field">
             <h3>Username/Email</h3>
-            <input />
+            <input v-model="username" />
           </div>
           <div class="login-field">
             <h3>Password</h3>
-            <input type="password" />
+            <input v-model="password" type="password" />
           </div>
         </div>
         <p class="errorText">{{errorMessage}}</p>
@@ -22,7 +22,6 @@
 
 <script>
 import Card from "@/components/layout/Card";
-import AuthenticationService from "@/services/AuthenticationService";
 
 export default {
   components: {
@@ -37,13 +36,14 @@ export default {
   },
   methods: {
     login: async function() {
-      const data = await AuthenticationService.loginUser(
-        this.username,
-        this.password
-      );
-      if (data.success != true) {
-        console.log(data.message);
-        this.errorMessage = data.message;
+      const username = this.username;
+      const password = this.password;
+      try {
+        await this.$store.dispatch("login", { username, password });
+        this.$router.push("/");
+      } catch (err) {
+        this.errorMessage = err.message;
+        console.log(err);
       }
     }
   }
