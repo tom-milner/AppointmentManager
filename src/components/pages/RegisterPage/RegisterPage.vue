@@ -30,7 +30,7 @@
           </div>
         </div>
         <p class="errorText" v-html="errorMessage" />
-        <button class="primary-btn" v-on:click="signUp()">Submit</button>
+        <button class="primary-btn" v-on:click="register()">Submit</button>
       </div>
     </card>
   </div>
@@ -63,10 +63,10 @@ export default {
         this.password == this.confirmPassword ? true : false;
       console.log(this.passwordsMatch);
     },
-    signUp: async function() {
+    register: async function() {
       console.log(this.passwordsMatch);
       if (this.passwordsMatch) {
-        const data = await AuthenticationService.signUpUser({
+        const data = await AuthenticationService.registerUser({
           username: this.username,
           password: this.password,
           firstname: this.firstname,

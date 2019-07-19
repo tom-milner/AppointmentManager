@@ -5,7 +5,7 @@
         <h1 class="heading-1">Appointment Manager</h1>
         <div class="options-container">
           <router-link to="/login" class="primary-btn">Login</router-link>
-          <router-link to="/signup" class="primary-btn">Sign Up</router-link>
+          <router-link to="/register" class="primary-btn">Register</router-link>
           <router-link to="/guest" class="primary-btn">Guest</router-link>
         </div>
       </div>

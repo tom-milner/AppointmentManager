@@ -39,7 +39,10 @@ export default {
       const username = this.username;
       const password = this.password;
       try {
-        await this.$store.dispatch("login", { username, password });
+        await this.$store.dispatch("authentication/login", {
+          username,
+          password
+        });
         this.$router.push("/");
       } catch (err) {
         this.errorMessage = err.message;

@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import AdminPage from '@/components/pages/AdminPage/AdminPage.vue'
 import LandingPage from '@/components/pages/LandingPage/LandingPage.vue'
 import LoginPage from '@/components/pages/LoginPage/LoginPage.vue'
-import SignUpPage from "@/components/pages/SignUpPage/SignUpPage.vue"
+import RegisterPage from "@/components/pages/RegisterPage/RegisterPage.vue"
 
 // Sets up the different frontend routes 
 // e.g. /login will lead to the login page
@@ -27,9 +27,9 @@ export default new Router({
       component: LoginPage
     },
     {
-      path: "/signup",
-      name: "SignUpPage",
-      component: SignUpPage
+      path: "/register",
+      name: "RegisterPage",
+      component: RegisterPage
     }
   ]
 })

@@ -30,7 +30,7 @@ export default {
   },
 
   // Register User
-  signUpUser(user) {
+  registerUser(user) {
     // Send post request to register route
     return Api().post("/auth/register", user)
       .then(function (res) {
