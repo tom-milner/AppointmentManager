@@ -4,10 +4,17 @@ const UserModel = require("../models/UserModel");
 
 // Give client a token for validation in other parts of the API
 function jwtSignUser(user) {
-  const oneDay = 60 * 60 * 24 * 7;
+  const oneDay = 60 * 60 * 24;
+  const tenSeconds = 10;
+
+  const tokenPayload = {
+    username: user.username,
+    email: user.email,
+    role: user.role
+  }
   // Create token
-  var token = jwt.sign(user, process.env.JWT_SECRET, {
-    expiresIn: oneDay
+  var token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
+    expiresIn: tenSeconds
   });
   return token;
 }
