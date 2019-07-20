@@ -10,16 +10,15 @@ async function initialize(url) {
     return false;
   }
 
-  try {
-    // connect to database
-    mongoose.connect(url);
+  // connect to database
+  return mongoose.connect(url).then(function (res) {
     return true;
-  } catch (error) {
+  }).catch(function (err) {
     console.log(`Error connecting to MongoDB database at ${url}`);
-    console.log(error);
-  }
+    console.log(err);
+    return false;
+  });
 
-  return false;
 }
 
 module.exports = {

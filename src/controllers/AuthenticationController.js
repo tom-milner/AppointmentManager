@@ -15,12 +15,16 @@ function jwtSignUser(user) {
 // sign up a new user
 async function register(req, res) {
   try {
+    let data = req.body;
+    if (!data.email || !data.username || !data.firstname || !data.lastname || !data.password) {
+      throw "All fields are required";
+    }
+
     // create user
     let newUser = new UserModel({
       email: req.body.email,
       username: req.body.username
     });
-
     // Hash password and store in database.
     // First, generate salt. saltRounds is the cost factor of hashing algorithm.
     // For example, a saltRounds of 10 will mean that the bcrypt calculation is performed 2^10 (1024) times.
@@ -34,32 +38,32 @@ async function register(req, res) {
     newUser.password = hash;
 
     // Save user to database
-    newUser.save(function(err, newUser) {
-      if (err) {
-        if (err.code == 11000) {
-          throw "User already exists.";
-        }
-        console.log(err);
-        throw "Error saving user.";
-      }
-      // Return newly created user
-      res.send({
-        success: true,
-        message: "User added.",
-        user: {
-          email: newUser.email,
-          username: newUser.username,
-          role: newUser.role,
-          id: newUser._id
-        },
-        // Sign user with new token
-        token: jwtSignUser(newUser.toJSON())
-      });
+    const savedUser = await newUser.save();
+
+    // Return newly created user
+    res.send({
+      success: true,
+      message: "User added.",
+      user: {
+        email: savedUser.email,
+        username: savedUser.username,
+        role: savedUser.role,
+        id: savedUser._id
+      },
+      // Sign user with new token
+      token: jwtSignUser(savedUser.toJSON())
     });
-  } catch (errorMessage) {
-    res.status(500).send({
+  } catch (err) {
+    let errorMessage = "Error registering user.";
+    let errorStatusCode = 500;
+    if (err.code == 11000) {
+      errorMessage = "User already exists.";
+      errorStatusCode = 409;
+    }
+    console.log(err.message);
+    res.status(errorStatusCode).send({
       success: false,
-      message: errorMessage || "Error registering user."
+      message: errorMessage
     });
   }
 }
@@ -67,38 +71,52 @@ async function register(req, res) {
 // Login the client and provide them with an access token
 async function login(req, res) {
   try {
-    const { inputUsername, password } = req.body;
+    const {
+      username,
+      password
+    } = req.body;
+
+    console.log(req.body);
 
     // Find matching users in database
     const userMatches = await UserModel.find({
-      // username: inputUsername
+      username: username
     });
 
     // Only 1 user should be found - use 0th term just in case
     const user = userMatches[0];
-
-    console.log(userMatches);
-
     // Check user exists
     if (!user) {
-      return res.status(403).send({
-        error: "Incorrect login information."
+      return res.status(401).send({
+        success: false,
+        message: "Incorrect login information."
       });
     }
+
 
     // Hash password and check against hash in database
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(403).send({
-        error: "Incorrect password."
+      res.status(401).send({
+        success: false,
+        message: "Incorrect password."
       });
+      return;
     }
 
-    let { username, email, _id } = user;
+    let {
+      email,
+      _id
+    } = user;
+
+
+    console.log(user);
 
     // return user with new access token.
     res.send({
+      success: true,
+      message: "User logged in",
       user: {
         username,
         email,
@@ -107,9 +125,11 @@ async function login(req, res) {
       token: jwtSignUser(user.toJSON())
     });
   } catch (err) {
-    console.log(err);
+    console.log(err.message);
     res.status(500).send({
-      error: "An error has occured."
+      success: false,
+      // Generic error message so as to not revela too much about the login process.
+      message: "An error has occured."
     });
   }
 }

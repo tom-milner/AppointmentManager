@@ -4,10 +4,10 @@ function register(req, res, next) {
 
   const joiSchema = {
     username: Joi.string().min(1).max(50).required(),
+    firstname: Joi.string().min(1).max(50).required(),
+    lastname: Joi.string().min(1).max(50).required(),
     email: Joi.string().email().required(),
-    password: Joi.string().regex(
-      new RegExp("^[a-zA-Z0-9]{5,32}$")
-    ).required()
+    password: Joi.string().min(8).max(32).required()
   }
 
   const {
@@ -20,14 +20,16 @@ function register(req, res, next) {
     switch (error.details[0].context.key) {
       case "email":
         res.status(400).send({
-          error: "You must provide a valid email address"
+          success: false,
+          message: "You must provide a valid email address"
         });
         break;
       case "password":
         res.status(400).send({
-          error: `The password provided failed to match the following rules: 
+          success: false,
+          message: `The password provided failed to match the following rules: 
                         <br>
-                        1. It must contain ONLY the following characters: lower case, upper case, numerics.
+                        1. It must contain ONLY the following characters: lower case, upper case, numerics, and punctuation.
                         <br>
                         2. It must be at least 8 characters in length and not greater than 32 characters in length.
                         `
@@ -35,9 +37,10 @@ function register(req, res, next) {
         break;
 
       default:
-        console.log(error.details[0].message)
+        console.log(error.details)
         res.status(400).send({
-          error: "Invalid information"
+          success: false,
+          message: error.details[0].message
         });
     }
   } else {
