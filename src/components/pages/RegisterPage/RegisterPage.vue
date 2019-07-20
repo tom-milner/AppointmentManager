@@ -78,7 +78,7 @@ export default {
           await this.$store.dispatch("authentication/register", newUser);
 
           // redirect user to home page
-          this.$router.push("/");
+          this.$router.push("/home");
 
           // catch and display errors
         } catch (err) {

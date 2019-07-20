@@ -2,13 +2,19 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store/store'
-import axios from "axios";
+import AuthenticationService from "@/services/AuthenticationService";
 
-// Check to see if user already has valid token.
-const token = localStorage.getItem("token");
-if (token) {
-  axios.defaults.headers.common["Authorization"] = token;
-}
+
+
+// check to see if the user already has a token stored from a past session
+AuthenticationService.initialTokenCheck();
+
+// setup navigation guard
+AuthenticationService.initializeNavigationGuard();
+
+// setup 401 interceptor
+// expiredTokenInterceptor();
+
 
 Vue.config.productionTip = false
 
@@ -19,3 +25,7 @@ new Vue({
   store,
   render: h => h(App)
 }).$mount('#app')
+
+
+
+// helper methods for intializing auth

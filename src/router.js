@@ -4,13 +4,15 @@ import AdminPage from '@/components/pages/AdminPage/AdminPage.vue'
 import LandingPage from '@/components/pages/LandingPage/LandingPage.vue'
 import LoginPage from '@/components/pages/LoginPage/LoginPage.vue'
 import RegisterPage from "@/components/pages/RegisterPage/RegisterPage.vue"
-
+import HomePage from "@/components/pages/HomePage/HomePage.vue";
 // Sets up the different frontend routes 
 // e.g. /login will lead to the login page
 
 Vue.use(Router)
 
-export default new Router({
+// define the routes for the app.
+let router = new Router({
+  mode: "history",
   routes: [{
       path: '/admin',
       name: 'AdminPage',
@@ -30,6 +32,17 @@ export default new Router({
       path: "/register",
       name: "RegisterPage",
       component: RegisterPage
+    },
+    {
+      path: "/home",
+      name: "HomePage",
+      component: HomePage,
+      meta: {
+        requiresAuth: true
+      }
     }
   ]
-})
+});
+
+
+export default router;

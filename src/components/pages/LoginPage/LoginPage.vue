@@ -43,7 +43,7 @@ export default {
           username,
           password
         });
-        this.$router.push("/");
+        this.$router.push("/home");
       } catch (err) {
         this.errorMessage = err.message;
       }

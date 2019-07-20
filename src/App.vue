@@ -8,3 +8,7 @@
 <style lang="scss">
 @import "src/scss/global";
 </style>
+
+<script>
+export default {};
+</script>

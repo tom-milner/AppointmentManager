@@ -10,7 +10,10 @@ const state = {
 // changes the state
 const mutations = {
   // authentication mutations
-  auth_success(state, token, user) {
+  auth_success(state, {
+    token,
+    user
+  }) {
     state.token = token;
     state.user = user;
     state.status = "success";
@@ -30,7 +33,12 @@ const mutations = {
 // calls mutations
 const actions = {
   // action to login user
-  async login({ commit }, { username, password }) {
+  async login({
+    commit
+  }, {
+    username,
+    password
+  }) {
     // return a promise for easier error handling.
     // call "auth_request" action
     commit("auth_request");
@@ -43,7 +51,10 @@ const actions = {
       const token = response.token;
       const user = response.user;
       // store token and current user in store
-      commit("auth_success", token, user);
+      commit("auth_success", {
+        token,
+        user
+      });
       return response;
     } catch (err) {
       commit("auth_error");
@@ -52,7 +63,9 @@ const actions = {
   },
 
   // action to register user
-  async register({ commit }, newUser) {
+  async register({
+    commit
+  }, newUser) {
     commit("auth_request");
     try {
       // attempt to register user
@@ -60,13 +73,29 @@ const actions = {
       const token = result.token;
       const user = result.user;
       // store token and new user in store
-      commit("auth_success", token, user);
+      commit("auth_success", {
+        token,
+        user
+      });
       return result;
     } catch (err) {
       throw err;
     }
-  }
+  },
+
+  logout({
+    commit
+  }) {
+    commit("auth_logout");
+    return AuthenticationService.logoutUser();
+  },
 };
+
+
+const getters = {
+  isLoggedIn: state => !!state.token, // will return true if logged in
+  authStatus: state => state.status,
+}
 
 export const authentication = {
   // "namespaced: true" makes the store modular - properties will have to be accessed via paths
@@ -74,5 +103,6 @@ export const authentication = {
   namespaced: true,
   state,
   actions,
+  getters,
   mutations
 };
