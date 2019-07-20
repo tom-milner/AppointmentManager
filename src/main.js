@@ -13,7 +13,10 @@ AuthenticationService.initialTokenCheck();
 AuthenticationService.initializeNavigationGuard();
 
 // setup 401 interceptor
-// expiredTokenInterceptor();
+AuthenticationService.accessDeniedResponseInterceptor();
+
+// setup token refresher
+AuthenticationService.setupTokenRefresher();
 
 
 Vue.config.productionTip = false
@@ -25,7 +28,3 @@ new Vue({
   store,
   render: h => h(App)
 }).$mount('#app')
-
-
-
-// helper methods for intializing auth

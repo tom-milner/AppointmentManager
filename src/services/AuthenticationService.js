@@ -2,6 +2,7 @@ import Api from "@/services/Api.js";
 import Axios from "axios";
 import store from "@/store/store";
 import router from "@/router";
+
 // Helper functions
 function useToken(token) {
   localStorage.setItem("token", token);
@@ -61,7 +62,8 @@ export default {
     }
   },
 
-  // These functions are ran automatically
+  // These functions are run automatically (They also require more imports)
+  // TODO: split into seperate class
 
   // initial check when user first accesses app
   initialTokenCheck() {
@@ -73,7 +75,7 @@ export default {
   },
 
   // intercept 401 responses (expired token) and redirect to login page
-  expiredTokenInterceptor() {
+  accessDeniedResponseInterceptor() {
     Axios.interceptors.response.use(undefined, function (err) {
       // check to see if the error from the server is a 401 error
       if (err.status === 401 && err.config && !err.config.__isRetryRequest) {
@@ -86,8 +88,17 @@ export default {
     });
   },
 
+  // intercept requests and check if token is still valid.
+  setupTokenRefresher() {
+    Axios.interceptors.request.use(function (config) {
+      console.log(config);
+      return config;
+    }, function (err) {
+      return Promise.reject(err);
+    });
+  },
+
   initializeNavigationGuard() {
-    console.log(this);
     // Handle unauthorized access
     // This is a navigation guard. It is called every time the user tries to navigate to a different route.
     // It takes the route the user is going to, the route the user came from, and a function called next.

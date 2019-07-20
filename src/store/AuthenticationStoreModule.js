@@ -24,7 +24,7 @@ const mutations = {
   auth_error(state) {
     state.status = "error";
   },
-  logout(state) {
+  auth_logout(state) {
     state.status = "";
     state.token = "";
   }
