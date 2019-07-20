@@ -38,7 +38,6 @@
 
 <script>
 import Card from "@/components/layout/Card";
-import AuthenticationService from "@/services/AuthenticationService";
 
 export default {
   components: {
@@ -64,20 +63,29 @@ export default {
       console.log(this.passwordsMatch);
     },
     register: async function() {
-      console.log(this.passwordsMatch);
       if (this.passwordsMatch) {
-        const data = await AuthenticationService.registerUser({
+        // create user object to send
+        const newUser = {
           username: this.username,
+          email: this.email,
           password: this.password,
           firstname: this.firstname,
-          lastname: this.lastname,
-          email: this.email
-        });
-        if (data.success) {
-          console.log(data);
-        } else {
-          console.log(data);
-          this.errorMessage = data.message;
+          lastname: this.lastname
+        };
+
+        try {
+          // call the store authentication module to register the user.
+          await this.$store.dispatch("authentication/register", newUser);
+
+          // redirect user to home page
+          this.$router.push("/");
+
+          // catch and display errors
+        } catch (err) {
+          if (err.message != null) {
+            this.errorMessage = "Error registering user";
+          }
+          this.errorMessage = err.message;
         }
       } else {
         this.errorMessage = "Passwords don't match";

@@ -1,45 +1,48 @@
 import Api from "@/services/Api.js";
 import Axios from "axios";
 
-export default {
+// Helper functions
+function storeToken(token) {
+  localStorage.setItem("token", token);
+  Axios.defaults.headers.common["Authorization"] = token;
+}
 
+function removeToken() {
+  localStorage.removeItem("token");
+}
+
+export default {
   // Login user
-  loginUser(username, password) {
-    return new Promise((resolve, reject) => {
-      // Send post request to login route
-      console.log(username, password);
-      return Api().post("/auth/login", {
+  async loginUser(username, password) {
+    // Send post request to login route
+    console.log(username, password);
+    try {
+      const result = await Api().post("/auth/login", {
         username: username,
         password: password
-      }).then((result) => {
-        console.log(result.data);
-        // store token in axios headers and local storage.
-        const token = result.data.token;
-        localStorage.setItem("token", token);
-        Axios.defaults.headers.common["Authorization"] = token;
-        resolve(result.data);
-      }).catch((err) => {
-        console.log(err.response.data);
-        // remove token from storage - it must've expired
-        localStorage.removeItem("token");
-        reject(err.response.data);
       });
-    });
-
-
+      console.log(result.data);
+      // store token in axios headers and local storage.
+      storeToken(result.data.token);
+      return result.data;
+    } catch (err) {
+      console.log(err.response.data);
+      // invalid token - remove it from storage
+      removeToken();
+      throw err.response.data;
+    }
   },
 
   // Register User
-  registerUser(user) {
-    // Send post request to register route
-    return Api().post("/auth/register", user)
-      .then(function (res) {
-        console.log(res.data);
-        return res.data;
-      })
-      .catch(function (err) {
-        console.log(err);
-        return err.response.data;
-      });
+  async registerUser(user) {
+    try {
+      // Send post request to register route
+      const result = await Api().post("/auth/register", user);
+      storeToken(result.data.token);
+      return result.data;
+    } catch (err) {
+      console.log(err.response);
+      throw err.response.data;
+    }
   }
-}
+};
