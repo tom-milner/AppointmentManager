@@ -4,13 +4,24 @@ import store from "@/store/store";
 import router from "@/router";
 
 // Helper functions
-function useToken(token) {
+function setUserData(token, user) {
   localStorage.setItem("token", token);
+  localStorage.setItem("user", JSON.stringify(user));
   Axios.defaults.headers.common["Authorization"] = token;
 }
 
-function removeToken() {
+function getUserData() {
+  const token = localStorage.getItem("token");
+  const user = JSON.parse(localStorage.getItem("user"));
+  return {
+    token,
+    user
+  };
+}
+
+function removeUserData() {
   localStorage.removeItem("token");
+  localStorage.removeItem("user");
   delete Axios.defaults.headers.common["Authorization"];
 }
 
@@ -28,12 +39,12 @@ export default {
       });
       console.log(result.data);
       // store token in axios headers and local storage.
-      useToken(result.data.token);
+      setUserData(result.data.token, result.data.user);
       return result.data;
     } catch (err) {
       console.log(err.response.data);
       // invalid token - remove it from storage
-      removeToken();
+      removeUserData();
       throw err.response.data;
     }
   },
@@ -43,7 +54,7 @@ export default {
     try {
       // Send post request to register route
       const result = await Api().post("/auth/register", user);
-      useToken(result.data.token);
+      setUserData(result.data.token, result.data.user);
       return result.data;
     } catch (err) {
       console.log(err.response);
@@ -54,7 +65,7 @@ export default {
   // Logout User
   logoutUser() {
     try {
-      removeToken();
+      removeUserData();
       return true;
     } catch (err) {
       console.log(err);
@@ -66,11 +77,19 @@ export default {
   // TODO: split into seperate class
 
   // initial check when user first accesses app
-  initialTokenCheck() {
-    // Check to see if user already has valid token in storage.
-    const token = localStorage.getItem("token");
-    if (token) {
-      useToken(token);
+  initialPersistenceCheck() {
+    // Check to see if user already has valid token and user info in storage.
+    const {
+      token,
+      user
+    } = getUserData();
+    console.log(token);
+    console.log(user);
+    if (token && user) {
+      store.commit("authentication/auth_success", {
+        user,
+        token
+      })
     }
   },
 

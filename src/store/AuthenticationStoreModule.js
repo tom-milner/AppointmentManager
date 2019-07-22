@@ -1,15 +1,17 @@
 import AuthenticationService from "@/services/AuthenticationService";
 
 // This file contains all the authentication state management.
-// Data to be made persistent
+
+
+// The data to be kept in the store.
 const state = {
-  token: localStorage.getItem("token") || "",
+  token: "",
   user: {}
 };
 
-// changes the state
+// Mutations are methods to be ran whenever a state change is needed.
 const mutations = {
-  // authentication mutations
+  // stores token and user in store to be used by other services.
   auth_success(state, {
     token,
     user
@@ -18,19 +20,23 @@ const mutations = {
     state.user = user;
     state.status = "success";
   },
+
+  // changes the status to "loading" so any dependent services know to wait.
   auth_request(state) {
     state.status = "loading";
   },
   auth_error(state) {
     state.status = "error";
   },
+
+  // resets token and user
   auth_logout(state) {
     state.status = "";
     state.token = "";
   }
 };
 
-// calls mutations
+// Actions are used to call mutations. They defer from mutations by having the possibility of being asynchronous.
 const actions = {
   // action to login user
   async login({
@@ -39,8 +45,7 @@ const actions = {
     username,
     password
   }) {
-    // return a promise for easier error handling.
-    // call "auth_request" action
+    // call "auth_request" mutation so that any service depending on the user token knows the authentication process is underway.
     commit("auth_request");
     // attempt to login user
     try {
@@ -79,6 +84,7 @@ const actions = {
       });
       return result;
     } catch (err) {
+      commit("auth_error")
       throw err;
     }
   },
