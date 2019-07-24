@@ -1,4 +1,4 @@
-import AuthenticationService from "@/services/AuthenticationService";
+import UserService from "@/services/UserService";
 
 // This file contains all the authentication state management.
 
@@ -49,7 +49,7 @@ const actions = {
     commit("auth_request");
     // attempt to login user
     try {
-      const response = await AuthenticationService.loginUser(
+      const response = await UserService.loginUser(
         username,
         password
       );
@@ -74,7 +74,7 @@ const actions = {
     commit("auth_request");
     try {
       // attempt to register user
-      const result = await AuthenticationService.registerUser(newUser);
+      const result = await UserService.registerUser(newUser);
       const token = result.token;
       const user = result.user;
       // store token and new user in store
@@ -93,7 +93,7 @@ const actions = {
     commit
   }) {
     commit("auth_logout");
-    return AuthenticationService.logoutUser();
+    return UserService.logoutUser();
   },
 };
 

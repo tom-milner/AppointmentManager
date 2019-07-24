@@ -13,16 +13,9 @@ AuthenticationService.initialPersistenceCheck();
 // setup navigation guard
 AuthenticationService.initializeNavigationGuard();
 
-// setup 401 interceptor
-AuthenticationService.accessDeniedResponseInterceptor();
 
-// setup token refresher
-AuthenticationService.setupTokenRefresher();
-// #######################################################################
 
 Vue.config.productionTip = false
-
-
 
 new Vue({
   router,

@@ -4,11 +4,11 @@ export default {
 
   // Fetch all available appointments
   getAllAppointments() {
-    return Api().get("/appointments");
+    return Api.get("/appointments");
   },
 
   // Get appointments of user
   getAppointmentsOfUser(userId) {
-    return Api().get(`/appointments/${userId}`);
+    return Api.get(`/appointments/${userId}`);
   }
 }
