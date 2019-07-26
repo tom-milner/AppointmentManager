@@ -33,6 +33,11 @@ const mutations = {
   auth_logout(state) {
     state.status = "";
     state.token = "";
+  },
+
+  token_refresh(state, token) {
+    state.status = "success";
+    state.token = token
   }
 };
 
@@ -53,6 +58,7 @@ const actions = {
         username,
         password
       );
+      console.log(response);
       const token = response.token;
       const user = response.user;
       // store token and current user in store
