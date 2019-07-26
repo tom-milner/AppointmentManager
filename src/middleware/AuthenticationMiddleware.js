@@ -4,17 +4,16 @@ const jwt = require("jsonwebtoken"); // used for using token based authenticatio
 // middleware for checking user access
 function isLoggedIn(req, res, next) {
   // check header for token
-  var token = req.headers["authorization"];
+  var token = req.headers.authorization
 
   // decode token (if present)
   if (token) {
     token = token.replace("Bearer ", "");
-
     // validate secret
-    jwt.verify(token, process.env.JWT_SECRET, function(err, decoded) {
+    jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
       if (err) {
         // return error if token isn't valid
-        return res.json({
+        return res.status(401).json({
           success: false,
           error: "Failed to authenticate token"
         });
@@ -38,7 +37,7 @@ function isLoggedIn(req, res, next) {
 
 // middleware check if the user is required to access the given route
 function roleCheck(role) {
-  return function(req, res, next) {
+  return function (req, res, next) {
     // if user is below required role / access level, return an error and deny access.
     if (req.user.role < role) {
       // deny access

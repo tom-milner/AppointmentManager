@@ -1,20 +1,22 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const UserModel = require("../models/UserModel");
+const Utils = require("../utils/Utils");
 
 // Give client a token for validation in other parts of the API
 function jwtSignUser(user) {
   const oneDay = 60 * 60 * 24;
-  const tenSeconds = 10;
+  const expirationTime = oneDay;
 
   const tokenPayload = {
+    id: user.id,
     username: user.username,
     email: user.email,
     role: user.role
   }
   // Create token
   var token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
-    expiresIn: tenSeconds
+    expiresIn: expirationTime
   });
   return token;
 }
@@ -118,7 +120,6 @@ async function login(req, res) {
     } = user;
 
 
-    console.log(user);
 
     // return user with new access token.
     res.send({
@@ -135,13 +136,40 @@ async function login(req, res) {
     console.log(err.message);
     res.status(500).send({
       success: false,
-      // Generic error message so as to not revela too much about the login process.
+      // Generic error message so as to not reveal too much about the login process.
       message: "An error has occured."
+    });
+  }
+}
+
+async function refreshToken(req, res) {
+  try {
+    // deconstruct existing token to get user data
+    const token = req.headers.authorization
+    const tokenPayload = token.split(".")[1];
+    const decodedTokenPayload = JSON.parse(Utils.base64Decode(tokenPayload));
+    // create new token with user info
+    let user = {
+      username: decodedTokenPayload.username,
+      email: decodedTokenPayload.email,
+      role: decodedTokenPayload.role
+    };
+    const newToken = jwtSignUser(user);
+
+    // return new token
+    res.status(200).send({
+      token: newToken
+    })
+  } catch (err) {
+    res.status(500).send({
+      success: false,
+      message: "An error occured refreshing the token."
     });
   }
 }
 
 module.exports = {
   register,
-  login
+  login,
+  refreshToken
 };
