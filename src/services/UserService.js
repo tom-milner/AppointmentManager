@@ -35,7 +35,6 @@ async function loginUser(username, password) {
       username: username,
       password: password
     });
-    console.log(result);
     // store token in axios headers and local storage.
     setUserData(result.data.token, result.data.user);
     return result.data;

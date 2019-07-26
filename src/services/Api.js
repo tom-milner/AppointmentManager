@@ -10,7 +10,7 @@ axiosInstance.interceptors.request.use(AuthenticationService.setupTokenRefresher
   return Promise.reject(err);
 });
 
-axiosInstance.interceptors.response.use(undefined, AuthenticationService.setupAccessDeniedResponseInterceptor());
+axiosInstance.interceptors.response.use(undefined, AuthenticationService.setupAccessDeniedResponseInterceptor);
 // object to use for any api interactions
 
 export default axiosInstance;

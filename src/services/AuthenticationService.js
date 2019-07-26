@@ -46,32 +46,31 @@ function setupTokenRefresher() {
     let {
       token
     } = UserService.getUserData();
-
-    console.log(token);
-
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     } else {
       // request new token
+      console.log("need new token!!");
     }
     return config;
   }
 }
 
 // intercept 401 responses (expired token) and redirect to login page
-function setupAccessDeniedResponseInterceptor() {
+function setupAccessDeniedResponseInterceptor(err) {
+  console.log(err);
+  // check to see if the error from the server is a 401 error
+  if (err.status === 401 && err.config && !err.config.__isRetryRequest) {
+    // token must be expired - clear token in store
+    Store.dispatch("authentication/logout");
+    console.log("unauthorised!!")
 
-  return (err) => {
-    // check to see if the error from the server is a 401 error
-    if (err.status === 401 && err.config && !err.config.__isRetryRequest) {
-      // token must be expired - clear token in store
-      Store.dispatch("authentication/logout");
-      // We don't have to redirect the user to the login page - the router navigation guard will detect the absence of a cookie and redirect for us.
-    }
-    // return the error 
-    throw Promise.reject(err);
+    // We don't have to redirect the user to the login page - the router navigation guard will detect the absence of a cookie and redirect for us.
   }
+  // return the error 
+  throw Promise.reject(err);
 }
+
 
 // expose functions
 export default {
