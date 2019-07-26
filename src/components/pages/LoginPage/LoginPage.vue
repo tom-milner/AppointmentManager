@@ -22,7 +22,7 @@
 
 <script>
 import Card from "@/components/layout/Card";
-
+import UserService from "@/services/UserService";
 export default {
   components: {
     Card
@@ -39,10 +39,7 @@ export default {
       const username = this.username;
       const password = this.password;
       try {
-        await this.$store.dispatch("authentication/login", {
-          username,
-          password
-        });
+        await UserService.loginUser(username, password);
         this.$router.push("/home");
       } catch (err) {
         console.log(err);

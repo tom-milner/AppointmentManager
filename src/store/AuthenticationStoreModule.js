@@ -1,12 +1,10 @@
-import UserService from "@/services/UserService";
-
 // This file contains all the authentication state management.
 
 
 // The data to be kept in the store.
 const state = {
-  token: "",
-  user: {}
+  token: "" || localStorage.getItem("token"),
+  user: JSON.parse(localStorage.getItem("user"))
 };
 
 // Mutations are methods to be ran whenever a state change is needed.
@@ -19,6 +17,9 @@ const mutations = {
     state.token = token;
     state.user = user;
     state.status = "success";
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
+
   },
 
   // changes the status to "loading" so any dependent services know to wait.
@@ -33,74 +34,15 @@ const mutations = {
   auth_logout(state) {
     state.status = "";
     state.token = "";
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   },
 
   token_refresh(state, token) {
     state.status = "success";
-    state.token = token
+    state.token = token;
+    localStorage.setItem("token", token);
   }
-};
-
-// Actions are used to call mutations. They defer from mutations by having the possibility of being asynchronous.
-const actions = {
-  // action to login user
-  async login({
-    commit
-  }, {
-    username,
-    password
-  }) {
-    // call "auth_request" mutation so that any service depending on the user token knows the authentication process is underway.
-    commit("auth_request");
-    // attempt to login user
-    try {
-      const response = await UserService.loginUser(
-        username,
-        password
-      );
-      console.log(response);
-      const token = response.token;
-      const user = response.user;
-      // store token and current user in store
-      commit("auth_success", {
-        token,
-        user
-      });
-      return response;
-    } catch (err) {
-      commit("auth_error");
-      throw err;
-    }
-  },
-
-  // action to register user
-  async register({
-    commit
-  }, newUser) {
-    commit("auth_request");
-    try {
-      // attempt to register user
-      const result = await UserService.registerUser(newUser);
-      const token = result.token;
-      const user = result.user;
-      // store token and new user in store
-      commit("auth_success", {
-        token,
-        user
-      });
-      return result;
-    } catch (err) {
-      commit("auth_error")
-      throw err;
-    }
-  },
-
-  logout({
-    commit
-  }) {
-    commit("auth_logout");
-    return UserService.logoutUser();
-  },
 };
 
 
@@ -114,7 +56,6 @@ export const authentication = {
   // e.g.  authentication/auth_success
   namespaced: true,
   state,
-  actions,
   getters,
   mutations
 };

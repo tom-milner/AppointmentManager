@@ -1,59 +1,52 @@
 // This file contains functions for all user actions.
 
 import Api from "@/services/Api.js";
-
-
-// Helper functions
-function setUserData(token, user) {
-  localStorage.setItem("token", token);
-  localStorage.setItem("user", JSON.stringify(user));
-}
-
-function getUserData() {
-  const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user"));
-  return {
-    token,
-    user
-  };
-}
-
-function removeUserData() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-  delete Api.defaults.headers.common["Authorization"];
-}
+import Store from "@/store/store";
 
 
 // These function are triggered by user events
 // Login user
 async function loginUser(username, password) {
   // Send post request to login route
-  console.log(username, password);
+  Store.commit("authentication/auth_request");
   try {
     const result = await Api.post("/auth/login", {
       username: username,
       password: password
     });
-    // store token in axios headers and local storage.
-    setUserData(result.data.token, result.data.user);
-    return result.data;
+    const token = result.data.token;
+    const user = result.data.user;
+    // store token in store
+    Store.commit("authentication/auth_success", {
+      token,
+      user
+    });
+    console.log(Store.state.authentication.user);
+    return result;
   } catch (err) {
     console.log(err.response.data);
+    Store.commit("authentication/auth_error")
     // invalid token - remove it from storage
-    removeUserData();
     throw err.response.data;
   }
 }
 
 // Register User
-async function registerUser(user) {
+async function registerUser(newUser) {
+  Store.commit("authentication/auth_request");
   try {
     // Send post request to register route
-    const result = await Api.post("/auth/register", user);
-    setUserData(result.data.token, result.data.user);
-    return result.data;
+    const result = await Api.post("/auth/register", newUser);
+    const token = result.token;
+    const user = result.user;
+
+    // store info in store 
+    Store.commit("authentication/auth_success", {
+      token,
+      user
+    });
   } catch (err) {
+    Store.commit("authentication/auth_error");
     console.log(err.response);
     throw err.response.data;
   }
@@ -62,18 +55,15 @@ async function registerUser(user) {
 // Logout User
 function logoutUser() {
   try {
-    removeUserData();
-    return true;
+    Store.commit("authentication/auth_logout");
   } catch (err) {
+    Store.commit("authentication/auth_error");
     console.log(err);
     return err;
   }
 }
 
 export default {
-  setUserData,
-  getUserData,
-  removeUserData,
   loginUser,
   registerUser,
   logoutUser

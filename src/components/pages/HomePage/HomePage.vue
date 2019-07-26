@@ -12,6 +12,7 @@
 <script>
 import Card from "@/components/layout/Card.vue";
 import AppointmentService from "@/services/AppointmentService";
+import UserService from "@/services/UserService";
 export default {
   components: {
     Card
@@ -19,12 +20,12 @@ export default {
 
   methods: {
     logout: async function() {
-      await this.$store.dispatch("authentication/logout");
+      UserService.logoutUser();
       this.$router.push("/");
     },
     getUserAppointments: async function() {
       this.user = this.$store.state.authentication.user;
-      console.log(this.user);
+      console.log(this.user._id);
       let response = await AppointmentService.getAppointmentsOfUser(
         this.user._id
       );

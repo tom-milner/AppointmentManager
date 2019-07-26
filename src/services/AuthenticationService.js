@@ -1,23 +1,19 @@
 import Store from "@/store/store";
 import Router from "@/router";
-import UserService from "@/services/UserService";
 import Api from "@/services/Api";
 
-// initial check when user first accesses app
-function initialPersistenceCheck() {
-  console.log("persistence check")
-  // Check to see if user already has valid token and user info in storage.
-  const {
-    token,
-    user
-  } = UserService.getUserData();
-  if (token && user) {
-    Store.commit("authentication/auth_success", {
-      user,
-      token
-    })
-  }
-}
+// // initial check when user first accesses app
+// function initialPersistenceCheck() {
+//   console.log("persistence check")
+//   // Check to see if user already has valid token and user info in storage.
+// const 
+//   if (token && user) {
+//     Store.commit("authentication/auth_success", {
+//       user,
+//       token
+//     })
+//   }
+// }
 
 function initializeNavigationGuard() {
   // Handle unauthorized access
@@ -42,8 +38,7 @@ function initializeNavigationGuard() {
 
 // intercept requests and check if token is still valid.
 async function setupTokenRefresher(config) {
-  console.log(
-    config.headers.Authorization);
+
   let token = Store.state.authentication.token;
 
   // ignore requests to register or signup routes - these are already getting new tokens.
@@ -66,10 +61,10 @@ async function setupTokenRefresher(config) {
 
   // check that token isn't already being requested
   // If token is set to expire in less than 2 seconds, renew it
-  if (timeToExpire <= 18000 && timeToExpire >= 0) {
+  const oneHour = 3600000;
+  if (timeToExpire <= oneHour && timeToExpire >= 0) {
     // let other services know token is changing 
     Store.commit("authentication/auth_request");
-    console.log("refreshing token")
 
     // here we have to set the access token manually, as we are in the process of setting up the global axios instance and so cannot access the global headers.
     let response = await Api.get("/auth/token", {
@@ -80,14 +75,12 @@ async function setupTokenRefresher(config) {
     Store.commit("authentication/token_refresh", response.data.token)
   }
   config.headers.Authorization = "Bearer " + Store.state.authentication.token;
-  console.log(config.headers.Authorization);
-  console.log(config);
+
   return config;
 }
 
 // intercept 401 responses (expired token) and redirect to login page
 function setupAccessDeniedResponseInterceptor(err) {
-  console.log(err);
   // check to see if the error from the server is a 401 error
   if (err.response.status === 401 && err.config && !err.config.__isRetryRequest) {
     // token must be expired - clear token in store
@@ -104,7 +97,7 @@ function setupAccessDeniedResponseInterceptor(err) {
 
 // expose functions
 export default {
-  initialPersistenceCheck,
+  // initialPersistenceCheck,
   initializeNavigationGuard,
   setupAccessDeniedResponseInterceptor,
   setupTokenRefresher

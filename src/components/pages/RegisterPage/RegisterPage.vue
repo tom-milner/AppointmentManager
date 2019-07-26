@@ -38,7 +38,7 @@
 
 <script>
 import Card from "@/components/layout/Card";
-
+import UserService from "@/services/UserService";
 export default {
   components: {
     Card
@@ -75,7 +75,7 @@ export default {
 
         try {
           // call the store authentication module to register the user.
-          await this.$store.dispatch("authentication/register", newUser);
+          await UserService.registerUser(newUser);
 
           // redirect user to home page
           this.$router.push("/home");
