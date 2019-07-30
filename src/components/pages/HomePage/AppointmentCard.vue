@@ -20,6 +20,7 @@ export default {
       appointmentTime: ""
     };
   },
+
   mounted() {
     let dateTime = this.moment(this.appointment.date);
     this.appointmentDate = dateTime.format("dddd Do MMMM");

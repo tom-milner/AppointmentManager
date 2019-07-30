@@ -1,8 +1,19 @@
 <template>
   <div>
     <h2 class="heading-2">Welcome, {{user.username}}</h2>
-    <div class="upcoming-appointments-container">
+    <div class="appointments-container">
       <h2 class="heading-2">Upcoming Appointments</h2>
+      <div class="scrolling-appointments">
+        <AppointmentCard
+          v-for="appointment in appointments"
+          v-bind:key="appointment._id"
+          :appointment="appointment"
+          @click.native="toggleModal()"
+        ></AppointmentCard>
+      </div>
+    </div>
+    <div class="appointments-container">
+      <h2 class="heading-2">Pending Appointments</h2>
       <div class="scrolling-appointments">
         <AppointmentCard
           v-for="appointment in appointments"
@@ -11,15 +22,30 @@
         ></AppointmentCard>
       </div>
     </div>
+    <div class="appointments-container">
+      <h2 class="heading-2">Past Appointments</h2>
+      <div class="scrolling-appointments">
+        <AppointmentCard
+          v-for="appointment in appointments"
+          v-bind:key="appointment._id"
+          :appointment="appointment"
+        ></AppointmentCard>
+      </div>
+    </div>
+    <Modal v-on:close-modal="toggleModal()" v-if="modalDisplayed">
+      <h1 class="heading-1">Appointment</h1>
+    </Modal>
   </div>
 </template>
 
 <script>
 import AppointmentCard from "@/components/pages/HomePage/AppointmentCard.vue";
+import Modal from "@/components/layout/Modal";
 import AppointmentService from "@/services/AppointmentService";
 export default {
   components: {
-    AppointmentCard
+    AppointmentCard,
+    Modal
   },
 
   methods: {
@@ -29,12 +55,16 @@ export default {
         this.user._id
       );
       this.appointments = response.data.appointments;
+    },
+    toggleModal: function() {
+      this.modalDisplayed = !this.modalDisplayed;
     }
   },
   data() {
     return {
       appointments: null,
-      user: {}
+      user: {},
+      modalDisplayed: true
     };
   },
   mounted: function() {
@@ -45,7 +75,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.upcoming-appointments-container {
+.appointments-container {
   margin-top: 5rem;
   overflow: hidden;
 }

@@ -1,19 +1,8 @@
 import Store from "@/store/store";
 import Router from "@/router";
 import Api from "@/services/Api";
+import UserService from "@/services/UserService";
 
-// // initial check when user first accesses app
-// function initialPersistenceCheck() {
-//   console.log("persistence check")
-//   // Check to see if user already has valid token and user info in storage.
-// const 
-//   if (token && user) {
-//     Store.commit("authentication/auth_success", {
-//       user,
-//       token
-//     })
-//   }
-// }
 
 function initializeNavigationGuard() {
   // Handle unauthorized access
@@ -46,46 +35,49 @@ async function setupTokenRefresher(config) {
   if ((config.url).includes("login") || (config.url).includes("register") || !token || Store.state.authentication.status == "loading") {
     return config;
   }
+  // try and decode token
+  try {
+    // check how long token is valid for.
+    let tokenParts = token.split(".");
+    // token payload is the second part of a JWT.
+    let tokenPayload = tokenParts[1];
+    // the token payload is base64 encoded, so we decode it and parse it into a useable javascript object.
+    let decodedPayload = JSON.parse(atob(tokenPayload));
+    let currentTime = Date.now();
+    let tokenExpiryTime = decodedPayload.exp * 1000;
+    let timeToExpire = tokenExpiryTime - currentTime;
+    console.log(timeToExpire);
+    // If token is set to expire in less than 2 seconds, renew it
+    const oneHour = 3600000;
+    if (timeToExpire <= oneHour && timeToExpire >= 0) {
+      // let other services know token is changing 
+      Store.commit("authentication/auth_request");
 
-  // check how long token is valid for.
-  let tokenParts = token.split(".");
-  // token payload is the second part of a JWT.
-  let tokenPayload = tokenParts[1];
-  // the token payload is base64 encoded, so we decode it and parse it into a useable javascript object.
-  let decodedPayload = JSON.parse(atob(tokenPayload));
-
-  let currentTime = Date.now();
-  let tokenExpiryTime = decodedPayload.exp * 1000;
-  let timeToExpire = tokenExpiryTime - currentTime;
-  console.log(timeToExpire);
-
-  // check that token isn't already being requested
-  // If token is set to expire in less than 2 seconds, renew it
-  const oneHour = 3600000;
-  if (timeToExpire <= oneHour && timeToExpire >= 0) {
-    // let other services know token is changing 
-    Store.commit("authentication/auth_request");
-
-    // here we have to set the access token manually, as we are in the process of setting up the global axios instance and so cannot access the global headers.
-    let response = await Api.get("/auth/token", {
-      headers: {
-        Authorization: "Bearer " + token
-      }
-    });
-    Store.commit("authentication/token_refresh", response.data.token)
+      // here we have to set the access token manually, as we are in the process of setting up the global axios instance and so cannot access the global headers.
+      let response = await Api.get("/auth/token", {
+        headers: {
+          Authorization: "Bearer " + token
+        }
+      });
+      Store.commit("authentication/token_refresh", response.data.token)
+    }
+    config.headers.Authorization = "Bearer " + Store.state.authentication.token;
+  } catch (err) {
+    console.log(err);
+    // token isn't in valid format - log user out
+    UserService.logoutUser();
+    Router.push("/");
   }
-  config.headers.Authorization = "Bearer " + Store.state.authentication.token;
-
   return config;
 }
 
 // intercept 401 responses (expired token) and redirect to login page
 function setupAccessDeniedResponseInterceptor(err) {
+
   // check to see if the error from the server is a 401 error
-  if (err.response.status === 401 && err.config && !err.config.__isRetryRequest) {
+  if ((err.response.status == 401 && err.config && !err.config.__isRetryRequest)) {
     // token must be expired - clear token in store
-    Store.dispatch("authentication/logout");
-    // Redirect user to login page.
+    UserService.logoutUser();
     Router.push("/login");
   }
   // return the error 
