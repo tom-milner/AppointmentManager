@@ -9,7 +9,8 @@ function getAllAppointments(req, res) {
         if (err) {
             console.log(err);
             res.status(500).send({
-                error: "An errror has occured fetching all appointments"
+                success: false,
+                error: "An error has occured fetching all appointments"
             });
         } else {
             res.send(allAppointments)
@@ -35,6 +36,7 @@ async function getAppointmentsOfUser(req, res) {
 
         res.status(200).send({
             success: true,
+            message: "Appointments returned successfully",
             appointments: userAppointments
         });
 
@@ -48,9 +50,14 @@ async function getAppointmentsOfUser(req, res) {
 
 // Insert new appointment into db
 async function insertAppointment(req, res) {
+
+    // requries date and title
     try {
         if (!req.body.date) {
             throw ("Date is required");
+        }
+        if (!req.body.title) {
+            throw ("Title is required");
         }
         let appointmentDate = new Date(req.body.date);
         // Create new appointment model
@@ -69,7 +76,8 @@ async function insertAppointment(req, res) {
                 // Send back new appointment
                 res.send({
                     success: true,
-                    newAppointment
+                    message: "Appointment created successfully",
+                    appointment: newAppointment
                 });
             }
         });

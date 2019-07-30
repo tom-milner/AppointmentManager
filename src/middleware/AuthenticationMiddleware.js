@@ -4,13 +4,13 @@ const jwt = require("jsonwebtoken"); // used for using token based authenticatio
 // middleware for checking user access
 function isLoggedIn(req, res, next) {
   // check header for token
-  var token = req.headers.authorization
+  var token = req.headers.authorization;
 
   // decode token (if present)
   if (token) {
     token = token.replace("Bearer ", "");
     // validate secret
-    jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+    jwt.verify(token, process.env.JWT_SECRET, function(err, decoded) {
       if (err) {
         // return error if token isn't valid
         return res.status(401).json({
@@ -21,6 +21,7 @@ function isLoggedIn(req, res, next) {
         // token is valid
         // store token in browser for later usage
         req.user = decoded;
+        console.log(req.user);
 
         // continue to controller that requires authorization
         next();
@@ -36,19 +37,32 @@ function isLoggedIn(req, res, next) {
 }
 
 // middleware check if the user is required to access the given route
-function roleCheck(role) {
-  return function (req, res, next) {
-    // if user is below required role / access level, return an error and deny access.
-    if (req.user.role < role) {
-      // deny access
-      res.status(403).send({
-        success: false,
-        message: "Access Denied"
-      });
+function roleCheck(role, userSpecific) {
+  return function(req, res, next) {
+    // if user is above minimum role, allow them access
+    if (req.user.role > role) {
+      next();
       return;
     }
-    // allow access to route
-    next();
+    // check if the user is the required role.
+    if (req.user.role == role) {
+      // check if endpoint can only be accessed by specific user.
+      if (!userSpecific) {
+        next();
+        return;
+      }
+
+      if (req.user._id == req.params.userId) {
+        next();
+        return;
+      }
+    }
+
+    // deny access - user does not meet any of the above criteria
+    res.status(403).send({
+      success: false,
+      message: "Access Denied"
+    });
   };
 }
 

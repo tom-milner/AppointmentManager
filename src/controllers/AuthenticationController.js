@@ -8,14 +8,10 @@ function jwtSignUser(user) {
   const oneDay = 60 * 60 * 24;
   const expirationTime = oneDay;
 
-  const tokenPayload = {
-    id: user.id,
-    username: user.username,
-    email: user.email,
-    role: user.role
-  }
+  // make user a plain object
+  user = JSON.parse(JSON.stringify(user));
   // Create token
-  var token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {
+  var token = jwt.sign(user, process.env.JWT_SECRET, {
     expiresIn: expirationTime
   });
   return token;
@@ -80,22 +76,18 @@ async function register(req, res) {
 // Login the client and provide them with an access token
 async function login(req, res) {
   try {
-    const {
-      username,
-      password
-    } = req.body;
 
     console.log(req.body);
 
     // Find matching users in database
     const userMatches = await UserModel.find({
-      username: username
+      username: req.body.username
     });
 
     // Only 1 user should be found - use 0th term just in case
-    const user = userMatches[0];
+    const matchingUser = userMatches[0];
     // Check user exists
-    if (!user) {
+    if (!matchingUser) {
       return res.status(401).send({
         success: false,
         message: "Incorrect login information."
@@ -104,7 +96,7 @@ async function login(req, res) {
 
 
     // Hash password and check against hash in database
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(req.body.password, matchingUser.password);
 
     if (!isPasswordValid) {
       res.status(401).send({
@@ -113,24 +105,14 @@ async function login(req, res) {
       });
       return;
     }
-
-    let {
-      email,
-      _id
-    } = user;
-
-
+    matchingUser.password = undefined;
 
     // return user with new access token.
     res.send({
       success: true,
       message: "User logged in",
-      user: {
-        username,
-        email,
-        _id
-      },
-      token: jwtSignUser(user.toJSON())
+      user: matchingUser,
+      token: jwtSignUser(matchingUser)
     });
   } catch (err) {
     console.log(err.message);
@@ -144,17 +126,8 @@ async function login(req, res) {
 
 async function refreshToken(req, res) {
   try {
-    // deconstruct existing token to get user data
-    const token = req.headers.authorization
-    const tokenPayload = token.split(".")[1];
-    const decodedTokenPayload = JSON.parse(Utils.base64Decode(tokenPayload));
-    // create new token with user info
-    let user = {
-      username: decodedTokenPayload.username,
-      email: decodedTokenPayload.email,
-      role: decodedTokenPayload.role
-    };
-    const newToken = jwtSignUser(user);
+    // create new token
+    const newToken = jwtSignUser(req.user);
 
     // return new token
     res.status(200).send({
