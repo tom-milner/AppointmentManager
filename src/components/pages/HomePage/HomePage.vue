@@ -1,30 +1,29 @@
 <template>
   <div>
-    <Card>
-      <a @click="logout">Logout</a>
-    </Card>
-    <Card>
-      <h1></h1>
-    </Card>
+    <h2 class="heading-2">Welcome, {{user.username}}</h2>
+    <div class="upcoming-appointments-container">
+      <h2 class="heading-2">Upcoming Appointments</h2>
+      <div class="scrolling-appointments">
+        <AppointmentCard
+          v-for="appointment in appointments"
+          v-bind:key="appointment._id"
+          :appointment="appointment"
+        ></AppointmentCard>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import Card from "@/components/layout/Card.vue";
+import AppointmentCard from "@/components/pages/HomePage/AppointmentCard.vue";
 import AppointmentService from "@/services/AppointmentService";
-import UserService from "@/services/UserService";
 export default {
   components: {
-    Card
+    AppointmentCard
   },
 
   methods: {
-    logout: async function() {
-      UserService.logoutUser();
-      this.$router.push("/");
-    },
     getUserAppointments: async function() {
-      this.user = this.$store.state.authentication.user;
       console.log(this.user._id);
       let response = await AppointmentService.getAppointmentsOfUser(
         this.user._id
@@ -39,10 +38,25 @@ export default {
     };
   },
   mounted: function() {
+    this.user = this.$store.state.authentication.user;
     this.getUserAppointments();
   }
 };
 </script>
 
-<style>
+<style lang="scss" scoped>
+.upcoming-appointments-container {
+  margin-top: 5rem;
+  overflow: hidden;
+}
+
+.scrolling-appointments {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.appointment-card {
+  background-color: red;
+}
 </style>

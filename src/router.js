@@ -21,17 +21,26 @@ let router = new Router({
     {
       path: "/",
       name: "LandingPage",
-      component: LandingPage
+      component: LandingPage,
+      meta: {
+        hideNavigation: true
+      }
     },
     {
       path: "/login",
       name: "LoginPage",
-      component: LoginPage
+      component: LoginPage,
+      meta: {
+        hideNavigation: true
+      }
     },
     {
       path: "/register",
       name: "RegisterPage",
-      component: RegisterPage
+      component: RegisterPage,
+      meta: {
+        hideNavigation: true
+      }
     },
     {
       path: "/home",

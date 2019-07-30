@@ -38,7 +38,7 @@ export default {
   padding: 4rem;
   border-radius: $border-radius;
   background-color: $color-white;
-  box-shadow: -1px 2px 5px rgba($color-black, 0.4);
+  box-shadow: -1px 2px 3px rgba($color-black, 0.2);
 }
 
 .icon-box {

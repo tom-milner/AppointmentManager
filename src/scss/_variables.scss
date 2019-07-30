@@ -1,6 +1,6 @@
 // COLOURS 
 $color-primary: #2ab7ca;
-$color-primary-light: rgb(144, 197, 209);
+$color-primary-light: rgb(129, 186, 199);
 $color-primary-dark: #25373b;
 $color-primary-very-dark: #192629;
 
@@ -13,7 +13,10 @@ $color-grey-dark: rgb(53, 53, 53);
 $color-grey: rgb(138, 138, 138);
 $color-grey-light: #efefef;
 
-$color-canvas: #eeeeee;
+$color-inactive: #C4C7CF;
+
+
+$color-canvas: #f3f3f3;
 
 // FONT
 $font-default: 1.9rem;
@@ -22,3 +25,6 @@ $font-family: "Muli";
 
 // STYLING VARIABLES
 $border-radius: 5px;
+
+// Navigation menu width
+$nav-width: 10rem;
