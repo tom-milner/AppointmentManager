@@ -5,6 +5,7 @@ import LandingPage from '@/components/pages/LandingPage/LandingPage.vue'
 import LoginPage from '@/components/pages/LoginPage/LoginPage.vue'
 import RegisterPage from "@/components/pages/RegisterPage/RegisterPage.vue"
 import HomePage from "@/components/pages/HomePage/HomePage.vue";
+import CreateAppointmentPage from "@/components/pages/CreateAppointmentPage/CreateAppointmentPage";
 // Sets up the different frontend routes 
 // e.g. /login will lead to the login page
 
@@ -46,6 +47,14 @@ let router = new Router({
       path: "/home",
       name: "HomePage",
       component: HomePage,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: "/create",
+      name: "CreateAppointmentPage",
+      component: CreateAppointmentPage,
       meta: {
         requiresAuth: true
       }

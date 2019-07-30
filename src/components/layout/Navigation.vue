@@ -12,22 +12,17 @@
         </li>
         <li>
           <router-link to="/home" class="nav-item">
-            <unicon name="home-alt" class="icon-nav-item" />
+            <icon name="home" class="icon-nav-item" />
           </router-link>
         </li>
         <li>
-          <router-link to="/planner" class="nav-item">
-            <unicon name="user" class="icon-nav-item" />
-          </router-link>
-        </li>
-        <li>
-          <router-link to="/calendar" class="nav-item">
-            <unicon name="calender" class="icon-nav-item"></unicon>
+          <router-link to="/create" class="nav-item">
+            <icon name="plus-square" class="icon-nav-item" />
           </router-link>
         </li>
       </ul>
       <div class="logout-button-box" @click="logout">
-        <unicon name="exit" class="logout-button"></unicon>
+        <icon name="exit" class="logout-button"></icon>
       </div>
     </div>
   </div>
@@ -35,8 +30,12 @@
 
 <script>
 import UserService from "@/services/UserService";
+import Icon from "vue-icon/lib/vue-feather.esm";
+
 export default {
-  components: {},
+  components: {
+    Icon
+  },
 
   data() {
     return {};
@@ -86,23 +85,23 @@ $icon-height: $icon-width;
       display: block;
       text-align: center;
       margin: 20px 0;
-      padding: 0;
 
       .nav-item {
         position: relative;
         display: block;
-        padding: 10px 0;
+        padding: 1rem 0;
 
         & .icon-nav-item {
-          fill: $color-inactive;
+          color: $color-inactive;
           transition: all 0.2s ease-in-out;
           height: $icon-height;
           width: $icon-width;
         }
 
         &:hover .icon-nav-item,
+        &:active,
         &.router-link-active .icon-nav-item {
-          fill: $color-primary;
+          color: $color-primary;
         }
 
         &::before {
