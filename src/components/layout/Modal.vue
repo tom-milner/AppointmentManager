@@ -46,7 +46,7 @@ export default {
 @import "../../scss/global.scss";
 
 .icon-box {
-  float: right;
+  float: left;
   text-align: center;
   .fullscreenIcon {
     height: 2rem;
@@ -64,34 +64,37 @@ export default {
   transition: all 0.5s;
 }
 .fade-leave-to {
-  transform: translateY(100%);
+  transform: translateX(100%);
 }
 
 .fade-enter {
-  transform: translateY(100%);
+  transform: translateX(100%);
 }
 
 .modal {
   position: fixed;
   top: 0;
-  left: 0;
+  right: 0;
   height: 100vh;
   width: 100%;
   // background-color: rgba($color-black, 0.2);
   // z-index: -1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: flex-end;
   align-items: center;
+  z-index: 100;
+  background-color: rgba($color-black, 0.1);
 
   &__content {
     background-color: $color-white;
-    height: 50%;
-    width: 85%;
-    margin-left: 90px;
+    width: 40%;
+    height: 95%;
+    margin-right: 2rem;
     z-index: 10000;
 
-    border-radius: 10px 10px 0 0;
+    // border-radius: 10px 0 0 10px;
+    border-radius: 10px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
     /*display: flex;
             flex-direction: column;*/

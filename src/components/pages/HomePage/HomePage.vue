@@ -8,44 +8,30 @@
           v-for="appointment in appointments"
           v-bind:key="appointment._id"
           :appointment="appointment"
-          @click.native="toggleModal()"
+          @click.native="toggleModal(appointment)"
         ></AppointmentCard>
       </div>
     </div>
     <div class="appointments-container">
       <h2 class="heading-2">Pending Appointments</h2>
-      <div class="scrolling-appointments">
-        <AppointmentCard
-          v-for="appointment in appointments"
-          v-bind:key="appointment._id"
-          :appointment="appointment"
-        ></AppointmentCard>
-      </div>
-    </div>
-    <div class="appointments-container">
-      <h2 class="heading-2">Past Appointments</h2>
-      <div class="scrolling-appointments">
-        <AppointmentCard
-          v-for="appointment in appointments"
-          v-bind:key="appointment._id"
-          :appointment="appointment"
-        ></AppointmentCard>
-      </div>
+      <div class="scrolling-appointments"></div>
     </div>
     <Modal v-on:close-modal="toggleModal()" v-if="modalDisplayed">
-      <h1 class="heading-1">Appointment</h1>
+      <AppointmentFull :appointment="selectedAppointment"></AppointmentFull>
     </Modal>
   </div>
 </template>
 
 <script>
 import AppointmentCard from "@/components/pages/HomePage/AppointmentCard.vue";
+import AppointmentFull from "@/components/pages/HomePage/AppointmentFull.vue";
 import Modal from "@/components/layout/Modal";
 import AppointmentService from "@/services/AppointmentService";
 export default {
   components: {
     AppointmentCard,
-    Modal
+    Modal,
+    AppointmentFull
   },
 
   methods: {
@@ -56,7 +42,8 @@ export default {
       );
       this.appointments = response.data.appointments;
     },
-    toggleModal: function() {
+    toggleModal: function(appointment) {
+      this.selectedAppointment = appointment;
       this.modalDisplayed = !this.modalDisplayed;
     }
   },
@@ -64,7 +51,8 @@ export default {
     return {
       appointments: null,
       user: {},
-      modalDisplayed: true
+      modalDisplayed: false,
+      selectedAppointment: {}
     };
   },
   mounted: function() {
