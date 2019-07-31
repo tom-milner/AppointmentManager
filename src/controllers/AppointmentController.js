@@ -49,39 +49,12 @@ async function getAppointmentsOfUser(req, res) {
 // Insert new appointment into db
 async function insertAppointment(req, res) {
 
-    // requries date and title
     try {
-
-        // TODO: refactor with appointment policy
-        if (!req.body.startTime) {
-            throw ({
-                message: "start time is required",
-                code: 403
-            });
-        }
-        if (!req.body.title) {
-            throw ({
-                message: "title is required",
-                code: 403
-            });
-        }
-        if (!req.body.duration) {
-            throw ({
-                message: "duration is required",
-                code: 403
-            });
-        }
-        if (!req.body.counsellorId) {
-            throw ({
-                message: "counsellorId is required",
-                code: 403
-            });
-        }
+        // load  info from body
         let appointmentStartTime = moment(req.body.startTime);
         let appointmentDuration = req.body.duration; // In Minutes
         let appointmentEndTime = moment(req.body.startTime).add(appointmentDuration, "minutes");
         let counsellorId = req.body.counsellorId;
-
 
 
         // check to see if counsellor is free
