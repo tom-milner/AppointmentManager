@@ -10,6 +10,10 @@ let appointmentSchema = new Schema({
         require: true,
         max: 100
     },
+    counsellorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    },
     // clients that booked the appointment
     clients: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -19,28 +23,29 @@ let appointmentSchema = new Schema({
     loc: {
         type: {
             type: String,
-            required: true
+            // required: true
         },
         coordinates: {
             type: [Number], // MUST BE LONGITUDE, THEN LATITUDE
-            required: true,
+            // required: true,
         }
     },
-    // allocated timeslots for the appointment
-    timeslots: [{
-        startTime: {
-            type: Date,
-            required: true
-        },
-        endTime: {
-            type: Date,
-            required: true
-        }
-    }],
+    // allocated time for appointment
+    startTime: {
+        type: Date,
+        required: true,
+        unique: true
+    },
+    endTime: {
+        type: Date,
+        required: true,
+        unique: true
+    },
     // whether the apointment has been confirmed or not
     isApproved: {
         type: Boolean,
-        required: true
+        required: true,
+        default: false
     }
 });
 

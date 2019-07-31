@@ -1,7 +1,7 @@
 // Import required models
 const AppointmentModel = require("../models/AppointmentModel");
 const UserModel = require("../models/UserModel");
-
+const moment = require("moment");
 
 // Fetch all appointments regardless 
 function getAllAppointments(req, res) {
@@ -26,12 +26,10 @@ async function getAppointmentsOfUser(req, res) {
         const user = await UserModel.findOne({
             _id: userId
         });
-        if (!user) {
-            throw ("User not found");
-        }
+        if (!user) throw ("User not found");
 
         const userAppointments = await AppointmentModel.find({
-            client: userId
+            clients: userId
         });
 
         res.status(200).send({
@@ -53,25 +51,67 @@ async function insertAppointment(req, res) {
 
     // requries date and title
     try {
-        if (!req.body.date) {
-            throw ("Date is required");
+
+        // TODO: refactor with appointment policy
+        if (!req.body.startTime) {
+            throw ({
+                message: "start time is required",
+                code: 403
+            });
         }
         if (!req.body.title) {
-            throw ("Title is required");
+            throw ({
+                message: "title is required",
+                code: 403
+            });
         }
-        let appointmentDate = new Date(req.body.date);
+        if (!req.body.duration) {
+            throw ({
+                message: "duration is required",
+                code: 403
+            });
+        }
+        if (!req.body.counsellorId) {
+            throw ({
+                message: "counsellorId is required",
+                code: 403
+            });
+        }
+        let appointmentStartTime = moment(req.body.startTime);
+        let appointmentDuration = req.body.duration; // In Minutes
+        let appointmentEndTime = moment(req.body.startTime).add(appointmentDuration, "minutes");
+        let counsellorId = req.body.counsellorId;
+
+
+
+        // check to see if counsellor is free
+        console.log("checking counsellor");
+        await checkCounsellorAvailablity(appointmentStartTime, appointmentEndTime, counsellorId);
+
+        const clientId = req.user._id;
+        // check to see if client is free
+        console.log("checking client");
+        await checkClientAvailability(appointmentStartTime, appointmentEndTime, clientId)
+
         // Create new appointment model
         let appointment = new AppointmentModel({
             title: req.body.title,
-            date: appointmentDate,
-            client: req.user
+            startTime: appointmentStartTime,
+            // TODO: add buffer to end time
+            endTime: appointmentEndTime,
+            clients: [req.user],
+            isApproved: false,
+            counsellorId: counsellorId
         });
         console.log(appointment);
         // Save the model to the database
         await appointment.save(function (err, newAppointment) {
             if (err) {
                 console.log(err);
-                throw ("Database error.");
+                throw ({
+                    message: "Database error.",
+                    code: 500
+                });
             } else {
                 // Send back new appointment
                 res.send({
@@ -83,11 +123,98 @@ async function insertAppointment(req, res) {
         });
 
         // Catch any errors and respond appropriately
-    } catch (errorMessage) {
-        defaultMessage = "Error creating appointment";
-        res.status(500).send({
-            error: errorMessage || defaultMessage
+    } catch (error) {
+        res.status(error.code || 500).send({
+            message: error.message || "Error creating appointment",
+            success: false,
         });
+    }
+}
+
+async function checkClientAvailability(desiredStartTime, desiredEndTime, clientId) {
+
+    // check to see if client has any clashing appointments
+    let clashingAppointments = await AppointmentModel.find({
+        clients: clientId,
+        $or: [{
+                $and: [{
+                        startTime: {
+                            $lte: desiredEndTime,
+                        }
+                    },
+                    {
+                        startTime: {
+                            $gte: desiredStartTime
+                        }
+                    }
+                ],
+            },
+            {
+                $and: [{
+                        endTime: {
+                            $gte: desiredStartTime
+                        }
+                    },
+                    {
+                        endTime: {
+                            $lte: desiredEndTime
+                        }
+                    }
+                ]
+            }
+        ]
+    });
+
+    console.log(clashingAppointments);
+
+    if (clashingAppointments.length > 0) {
+        throw ({
+            message: "Client is not available at this time.",
+            code: 200
+        });
+    }
+}
+
+async function checkCounsellorAvailablity(desiredStartTime, desiredEndTime, counsellorId) {
+    // get all appointments of counsellor where an appointment either starts or ends between the given start or end time.
+    const counsellorAppointments = await AppointmentModel.find({
+        counsellorId: counsellorId,
+        $or: [{
+                $and: [{
+                        startTime: {
+                            $lte: desiredEndTime,
+                        }
+                    },
+                    {
+                        startTime: {
+                            $gte: desiredStartTime
+                        }
+                    }
+                ],
+            },
+            {
+                $and: [{
+                        endTime: {
+                            $gte: desiredStartTime
+                        }
+                    },
+                    {
+                        endTime: {
+                            $lte: desiredEndTime
+                        }
+                    }
+                ]
+            }
+        ]
+    })
+    console.log(counsellorAppointments);
+    // 0 clashes - counsellor is free
+    if (counsellorAppointments.length > 0) {
+        console.log("clash");
+        throw ({
+            message: "Counsellor is not available at that time.",
+            code: 200
+        })
     }
 }
 
