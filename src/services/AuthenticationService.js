@@ -59,7 +59,14 @@ async function setupTokenRefresher(config) {
           Authorization: "Bearer " + token
         }
       });
-      Store.commit("authentication/token_refresh", response.data.token)
+
+      let newToken = response.data.token;
+      let user = response.data.user;
+
+      Store.commit("authentication/auth_success", {
+        newToken,
+        user
+      });
     }
     config.headers.Authorization = "Bearer " + Store.state.authentication.token;
   } catch (err) {
@@ -78,7 +85,7 @@ function setupAccessDeniedResponseInterceptor(err) {
   if ((err.response.status == 401 && err.config && !err.config.__isRetryRequest)) {
     // token must be expired - clear token in store
     UserService.logoutUser();
-    Router.push("/login");
+    Router.push("/");
   }
   // return the error 
   return Promise.reject(err);

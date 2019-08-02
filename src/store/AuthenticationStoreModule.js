@@ -9,7 +9,10 @@ const state = {
 // Mutations are methods to be ran whenever a state change is needed.
 const mutations = {
   // stores token and user in store to be used by other services.
-  auth_success(state, { token, user }) {
+  auth_success(state, {
+    token,
+    user
+  }) {
     state.token = token;
     state.user = user;
     state.status = "success";
@@ -29,15 +32,10 @@ const mutations = {
   auth_logout(state) {
     state.status = "";
     state.token = "";
+    state.user = "";
     localStorage.removeItem("token");
     localStorage.removeItem("user");
   },
-
-  token_refresh(state, token) {
-    state.status = "success";
-    state.token = token;
-    localStorage.setItem("token", token);
-  }
 };
 
 const getters = {
