@@ -63,8 +63,18 @@ function logoutUser() {
   }
 }
 
+// get users from array of ids
+function getUsersFromIds(userIds) {
+  return Api.get("user/clients", {
+    params: {
+      clientIds: userIds
+    }
+  });
+}
+
 export default {
   loginUser,
   registerUser,
-  logoutUser
+  logoutUser,
+  getUsersFromIds
 }

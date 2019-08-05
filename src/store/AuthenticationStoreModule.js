@@ -49,5 +49,6 @@ export const authentication = {
   namespaced: true,
   state,
   getters,
+
   mutations
 };

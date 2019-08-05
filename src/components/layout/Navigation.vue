@@ -22,7 +22,7 @@
         </li>
       </ul>
       <div class="logout-button-box" @click="logout">
-        <icon name="exit" class="logout-button"></icon>
+        <icon name="log-out" class="logout-button"></icon>
       </div>
     </div>
   </div>
@@ -131,12 +131,12 @@ $icon-height: $icon-width;
     text-align: center;
     margin-bottom: 2rem;
     &:hover .logout-button {
-      fill: $color-error;
+      color: $color-error;
     }
 
     .logout-button {
       transition: all 0.2s ease-in-out;
-      fill: $color-inactive;
+      color: $color-inactive;
       height: $icon-height * 1.2;
       width: $icon-width * 1.2;
     }
