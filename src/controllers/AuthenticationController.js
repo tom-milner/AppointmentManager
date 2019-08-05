@@ -129,9 +129,12 @@ async function refreshToken(req, res) {
     // create new token
     const newToken = jwtSignUser(req.user);
 
-    // return new token
+    // return new token and original user
     res.status(200).send({
-      token: newToken
+      token: newToken,
+      user: req.user,
+      message: "Token refreshed successfully.",
+      success: true
     })
   } catch (err) {
     res.status(500).send({
