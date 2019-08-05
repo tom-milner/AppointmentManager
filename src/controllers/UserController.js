@@ -15,6 +15,7 @@ async function getUsernamesFromClientIds(req, res) {
     let client = await UserModel.findOne({
       _id: id
     });
+    client.password = undefined;
     clients.push(client);
   }
 
