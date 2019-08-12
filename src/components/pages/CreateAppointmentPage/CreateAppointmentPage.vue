@@ -9,15 +9,54 @@
 
       <div class="form-field">
         <h3 class="form-heading">Appointment Date</h3>
-        <v-calendar is-expanded></v-calendar>
+        <v-calendar :disabled-dates="disabledDates" is-expanded></v-calendar>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import UserService from "@/services/UserService";
+
+// TODO: get times when counsellor is unavailable
+
 export default {
-  components: {}
+  components: {},
+  data() {
+    return {
+      user: {},
+      disabledDates: [],
+      chosenCounsellor: {}
+    };
+  },
+  methods: {
+    // gets all the appointments in the future that involve the clients
+    getUnavailableTimeSlotsOfUser: async function(userId) {
+      // get future appointments of current user
+      let userAppointments = (await UserService.getFutureAppointmentsOfUser(
+        userId
+      )).data.futureAppointments;
+
+      // turn appointments into date ranges
+      let dates = userAppointments.map(appointment => {
+        let startTime = appointment.startTime;
+        let endTime = appointment.endTime;
+        return {
+          start: startTime,
+          end: endTime
+        };
+      });
+    }
+  },
+
+  watch: {
+    // watch chosenCounsellor and find unavailable times whenever one is chosen
+    chosenCounsellor: function() {}
+  },
+  mounted() {
+    this.user = this.$store.state.authentication.user;
+    this.getUnavailableTimeSlotsOfUser(this.user.id);
+  }
 };
 </script>
 

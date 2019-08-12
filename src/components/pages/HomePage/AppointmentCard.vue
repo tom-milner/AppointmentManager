@@ -22,9 +22,9 @@ export default {
   },
 
   mounted() {
-    let dateTime = this.moment(this.appointment.date);
-    this.appointmentDate = dateTime.format("dddd Do MMMM");
-    this.appointmentTime = dateTime.format("LT");
+    let appointmentStartTime = this.moment(this.appointment.startTime);
+    this.appointmentDate = appointmentStartTime.format("dddd Do MMMM");
+    this.appointmentTime = appointmentStartTime.format("LT");
     // this.appointmentTime = parts[1]
     // .replace(/\u200E/g, "")
     // .replace(/^([^\d]*\d{1,2}:\d{1,2}):\d{1,2}([^\d]*)$/, "$1$2"); // regex to remove seconds. if seconds column isn't found, nothing is changed.
