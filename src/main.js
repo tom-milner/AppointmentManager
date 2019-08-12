@@ -13,6 +13,11 @@ Vue.prototype.moment = moment;
 // setup navigation guard
 AuthenticationService.initializeNavigationGuard();
 
+
+// Use v-calendar
+import VCalendar from "v-calendar";
+Vue.use(VCalendar);
+
 Vue.config.productionTip = false;
 
 new Vue({

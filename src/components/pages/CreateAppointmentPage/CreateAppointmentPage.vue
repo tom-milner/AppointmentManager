@@ -9,6 +9,7 @@
 
       <div class="form-field">
         <h3 class="form-heading">Appointment Date</h3>
+        <v-calendar is-expanded></v-calendar>
       </div>
     </div>
   </div>
