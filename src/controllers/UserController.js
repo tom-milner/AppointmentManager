@@ -1,6 +1,6 @@
 let UserModel = require("../models/UserModel");
-
-
+let AppointmentModel = require("../models/AppointmentModel");
+const moment = require("moment");
 
 // TODO: Build UserControllerPolicy
 
@@ -30,6 +30,60 @@ async function getUsernamesFromUserIds(req, res) {
 
 }
 
+async function getFutureAppointmentsOfUser(req, res) {
+
+  // TODO: create policy for this function
+
+  // default error messages
+  let errorCode = 400;
+  let errorMessage = "Error getting future appointments";
+
+  // get current time
+  let now = moment.now();
+
+  try {
+
+    const userId = req.params.userId;
+    let appointmentsFromNow = await AppointmentModel.find({
+      $or: [{
+        counsellorId: userId
+      }, {
+        clients: userId
+      }],
+      // only get appointments that start or end in the future.
+      $or: [{
+          startTime: {
+            $gt: now
+          }
+        },
+        {
+          endTime: {
+            $gt: now
+          }
+        }
+      ]
+    });
+
+    res.status(200).send({
+      success: true,
+      message: "Future appointments returned successfully",
+      futureAppointments: appointmentsFromNow
+    })
+
+  } catch (error) {
+
+    console.log(error);
+    // return an error message
+    res.status(errorCode).send({
+      success: false,
+      message: errorMessage
+    })
+
+  }
+
+}
+
 module.exports = {
-  getUsernamesFromUserIds
+  getUsernamesFromUserIds,
+  getFutureAppointmentsOfUser
 }

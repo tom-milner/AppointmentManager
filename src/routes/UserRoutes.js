@@ -9,5 +9,11 @@ const AuthenticationMiddleware = require("../middleware/AuthenticationMiddleware
 // get list of usernames from list of client Ids
 router.get("/", AuthenticationMiddleware.isLoggedIn, UserControllerPolicy.getUsersOfIds, UserController.getUsernamesFromUserIds);
 
+// get info about single user 
+// TODO: add route to get info from single user (/user/:userId)
+// router.get("/:userId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck())
+
+// get unavailable dates of user
+router.get("/:userId/appointments/future", AuthenticationMiddleware.isLoggedIn, UserController.getFutureAppointmentsOfUser);
 
 module.exports = router;
