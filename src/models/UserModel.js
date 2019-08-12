@@ -10,6 +10,16 @@ let UserSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  firstname: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  lastname: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   username: {
     type: String,
     unique: true,

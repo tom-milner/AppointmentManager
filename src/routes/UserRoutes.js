@@ -7,7 +7,7 @@ const UserControllerPolicy = require("../policies/UserControllerPolicy");
 const AuthenticationMiddleware = require("../middleware/AuthenticationMiddleware");
 
 // get list of usernames from list of client Ids
-router.get("/clients", AuthenticationMiddleware.isLoggedIn, UserControllerPolicy.getUsersOfIds, UserController.getUsernamesFromClientIds);
+router.get("/", AuthenticationMiddleware.isLoggedIn, UserControllerPolicy.getUsersOfIds, UserController.getUsernamesFromUserIds);
 
 
 module.exports = router;

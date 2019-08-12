@@ -36,7 +36,7 @@ function register(req, res, next) {
 
       default:
         console.log(error.details)
-        errorMessage: error.details[0].message
+        errorMessage = error.details[0].message
         errorCode = 400;
     }
 

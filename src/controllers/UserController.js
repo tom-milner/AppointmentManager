@@ -5,30 +5,31 @@ let UserModel = require("../models/UserModel");
 // TODO: Build UserControllerPolicy
 
 // takes array of client Ids an returns simple user object.
-async function getUsernamesFromClientIds(req, res) {
+async function getUsernamesFromUserIds(req, res) {
   // clientIds is a string with comma seperated values
 
-  let clientIds = (req.query.clientIds).split(",").filter(Boolean);
-  console.log(clientIds);
-  let clients = [];
-  for (id of clientIds) {
-    let client = await UserModel.findOne({
+  let userIds = (req.query.userIds).split(",").filter(Boolean);
+  console.log(userIds);
+  let users = [];
+  for (id of userIds) {
+    let user = await UserModel.findOne({
       _id: id
     });
-    client.password = undefined;
-    clients.push(client);
+    if (user) {
+      user.password = undefined;
+      users.push(user);
+    }
   }
 
-  console.log(clients);
 
   res.status(200).send({
     success: true,
-    message: "Clients returned successfully",
-    clients: clients
+    message: "Users returned successfully",
+    users: users
   });
 
 }
 
 module.exports = {
-  getUsernamesFromClientIds
+  getUsernamesFromUserIds
 }

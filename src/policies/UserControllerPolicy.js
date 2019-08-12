@@ -2,7 +2,7 @@ const Joi = require("joi");
 
 function getUsersOfIds(req, res, next) {
   const joiSchema = {
-    clientIds: Joi.string().required(),
+    userIds: Joi.string().required(),
   }
 
   const {
@@ -15,8 +15,8 @@ function getUsersOfIds(req, res, next) {
 
   if (error) {
     switch (error.details[0].context.key) {
-      case "clientIds":
-        errorMessage = "Invalid client Ids";
+      case "userIds":
+        errorMessage = "Invalid user Ids";
         break;
       default:
         errorMessage = error.details[0].message;

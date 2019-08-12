@@ -1,13 +1,11 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const UserModel = require("../models/UserModel");
-const Utils = require("../utils/Utils");
 
 // Give client a token for validation in other parts of the API
 function jwtSignUser(user) {
   const oneDay = 60 * 60 * 24;
   const expirationTime = oneDay;
-
   // make user a plain object
   user = JSON.parse(JSON.stringify(user));
   // Create token
@@ -20,16 +18,14 @@ function jwtSignUser(user) {
 // sign up a new user
 async function register(req, res) {
   try {
-    let data = req.body;
-    if (!data.email || !data.username || !data.firstname || !data.lastname || !data.password) {
-      throw "All fields are required";
-    }
-
     // create user
     let newUser = new UserModel({
       email: req.body.email,
-      username: req.body.username
+      username: req.body.username,
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
     });
+
     // Hash password and store in database.
     // First, generate salt. saltRounds is the cost factor of hashing algorithm.
     // For example, a saltRounds of 10 will mean that the bcrypt calculation is performed 2^10 (1024) times.
@@ -44,17 +40,12 @@ async function register(req, res) {
 
     // Save user to database
     const savedUser = await newUser.save();
-
+    savedUser.password = undefined;
     // Return newly created user
     res.send({
       success: true,
       message: "User added.",
-      user: {
-        email: savedUser.email,
-        username: savedUser.username,
-        role: savedUser.role,
-        id: savedUser._id
-      },
+      user: savedUser,
       // Sign user with new token
       token: jwtSignUser(savedUser.toJSON())
     });
