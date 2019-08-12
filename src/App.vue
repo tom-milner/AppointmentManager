@@ -29,7 +29,7 @@
   padding: 2.5rem;
   overflow: hidden;
   width: 100%;
-  height: 100%;
+  height: 100vh;
 }
 </style>
 

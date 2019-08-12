@@ -9,14 +9,15 @@
 
       <div class="form-field">
         <h3 class="form-heading">Appointment Date</h3>
-        <input class="form-input" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-export default {};
+export default {
+  components: {}
+};
 </script>
 
 <style lang="scss" scoped>
