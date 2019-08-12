@@ -65,9 +65,9 @@ function logoutUser() {
 
 // get users from array of ids
 function getUsersFromIds(userIds) {
-  return Api.get("user/clients", {
+  return Api.get("/user", {
     params: {
-      clientIds: userIds
+      userIds: userIds
     }
   });
 }

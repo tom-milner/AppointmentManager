@@ -36,7 +36,7 @@ const mutations = {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
   },
-};
+}
 
 const getters = {
   isLoggedIn: state => !!state.token, // TODO: actually verify token first!!!

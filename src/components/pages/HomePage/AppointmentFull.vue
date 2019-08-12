@@ -5,7 +5,7 @@
     <ul class="appointment-details">
       <li class="appointment-details-row">
         <icon class="icon" name="user"></icon>
-        <!-- <p v-for="client in appointment.clients" v-bind:key="appoint" class="text">{{client}}</p> -->
+        <p class="text">{{counsellor.firstname}}</p>
       </li>
       <li class="appointment-details-row">
         <icon class="icon" name="map-pin"></icon>
@@ -22,30 +22,42 @@ export default {
   props: {
     appointment: {}
   },
+  data() {
+    return {
+      clients: [],
+      counsellor: {}
+    };
+  },
   components: {
     Icon
   },
   mounted() {
     this.getAllClients();
+    this.getCounsellor();
   },
   methods: {
     getAllClients: async function() {
       let clientIds = this.appointment.clients;
-      console.log(clientIds);
       let clientIdsString = "";
       clientIds.forEach(id => {
         clientIdsString = clientIdsString.concat(id, ",");
       });
-      console.log(clientIdsString);
       let result = await UserService.getUsersFromIds(clientIdsString);
-      console.log(result);
-      // get all the clients involved in the appointment
+      this.clients = result.data.clients;
+    },
+
+    getCounsellor: async function() {
+      let counsellorId = this.appointment.counsellorId;
+      let result = await UserService.getUsersFromIds(counsellorId);
+      this.counsellor = result.data.users[0];
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
+@import "src/scss/global";
+
 .wrapper {
   padding: 1rem;
   text-align: center;
@@ -71,6 +83,8 @@ export default {
     }
 
     .text {
+      font-size: 1.5rem;
+      font-weight: 300;
     }
   }
 }

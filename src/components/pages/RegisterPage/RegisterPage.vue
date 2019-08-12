@@ -5,28 +5,33 @@
         <h1 class="heading-1">Register</h1>
         <div class="login-items">
           <div class="login-field">
-            <h3>Firstname</h3>
-            <input v-model="firstname" />
+            <h3 class="form-heading">Firstname</h3>
+            <input class="form-input" v-model="firstname" />
           </div>
           <div class="login-field">
-            <h3>Lastname</h3>
-            <input v-model="lastname" />
+            <h3 class="form-heading">Lastname</h3>
+            <input class="form-input" v-model="lastname" />
           </div>
           <div class="login-field">
-            <h3>Username</h3>
-            <input v-model="username" />
+            <h3 class="form-heading">Username</h3>
+            <input class="form-input" v-model="username" />
           </div>
           <div class="login-field">
-            <h3>Email</h3>
-            <input v-model="email" />
+            <h3 class="form-heading">Email</h3>
+            <input class="form-input" v-model="email" />
           </div>
           <div class="login-field">
-            <h3>Password</h3>
-            <input v-model="password" type="password" />
+            <h3 class="form-heading">Password</h3>
+            <input class="form-input" v-model="password" type="password" />
           </div>
           <div class="login-field">
-            <h3>Confirm Password</h3>
-            <input v-on:input="checkConfirmPassword()" v-model="confirmPassword" type="password" />
+            <h3 class="form-heading">Confirm Password</h3>
+            <input
+              class="form-input"
+              v-on:input="checkConfirmPassword()"
+              v-model="confirmPassword"
+              type="password"
+            />
           </div>
         </div>
         <p class="errorText" v-html="errorMessage" />
@@ -128,28 +133,6 @@ export default {
 
 .login-field {
   width: 30rem;
-  h3 {
-    font-size: 1.5rem;
-    font-weight: 300;
-    margin-bottom: 0.3rem;
-  }
-
-  input {
-    width: 100%;
-    border-radius: $border-radius;
-    text-decoration: none;
-    outline: none;
-    border: 1px solid $color-grey-light;
-    padding: 0.5rem 0.75rem;
-    height: 3rem;
-    font-family: $font-family;
-    transition: all 0.2s;
-    font-size: 1.2rem;
-
-    &:focus {
-      border: 1px solid $color-primary;
-    }
-  }
 }
 
 .errorText {

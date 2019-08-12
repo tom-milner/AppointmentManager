@@ -73,8 +73,4 @@ export default {
   flex-wrap: nowrap;
   overflow-x: auto;
 }
-
-.appointment-card {
-  background-color: red;
-}
 </style>
