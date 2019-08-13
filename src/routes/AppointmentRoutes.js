@@ -11,10 +11,15 @@ let Role = require("../models/Role");
 router.use(AuthenticationMiddleware.isLoggedIn);
 
 // Get all appointments of a specific user
-router.get("/:userId", AuthenticationMiddleware.roleCheck({
+router.get("/client/:userId", AuthenticationMiddleware.roleCheck({
   role: Role.User,
   userSpecific: true
-}), AppointmentController.getAppointmentsOfUser);
+}), AppointmentController.getAppointmentsOfClient);
+
+// Get all future appointments of a counsellor.
+router.get("/counsellor/:userId", AuthenticationMiddleware.roleCheck({
+  role: Role.User,
+}), AppointmentController.getFutureAppointmentsOfCounsellor);
 
 // Get all appointments
 router.get("/", AuthenticationMiddleware.roleCheck({

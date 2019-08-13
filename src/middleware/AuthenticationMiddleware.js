@@ -43,6 +43,7 @@ function roleCheck({
   return function (req, res, next) {
 
     // if user is above minimum role, allow them access
+    // even if the route is user-specific users with high level access can read them.
     if (req.user.role > role) {
       next();
       return;
