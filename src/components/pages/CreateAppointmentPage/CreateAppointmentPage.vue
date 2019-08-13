@@ -9,7 +9,16 @@
 
       <div class="form-field">
         <h3 class="form-heading">Counsellor</h3>
-        <input class="form-input" />
+        <div class="dropdown-container">
+          <dropdown
+            v-if="counsellors.length > 0"
+            :options="counsellors"
+            :selected="chosenCounsellor"
+            :dropdownKey="'username'"
+            v-on:updateOption="updateCounsellor"
+            :placeholder="'Choose a counsellor'"
+          ></dropdown>
+        </div>
       </div>
 
       <div class="form-field">
@@ -22,21 +31,28 @@
 
 <script>
 import AppointmentService from "@/services/AppointmentService";
-
-// TODO: get times when counsellor is unavailable
+import UserService from "@/services/UserService";
+import Dropdown from "@/components/layout/Dropdown";
 
 export default {
-  components: {},
+  components: {
+    Dropdown
+  },
   data() {
     return {
       user: {},
       disabledDates: [],
       userAppointments: [],
       counsellorAppointments: [],
-      chosenCounsellor: {}
+      chosenCounsellor: {},
+      counsellors: []
     };
   },
   methods: {
+    updateCounsellor: function(counsellor) {
+      this.chosenCounsellor = counsellor;
+    },
+
     // gets all the appointments in the future that involve the clients
     getUnavailableTimeSlotsOfClient: async function() {
       // get future appointments of current user
@@ -72,11 +88,20 @@ export default {
     // watch chosenCounsellor and find unavailable times whenever one is chosen
     chosenCounsellor: function() {}
   },
+
   async mounted() {
+    // get all counsellors
+    this.counsellors = (await UserService.getAllCounsellors()).data.counsellors;
+    console.log(this.counsellors);
+
+    // store user in local variable
     this.user = this.$store.state.authentication.user;
+
+    // get times when client is unavailable
     await this.getUnavailableTimeSlotsOfClient();
+
+    // disable the dates on the calendar
     this.disabledDates = this.mapAppointmentsToDates(this.userAppointments);
-    console.log(this.disabledDates);
   }
 };
 </script>
@@ -93,6 +118,9 @@ export default {
     &:not(:last-of-type) {
       margin-bottom: 1rem;
     }
+  }
+
+  .dropdown-container {
   }
 }
 </style>

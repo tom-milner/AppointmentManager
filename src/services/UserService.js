@@ -72,9 +72,15 @@ function getUsersFromIds(userIds) {
   });
 }
 
+// get list of all counsellors
+function getAllCounsellors() {
+  return Api.get("user/counsellors");
+}
+
 export default {
   loginUser,
   registerUser,
   logoutUser,
   getUsersFromIds,
+  getAllCounsellors
 }
