@@ -12,18 +12,18 @@ router.use(AuthenticationMiddleware.isLoggedIn);
 
 // Get all appointments of a specific user
 router.get("/client/:userId", AuthenticationMiddleware.roleCheck({
-  role: Role.User,
+  role: Role.Client,
   userSpecific: true
 }), AppointmentController.getAppointmentsOfClient);
 
 // Get all future appointments of a counsellor.
 router.get("/counsellor/:userId", AuthenticationMiddleware.roleCheck({
-  role: Role.User,
+  role: Role.Client,
 }), AppointmentController.getFutureAppointmentsOfCounsellor);
 
 // Get all appointments
 router.get("/", AuthenticationMiddleware.roleCheck({
-  role: Role.Admin
+  role: Role.Counsellor
 }), AppointmentController.getAllAppointments);
 
 // Insert new appointment

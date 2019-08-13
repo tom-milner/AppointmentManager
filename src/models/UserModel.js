@@ -32,7 +32,7 @@ let UserSchema = new mongoose.Schema({
   },
   role: {
     type: Number,
-    default: Role.User
+    default: Role.Client
   }
 });
 
