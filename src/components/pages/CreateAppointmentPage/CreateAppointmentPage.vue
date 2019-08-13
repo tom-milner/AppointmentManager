@@ -86,7 +86,17 @@ export default {
 
   watch: {
     // watch chosenCounsellor and find unavailable times whenever one is chosen
-    chosenCounsellor: function() {}
+    chosenCounsellor: async function(counsellor) {
+      let result = await AppointmentService.getFutureAppointmentsOfCounsellor(
+        counsellor._id
+      );
+      this.counsellorAppointments = result.data.futureAppointments;
+
+      let allAppointments = this.counsellorAppointments.concat(
+        this.userAppointments
+      );
+      this.disabledDates = this.mapAppointmentsToDates(allAppointments);
+    }
   },
 
   async mounted() {

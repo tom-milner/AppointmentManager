@@ -1,5 +1,7 @@
 
 <template>
+  <!-- TODO: add clickaway? -->
+
   <div class="btn-group">
     <div @click="toggleMenu()">
       <div class="dropdown-toggle">
@@ -73,6 +75,10 @@ export default {
   text-decoration: none;
   color: $color-primary;
   cursor: pointer;
+
+  .caret {
+    border-top-color: $color-primary;
+  }
 }
 
 .dropdown-menu {
@@ -87,8 +93,7 @@ export default {
   list-style: none;
   font-size: 14px;
   text-align: left;
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background-color: $color-white;
   border-radius: 4px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
   background-clip: padding-box;
@@ -99,12 +104,12 @@ export default {
   clear: both;
   font-weight: normal;
   line-height: 1.6;
-  color: #333333;
+  color: $color-black;
   white-space: nowrap;
   text-decoration: none;
 }
 .dropdown-menu > li > a:hover {
-  background: #efefef;
+  background: $color-grey-light;
   color: $color-primary;
 }
 
