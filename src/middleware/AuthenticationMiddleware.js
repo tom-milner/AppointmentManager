@@ -36,8 +36,12 @@ function isLoggedIn(req, res, next) {
 }
 
 // middleware check if the user is required to access the given route
-function roleCheck(role, userSpecific) {
+function roleCheck({
+  role,
+  userSpecific
+}) {
   return function (req, res, next) {
+
     // if user is above minimum role, allow them access
     if (req.user.role > role) {
       next();
@@ -56,7 +60,6 @@ function roleCheck(role, userSpecific) {
         return;
       }
     }
-
     // deny access - user does not meet any of the above criteria
     res.status(403).send({
       success: false,
