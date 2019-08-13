@@ -18,8 +18,63 @@ function getAllAppointments(req, res) {
   });
 }
 
+// TODO: combine getFutureAppointmentsOfCounsellor and getAppointmentsOfClient
+
+
+async function getFutureAppointmentsOfCounsellor(req, res) {
+
+  // This function differs from "getAppointmentsOfUser" in that it searches for the user's Id in the counsellorId field of each appointment.
+  // TODO: create policy for this function
+
+  // default error messages
+  let errorCode = 400;
+  let errorMessage = "Error getting future appointments";
+
+  // get current time
+  let now = moment.now();
+
+  try {
+
+    const userId = req.params.userId;
+    let appointmentsFromNow = await AppointmentModel.find({
+      $or: [{
+        counsellorId: userId
+      }, ],
+      // only get appointments that start or end in the future.
+      $or: [{
+          startTime: {
+            $gt: now
+          }
+        },
+        {
+          endTime: {
+            $gt: now
+          }
+        }
+      ]
+    });
+
+    res.status(200).send({
+      success: true,
+      message: "Future appointments returned successfully",
+      futureAppointments: appointmentsFromNow
+    })
+
+  } catch (error) {
+
+    console.log(error);
+    // return an error message
+    res.status(errorCode).send({
+      success: false,
+      message: errorMessage
+    })
+
+  }
+
+}
+
 // Return appointments of user
-async function getAppointmentsOfUser(req, res) {
+async function getAppointmentsOfClient(req, res) {
   try {
     const userId = req.params.userId;
     // Find user with given Id
@@ -208,5 +263,6 @@ async function checkCounsellorAvailablity(
 module.exports = {
   insertAppointment,
   getAllAppointments,
-  getAppointmentsOfUser
+  getAppointmentsOfClient,
+  getFutureAppointmentsOfCounsellor
 };

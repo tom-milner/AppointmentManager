@@ -13,7 +13,4 @@ router.get("/", AuthenticationMiddleware.isLoggedIn, UserControllerPolicy.getUse
 // TODO: add route to get info from single user (/user/:userId)
 // router.get("/:userId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck())
 
-// get future dates of user
-router.get("/:userId/appointments/future", AuthenticationMiddleware.isLoggedIn, UserController.getFutureAppointmentsOfUser);
-
 module.exports = router;
