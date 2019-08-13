@@ -31,6 +31,7 @@ async function getUsernamesFromUserIds(req, res) {
 
 }
 
+// get list of all the counsellors with a the counsellor role level
 async function getAllCounsellors(req, res) {
 
   try {
