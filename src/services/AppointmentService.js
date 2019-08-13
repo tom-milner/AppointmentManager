@@ -7,8 +7,15 @@ export default {
     return Api.get("/appointments");
   },
 
-  // Get appointments of user
-  getAppointmentsOfUser(userId) {
-    return Api.get(`/appointments/${userId}`);
+  // TODO: combine these 2 functions.
+
+  // Get appointments of client
+  getAppointmentsOfClient(userId) {
+    return Api.get(`/appointments/client/${userId}`);
+  },
+
+  // Get future appointments of counsellor
+  getFutureAppointmentsOfCounsellor(userId) {
+    return Api.get(`/appointments/counsellor/${userId}`);
   }
 }

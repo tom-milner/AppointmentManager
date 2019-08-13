@@ -72,17 +72,9 @@ function getUsersFromIds(userIds) {
   });
 }
 
-async function getFutureAppointmentsOfUser(userId) {
-  // make get request to api
-  return Api.get(`/user/${userId}/appointments/future `, {
-
-  });
-}
-
 export default {
   loginUser,
   registerUser,
   logoutUser,
   getUsersFromIds,
-  getFutureAppointmentsOfUser
 }

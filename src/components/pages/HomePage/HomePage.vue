@@ -37,7 +37,7 @@ export default {
   methods: {
     getUserAppointments: async function() {
       console.log(this.user._id);
-      let response = await AppointmentService.getAppointmentsOfUser(
+      let response = await AppointmentService.getAppointmentsOfClient(
         this.user._id
       );
       this.appointments = response.data.appointments;
