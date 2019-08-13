@@ -1,5 +1,6 @@
 module.exports = {
   Guest: 0,
-  User: 1,
-  Admin: 2
+  Client: 1,
+  Counsellor: 2,
+  Admin: 3
 }
