@@ -22,7 +22,7 @@
       </div>
 
       <div class="form-field">
-        <h3 class="form-heading">Appointment Date</h3>
+        <h3 class="form-heading">Choose an appointment date:</h3>
         <div class="calendar-box">
           <AppointmentCalendar
             :events="{ counsellorEvents: counsellorDisabledDates, userEvents:userDisabledDates}"
@@ -97,14 +97,12 @@ export default {
   async mounted() {
     // get all counsellors
     this.counsellors = (await UserService.getAllCounsellors()).data.counsellors;
-    console.log(this.counsellors);
 
     // store user in local variable
     this.user = this.$store.state.authentication.user;
 
     // get times when client is unavailable
     let userAppointments = await this.getUnavailableTimeSlotsOfClient();
-    console.log(userAppointments);
 
     // disable the dates on the calendar
     this.userDisabledDates = this.mapAppointmentsToDates(userAppointments);

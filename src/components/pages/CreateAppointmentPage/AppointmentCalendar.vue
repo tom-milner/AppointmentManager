@@ -3,7 +3,7 @@
     @dateClick="handleDateClick"
     :dayRender="dayRender"
     ref="fullCalendar"
-    :weekends="false"
+    :weekends="true"
     :header="{
         left: 'prev,next, today',
         center: 'title',
@@ -34,14 +34,36 @@ export default {
     },
     dayRender: function() {
       // dayRenderInfo.el.bgColor = "red";
+    },
+    checkEventSourcesForDuplicates: function() {
+      // remove all duplicate start events from counsellor events array
+      let userEvents = this.events.userEvents;
+      let counsellorEvents = this.events.counsellorEvents;
+
+      counsellorEvents = counsellorEvents.filter(function(event) {
+        return (
+          userEvents.findIndex(
+            ev => ev.start == event.start && ev.end == event.end
+          ) == -1
+        );
+      });
+
+      this.events.counsellorEvents = counsellorEvents;
     }
   },
   props: {
     events: {}
   },
 
-  mounted() {
-    console.log(this.eventSources);
+  watch: {
+    events: function() {
+      if (
+        this.events.counsellorEvents.length > 0 ||
+        this.events.userEvents.length > 0
+      ) {
+        this.checkEventSourcesForDuplicates();
+      }
+    }
   },
 
   data() {
