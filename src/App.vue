@@ -27,7 +27,6 @@
   order: 1;
   flex-grow: 1;
   padding: 2.5rem;
-  overflow: hidden;
   width: 100%;
   height: 100vh;
 }

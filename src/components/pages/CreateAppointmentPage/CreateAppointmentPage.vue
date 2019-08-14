@@ -4,12 +4,12 @@
     <div class="request-form">
       <div class="form-field">
         <h3 class="form-heading">Appointment Title</h3>
-        <input class="form-input" />
+        <input class="form-input short-input" />
       </div>
 
       <div class="form-field">
         <h3 class="form-heading">Counsellor</h3>
-        <div class="dropdown-container">
+        <div class="short-input">
           <dropdown
             v-if="counsellors.length > 0"
             :options="counsellors"
@@ -23,7 +23,20 @@
 
       <div class="form-field">
         <h3 class="form-heading">Appointment Date</h3>
-        <v-calendar :disabled-dates="disabledDates" is-expanded></v-calendar>
+        <div class="calendar-box">
+          <FullCalendar
+            class="calendar"
+            ref="fullCalendar"
+            :weekends="false"
+            defaultView="dayGridMonth"
+            :header="{
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+      }"
+            :plugins="calendarPlugins"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -34,12 +47,20 @@ import AppointmentService from "@/services/AppointmentService";
 import UserService from "@/services/UserService";
 import Dropdown from "@/components/layout/Dropdown";
 
+// calendar
+import FullCalendar from "@fullcalendar/vue";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
+
 export default {
   components: {
-    Dropdown
+    Dropdown,
+    FullCalendar
   },
   data() {
     return {
+      calendarPlugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
       user: {},
       disabledDates: [],
       userAppointments: [],
@@ -118,19 +139,31 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/scss/global";
+// calendar css
+@import "~@fullcalendar/core/main.css";
+@import "~@fullcalendar/daygrid/main.css";
+@import "~@fullcalendar/timegrid/main.css";
 
 .request-form {
-  margin-top: 2rem;
+  margin: 2rem 0;
 
   .form-field {
-    max-width: 50rem;
+    max-width: 75%;
     width: auto;
     &:not(:last-of-type) {
-      margin-bottom: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .short-input {
+      width: 30%;
     }
   }
-
-  .dropdown-container {
+  .calendar-box {
+    width: 100%;
+    margin-top: 1.2rem;
+    .calendar {
+      margin: 0 auto;
+    }
   }
 }
 </style>
