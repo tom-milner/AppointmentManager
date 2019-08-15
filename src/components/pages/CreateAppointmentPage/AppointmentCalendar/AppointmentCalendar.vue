@@ -1,20 +1,23 @@
 <template>
-  <full-calendar
-    @dateClick="handleDateClick"
-    :dayRender="dayRender"
-    ref="fullCalendar"
-    :weekends="true"
-    :header="{
+  <div>
+    <full-calendar
+      @dateClick="handleDateClick"
+      :dayRender="dayRender"
+      ref="fullCalendar"
+      :weekends="true"
+      :header="{
         left: 'prev,next, today',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
       }"
-    :plugins="calendarPlugins"
-    :eventSources="[
+      :plugins="calendarPlugins"
+      :eventSources="[
         { events: this.events.userEvents, className:'userEvent' },
         { events: this.events.counsellorEvents, className:'counsellorEvent' }
       ]"
-  ></full-calendar>
+    ></full-calendar>
+    <AddEventDialogue v-if="showAddEventDialogue" :dayRectangle="chosenDayRectangle"></AddEventDialogue>
+  </div>
 </template>
 
 <script>
@@ -24,14 +27,28 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
+// custom components
+import AddEventDialogue from "./AddEventDialogue";
+
 export default {
+  data() {
+    return {
+      calendarPlugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+      showAddEventDialogue: false,
+      chosenDayRectangle: {}
+    };
+  },
   components: {
-    FullCalendar
+    FullCalendar,
+    AddEventDialogue
   },
   methods: {
-    handleDateClick: function(arg) {
+    handleDateClick: function(day) {
       // trigger new appointment dialogue
-      console.log(arg);
+      // get screen coordinates of day clicked
+      let dayElement = day.dayEl;
+      this.chosenDayRectangle = dayElement.getBoundingClientRect();
+      this.showAddEventDialogue = true;
     },
     dayRender: function() {
       // dayRenderInfo.el.bgColor = "red";
@@ -71,12 +88,6 @@ export default {
   // check for duplicate events before mounting
   beforeMount() {
     this.checkEventSourcesForDuplicates();
-  },
-
-  data() {
-    return {
-      calendarPlugins: [dayGridPlugin, timeGridPlugin, interactionPlugin]
-    };
   }
 };
 </script>
