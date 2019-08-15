@@ -4,12 +4,12 @@
     <div class="request-form">
       <div class="form-field">
         <h3 class="form-heading">Appointment Title</h3>
-        <input class="form-input" />
+        <input class="form-input short-input" />
       </div>
 
       <div class="form-field">
         <h3 class="form-heading">Counsellor</h3>
-        <div class="dropdown-container">
+        <div class="short-input">
           <dropdown
             v-if="counsellors.length > 0"
             :options="counsellors"
@@ -22,8 +22,12 @@
       </div>
 
       <div class="form-field">
-        <h3 class="form-heading">Appointment Date</h3>
-        <v-calendar :disabled-dates="disabledDates" is-expanded></v-calendar>
+        <h3 class="form-heading">Choose an appointment date:</h3>
+        <div class="calendar-box">
+          <AppointmentCalendar
+            :events="{ counsellorEvents: counsellorDisabledDates, userEvents:userDisabledDates}"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -33,17 +37,18 @@
 import AppointmentService from "@/services/AppointmentService";
 import UserService from "@/services/UserService";
 import Dropdown from "@/components/layout/Dropdown";
+import AppointmentCalendar from "./AppointmentCalendar";
 
 export default {
   components: {
-    Dropdown
+    Dropdown,
+    AppointmentCalendar
   },
   data() {
     return {
       user: {},
-      disabledDates: [],
-      userAppointments: [],
-      counsellorAppointments: [],
+      userDisabledDates: [],
+      counsellorDisabledDates: [],
       chosenCounsellor: {},
       counsellors: []
     };
@@ -56,62 +61,51 @@ export default {
     // gets all the appointments in the future that involve the clients
     getUnavailableTimeSlotsOfClient: async function() {
       // get future appointments of current user
-      this.userAppointments = (await AppointmentService.getAppointmentsOfClient(
+      let result = (await AppointmentService.getAppointmentsOfClient(
         this.user._id
       )).data.appointments;
-
-      // Add user dates to disabled dates, removing duplicates.
-      // this.disabledDates = this.disabledDates.concat(this.userDates);
+      return result;
     },
-
     getUnavailableTimeSlotsOfCounsellor: async function() {
       // get future apointments
-      this.counsellorAppointments = await AppointmentService.getFutureAppointmentsOfCounsellor(
+      let result = (await AppointmentService.getFutureAppointmentsOfCounsellor(
         this.chosenCounsellor._id
-      ).data.futureAppointments;
+      )).data.futureAppointments;
+      return result;
     },
 
     mapAppointmentsToDates(appointments) {
       // turn appointments into date ranges
-      return appointments.map(appointment => {
-        let startTime = appointment.startTime;
-        let endTime = appointment.endTime;
-        return {
-          start: startTime,
-          end: endTime
-        };
-      });
+      return appointments.map(appointment => ({
+        title: appointment.title,
+        start: appointment.startTime,
+        end: appointment.endTime
+      }));
     }
   },
 
   watch: {
     // watch chosenCounsellor and find unavailable times whenever one is chosen
-    chosenCounsellor: async function(counsellor) {
-      let result = await AppointmentService.getFutureAppointmentsOfCounsellor(
-        counsellor._id
+    chosenCounsellor: async function() {
+      let counsellorAppointments = await this.getUnavailableTimeSlotsOfCounsellor();
+      this.counsellorDisabledDates = this.mapAppointmentsToDates(
+        counsellorAppointments
       );
-      this.counsellorAppointments = result.data.futureAppointments;
-
-      let allAppointments = this.counsellorAppointments.concat(
-        this.userAppointments
-      );
-      this.disabledDates = this.mapAppointmentsToDates(allAppointments);
     }
   },
 
   async mounted() {
     // get all counsellors
     this.counsellors = (await UserService.getAllCounsellors()).data.counsellors;
-    console.log(this.counsellors);
 
     // store user in local variable
     this.user = this.$store.state.authentication.user;
 
     // get times when client is unavailable
-    await this.getUnavailableTimeSlotsOfClient();
+    let userAppointments = await this.getUnavailableTimeSlotsOfClient();
 
     // disable the dates on the calendar
-    this.disabledDates = this.mapAppointmentsToDates(this.userAppointments);
+    this.userDisabledDates = this.mapAppointmentsToDates(userAppointments);
   }
 };
 </script>
@@ -120,17 +114,22 @@ export default {
 @import "src/scss/global";
 
 .request-form {
-  margin-top: 2rem;
+  margin: 2rem 0;
 
   .form-field {
-    max-width: 50rem;
+    max-width: 75%;
     width: auto;
     &:not(:last-of-type) {
-      margin-bottom: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .short-input {
+      width: 30%;
     }
   }
-
-  .dropdown-container {
+  .calendar-box {
+    width: 100%;
+    margin-top: 1.2rem;
   }
 }
 </style>
