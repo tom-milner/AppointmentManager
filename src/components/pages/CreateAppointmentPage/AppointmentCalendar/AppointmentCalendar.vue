@@ -106,7 +106,17 @@ export default {
 
 .fc {
   font-family: $font-family !important;
+  tr {
+    height: 2rem !important;
 
+    td {
+      font-size: 1.5rem;
+
+      .fc-axis {
+        width: 5rem !important;
+      }
+    }
+  }
   &-event {
     font-size: 1.4rem !important ;
   }

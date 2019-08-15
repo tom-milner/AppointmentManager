@@ -44,7 +44,7 @@
 import AppointmentService from "@/services/AppointmentService";
 import UserService from "@/services/UserService";
 import Dropdown from "@/components/layout/Dropdown";
-import AppointmentCalendar from "./AppointmentCalendar";
+import AppointmentCalendar from "./AppointmentCalendar/AppointmentCalendar";
 import Modal from "@/components/layout/Modal";
 
 export default {
