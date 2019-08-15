@@ -18,6 +18,7 @@ export default {
   },
   computed: {
     positionStyle: function() {
+      // TODO: clean up function (variable names etc)
       // this function returns a css class that will position the dialogue box somewhere that doesn't obstruct the user's view of the day.
       // it also positions the dialogue somewhere not off the screenzs
       console.log(this.dayRectangle);
@@ -45,6 +46,7 @@ export default {
         // dialogue fits
         elementY = this.dayRectangle.top;
       }
+      // TODO: add buffer to left and top to make it look more "natural"
       return {
         position: "fixed",
         left: `${elementX}px`,
@@ -66,5 +68,7 @@ export default {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   background-color: $color-white;
   border-radius: 10px;
+
+  // TODO: style this
 }
 </style>
