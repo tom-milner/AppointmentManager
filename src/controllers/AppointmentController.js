@@ -5,7 +5,7 @@ const moment = require("moment");
 
 // Fetch all appointments regardless
 function getAllAppointments(req, res) {
-  AppointmentModel.find({}, function (err, allAppointments) {
+  AppointmentModel.find({}, function(err, allAppointments) {
     if (err) {
       console.log(err);
       res.status(500).send({
@@ -20,9 +20,7 @@ function getAllAppointments(req, res) {
 
 // TODO: combine getFutureAppointmentsOfCounsellor and getAppointmentsOfClient
 
-
 async function getFutureAppointmentsOfCounsellor(req, res) {
-
   // This function differs from "getAppointmentsOfUser" in that it searches for the user's Id in the counsellorId field of each appointment.
   // TODO: create policy for this function
 
@@ -34,14 +32,16 @@ async function getFutureAppointmentsOfCounsellor(req, res) {
   let now = moment.now();
 
   try {
-
     const userId = req.params.userId;
     let appointmentsFromNow = await AppointmentModel.find({
-      $or: [{
-        counsellorId: userId
-      }, ],
+      $or: [
+        {
+          counsellorId: userId
+        }
+      ],
       // only get appointments that start or end in the future.
-      $or: [{
+      $or: [
+        {
           startTime: {
             $gt: now
           }
@@ -58,19 +58,15 @@ async function getFutureAppointmentsOfCounsellor(req, res) {
       success: true,
       message: "Future appointments returned successfully",
       futureAppointments: appointmentsFromNow
-    })
-
+    });
   } catch (error) {
-
     console.log(error);
     // return an error message
     res.status(errorCode).send({
       success: false,
       message: errorMessage
-    })
-
+    });
   }
-
 }
 
 // Return appointments of user
@@ -139,7 +135,7 @@ async function insertAppointment(req, res) {
     });
 
     // Save the model to the database
-    await appointment.save(function (err, newAppointment) {
+    await appointment.save(function(err, newAppointment) {
       if (err) {
         console.log(err);
         throw {
@@ -174,8 +170,10 @@ async function checkClientAvailability(
   let clashingAppointments = await AppointmentModel.find({
     clients: clientId,
     // check to see if any of the clients have any other appointments have start or end times that occur between the desired start and end times of the new appointment.
-    $or: [{
-        $and: [{
+    $or: [
+      {
+        $and: [
+          {
             startTime: {
               $lte: desiredEndTime
             }
@@ -188,7 +186,8 @@ async function checkClientAvailability(
         ]
       },
       {
-        $and: [{
+        $and: [
+          {
             endTime: {
               $gte: desiredStartTime
             }
@@ -221,8 +220,10 @@ async function checkCounsellorAvailablity(
     counsellorId: counsellorId,
     // check to see if the counsellor has any other appointments have start or end times that occur between the desired start and end times of the new appointment.
 
-    $or: [{
-        $and: [{
+    $or: [
+      {
+        $and: [
+          {
             startTime: {
               $lte: desiredEndTime
             }
@@ -235,7 +236,8 @@ async function checkCounsellorAvailablity(
         ]
       },
       {
-        $and: [{
+        $and: [
+          {
             endTime: {
               $gte: desiredStartTime
             }
