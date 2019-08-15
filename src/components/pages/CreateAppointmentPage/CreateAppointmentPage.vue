@@ -22,14 +22,21 @@
       </div>
 
       <div class="form-field">
-        <h3 class="form-heading">Choose an appointment date:</h3>
-        <div class="calendar-box">
-          <AppointmentCalendar
-            :events="{ counsellorEvents: counsellorDisabledDates, userEvents:userDisabledDates}"
-          />
-        </div>
+        <h3 class="form-heading">Appointment Date</h3>
+        <input class="form-input short-input" disabled type="date" />
+        <div
+          class="primary-btn short-input"
+          @click="toggleAppointmentCalendarModal"
+        >Choose from calendar</div>
       </div>
     </div>
+    <Modal v-on:close-modal="toggleAppointmentCalendarModal()" v-if="appointmentCalendarDisplayed">
+      <div class="modal-content">
+        <AppointmentCalendar
+          :events="{ counsellorEvents: counsellorDisabledDates, userEvents:userDisabledDates}"
+        />
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -38,11 +45,13 @@ import AppointmentService from "@/services/AppointmentService";
 import UserService from "@/services/UserService";
 import Dropdown from "@/components/layout/Dropdown";
 import AppointmentCalendar from "./AppointmentCalendar";
+import Modal from "@/components/layout/Modal";
 
 export default {
   components: {
     Dropdown,
-    AppointmentCalendar
+    AppointmentCalendar,
+    Modal
   },
   data() {
     return {
@@ -50,7 +59,8 @@ export default {
       userDisabledDates: [],
       counsellorDisabledDates: [],
       chosenCounsellor: {},
-      counsellors: []
+      counsellors: [],
+      appointmentCalendarDisplayed: false
     };
   },
   methods: {
@@ -81,6 +91,11 @@ export default {
         start: appointment.startTime,
         end: appointment.endTime
       }));
+    },
+
+    // open and close appointment calendar
+    toggleAppointmentCalendarModal() {
+      this.appointmentCalendarDisplayed = !this.appointmentCalendarDisplayed;
     }
   },
 
@@ -131,5 +146,9 @@ export default {
     width: 100%;
     margin-top: 1.2rem;
   }
+}
+
+.modal-content {
+  width: 110rem;
 }
 </style>

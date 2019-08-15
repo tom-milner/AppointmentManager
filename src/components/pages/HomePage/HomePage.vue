@@ -17,7 +17,9 @@
       <div class="scrolling-appointments"></div>
     </div>
     <Modal v-on:close-modal="toggleModal()" v-if="modalDisplayed">
-      <AppointmentFull :appointment="selectedAppointment"></AppointmentFull>
+      <div class="modal-content">
+        <AppointmentFull :appointment="selectedAppointment"></AppointmentFull>
+      </div>
     </Modal>
   </div>
 </template>
@@ -72,5 +74,9 @@ export default {
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
+}
+
+.modal-content {
+  width: 50rem;
 }
 </style>

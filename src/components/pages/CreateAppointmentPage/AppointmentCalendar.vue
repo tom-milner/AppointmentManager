@@ -30,12 +30,14 @@ export default {
   },
   methods: {
     handleDateClick: function(arg) {
+      // trigger new appointment dialogue
       console.log(arg);
     },
     dayRender: function() {
       // dayRenderInfo.el.bgColor = "red";
     },
     checkEventSourcesForDuplicates: function() {
+      console.log("checking");
       // remove all duplicate start events from counsellor events array
       let userEvents = this.events.userEvents;
       let counsellorEvents = this.events.counsellorEvents;
@@ -61,18 +63,19 @@ export default {
         this.events.counsellorEvents.length > 0 ||
         this.events.userEvents.length > 0
       ) {
+        console.log("going to check");
         this.checkEventSourcesForDuplicates();
       }
     }
   },
+  // check for duplicate events before mounting
+  beforeMount() {
+    this.checkEventSourcesForDuplicates();
+  },
 
   data() {
     return {
-      calendarPlugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-      eventSources: [
-        { events: this.events.userEvents },
-        { events: this.events.counsellorEvents }
-      ]
+      calendarPlugins: [dayGridPlugin, timeGridPlugin, interactionPlugin]
     };
   }
 };

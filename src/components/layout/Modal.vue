@@ -1,6 +1,6 @@
 <template>
   <div class="modal" :class="{fullscreenModal: isFullscreen}">
-    <transition appear name="fade">
+    <transition appear name="slide">
       <div
         class="modal__content"
         :class="{fullscreenModal__content: isFullscreen}"
@@ -59,15 +59,15 @@ export default {
   }
 }
 
-.fade-enter-active,
-.fade-leave-active {
+.slide-enter-active,
+.slide-leave-active {
   transition: all 0.5s;
 }
-.fade-leave-to {
+.slide-leave-to {
   transform: translateX(100%);
 }
 
-.fade-enter {
+.slide-enter {
   transform: translateX(100%);
 }
 
@@ -88,7 +88,7 @@ export default {
 
   &__content {
     background-color: $color-white;
-    width: 40%;
+    width: auto;
     height: 95%;
     margin-right: 2rem;
     z-index: 10000;
@@ -110,7 +110,8 @@ export default {
 
   &__content {
     height: auto;
-    max-height: 80%;
+    max-height: 90%;
+    width: auto;
     border-radius: 10px;
   }
 }
