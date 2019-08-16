@@ -31,11 +31,6 @@
         </select>
       </div>
 
-      <!-- <div class="segment">
-        <p class="form-heading">Notes:</p>
-        <textarea :v-model="notes" class="form-input"></textarea>
-      </div>-->
-
       <div class="segment">
         <div @click="chooseTime" class="primary-btn">Choose Time</div>
       </div>
@@ -188,13 +183,6 @@ export default {
     &:not(:last-child) {
       margin-bottom: 2rem;
     }
-
-    textarea {
-      resize: none;
-      height: 15rem;
-    }
   }
-
-  // TODO: style this
 }
 </style>

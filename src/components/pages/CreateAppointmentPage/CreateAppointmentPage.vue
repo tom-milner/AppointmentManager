@@ -4,7 +4,7 @@
     <div class="request-form">
       <div class="form-field">
         <h3 class="form-heading">Appointment Title</h3>
-        <input class="form-input short-input" />
+        <input v-model="chosenTitle" class="form-input short-input" />
       </div>
 
       <div class="form-field">
@@ -30,7 +30,7 @@
           disabled
         />
         <div
-          class="primary-btn short-input"
+          class="secondary-btn short-input"
           @click="toggleAppointmentCalendarModal"
         >Choose from calendar</div>
       </div>
@@ -39,7 +39,19 @@
         <h3 class="form-heading">Appointment duration</h3>
         <h2 class="heading-3">{{chosenDuration}} minutes</h2>
       </div>
+
+      <div class="form-field">
+        <p class="form-heading">Notes:</p>
+        <textarea :v-model="notes" class="form-input"></textarea>
+      </div>
+
+      <!-- Submit form -->
+      <div class="form-field">
+        <button @click="requestAppointment" class="primary-btn">Request Appointment</button>
+      </div>
     </div>
+
+    <!-- Modal -->
     <Modal v-on:close-modal="toggleAppointmentCalendarModal()" v-if="appointmentCalendarDisplayed">
       <div class="modal-content">
         <AppointmentCalendar
@@ -51,8 +63,9 @@
     </Modal>
   </div>
 </template>
-
 <script>
+// TODO: startime being an hour behind? Request failing
+
 import AppointmentService from "@/services/AppointmentService";
 import UserService from "@/services/UserService";
 import Dropdown from "@/components/layout/Dropdown";
@@ -81,11 +94,25 @@ export default {
       chosenCounsellor: {},
       counsellors: [],
       chosenStartTime: {},
+      chosenTitle: "",
       chosenDuration: 0,
+      notes: String,
       appointmentCalendarDisplayed: false
     };
   },
   methods: {
+    requestAppointment: async function() {
+      let appointment = {
+        startTime: this.chosenStartTime,
+        title: this.chosenTitle,
+        duration: this.chosenDuration,
+        counsellorId: this.chosenCounsellor._id
+      };
+
+      let result = await AppointmentService.requestAppointment(appointment);
+      console.log(result);
+    },
+
     dateChosen({ appointmentStartTime, appointmentDuration }) {
       this.chosenStartTime = appointmentStartTime;
       this.chosenDuration = appointmentDuration;
@@ -167,6 +194,16 @@ export default {
 
     .short-input {
       width: 30%;
+    }
+
+    textarea {
+      resize: none;
+      height: 20rem;
+      width: 40rem;
+    }
+
+    button {
+      width: 40rem;
     }
   }
   .calendar-box {

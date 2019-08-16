@@ -24,3 +24,30 @@
   font-weight: 400;
   font-size: 1.5rem;
 }
+
+// secondary button
+.secondary-btn {
+  text-align: center;
+  // width: 10rem;
+  padding: .55rem .8rem;
+  border: 1px solid $color-primary-dark;
+  border-radius: $border-radius;
+  transition: 0.15s;
+  text-decoration: none;
+  background-color: transparent;
+
+  &:hover {
+    background-color: $color-primary-dark;
+    color: $color-white;
+    cursor: pointer;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  color: $color-black;
+  font-family: $font-family;
+  font-weight: 400;
+  font-size: 1.5rem;
+}

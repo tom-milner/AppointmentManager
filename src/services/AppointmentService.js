@@ -17,5 +17,13 @@ export default {
   // Get future appointments of counsellor
   getFutureAppointmentsOfCounsellor(userId) {
     return Api.get(`/appointments/counsellor/${userId}`);
+  },
+
+
+
+  requestAppointment(appointment) {
+    return Api.post("/appointments",
+      appointment
+    );
   }
 }
