@@ -17,6 +17,7 @@
     ></full-calendar>
     <AddEventDialogue
       v-on:close-dialogue="toggleShowAddEventDialogue"
+      v-on:date-chosen="dateChosen"
       v-if="showAddEventDialogue"
       :day="chosenDay"
       :dayEvents="getEventsOfChosenDay"
@@ -65,7 +66,20 @@ export default {
       return dayEvents;
     }
   },
+
+  // add temporary event to show user (color it green or something to show its temporary)
   methods: {
+    dateChosen({ appointmentStartTime, appointmentDuration }) {
+      // add date to appointment start time
+      console.log(appointmentStartTime);
+      console.log(this.chosenDay);
+      appointmentStartTime = this.$emit("date-chosen", {
+        appointmentStartTime,
+        appointmentDuration
+      });
+      this.$emit("close-modal");
+    },
+
     handleDateClick: function(day) {
       // trigger new appointment dialogue
       // get screen coordinates of day clicked

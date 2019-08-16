@@ -23,7 +23,12 @@
 
       <div class="form-field">
         <h3 class="form-heading">Appointment Date</h3>
-        <input class="form-input short-input" disabled type="date" />
+        <input
+          :value="getFormattedChosenDate"
+          :v-model="getFormattedChosenDate"
+          class="form-input short-input"
+          disabled
+        />
         <div
           class="primary-btn short-input"
           @click="toggleAppointmentCalendarModal"
@@ -33,6 +38,8 @@
     <Modal v-on:close-modal="toggleAppointmentCalendarModal()" v-if="appointmentCalendarDisplayed">
       <div class="modal-content">
         <AppointmentCalendar
+          v-on:close-modal="toggleAppointmentCalendarModal()"
+          v-on:date-chosen="dateChosen"
           :events="{ counsellorEvents: counsellorDisabledDates, userEvents:userDisabledDates}"
         />
       </div>
@@ -46,12 +53,20 @@ import UserService from "@/services/UserService";
 import Dropdown from "@/components/layout/Dropdown";
 import AppointmentCalendar from "./AppointmentCalendar/AppointmentCalendar";
 import Modal from "@/components/layout/Modal";
+import Utils from "@/utils";
 
 export default {
   components: {
     Dropdown,
     AppointmentCalendar,
     Modal
+  },
+
+  computed: {
+    getFormattedChosenDate() {
+      if (Utils.objIsEmpty(this.chosenTime.startTime)) return "No date chosen";
+      return this.moment(this.chosenTime.startTime).format("LLL");
+    }
   },
   data() {
     return {
@@ -60,10 +75,19 @@ export default {
       counsellorDisabledDates: [],
       chosenCounsellor: {},
       counsellors: [],
+      chosenTime: {
+        startTime: {},
+        duration: Number
+      },
       appointmentCalendarDisplayed: false
     };
   },
   methods: {
+    dateChosen({ appointmentStartTime, appointmentDuration }) {
+      this.chosenTime.startTime = appointmentStartTime;
+      this.chosenTime.duration = appointmentDuration;
+    },
+
     updateCounsellor: function(counsellor) {
       this.chosenCounsellor = counsellor;
     },

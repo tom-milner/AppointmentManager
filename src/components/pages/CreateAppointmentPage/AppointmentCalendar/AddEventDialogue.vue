@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div v-on-clickaway="closeDialogue" class="add-event-dialogue" :style="positionStyle">
       <div class="headers">
-        <h2 class="dialogue-header heading-2">Add Event</h2>
+        <h2 class="dialogue-header heading-2">Add Appointment</h2>
         <h3 class="dialogue-date heading-3">{{formattedDate}}</h3>
       </div>
       <div class="segment">
@@ -22,7 +22,7 @@
       <div class="segment">
         <p class="form-heading">Choose a duration:</p>
         <!-- TODO: store durations in backend -->
-        <select class="form-input duration-select">
+        <select v-model="chosenDuration" class="form-input duration-select">
           <option
             :value="duration"
             :key="duration"
@@ -31,13 +31,13 @@
         </select>
       </div>
 
-      <div class="segment">
+      <!-- <div class="segment">
         <p class="form-heading">Notes:</p>
-        <textarea class="form-input"></textarea>
-      </div>
+        <textarea :v-model="notes" class="form-input"></textarea>
+      </div>-->
 
       <div class="segment">
-        <div class="primary-btn">Request Appointment</div>
+        <div @click="chooseTime" class="primary-btn">Choose Time</div>
       </div>
     </div>
   </div>
@@ -53,10 +53,14 @@ export default {
   data() {
     return {
       elementWidth: 40,
-      elementHeight: 50,
-      chosenTime: this.moment().startOf("date"),
+      elementHeight: 35,
+      chosenTime: this.moment().startOf("day"),
       chosenDuration: Number,
-      durationOptions: [25, 50]
+      chosenDateTime: {},
+      // 10 minutes between appointments
+      appointmentBufferTime: 10,
+      notes: String,
+      durationOptions: [20, 50]
     };
   },
   components: {
@@ -70,11 +74,20 @@ export default {
   methods: {
     closeDialogue() {
       this.$emit("close-dialogue");
+    },
+    chooseTime() {
+      this.$emit("close-dialogue");
+      let appointmentStartTime = this.chosenDateTime;
+      let appointmentDuration = this.chosenDuration;
+      this.$emit("date-chosen", { appointmentStartTime, appointmentDuration });
     }
   },
   watch: {
     chosenTime: function(newVal) {
-      console.log(newVal);
+      let date = this.moment(this.day.date).format("YYYY MM DD");
+      let time = newVal;
+      let dateTime = date + " " + time;
+      this.chosenDateTime = this.moment(dateTime);
     }
   },
   computed: {
@@ -158,10 +171,15 @@ export default {
     justify-content: space-between;
     align-items: flex-end;
     margin-bottom: 2rem;
+    .dialogue-date {
+      text-align: right;
+    }
+    .dialoge-header {
+      text-align: left;
+    }
   }
 
   .duration-select {
-    background-color: $color-white;
     font-size: 1.5rem;
     height: auto;
   }
