@@ -6,7 +6,7 @@
         <h3 class="dialogue-date heading-3">{{formattedDate}}</h3>
       </div>
       <div class="segment">
-        <p class="form-heading">Choose a start time:</p>
+        <h3 class="form-heading">Choose a start time:</h3>
         <TimePicker
           v-model="chosenTime"
           format="hh:mm a"
@@ -20,7 +20,7 @@
         ></TimePicker>
       </div>
       <div class="segment">
-        <p class="form-heading">Choose a duration:</p>
+        <h3 class="form-heading">Choose a duration:</h3>
         <!-- TODO: store durations in backend -->
         <select v-model="chosenDuration" class="form-input duration-select">
           <option

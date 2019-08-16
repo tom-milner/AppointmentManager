@@ -34,6 +34,11 @@
           @click="toggleAppointmentCalendarModal"
         >Choose from calendar</div>
       </div>
+
+      <div v-if="chosenDuration" class="form-field">
+        <h3 class="form-heading">Appointment duration</h3>
+        <h2 class="heading-3">{{chosenDuration}} minutes</h2>
+      </div>
     </div>
     <Modal v-on:close-modal="toggleAppointmentCalendarModal()" v-if="appointmentCalendarDisplayed">
       <div class="modal-content">
@@ -64,8 +69,8 @@ export default {
 
   computed: {
     getFormattedChosenDate() {
-      if (Utils.objIsEmpty(this.chosenTime.startTime)) return "No date chosen";
-      return this.moment(this.chosenTime.startTime).format("LLL");
+      if (Utils.objIsEmpty(this.chosenStartTime)) return "No date chosen";
+      return this.moment(this.chosenStartTime).format("LLL");
     }
   },
   data() {
@@ -75,17 +80,15 @@ export default {
       counsellorDisabledDates: [],
       chosenCounsellor: {},
       counsellors: [],
-      chosenTime: {
-        startTime: {},
-        duration: Number
-      },
+      chosenStartTime: {},
+      chosenDuration: 0,
       appointmentCalendarDisplayed: false
     };
   },
   methods: {
     dateChosen({ appointmentStartTime, appointmentDuration }) {
-      this.chosenTime.startTime = appointmentStartTime;
-      this.chosenTime.duration = appointmentDuration;
+      this.chosenStartTime = appointmentStartTime;
+      this.chosenDuration = appointmentDuration;
     },
 
     updateCounsellor: function(counsellor) {
