@@ -5,7 +5,7 @@
         <h2 class="dialogue-header heading-2">Add Event</h2>
         <h3 class="dialogue-date heading-3">{{formattedDate}}</h3>
       </div>
-      <div>
+      <div class="segment">
         <p class="form-heading">Choose a start time:</p>
         <TimePicker
           v-model="chosenTime"
@@ -18,11 +18,26 @@
           :disabled-hours="disabledHours"
           class="time-picker"
         ></TimePicker>
-
-        <input type="time" class="form-input" />
       </div>
-      <div>
+      <div class="segment">
         <p class="form-heading">Choose a duration:</p>
+        <!-- TODO: store durations in backend -->
+        <select class="form-input duration-select">
+          <option
+            :value="duration"
+            :key="duration"
+            v-for="duration in durationOptions"
+          >{{duration}} minutes</option>
+        </select>
+      </div>
+
+      <div class="segment">
+        <p class="form-heading">Notes:</p>
+        <textarea class="form-input"></textarea>
+      </div>
+
+      <div class="segment">
+        <div class="primary-btn">Request Appointment</div>
       </div>
     </div>
   </div>
@@ -38,8 +53,10 @@ export default {
   data() {
     return {
       elementWidth: 40,
-      elementHeight: 30,
-      chosenTime: this.moment()
+      elementHeight: 50,
+      chosenTime: this.moment().startOf("date"),
+      chosenDuration: Number,
+      durationOptions: [25, 50]
     };
   },
   components: {
@@ -143,8 +160,21 @@ export default {
     margin-bottom: 2rem;
   }
 
-  .time-picker {
-    margin-bottom: 2rem;
+  .duration-select {
+    background-color: $color-white;
+    font-size: 1.5rem;
+    height: auto;
+  }
+
+  .segment {
+    &:not(:last-child) {
+      margin-bottom: 2rem;
+    }
+
+    textarea {
+      resize: none;
+      height: 15rem;
+    }
   }
 
   // TODO: style this
