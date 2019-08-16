@@ -2,7 +2,6 @@
   <div>
     <full-calendar
       @dateClick="handleDateClick"
-      :dayRender="dayRender"
       ref="fullCalendar"
       :weekends="true"
       :header="{
@@ -19,7 +18,8 @@
     <AddEventDialogue
       v-on:close-dialogue="toggleShowAddEventDialogue"
       v-if="showAddEventDialogue"
-      :dayRectangle="chosenDayRectangle"
+      :day="chosenDay"
+      :dayEvents="getEventsOfChosenDay"
     ></AddEventDialogue>
   </div>
 </template>
@@ -39,19 +39,37 @@ export default {
     return {
       calendarPlugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
       showAddEventDialogue: false,
-      chosenDayRectangle: {}
+      chosenDay: {}
     };
   },
   components: {
     FullCalendar,
     AddEventDialogue
   },
+
+  computed: {
+    getEventsOfChosenDay() {
+      let allEvents = this.events.userEvents.concat(
+        this.events.counsellorEvents
+      );
+      // console.log(allEvents);
+      let chosenDayTime = this.moment(this.chosenDay.date);
+      // console.log(chosenDayTime);
+      let dayEvents = allEvents.filter(event => {
+        // check to see if event is on the same day
+        return (
+          chosenDayTime.isSame(event.start, "day") ||
+          chosenDayTime.isSame(event.end, "day")
+        );
+      });
+      return dayEvents;
+    }
+  },
   methods: {
     handleDateClick: function(day) {
       // trigger new appointment dialogue
       // get screen coordinates of day clicked
-      let dayElement = day.dayEl;
-      this.chosenDayRectangle = dayElement.getBoundingClientRect();
+      this.chosenDay = day;
       if (!this.showAddEventDialogue) {
         this.toggleShowAddEventDialogue();
       }
@@ -59,9 +77,7 @@ export default {
     toggleShowAddEventDialogue() {
       this.showAddEventDialogue = !this.showAddEventDialogue;
     },
-    dayRender: function() {
-      // dayRenderInfo.el.bgColor = "red";
-    },
+
     checkEventSourcesForDuplicates: function() {
       console.log("checking");
       // remove all duplicate start events from counsellor events array
@@ -89,7 +105,6 @@ export default {
         this.events.counsellorEvents.length > 0 ||
         this.events.userEvents.length > 0
       ) {
-        console.log("going to check");
         this.checkEventSourcesForDuplicates();
       }
     }

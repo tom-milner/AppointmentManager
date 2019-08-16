@@ -1,7 +1,13 @@
 <template>
   <div class="wrapper">
     <div v-on-clickaway="closeDialogue" class="add-event-dialogue" :style="positionStyle">
-      <h2>Add Event</h2>
+      <div class="headers">
+        <h2 class="dialogue-header heading-2">Add Event</h2>
+        <h3 class="dialogue-date heading-3">{{formattedDate}}</h3>
+      </div>
+      <div class="date-picker">
+        <p class="form-heading">Choose a time:</p>
+      </div>
     </div>
   </div>
 </template>
@@ -19,19 +25,28 @@ export default {
   },
   mixins: [clickaway],
   props: {
-    dayRectangle: {}
+    day: {},
+    dayEvents: {}
   },
   methods: {
     closeDialogue() {
       this.$emit("close-dialogue");
     }
   },
+
+  mounted() {
+    console.log(this.day);
+    console.log(this.dayEvents);
+  },
   computed: {
+    formattedDate() {
+      return this.moment(this.day.date).format("Do MMM Y");
+    },
+
     positionStyle: function() {
       // TODO: clean up function (variable names etc)
       // this function returns a css class that will position the dialogue box somewhere that doesn't obstruct the user's view of the day.
       // it also positions the dialogue somewhere not off the screenzs
-      console.log(this.dayRectangle);
       let elementX, elementY;
       // get window dimensions
       let windowWidth = window.innerWidth;
@@ -44,28 +59,29 @@ export default {
       let bufferY = 10;
       let bufferX = 10;
 
+      let dayRectangle = this.day.dayEl.getBoundingClientRect();
+
       // check to see if the day on the calendar is on the left or right side of the screen
-      if (this.dayRectangle.left <= windowWidth / 2) {
+      if (dayRectangle.left <= windowWidth / 2) {
         // on the left - move the dialogue box to the right (where there is more space)
-        elementX = this.dayRectangle.left + this.dayRectangle.width + bufferX;
+        elementX = dayRectangle.left + dayRectangle.width + bufferX;
       } else {
         // on the right - move dialogue box to the left
-        elementX = this.dayRectangle.left - elementWidthPx - bufferX;
+        elementX = dayRectangle.left - elementWidthPx - bufferX;
       }
 
       // check to see if the dialoge will fit on the screen
-      if (this.dayRectangle.top >= windowHeight - elementHeightPx) {
+      if (dayRectangle.top >= windowHeight - elementHeightPx) {
         // dialogue won't fit - move it up so that it does
         elementY = windowHeight - elementHeightPx - bufferY;
       } else {
         // dialogue fits
-        elementY = this.dayRectangle.top + bufferY;
+        elementY = dayRectangle.top + bufferY;
       }
       return {
         position: "fixed",
         left: `${elementX}px`,
         top: `${elementY}px`,
-        color: "blue",
         width: `${this.elementWidth}rem`,
         height: `${this.elementHeight}rem`
       };
@@ -92,6 +108,15 @@ export default {
   box-shadow: 5px 5px 30px rgba(0, 0, 0, 0.4);
   background-color: $color-white;
   border-radius: 10px;
+
+  padding: 2rem;
+
+  .headers {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+  }
 
   // TODO: style this
 }
