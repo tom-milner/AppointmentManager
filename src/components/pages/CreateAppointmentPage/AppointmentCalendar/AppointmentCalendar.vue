@@ -16,7 +16,11 @@
         { events: this.events.counsellorEvents, className:'counsellorEvent' }
       ]"
     ></full-calendar>
-    <AddEventDialogue v-if="showAddEventDialogue" :dayRectangle="chosenDayRectangle"></AddEventDialogue>
+    <AddEventDialogue
+      v-on:close-dialogue="toggleShowAddEventDialogue"
+      v-if="showAddEventDialogue"
+      :dayRectangle="chosenDayRectangle"
+    ></AddEventDialogue>
   </div>
 </template>
 
@@ -48,7 +52,12 @@ export default {
       // get screen coordinates of day clicked
       let dayElement = day.dayEl;
       this.chosenDayRectangle = dayElement.getBoundingClientRect();
-      this.showAddEventDialogue = true;
+      if (!this.showAddEventDialogue) {
+        this.toggleShowAddEventDialogue();
+      }
+    },
+    toggleShowAddEventDialogue() {
+      this.showAddEventDialogue = !this.showAddEventDialogue;
     },
     dayRender: function() {
       // dayRenderInfo.el.bgColor = "red";
