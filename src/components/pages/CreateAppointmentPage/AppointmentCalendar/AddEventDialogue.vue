@@ -5,8 +5,24 @@
         <h2 class="dialogue-header heading-2">Add Event</h2>
         <h3 class="dialogue-date heading-3">{{formattedDate}}</h3>
       </div>
-      <div class="date-picker">
-        <p class="form-heading">Choose a time:</p>
+      <div>
+        <p class="form-heading">Choose a start time:</p>
+        <TimePicker
+          v-model="chosenTime"
+          format="hh:mm a"
+          formatted="hh:mm a"
+          minuteInterval="30"
+          noLabel
+          inputSize="sm"
+          onlyTime
+          :disabled-hours="disabledHours"
+          class="time-picker"
+        ></TimePicker>
+
+        <input type="time" class="form-input" />
+      </div>
+      <div>
+        <p class="form-heading">Choose a duration:</p>
       </div>
     </div>
   </div>
@@ -15,13 +31,19 @@
 <script>
 import Utils from "@/utils";
 import { mixin as clickaway } from "vue-clickaway";
+import TimePicker from "vue-ctk-date-time-picker";
+import "vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css";
 
 export default {
   data() {
     return {
       elementWidth: 40,
-      elementHeight: 30
+      elementHeight: 30,
+      chosenTime: this.moment()
     };
+  },
+  components: {
+    TimePicker
   },
   mixins: [clickaway],
   props: {
@@ -33,14 +55,17 @@ export default {
       this.$emit("close-dialogue");
     }
   },
-
-  mounted() {
-    console.log(this.day);
-    console.log(this.dayEvents);
+  watch: {
+    chosenTime: function(newVal) {
+      console.log(newVal);
+    }
   },
   computed: {
     formattedDate() {
       return this.moment(this.day.date).format("Do MMM Y");
+    },
+    disabledHours() {
+      return this.dayEvents.map(event => this.moment(event.start).format("HH"));
     },
 
     positionStyle: function() {
@@ -115,6 +140,10 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
+    margin-bottom: 2rem;
+  }
+
+  .time-picker {
     margin-bottom: 2rem;
   }
 
