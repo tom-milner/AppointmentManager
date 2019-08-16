@@ -23,16 +23,28 @@
 
       <div class="form-field">
         <h3 class="form-heading">Appointment Date</h3>
-        <input class="form-input short-input" disabled type="date" />
+        <input
+          :value="getFormattedChosenDate"
+          :v-model="getFormattedChosenDate"
+          class="form-input short-input"
+          disabled
+        />
         <div
           class="primary-btn short-input"
           @click="toggleAppointmentCalendarModal"
         >Choose from calendar</div>
       </div>
+
+      <div v-if="chosenDuration" class="form-field">
+        <h3 class="form-heading">Appointment duration</h3>
+        <h2 class="heading-3">{{chosenDuration}} minutes</h2>
+      </div>
     </div>
     <Modal v-on:close-modal="toggleAppointmentCalendarModal()" v-if="appointmentCalendarDisplayed">
       <div class="modal-content">
         <AppointmentCalendar
+          v-on:close-modal="toggleAppointmentCalendarModal()"
+          v-on:date-chosen="dateChosen"
           :events="{ counsellorEvents: counsellorDisabledDates, userEvents:userDisabledDates}"
         />
       </div>
@@ -46,12 +58,20 @@ import UserService from "@/services/UserService";
 import Dropdown from "@/components/layout/Dropdown";
 import AppointmentCalendar from "./AppointmentCalendar/AppointmentCalendar";
 import Modal from "@/components/layout/Modal";
+import Utils from "@/utils";
 
 export default {
   components: {
     Dropdown,
     AppointmentCalendar,
     Modal
+  },
+
+  computed: {
+    getFormattedChosenDate() {
+      if (Utils.objIsEmpty(this.chosenStartTime)) return "No date chosen";
+      return this.moment(this.chosenStartTime).format("LLL");
+    }
   },
   data() {
     return {
@@ -60,10 +80,17 @@ export default {
       counsellorDisabledDates: [],
       chosenCounsellor: {},
       counsellors: [],
+      chosenStartTime: {},
+      chosenDuration: 0,
       appointmentCalendarDisplayed: false
     };
   },
   methods: {
+    dateChosen({ appointmentStartTime, appointmentDuration }) {
+      this.chosenStartTime = appointmentStartTime;
+      this.chosenDuration = appointmentDuration;
+    },
+
     updateCounsellor: function(counsellor) {
       this.chosenCounsellor = counsellor;
     },

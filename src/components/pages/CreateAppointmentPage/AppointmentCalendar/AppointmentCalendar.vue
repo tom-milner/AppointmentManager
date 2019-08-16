@@ -1,20 +1,28 @@
 <template>
-  <full-calendar
-    @dateClick="handleDateClick"
-    :dayRender="dayRender"
-    ref="fullCalendar"
-    :weekends="true"
-    :header="{
+  <div>
+    <full-calendar
+      @dateClick="handleDateClick"
+      ref="fullCalendar"
+      :weekends="true"
+      :header="{
         left: 'prev,next, today',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
       }"
-    :plugins="calendarPlugins"
-    :eventSources="[
+      :plugins="calendarPlugins"
+      :eventSources="[
         { events: this.events.userEvents, className:'userEvent' },
         { events: this.events.counsellorEvents, className:'counsellorEvent' }
       ]"
-  ></full-calendar>
+    ></full-calendar>
+    <AddEventDialogue
+      v-on:close-dialogue="toggleShowAddEventDialogue"
+      v-on:date-chosen="dateChosen"
+      v-if="showAddEventDialogue"
+      :day="chosenDay"
+      :dayEvents="getEventsOfChosenDay"
+    ></AddEventDialogue>
+  </div>
 </template>
 
 <script>
@@ -24,18 +32,66 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
+// custom components
+import AddEventDialogue from "./AddEventDialogue";
+
 export default {
-  components: {
-    FullCalendar
+  data() {
+    return {
+      calendarPlugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+      showAddEventDialogue: false,
+      chosenDay: {}
+    };
   },
+  components: {
+    FullCalendar,
+    AddEventDialogue
+  },
+
+  computed: {
+    getEventsOfChosenDay() {
+      let allEvents = this.events.userEvents.concat(
+        this.events.counsellorEvents
+      );
+      // console.log(allEvents);
+      let chosenDayTime = this.moment(this.chosenDay.date);
+      // console.log(chosenDayTime);
+      let dayEvents = allEvents.filter(event => {
+        // check to see if event is on the same day
+        return (
+          chosenDayTime.isSame(event.start, "day") ||
+          chosenDayTime.isSame(event.end, "day")
+        );
+      });
+      return dayEvents;
+    }
+  },
+
+  // add temporary event to show user (color it green or something to show its temporary)
   methods: {
-    handleDateClick: function(arg) {
+    dateChosen({ appointmentStartTime, appointmentDuration }) {
+      // add date to appointment start time
+      console.log(appointmentStartTime);
+      console.log(this.chosenDay);
+      appointmentStartTime = this.$emit("date-chosen", {
+        appointmentStartTime,
+        appointmentDuration
+      });
+      this.$emit("close-modal");
+    },
+
+    handleDateClick: function(day) {
       // trigger new appointment dialogue
-      console.log(arg);
+      // get screen coordinates of day clicked
+      this.chosenDay = day;
+      if (!this.showAddEventDialogue) {
+        this.toggleShowAddEventDialogue();
+      }
     },
-    dayRender: function() {
-      // dayRenderInfo.el.bgColor = "red";
+    toggleShowAddEventDialogue() {
+      this.showAddEventDialogue = !this.showAddEventDialogue;
     },
+
     checkEventSourcesForDuplicates: function() {
       console.log("checking");
       // remove all duplicate start events from counsellor events array
@@ -63,7 +119,6 @@ export default {
         this.events.counsellorEvents.length > 0 ||
         this.events.userEvents.length > 0
       ) {
-        console.log("going to check");
         this.checkEventSourcesForDuplicates();
       }
     }
@@ -71,12 +126,6 @@ export default {
   // check for duplicate events before mounting
   beforeMount() {
     this.checkEventSourcesForDuplicates();
-  },
-
-  data() {
-    return {
-      calendarPlugins: [dayGridPlugin, timeGridPlugin, interactionPlugin]
-    };
   }
 };
 </script>
