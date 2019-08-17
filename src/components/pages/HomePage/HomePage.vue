@@ -1,9 +1,13 @@
 <template>
   <div>
-    <h2 class="heading-2">Welcome, {{user.username}}</h2>
+    <h2 class="heading-2">Welcome, {{user.firstname}}</h2>
     <div class="appointments-container">
       <h2 class="heading-2">Upcoming Appointments</h2>
-      <div class="scrolling-appointments">
+
+      <div
+        v-if=" appointments!=undefined && appointments.length > 0"
+        class="scrolling-appointments"
+      >
         <AppointmentCard
           v-for="appointment in appointments"
           v-bind:key="appointment._id"
@@ -11,10 +15,16 @@
           @click.native="toggleModal(appointment)"
         ></AppointmentCard>
       </div>
+      <div class="no-appointments-box" v-else>
+        <h4 class="heading-4 error">No Upcoming Appointments!</h4>
+      </div>
     </div>
     <div class="appointments-container">
       <h2 class="heading-2">Pending Appointments</h2>
       <div class="scrolling-appointments"></div>
+      <div class="no-appointments-box">
+        <h4 class="heading-4 error">No Pending Appointments!</h4>
+      </div>
     </div>
     <Modal v-on:close-modal="toggleModal()" v-if="modalDisplayed">
       <div class="modal-content">
@@ -70,6 +80,10 @@ export default {
 .appointments-container {
   margin-top: 5rem;
   overflow: hidden;
+
+  .no-appointments-box {
+    padding: 4rem 0 0 4rem;
+  }
 }
 
 .scrolling-appointments {

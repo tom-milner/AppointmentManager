@@ -20,8 +20,9 @@ export default {
   },
 
 
-
+  // request an appointment
   requestAppointment(appointment) {
+    console.log(appointment);
     return Api.post("/appointments",
       appointment
     );

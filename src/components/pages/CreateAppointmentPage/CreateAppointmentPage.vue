@@ -41,7 +41,7 @@
 
       <div class="form-field">
         <p class="form-heading">Notes:</p>
-        <textarea :v-model="notes" class="form-input"></textarea>
+        <textarea v-model="notes" class="form-input"></textarea>
       </div>
       <div v-if="errorMessage.length > 0" class="form-field">
         <h4 class="heading-4 error">{{this.errorMessage}}</h4>
@@ -98,7 +98,7 @@ export default {
       chosenStartTime: {},
       chosenTitle: "",
       chosenDuration: 0,
-      notes: String,
+      notes: "",
       appointmentCalendarDisplayed: false,
       errorMessage: ""
     };
@@ -163,13 +163,14 @@ export default {
         let result = await AppointmentService.requestAppointment(appointment);
 
         // check for server error
-        if (!result.data.success) {
+        if (!result.data.success || result.data.status == 400) {
           throw result.data.message;
         }
 
         // request was a success - redirect user
         this.$router.push("/");
       } catch (errorMessage) {
+        console.log(errorMessage);
         this.errorMessage = errorMessage;
       }
     },
