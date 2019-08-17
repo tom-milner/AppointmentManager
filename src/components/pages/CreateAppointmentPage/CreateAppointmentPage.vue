@@ -11,7 +11,6 @@
         <h3 class="form-heading">Counsellor</h3>
         <div class="short-input">
           <dropdown
-            v-if="counsellors.length > 0"
             :options="counsellors"
             :selected="chosenCounsellor"
             :dropdownKey="'username'"
@@ -43,6 +42,9 @@
       <div class="form-field">
         <p class="form-heading">Notes:</p>
         <textarea :v-model="notes" class="form-input"></textarea>
+      </div>
+      <div v-if="errorMessage.length > 0" class="form-field">
+        <h4 class="heading-4 error">{{this.errorMessage}}</h4>
       </div>
 
       <!-- Submit form -->
@@ -97,49 +99,78 @@ export default {
       chosenTitle: "",
       chosenDuration: 0,
       notes: String,
-      appointmentCalendarDisplayed: false
+      appointmentCalendarDisplayed: false,
+      errorMessage: ""
     };
   },
   methods: {
     validateInput() {
-      console.log(this.chosenStartTime);
-      console.log(this.chosenCounsellor);
-      console.log(this.chosenTitle);
-      console.log(this.chosenDuration);
-      console.log(this.notes);
-
+      // check for title
+      if (!this.chosenTitle) {
+        return {
+          error: true,
+          message: "Please enter a title for your appointment."
+        };
+      }
       // check if user has chosen a counsellor
       if (!this.chosenCounsellor._id) {
         return {
-          success: false,
-          message: "Please choose a counsellor"
+          error: true,
+          message: "Please choose a counsellor for your appointment."
         };
       }
       // check to see if user has chosen a start time
       if (!this.chosenStartTime._isAMomentObject) {
         return {
-          success: false,
+          error: true,
           message: "Please choose a time and date for your appointment."
         };
       }
+
+      // TODO: create file for error message constants
+
       // check to see if user has chosen a duration
+      if (this.chosenDuration == 0) {
+        return {
+          error: true,
+          message: "Please choose a valid duration for your appointment."
+        };
+      }
+
+      // data is all good!!!!
+      return {
+        error: false
+      };
     },
 
     requestAppointment: async function() {
-      this.validateInput();
+      try {
+        // validate input
+        let { error, message } = this.validateInput();
+        // only send request if there's no inut validation error
+        if (error) {
+          throw message;
+        }
+        // build request body
+        let appointment = {
+          startTime: this.chosenStartTime,
+          title: this.chosenTitle,
+          duration: this.chosenDuration,
+          counsellorId: this.chosenCounsellor._id,
+          clientNotes: this.notes
+        };
+        // send request
+        let result = await AppointmentService.requestAppointment(appointment);
 
-      let appointment = {
-        startTime: this.chosenStartTime,
-        title: this.chosenTitle,
-        duration: this.chosenDuration,
-        counsellorId: this.chosenCounsellor._id,
-        clientNotes: this.notes
-      };
+        // check for server error
+        if (!result.data.success) {
+          throw result.data.message;
+        }
 
-      let result = await AppointmentService.requestAppointment(appointment);
-      console.log(result);
-      if (result.success) {
+        // request was a success - redirect user
         this.$router.push("/");
+      } catch (errorMessage) {
+        this.errorMessage = errorMessage;
       }
     },
 
@@ -214,26 +245,26 @@ export default {
 
 .request-form {
   margin: 2rem 0;
+  width: 40%;
 
   .form-field {
-    max-width: 75%;
     width: auto;
     &:not(:last-of-type) {
       margin-bottom: 2rem;
     }
 
     .short-input {
-      width: 30%;
+      width: 60%;
     }
 
     textarea {
       resize: none;
       height: 20rem;
-      width: 40rem;
+      width: 100%;
     }
 
     button {
-      width: 40rem;
+      width: 100%;
     }
   }
   .calendar-box {

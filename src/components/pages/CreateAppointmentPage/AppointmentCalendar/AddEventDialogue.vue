@@ -59,7 +59,7 @@ export default {
       // 10 minutes between appointments
       appointmentBufferTime: 10,
       notes: String,
-      durationOptions: [20, 50]
+      durationOptions: [50]
     };
   },
   components: {

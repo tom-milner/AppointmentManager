@@ -1,6 +1,6 @@
 
 <template>
-  <div class="btn-group" v-on-clickaway="updateOption">
+  <div class="btn-group">
     <div @click="toggleMenu()">
       <div class="dropdown-toggle">
         <span v-if="selectedOption[dropdownKey] !== undefined">{{ selectedOption[dropdownKey] }}</span>
@@ -8,7 +8,7 @@
         <span class="caret"></span>
       </div>
     </div>
-    <ul class="dropdown-menu" v-if="showMenu && options.length>0">
+    <ul v-on-clickaway="updateOption" class="dropdown-menu" v-if="showMenu && options.length>0">
       <li v-for="option in options" v-bind:key="option[dropdownKey]">
         <a href="javascript:void(0)" @click="updateOption(option)">{{ option[dropdownKey] }}</a>
       </li>
