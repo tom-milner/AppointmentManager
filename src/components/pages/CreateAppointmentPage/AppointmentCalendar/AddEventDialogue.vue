@@ -30,6 +30,9 @@
           >{{duration}} minutes</option>
         </select>
       </div>
+      <div v-if="errorMessage.length > 0" class="segment">
+        <h4 class="heading-4 error">{{errorMessage}}</h4>
+      </div>
 
       <div class="segment">
         <div @click="chooseTime" class="primary-btn">Choose Time</div>
@@ -47,10 +50,11 @@ import "vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css";
 export default {
   data() {
     return {
+      errorMessage: "",
       elementWidth: 40,
       elementHeight: 35,
       chosenTime: this.moment().startOf("day"),
-      chosenDuration: Number,
+      chosenDuration: 0,
       chosenDateTime: {},
       // 10 minutes between appointments
       appointmentBufferTime: 10,
@@ -71,14 +75,28 @@ export default {
       this.$emit("close-dialogue");
     },
     chooseTime() {
-      this.$emit("close-dialogue");
-      let appointmentStartTime = this.chosenDateTime;
-      let appointmentDuration = this.chosenDuration;
-      this.$emit("date-chosen", { appointmentStartTime, appointmentDuration });
+      // data validation - no need for seperate function as we are only checking two variables
+      if (!this.chosenDateTime._isAMomentObject) {
+        this.errorMessage = "Please choose a valid time.";
+      } else if (this.chosenDuration == 0) {
+        this.errorMessage = "Please choose a valid duration.";
+      } else {
+        this.$emit("close-dialogue");
+        let appointmentStartTime = this.chosenDateTime;
+        let appointmentDuration = this.chosenDuration;
+        this.$emit("date-chosen", {
+          appointmentStartTime,
+          appointmentDuration
+        });
+      }
+
+      console.log(this.errorMessage);
     }
   },
   watch: {
     chosenTime: function(newVal) {
+      // make sure user has chosen time and duration
+
       let date = this.moment(this.day.date).format("YYYY MM DD");
       let time = newVal;
       let dateTime = date + " " + time;
@@ -133,7 +151,7 @@ export default {
         left: `${elementX}px`,
         top: `${elementY}px`,
         width: `${this.elementWidth}rem`,
-        height: `${this.elementHeight}rem`
+        minHeight: `${this.elementHeight}rem`
       };
     }
   }

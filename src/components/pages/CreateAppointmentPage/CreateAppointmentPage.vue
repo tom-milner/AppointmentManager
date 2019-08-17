@@ -101,16 +101,46 @@ export default {
     };
   },
   methods: {
+    validateInput() {
+      console.log(this.chosenStartTime);
+      console.log(this.chosenCounsellor);
+      console.log(this.chosenTitle);
+      console.log(this.chosenDuration);
+      console.log(this.notes);
+
+      // check if user has chosen a counsellor
+      if (!this.chosenCounsellor._id) {
+        return {
+          success: false,
+          message: "Please choose a counsellor"
+        };
+      }
+      // check to see if user has chosen a start time
+      if (!this.chosenStartTime._isAMomentObject) {
+        return {
+          success: false,
+          message: "Please choose a time and date for your appointment."
+        };
+      }
+      // check to see if user has chosen a duration
+    },
+
     requestAppointment: async function() {
+      this.validateInput();
+
       let appointment = {
         startTime: this.chosenStartTime,
         title: this.chosenTitle,
         duration: this.chosenDuration,
-        counsellorId: this.chosenCounsellor._id
+        counsellorId: this.chosenCounsellor._id,
+        clientNotes: this.notes
       };
 
       let result = await AppointmentService.requestAppointment(appointment);
       console.log(result);
+      if (result.success) {
+        this.$router.push("/");
+      }
     },
 
     dateChosen({ appointmentStartTime, appointmentDuration }) {

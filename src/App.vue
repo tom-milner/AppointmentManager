@@ -23,6 +23,8 @@
   max-width: 10rem;
 }
 
+// TODO: flash messages
+
 .app-main {
   order: 1;
   flex-grow: 1;

@@ -1,8 +1,6 @@
 
 <template>
-  <!-- TODO: add clickaway? -->
-
-  <div class="btn-group">
+  <div class="btn-group" v-on-clickaway="updateOption">
     <div @click="toggleMenu()">
       <div class="dropdown-toggle">
         <span v-if="selectedOption[dropdownKey] !== undefined">{{ selectedOption[dropdownKey] }}</span>
@@ -19,7 +17,10 @@
 </template>
 
 <script>
+import { mixin as clickaway } from "vue-clickaway";
+
 export default {
+  mixins: [clickaway],
   data() {
     return {
       selectedOption: {},

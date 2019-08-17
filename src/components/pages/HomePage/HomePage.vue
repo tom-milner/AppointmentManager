@@ -38,10 +38,12 @@ export default {
 
   methods: {
     getUserAppointments: async function() {
+      // get user appointments from API
       console.log(this.user._id);
       let response = await AppointmentService.getAppointmentsOfClient(
         this.user._id
       );
+      // sort user appointments and set local state
       this.appointments = response.data.appointments;
     },
     toggleModal: function(appointment) {
