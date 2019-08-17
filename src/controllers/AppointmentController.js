@@ -4,18 +4,23 @@ const UserModel = require("../models/UserModel");
 const moment = require("moment");
 
 // Fetch all appointments regardless
-function getAllAppointments(req, res) {
-  AppointmentModel.find({}, function(err, allAppointments) {
-    if (err) {
-      console.log(err);
-      res.status(500).send({
-        success: false,
-        error: "An error has occured fetching all appointments"
-      });
-    } else {
-      res.send(allAppointments);
-    }
-  });
+async function getAllAppointments(req, res) {
+
+  try {
+    // get appointments and sort them
+    let allAppointments = await AppointmentModel.find({}).sort({
+      startTime: "asc"
+    });
+    console.log(allAppointments);
+    // return the appointments
+    res.send(allAppointments);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      success: false,
+      message: "An error has occured fetching all appointments"
+    });
+  }
 }
 
 // TODO: combine getFutureAppointmentsOfCounsellor and getAppointmentsOfClient
@@ -34,14 +39,11 @@ async function getFutureAppointmentsOfCounsellor(req, res) {
   try {
     const userId = req.params.userId;
     let appointmentsFromNow = await AppointmentModel.find({
-      $or: [
-        {
-          counsellorId: userId
-        }
-      ],
+      $or: [{
+        counsellorId: userId
+      }],
       // only get appointments that start or end in the future.
-      $or: [
-        {
+      $or: [{
           startTime: {
             $gt: now
           }
@@ -52,6 +54,8 @@ async function getFutureAppointmentsOfCounsellor(req, res) {
           }
         }
       ]
+    }).sort({
+      startTime: "asc"
     });
 
     res.status(200).send({
@@ -81,6 +85,8 @@ async function getAppointmentsOfClient(req, res) {
 
     const userAppointments = await AppointmentModel.find({
       clients: userId
+    }).sort({
+      startTime: "asc"
     });
 
     res.status(200).send({
@@ -89,6 +95,7 @@ async function getAppointmentsOfClient(req, res) {
       appointments: userAppointments
     });
   } catch (errorMessage) {
+    console.log(errorMessage);
     res.status(400).send({
       success: false,
       message: errorMessage || "Error getting user appointments."
@@ -135,7 +142,7 @@ async function insertAppointment(req, res) {
     });
 
     // Save the model to the database
-    await appointment.save(function(err, newAppointment) {
+    await appointment.save(function (err, newAppointment) {
       if (err) {
         console.log(err);
         throw {
@@ -161,6 +168,9 @@ async function insertAppointment(req, res) {
   }
 }
 
+
+// Helper functions - not called directly by route handler
+
 async function checkClientAvailability(
   desiredStartTime,
   desiredEndTime,
@@ -170,10 +180,8 @@ async function checkClientAvailability(
   let clashingAppointments = await AppointmentModel.find({
     clients: clientId,
     // check to see if any of the clients have any other appointments have start or end times that occur between the desired start and end times of the new appointment.
-    $or: [
-      {
-        $and: [
-          {
+    $or: [{
+        $and: [{
             startTime: {
               $lte: desiredEndTime
             }
@@ -186,8 +194,7 @@ async function checkClientAvailability(
         ]
       },
       {
-        $and: [
-          {
+        $and: [{
             endTime: {
               $gte: desiredStartTime
             }
@@ -220,10 +227,8 @@ async function checkCounsellorAvailablity(
     counsellorId: counsellorId,
     // check to see if the counsellor has any other appointments have start or end times that occur between the desired start and end times of the new appointment.
 
-    $or: [
-      {
-        $and: [
-          {
+    $or: [{
+        $and: [{
             startTime: {
               $lte: desiredEndTime
             }
@@ -236,8 +241,7 @@ async function checkCounsellorAvailablity(
         ]
       },
       {
-        $and: [
-          {
+        $and: [{
             endTime: {
               $gte: desiredStartTime
             }
@@ -262,6 +266,25 @@ async function checkCounsellorAvailablity(
   }
 }
 
+
+function sortAppointmentsByDate(appointments) {
+
+  // sort appointments and return sorted array
+  return appointments.sort(function (
+    appointment,
+    nextAppointment
+  ) {
+    if (appointment.startTime > nextAppointment.startTime) {
+      return 1;
+    } else if (appointment.startTime < nextAppointment.startTime) {
+      return -1;
+    }
+    return 0;
+  });
+
+}
+
+// expose functions
 module.exports = {
   insertAppointment,
   getAllAppointments,

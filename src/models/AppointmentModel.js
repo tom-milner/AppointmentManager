@@ -19,6 +19,14 @@ let appointmentSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     }],
+    // client notes about appointment
+    clientNotes: {
+        type: String,
+    },
+    // counsellor notes about appointment
+    counsellorNotes: {
+        type: String,
+    },
     // location of appointment
     loc: {
         type: {
@@ -48,6 +56,8 @@ let appointmentSchema = new Schema({
         default: false
     }
 });
+
+// TODO: add notes support
 
 // tie an index to the schema so that it can be used to search
 appointmentSchema.index({

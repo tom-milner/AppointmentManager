@@ -7,7 +7,7 @@ let AppointmentControllerPolicy = require("../policies/AppointmentControllerPoli
 
 let Role = require("../models/Role");
 
-// Always requires users to be logged on
+// Always requires users to be logged in for these routes - appointments contain personal information 
 router.use(AuthenticationMiddleware.isLoggedIn);
 
 // Get all appointments of a specific user

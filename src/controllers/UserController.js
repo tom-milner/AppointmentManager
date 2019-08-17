@@ -1,6 +1,5 @@
 const UserModel = require("../models/UserModel");
 const Role = require("../models/Role");
-// TODO: Build UserControllerPolicy
 
 // takes array of client Ids an returns simple user object.
 async function getUsernamesFromUserIds(req, res) {
