@@ -10,14 +10,26 @@ function initializeNavigationGuard() {
   // It takes the route the user is going to, the route the user came from, and a function called next.
   // The next function will either allow navigation to the "to" route, or redirect the user.
   Router.beforeEach((to, from, next) => {
-    if (to.matched.some(record => record.meta.requiresAuth)) { // If any routes have the "requiresAuth" meta property set to true
+    const {
+      minimumAuthRole
+    } = to.meta;
+
+    if (minimumAuthRole) { // If any routes have the "minimumAuthRole" meta property
       if (Store.getters["authentication/isLoggedIn"]) {
-        // allow the user to continue to their chosen route, as they are logged in 
-        next();
-        return;
+        let currentUserRole = Store.state.authentication.user.role;
+        console.log(currentUserRole, minimumAuthRole);
+        // check to see if the user has the required access levels
+        if (currentUserRole >= minimumAuthRole) {
+          // allow the user to continue to their chosen route, as they are logged in 
+          next();
+        } else {
+          // redirect the user home - they don't have access to this area
+          next("/home");
+        }
+      } else {
+        // make the user login first.
+        next("/login");
       }
-      // make the user login first.
-      next("/login")
     } else {
       // route does not require user to be logged in - let them through
       next();

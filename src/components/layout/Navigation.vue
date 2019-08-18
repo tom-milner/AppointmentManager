@@ -20,6 +20,11 @@
             <icon name="plus-square" class="icon-nav-item" />
           </router-link>
         </li>
+        <li>
+          <router-link v-if="user.role>=2 " to="/admin" class="nav-item">
+            <icon name="shield" class="icon-nav-item" />
+          </router-link>
+        </li>
       </ul>
       <div class="logout-button-box" @click="logout">
         <icon name="log-out" class="logout-button"></icon>
@@ -38,7 +43,9 @@ export default {
   },
 
   data() {
-    return {};
+    return {
+      user: {}
+    };
   },
 
   methods: {
@@ -46,6 +53,11 @@ export default {
       UserService.logoutUser();
       this.$router.push("/");
     }
+  },
+
+  mounted() {
+    // get user from the store
+    this.user = this.$store.state.authentication.user;
   }
 };
 </script>
