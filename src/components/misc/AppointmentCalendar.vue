@@ -95,17 +95,19 @@ export default {
     },
 
     checkEventSourcesForDuplicates: function() {
-      console.log(this);
       // remove all duplicate start events from counsellor events array
       let userEvents = this.events.userEvents;
       let counsellorEvents = this.events.counsellorEvents;
+      console.log("checking");
 
-      counsellorEvents = counsellorEvents.filter(function(event) {
-        return (
-          userEvents.findIndex(
-            ev => ev.start == event.start && ev.end == event.end
-          ) == -1
+      counsellorEvents = counsellorEvents.filter(function(counsellorEvent) {
+        console.log(counsellorEvent);
+        let index = userEvents.findIndex(
+          userEvent =>
+            userEvent.start == counsellorEvent.start ||
+            userEvent.end == counsellorEvent.end
         );
+        return index == -1;
       });
 
       this.events.counsellorEvents = counsellorEvents;
@@ -128,7 +130,7 @@ export default {
   },
   // check for duplicate events before mounting
   beforeMount() {
-    if (this.events.counsellorEvents) this.checkEventSourcesForDuplicates();
+    this.checkEventSourcesForDuplicates();
   }
 };
 </script>

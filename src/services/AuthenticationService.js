@@ -2,6 +2,7 @@ import Store from "@/store/store";
 import Router from "@/router";
 import Api from "@/services/Api";
 import UserService from "@/services/UserService";
+import Utils from "@/utils";
 
 
 function initializeNavigationGuard() {
@@ -16,6 +17,16 @@ function initializeNavigationGuard() {
 
     if (minimumAuthRole) { // If any routes have the "minimumAuthRole" meta property
       if (Store.getters["authentication/isLoggedIn"]) {
+
+        // make sure the user exists in store
+        // the store is wiped on refresh, so this makes sure that there is always a user in the store.
+        // the user was originally kept in localStorage but I decided this wasn't secure enough
+        if (!Store.state.authentication.user.role) {
+          console.log("resetting user");
+          let currentToken = Store.state.authentication.token;
+          Store.state.authentication.user = Utils.getUserFromToken(currentToken);
+        }
+
         let currentUserRole = Store.state.authentication.user.role;
         console.log(currentUserRole, minimumAuthRole);
         // check to see if the user has the required access levels

@@ -14,11 +14,15 @@ export default {
     return Api.get(`/appointments/client/${userId}`);
   },
 
-  // Get future appointments of counsellor
-  getFutureAppointmentsOfCounsellor(userId) {
+  // Get appointments of counsellor
+  getReducedAppointmentsOfCounsellor(userId) {
     return Api.get(`/appointments/counsellor/${userId}`);
   },
 
+  // get full detail appointments of counsellor
+  getFullAppointmentsOfCounsellor(userId) {
+    return Api.get(`/appointments/admin/counsellor/${userId}`)
+  },
 
   // request an appointment
   requestAppointment(appointment) {

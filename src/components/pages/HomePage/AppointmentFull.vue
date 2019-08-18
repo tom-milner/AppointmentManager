@@ -46,7 +46,8 @@ import UserService from "@/services/UserService";
 import AppointmentService from "@/services/AppointmentService";
 export default {
   props: {
-    appointment: {}
+    appointment: {},
+    isCounsellor: Boolean
   },
   computed: {
     getFormattedStartTime: function() {

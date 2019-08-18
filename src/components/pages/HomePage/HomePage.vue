@@ -51,7 +51,7 @@
 
     <Modal v-on:close-modal="toggleModal()" v-if="modalDisplayed">
       <div class="modal-content">
-        <AppointmentFull :appointment="selectedAppointment"></AppointmentFull>
+        <AppointmentFull :isCounsellor="isUserCounsellor" :appointment="selectedAppointment"></AppointmentFull>
       </div>
     </Modal>
   </div>
@@ -63,6 +63,7 @@ import AppointmentFull from "@/components/pages/HomePage/AppointmentFull.vue";
 import Modal from "@/components/layout/Modal";
 import AppointmentService from "@/services/AppointmentService";
 import AppointmentCalendar from "@/components/misc/AppointmentCalendar";
+import Role from "@/models/Role";
 
 export default {
   components: {
@@ -73,6 +74,9 @@ export default {
   },
 
   computed: {
+    userIsCounsellor() {
+      return this.user.role >= Role.Counsellor;
+    },
     // returns a list of all the approved appointments
     approvedAppointments() {
       return this.appointments
@@ -91,11 +95,19 @@ export default {
   methods: {
     getUserAppointments: async function() {
       // get user appointments from API
-      console.log(this.user._id);
-      let response = await AppointmentService.getAppointmentsOfClient(
-        this.user._id
-      );
-      // sort user appointments and set local state
+      // check to see if user is a client or counsellor
+      let userIsCounsellor = this.user.role >= Role.Counsellor;
+
+      let response;
+      if (userIsCounsellor) {
+        response = await AppointmentService.getFullAppointmentsOfCounsellor(
+          this.user._id
+        );
+      } else {
+        response = await AppointmentService.getAppointmentsOfClient(
+          this.user._id
+        );
+      }
       this.appointments = response.data.appointments;
     },
     toggleModal: function(appointment) {
