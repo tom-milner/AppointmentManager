@@ -1,9 +1,10 @@
 // This file contains all the authentication state management.
 
+
 // The data to be kept in the store.
 const state = {
   token: "" || localStorage.getItem("token"),
-  user: JSON.parse(localStorage.getItem("user")) // TODO: get user object from token
+  user: ""
 };
 
 // Mutations are methods to be ran whenever a state change is needed.
@@ -17,7 +18,6 @@ const mutations = {
     state.user = user;
     state.status = "success";
     localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
   },
 
   // changes the status to "loading" so any dependent services know to wait.
@@ -34,12 +34,11 @@ const mutations = {
     state.token = "";
     state.user = "";
     localStorage.removeItem("token");
-    localStorage.removeItem("user");
   },
 }
 
 const getters = {
-  isLoggedIn: state => !!state.token, // TODO: actually verify token first!!!
+  isLoggedIn: state => !!state.token,
   authStatus: state => state.status
 };
 

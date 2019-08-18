@@ -51,7 +51,7 @@
 
     <Modal v-on:close-modal="toggleModal()" v-if="modalDisplayed">
       <div class="modal-content">
-        <AppointmentFull :appointment="selectedAppointment"></AppointmentFull>
+        <AppointmentFull :isCounsellor="isUserCounsellor" :appointment="selectedAppointment"></AppointmentFull>
       </div>
     </Modal>
   </div>
@@ -63,6 +63,8 @@ import AppointmentFull from "@/components/pages/HomePage/AppointmentFull.vue";
 import Modal from "@/components/layout/Modal";
 import AppointmentService from "@/services/AppointmentService";
 import AppointmentCalendar from "@/components/misc/AppointmentCalendar";
+import Role from "@/models/Role";
+import { setInterval, clearInterval } from "timers";
 
 export default {
   components: {
@@ -73,6 +75,9 @@ export default {
   },
 
   computed: {
+    isUserCounsellor() {
+      return this.user.role >= Role.Counsellor;
+    },
     // returns a list of all the approved appointments
     approvedAppointments() {
       return this.appointments
@@ -91,11 +96,19 @@ export default {
   methods: {
     getUserAppointments: async function() {
       // get user appointments from API
-      console.log(this.user._id);
-      let response = await AppointmentService.getAppointmentsOfClient(
-        this.user._id
-      );
-      // sort user appointments and set local state
+      // check to see if user is a client or counsellor
+      let userIsCounsellor = this.user.role >= Role.Counsellor;
+
+      let response;
+      if (userIsCounsellor) {
+        response = await AppointmentService.getFullAppointmentsOfCounsellor(
+          this.user._id
+        );
+      } else {
+        response = await AppointmentService.getAppointmentsOfClient(
+          this.user._id
+        );
+      }
       this.appointments = response.data.appointments;
     },
     toggleModal: function(appointment) {
@@ -109,12 +122,17 @@ export default {
       user: {},
       modalDisplayed: false,
       selectedAppointment: {},
-      events: { userEvents: {} }
+      events: { userEvents: {} },
+      timer: ""
     };
   },
   mounted: async function() {
     this.user = this.$store.state.authentication.user;
     await this.getUserAppointments();
+
+    // set timer for refreshing data
+    //TODO: replace with a socket
+    this.timer = setInterval(this.getUserAppointments, 3000);
 
     // TODO: remove function duplication
     this.events.userEvents = this.appointments.map(appointment => ({
@@ -122,6 +140,10 @@ export default {
       end: appointment.endTime,
       start: appointment.startTime
     }));
+  },
+
+  beforeDestroy() {
+    clearInterval(this.timer);
   }
 };
 </script>
@@ -143,6 +165,6 @@ export default {
 }
 
 .modal-content {
-  width: 50rem;
+  width: 80rem;
 }
 </style>

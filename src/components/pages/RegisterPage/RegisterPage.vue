@@ -34,7 +34,7 @@
             />
           </div>
         </div>
-        <p class="errorText" v-html="errorMessage" />
+        <h4 class="heading-4 error errorText" v-html="errorMessage" />
         <button class="primary-btn" v-on:click="register()">Submit</button>
       </div>
     </card>

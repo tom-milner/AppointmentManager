@@ -57,7 +57,7 @@
     <Modal v-on:close-modal="toggleAppointmentCalendarModal()" v-if="appointmentCalendarDisplayed">
       <div class="modal-content">
         <AppointmentCalendar
-          isEditable="true"
+          isEditable
           v-on:close-modal="toggleAppointmentCalendarModal()"
           v-on:date-chosen="dateChosen"
           :events="{ counsellorEvents: counsellorDisabledDates, userEvents:userDisabledDates}"
@@ -67,8 +67,6 @@
   </div>
 </template>
 <script>
-// TODO: startime being an hour behind? Request failing
-
 import AppointmentService from "@/services/AppointmentService";
 import UserService from "@/services/UserService";
 import Dropdown from "@/components/layout/Dropdown";
@@ -185,19 +183,19 @@ export default {
       this.chosenCounsellor = counsellor;
     },
 
-    // gets all the appointments in the future that involve the clients
+    // gets all the appointments that involve the clients
     getUnavailableTimeSlotsOfClient: async function() {
-      // get future appointments of current user
+      // get appointments of current user
       let result = (await AppointmentService.getAppointmentsOfClient(
         this.user._id
       )).data.appointments;
       return result;
     },
     getUnavailableTimeSlotsOfCounsellor: async function() {
-      // get future apointments
-      let result = (await AppointmentService.getFutureAppointmentsOfCounsellor(
+      // get apointments
+      let result = (await AppointmentService.getReducedAppointmentsOfCounsellor(
         this.chosenCounsellor._id
-      )).data.futureAppointments;
+      )).data.appointments;
       return result;
     },
 

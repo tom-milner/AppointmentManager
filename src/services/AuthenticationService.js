@@ -2,6 +2,7 @@ import Store from "@/store/store";
 import Router from "@/router";
 import Api from "@/services/Api";
 import UserService from "@/services/UserService";
+import Utils from "@/utils";
 
 
 function initializeNavigationGuard() {
@@ -10,14 +11,36 @@ function initializeNavigationGuard() {
   // It takes the route the user is going to, the route the user came from, and a function called next.
   // The next function will either allow navigation to the "to" route, or redirect the user.
   Router.beforeEach((to, from, next) => {
-    if (to.matched.some(record => record.meta.requiresAuth)) { // If any routes have the "requiresAuth" meta property set to true
+    const {
+      minimumAuthRole
+    } = to.meta;
+
+    if (minimumAuthRole) { // If any routes have the "minimumAuthRole" meta property
       if (Store.getters["authentication/isLoggedIn"]) {
-        // allow the user to continue to their chosen route, as they are logged in 
-        next();
-        return;
+
+        // make sure the user exists in store
+        // the store is wiped on refresh, so this makes sure that there is always a user in the store.
+        // the user was originally kept in localStorage but I decided this wasn't secure enough
+        if (!Store.state.authentication.user.role) {
+          console.log("resetting user");
+          let currentToken = Store.state.authentication.token;
+          Store.state.authentication.user = Utils.getUserFromToken(currentToken);
+        }
+
+        let currentUserRole = Store.state.authentication.user.role;
+        console.log(currentUserRole, minimumAuthRole);
+        // check to see if the user has the required access levels
+        if (currentUserRole >= minimumAuthRole) {
+          // allow the user to continue to their chosen route, as they are logged in 
+          next();
+        } else {
+          // redirect the user home - they don't have access to this area
+          next("/home");
+        }
+      } else {
+        // make the user login first.
+        next("/login");
       }
-      // make the user login first.
-      next("/login")
     } else {
       // route does not require user to be logged in - let them through
       next();
@@ -46,7 +69,6 @@ async function setupTokenRefresher(config) {
     let currentTime = Date.now();
     let tokenExpiryTime = decodedPayload.exp * 1000;
     let timeToExpire = tokenExpiryTime - currentTime;
-    console.log(timeToExpire);
     // If token is set to expire in less than 2 seconds, renew it
     const oneHour = 3600000;
     if (timeToExpire <= oneHour && timeToExpire >= 0) {

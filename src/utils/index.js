@@ -12,6 +12,13 @@ export default {
       if (obj.hasOwnProperty(prop)) return false;
     }
     return true;
+  },
+
+  // get user object from jwt token
+  getUserFromToken(token) {
+    let parts = token.split(".");
+    let decoded = atob(parts[1]);
+    return JSON.parse(decoded);
   }
 
 }
