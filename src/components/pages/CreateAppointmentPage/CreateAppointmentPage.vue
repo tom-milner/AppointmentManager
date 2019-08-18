@@ -67,8 +67,6 @@
   </div>
 </template>
 <script>
-// TODO: startime being an hour behind? Request failing
-
 import AppointmentService from "@/services/AppointmentService";
 import UserService from "@/services/UserService";
 import Dropdown from "@/components/layout/Dropdown";

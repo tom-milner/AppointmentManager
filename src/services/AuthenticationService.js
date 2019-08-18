@@ -69,7 +69,6 @@ async function setupTokenRefresher(config) {
     let currentTime = Date.now();
     let tokenExpiryTime = decodedPayload.exp * 1000;
     let timeToExpire = tokenExpiryTime - currentTime;
-    console.log(timeToExpire);
     // If token is set to expire in less than 2 seconds, renew it
     const oneHour = 3600000;
     if (timeToExpire <= oneHour && timeToExpire >= 0) {

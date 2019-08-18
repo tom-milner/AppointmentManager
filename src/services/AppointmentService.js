@@ -7,7 +7,6 @@ export default {
     return Api.get("/appointments");
   },
 
-  // TODO: combine these 2 functions.
 
   // Get appointments of client
   getAppointmentsOfClient(userId) {

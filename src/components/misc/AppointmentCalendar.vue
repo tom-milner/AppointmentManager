@@ -100,17 +100,19 @@ export default {
       let counsellorEvents = this.events.counsellorEvents;
       console.log("checking");
 
-      counsellorEvents = counsellorEvents.filter(function(counsellorEvent) {
-        console.log(counsellorEvent);
-        let index = userEvents.findIndex(
-          userEvent =>
-            userEvent.start == counsellorEvent.start ||
-            userEvent.end == counsellorEvent.end
-        );
-        return index == -1;
-      });
+      if (counsellorEvents) {
+        counsellorEvents = counsellorEvents.filter(function(counsellorEvent) {
+          console.log(counsellorEvent);
+          let index = userEvents.findIndex(
+            userEvent =>
+              userEvent.start == counsellorEvent.start ||
+              userEvent.end == counsellorEvent.end
+          );
+          return index == -1;
+        });
 
-      this.events.counsellorEvents = counsellorEvents;
+        this.events.counsellorEvents = counsellorEvents;
+      }
     }
   },
   props: {
