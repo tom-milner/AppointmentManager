@@ -28,16 +28,22 @@ let appointmentSchema = new Schema({
         type: String,
     },
     // location of appointment
-    loc: {
-        type: {
-            type: String,
-            // required: true
-        },
-        coordinates: {
-            type: [Number], // MUST BE LONGITUDE, THEN LATITUDE
-            // required: true,
-        }
+
+    location: {
+        type: String
     },
+
+    // TODO: Use actual coordinates for location
+    // loc: {
+    //     type: {
+    //         type: String,
+    //         // required: true
+    //     },
+    //     coordinates: {
+    //         type: [Number], // MUST BE LONGITUDE, THEN LATITUDE
+    //         // required: true,
+    //     }
+    // },
     // allocated time for appointment
     startTime: {
         type: Date,
@@ -54,15 +60,17 @@ let appointmentSchema = new Schema({
         type: Boolean,
         required: true,
         default: false
+    },
+    clientCanAttend: {
+        type: Boolean,
+        default: true,
     }
 });
 
-// TODO: add notes support
-
 // tie an index to the schema so that it can be used to search
-appointmentSchema.index({
-    "loc": "2dsphere"
-});
+// appointmentSchema.index({
+//     "loc": "2dsphere"
+// });
 
 
 module.exports = mongoose.model("AppointmentModel", appointmentSchema);

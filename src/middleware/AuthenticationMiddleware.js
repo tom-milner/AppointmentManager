@@ -20,7 +20,6 @@ function isLoggedIn(req, res, next) {
         // token is valid
         // store token in browser for later usage
         req.user = decoded;
-        console.log(req.user);
 
         // continue to controller that requires authorization
         next();

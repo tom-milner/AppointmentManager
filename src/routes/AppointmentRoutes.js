@@ -29,6 +29,8 @@ router.get("/", AuthenticationMiddleware.roleCheck({
 // Insert new appointment
 router.post("/", AppointmentControllerPolicy.insertAppointment, AppointmentController.insertAppointment);
 
+// update an existing appointment
+router.post("/update", AppointmentControllerPolicy.updateAppointment, AppointmentController.updateAppointment);
 
 
 module.exports = router;

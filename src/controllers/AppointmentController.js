@@ -11,7 +11,6 @@ async function getAllAppointments(req, res) {
     let allAppointments = await AppointmentModel.find({}).sort({
       startTime: "asc"
     });
-    console.log(allAppointments);
     // return the appointments
     res.send(allAppointments);
   } catch (error) {
@@ -105,7 +104,10 @@ async function getAppointmentsOfClient(req, res) {
 
 // Insert new appointment into db
 async function insertAppointment(req, res) {
+  console.log(req.body);
   try {
+
+    console.log(req.body);
     // load  info from body
     const appointmentStartTime = moment(req.body.startTime);
     const appointmentDuration = req.body.duration; // In Minutes
@@ -116,19 +118,26 @@ async function insertAppointment(req, res) {
     const counsellorId = req.body.counsellorId;
     const clientId = req.user._id;
 
-    // check to see if counsellor is free
-    await checkCounsellorAvailablity(
-      appointmentStartTime,
-      appointmentEndTime,
-      counsellorId
-    );
-
+    let error;
     // check to see if client is free
-    await checkClientAvailability(
+    error = await checkClientAvailability(
       appointmentStartTime,
       appointmentEndTime,
       clientId
     );
+    // throw error
+    if (error) throw error;
+
+    // check to see if counsellor is free
+    error = await checkCounsellorAvailablity(
+      appointmentStartTime,
+      appointmentEndTime,
+      counsellorId
+    );
+    // throw the error
+    if (error) throw error;
+
+    console.log(req.body);
 
     // Create new appointment model
     let appointment = new AppointmentModel({
@@ -138,7 +147,8 @@ async function insertAppointment(req, res) {
       endTime: appointmentEndTime,
       clients: [req.user],
       isApproved: false,
-      counsellorId: counsellorId
+      counsellorId: counsellorId,
+      clientNotes: req.body.clientNotes
     });
 
     // Save the model to the database
@@ -161,6 +171,7 @@ async function insertAppointment(req, res) {
 
     // Catch any errors and respond appropriately
   } catch (error) {
+    console.log(error);
     res.status(error.code || 500).send({
       message: error.message || "Error creating appointment",
       success: false
@@ -168,6 +179,25 @@ async function insertAppointment(req, res) {
   }
 }
 
+
+async function updateAppointment(req, res) {
+
+  try {
+    let newAppointmentProperties = req.body.appointmentProperties;
+    let appointmentId = req.body.appointmentId;
+    await AppointmentModel.findByIdAndUpdate(appointmentId, newAppointmentProperties);
+    res.status(200).send({
+      success: true,
+      message: "Appointment updated successfully"
+    });
+
+  } catch (error) {
+    res.status(400).send({
+      success: false,
+      message: "Error updating appointment"
+    })
+  }
+}
 
 // Helper functions - not called directly by route handler
 
@@ -210,9 +240,9 @@ async function checkClientAvailability(
   });
   // if any clashing appointments are found, reject the new appointment
   if (clashingAppointments.length > 0) {
-    throw {
+    return {
       message: "Client is not available at this time.",
-      code: 200
+      code: 200,
     };
   }
 }
@@ -258,36 +288,20 @@ async function checkCounsellorAvailablity(
   console.log(counsellorAppointments);
   // 0 clashes - counsellor is free
   if (counsellorAppointments.length > 0) {
-    console.log("clash");
-    throw {
+    return {
       message: "Counsellor is not available at that time.",
-      code: 200
+      code: 200,
+
     };
   }
 }
 
-
-function sortAppointmentsByDate(appointments) {
-
-  // sort appointments and return sorted array
-  return appointments.sort(function (
-    appointment,
-    nextAppointment
-  ) {
-    if (appointment.startTime > nextAppointment.startTime) {
-      return 1;
-    } else if (appointment.startTime < nextAppointment.startTime) {
-      return -1;
-    }
-    return 0;
-  });
-
-}
 
 // expose functions
 module.exports = {
   insertAppointment,
   getAllAppointments,
   getAppointmentsOfClient,
-  getFutureAppointmentsOfCounsellor
+  getFutureAppointmentsOfCounsellor,
+  updateAppointment
 };

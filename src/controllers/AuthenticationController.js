@@ -68,7 +68,6 @@ async function register(req, res) {
 async function login(req, res) {
   try {
 
-    console.log(req.body);
 
     // Find matching users in database
     const userMatches = await UserModel.find({
