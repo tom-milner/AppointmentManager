@@ -16,10 +16,19 @@ router.get("/client/:userId", AuthenticationMiddleware.roleCheck({
   userSpecific: true
 }), AppointmentController.getAppointmentsOfClient);
 
-// Get all future appointments of a counsellor.
+// Get all  reduced appointments of a counsellor.
 router.get("/counsellor/:userId", AuthenticationMiddleware.roleCheck({
   role: Role.Client,
-}), AppointmentController.getFutureAppointmentsOfCounsellor);
+}), AppointmentController.getAppointmentsOfCounsellor({
+  reduced: true
+}));
+
+// get all full appointments of a counsellor
+router.get("/admin/counsellor/:userId", AuthenticationMiddleware.roleCheck({
+  role: Role.Counsellor
+}), AppointmentController.getAppointmentsOfCounsellor({
+  reduced: false
+}))
 
 // Get all appointments
 router.get("/", AuthenticationMiddleware.roleCheck({

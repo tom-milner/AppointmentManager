@@ -76,7 +76,7 @@ function updateAppointment(req, res, next) {
     case Role.Counsellor:
     case Role.Admin:
       // counsellors and admins can access everything
-      allowedProperties.push(allAppointmentProperties);
+      allowedProperties = allowedProperties.concat(allAppointmentProperties);
       break;
   }
 
@@ -86,7 +86,6 @@ function updateAppointment(req, res, next) {
     // return true of property isn't found
     return allowedProperties.indexOf(property) == -1;
   });
-
   // if user is requesting anything not in allowedProperties, reject the request
   if (disallowedProperties.length > 0) {
     res.status(400).send({
@@ -94,10 +93,11 @@ function updateAppointment(req, res, next) {
       message: "You do not have access to change those properties.",
       disallowedProperties: disallowedProperties
     });
-  }
+  } else {
 
-  // user can access all properties - allow request to be processed
-  next();
+    // user can access all properties - allow request to be processed
+    next();
+  }
 }
 
 

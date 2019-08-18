@@ -5,7 +5,6 @@ const moment = require("moment");
 
 // Fetch all appointments regardless
 async function getAllAppointments(req, res) {
-
   try {
     // get appointments and sort them
     let allAppointments = await AppointmentModel.find({}).sort({
@@ -22,82 +21,78 @@ async function getAllAppointments(req, res) {
   }
 }
 
-// TODO: combine getFutureAppointmentsOfCounsellor and getAppointmentsOfClient
+function getAppointmentsOfCounsellor({
+  reduced
+}) {
 
-async function getFutureAppointmentsOfCounsellor(req, res) {
-  // This function differs from "getAppointmentsOfUser" in that it searches for the user's Id in the counsellorId field of each appointment.
-  // TODO: create policy for this function
-
-  // default error messages
-  let errorCode = 400;
-  let errorMessage = "Error getting future appointments";
-
-  // get current time
-  let now = moment.now();
-
-  try {
-    const userId = req.params.userId;
-    let appointmentsFromNow = await AppointmentModel.find({
-      $or: [{
+  return async function (req, res) {
+    // TODO: create policy for this function
+    try {
+      const userId = req.params.userId;
+      let appointments = await AppointmentModel.find({
         counsellorId: userId
-      }],
-      // only get appointments that start or end in the future.
-      $or: [{
-          startTime: {
-            $gt: now
-          }
-        },
-        {
-          endTime: {
-            $gt: now
-          }
-        }
-      ]
-    }).sort({
-      startTime: "asc"
-    });
+      }).sort({
+        startTime: "asc"
+      });
 
-    res.status(200).send({
-      success: true,
-      message: "Future appointments returned successfully",
-      futureAppointments: appointmentsFromNow
-    });
-  } catch (error) {
-    console.log(error);
-    // return an error message
-    res.status(errorCode).send({
-      success: false,
-      message: errorMessage
-    });
+      if (reduced) {
+        // reduce appointments down to only essential info
+        let reducedAppointments = [];
+        appointments.forEach(appointment => {
+          reducedAppointments.push({
+            title: appointment.title,
+            startTime: appointment.startTime,
+            endTime: appointment.endTime
+          });
+        });
+        appointments = reducedAppointments;
+      }
+
+      res.status(200).send({
+        success: true,
+        message: "Counsellor appointments returned successfully",
+        appointments: appointments
+      });
+
+
+    } catch (error) {
+      console.log(error);
+      // return an error message
+      res.status(400).send({
+        success: false,
+        message: "Error returning counsellor's appointments."
+      });
+    }
   }
 }
 
 // Return appointments of user
 async function getAppointmentsOfClient(req, res) {
+  // TODO: create policy for this function
   try {
     const userId = req.params.userId;
-    // Find user with given Id
-    const user = await UserModel.findOne({
-      _id: userId
-    });
-    if (!user) throw "User not found";
-
     const userAppointments = await AppointmentModel.find({
       clients: userId
     }).sort({
       startTime: "asc"
     });
 
+    //  hide certain properties from client
+    userAppointments.forEach(appointment => {
+      appointment.counsellorNotes = undefined;
+    })
+
     res.status(200).send({
       success: true,
       message: "Appointments returned successfully",
       appointments: userAppointments
     });
-  } catch (errorMessage) {
-    console.log(errorMessage);
+
+  } catch (error) {
+    console.log(error);
     res.status(400).send({
       success: false,
-      message: errorMessage || "Error getting user appointments."
+      message: "Error getting client appointments."
     });
   }
 }
@@ -106,7 +101,6 @@ async function getAppointmentsOfClient(req, res) {
 async function insertAppointment(req, res) {
   console.log(req.body);
   try {
-
     console.log(req.body);
     // load  info from body
     const appointmentStartTime = moment(req.body.startTime);
@@ -179,23 +173,23 @@ async function insertAppointment(req, res) {
   }
 }
 
-
 async function updateAppointment(req, res) {
-
   try {
     let newAppointmentProperties = req.body.appointmentProperties;
     let appointmentId = req.body.appointmentId;
-    await AppointmentModel.findByIdAndUpdate(appointmentId, newAppointmentProperties);
+    await AppointmentModel.findByIdAndUpdate(
+      appointmentId,
+      newAppointmentProperties
+    );
     res.status(200).send({
       success: true,
       message: "Appointment updated successfully"
     });
-
   } catch (error) {
     res.status(400).send({
       success: false,
       message: "Error updating appointment"
-    })
+    });
   }
 }
 
@@ -242,7 +236,7 @@ async function checkClientAvailability(
   if (clashingAppointments.length > 0) {
     return {
       message: "Client is not available at this time.",
-      code: 200,
+      code: 200
     };
   }
 }
@@ -290,18 +284,16 @@ async function checkCounsellorAvailablity(
   if (counsellorAppointments.length > 0) {
     return {
       message: "Counsellor is not available at that time.",
-      code: 200,
-
+      code: 200
     };
   }
 }
-
 
 // expose functions
 module.exports = {
   insertAppointment,
   getAllAppointments,
   getAppointmentsOfClient,
-  getFutureAppointmentsOfCounsellor,
+  getAppointmentsOfCounsellor,
   updateAppointment
 };
