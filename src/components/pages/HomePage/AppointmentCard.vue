@@ -34,7 +34,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/scss/global";
-$card-width: 15rem;
+$card-width: 15.3rem;
 .wrapper {
   height: $card-width;
   width: $card-width;
@@ -55,7 +55,6 @@ $card-width: 15rem;
   .heading-box {
     text-align: center;
     margin-top: 2rem;
-    // width: 70%;
     h3 {
       word-break: break-word;
       color: $color-white;

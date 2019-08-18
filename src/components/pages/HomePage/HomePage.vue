@@ -1,21 +1,54 @@
 <template>
   <div>
-    <h2 class="heading-2">Welcome, {{user.username}}</h2>
+    <h2 class="heading-2">Welcome, {{user.firstname}}</h2>
+
+    <!-- Upcoming Appointments -->
     <div class="appointments-container">
       <h2 class="heading-2">Upcoming Appointments</h2>
-      <div class="scrolling-appointments">
+
+      <div
+        v-if=" approvedAppointments!=undefined && approvedAppointments.length > 0"
+        class="scrolling-appointments"
+      >
         <AppointmentCard
-          v-for="appointment in appointments"
+          v-for="appointment in approvedAppointments"
           v-bind:key="appointment._id"
           :appointment="appointment"
           @click.native="toggleModal(appointment)"
         ></AppointmentCard>
       </div>
+      <div class="no-appointments-box" v-else>
+        <h4 class="heading-4 error">No Upcoming Appointments!</h4>
+      </div>
     </div>
+
+    <!-- Pending Appointments -->
     <div class="appointments-container">
       <h2 class="heading-2">Pending Appointments</h2>
-      <div class="scrolling-appointments"></div>
+
+      <div
+        v-if=" pendingAppointments!=undefined && pendingAppointments.length > 0"
+        class="scrolling-appointments"
+      >
+        <AppointmentCard
+          v-for="appointment in pendingAppointments"
+          v-bind:key="appointment._id"
+          :appointment="appointment"
+          @click.native="toggleModal(appointment)"
+        ></AppointmentCard>
+      </div>
+      <div class="no-appointments-box" v-else>
+        <h4 class="heading-4 error">No Pending Appointments!</h4>
+      </div>
     </div>
+
+    <!-- Calendar -->
+    <div class="appointments-container calendar">
+      <h2 class="heading-2">Your Calendar</h2>
+      <!-- TODO: add click to view appointment -->
+      <appointment-calendar :events="events"></appointment-calendar>
+    </div>
+
     <Modal v-on:close-modal="toggleModal()" v-if="modalDisplayed">
       <div class="modal-content">
         <AppointmentFull :appointment="selectedAppointment"></AppointmentFull>
@@ -29,11 +62,30 @@ import AppointmentCard from "@/components/pages/HomePage/AppointmentCard.vue";
 import AppointmentFull from "@/components/pages/HomePage/AppointmentFull.vue";
 import Modal from "@/components/layout/Modal";
 import AppointmentService from "@/services/AppointmentService";
+import AppointmentCalendar from "@/components/misc/AppointmentCalendar";
+
 export default {
   components: {
     AppointmentCard,
     Modal,
-    AppointmentFull
+    AppointmentFull,
+    AppointmentCalendar
+  },
+
+  computed: {
+    // returns a list of all the approved appointments
+    approvedAppointments() {
+      return this.appointments
+        ? this.appointments.filter(appointment => appointment.isApproved)
+        : [];
+    },
+
+    // returns a list of all the non-approved (pending) appointments
+    pendingAppointments() {
+      return this.appointments
+        ? this.appointments.filter(appointment => !appointment.isApproved)
+        : [];
+    }
   },
 
   methods: {
@@ -56,12 +108,20 @@ export default {
       appointments: null,
       user: {},
       modalDisplayed: false,
-      selectedAppointment: {}
+      selectedAppointment: {},
+      events: { userEvents: {} }
     };
   },
-  mounted: function() {
+  mounted: async function() {
     this.user = this.$store.state.authentication.user;
-    this.getUserAppointments();
+    await this.getUserAppointments();
+
+    // TODO: remove function duplication
+    this.events.userEvents = this.appointments.map(appointment => ({
+      title: appointment.title,
+      end: appointment.endTime,
+      start: appointment.startTime
+    }));
   }
 };
 </script>
@@ -70,6 +130,10 @@ export default {
 .appointments-container {
   margin-top: 5rem;
   overflow: hidden;
+
+  .no-appointments-box {
+    padding: 4rem 0 0 4rem;
+  }
 }
 
 .scrolling-appointments {

@@ -15,13 +15,15 @@
         { events: this.events.counsellorEvents, className:'counsellorEvent' }
       ]"
     ></full-calendar>
-    <AddEventDialogue
-      v-on:close-dialogue="toggleShowAddEventDialogue"
-      v-on:date-chosen="dateChosen"
-      v-if="showAddEventDialogue"
-      :day="chosenDay"
-      :dayEvents="getEventsOfChosenDay"
-    ></AddEventDialogue>
+    <div v-if="isEditable">
+      <AddEventDialogue
+        v-on:close-dialogue="toggleShowAddEventDialogue"
+        v-on:date-chosen="dateChosen"
+        v-if="showAddEventDialogue"
+        :day="chosenDay"
+        :dayEvents="getEventsOfChosenDay"
+      ></AddEventDialogue>
+    </div>
   </div>
 </template>
 
@@ -33,7 +35,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
 // custom components
-import AddEventDialogue from "./AddEventDialogue";
+import AddEventDialogue from "../pages/CreateAppointmentPage/AppointmentCalendar/AddEventDialogue";
 
 export default {
   data() {
@@ -93,7 +95,7 @@ export default {
     },
 
     checkEventSourcesForDuplicates: function() {
-      console.log("checking");
+      console.log(this);
       // remove all duplicate start events from counsellor events array
       let userEvents = this.events.userEvents;
       let counsellorEvents = this.events.counsellorEvents;
@@ -110,7 +112,8 @@ export default {
     }
   },
   props: {
-    events: {}
+    events: {},
+    isEditable: Boolean
   },
 
   watch: {
@@ -125,7 +128,7 @@ export default {
   },
   // check for duplicate events before mounting
   beforeMount() {
-    this.checkEventSourcesForDuplicates();
+    if (this.events.counsellorEvents) this.checkEventSourcesForDuplicates();
   }
 };
 </script>
