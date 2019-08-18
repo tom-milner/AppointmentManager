@@ -23,6 +23,19 @@
         <h4 class="heading-4">Your Notes:</h4>
         <textarea disabled class="form-input" v-model="appointment.clientNotes"></textarea>
       </li>
+      <li class="appointment-details attendance">
+        <h4 class="heading-4">Can you attend?</h4>
+        <button
+          @click="setClientAttendance(true)"
+          class="primary-btn"
+          :class="{checked: appointment.clientCanAttend}"
+        >Yes</button>
+        <button
+          @click="setClientAttendance(false)"
+          class="primary-btn"
+          :class="{checked: !appointment.clientCanAttend}"
+        >No</button>
+      </li>
     </ul>
   </div>
 </template>
@@ -30,6 +43,7 @@
 <script>
 import Icon from "vue-icon/lib/vue-feather.esm";
 import UserService from "@/services/UserService";
+import AppointmentService from "@/services/AppointmentService";
 export default {
   props: {
     appointment: {}
@@ -63,6 +77,18 @@ export default {
     this.getCounsellor();
   },
   methods: {
+    setClientAttendance(canAttend) {
+      if (this.appointment.clientCanAttend != canAttend) {
+        this.appointment.clientCanAttend = canAttend;
+        AppointmentService.updateAppointment({
+          appointmentProperties: {
+            clientCanAttend: canAttend
+          },
+          appointmentId: this.appointment._id
+        });
+      }
+    },
+
     getAllClients: async function() {
       let clientIds = this.appointment.clients;
       let clientIdsString = "";
@@ -122,6 +148,18 @@ export default {
   textarea {
     resize: none;
     height: 20rem;
+  }
+
+  .attendance {
+    h4 {
+      display: inline;
+      margin-right: 4rem;
+    }
+    button {
+      &:not(:last-child) {
+        margin-right: 3rem;
+      }
+    }
   }
 }
 </style>

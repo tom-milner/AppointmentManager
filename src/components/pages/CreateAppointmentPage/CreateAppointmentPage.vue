@@ -57,6 +57,7 @@
     <Modal v-on:close-modal="toggleAppointmentCalendarModal()" v-if="appointmentCalendarDisplayed">
       <div class="modal-content">
         <AppointmentCalendar
+          isEditable="true"
           v-on:close-modal="toggleAppointmentCalendarModal()"
           v-on:date-chosen="dateChosen"
           :events="{ counsellorEvents: counsellorDisabledDates, userEvents:userDisabledDates}"
@@ -71,7 +72,7 @@
 import AppointmentService from "@/services/AppointmentService";
 import UserService from "@/services/UserService";
 import Dropdown from "@/components/layout/Dropdown";
-import AppointmentCalendar from "./AppointmentCalendar/AppointmentCalendar";
+import AppointmentCalendar from "../../misc/AppointmentCalendar";
 import Modal from "@/components/layout/Modal";
 import Utils from "@/utils";
 
