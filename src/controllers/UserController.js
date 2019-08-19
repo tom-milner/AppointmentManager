@@ -65,6 +65,10 @@ async function getAllCounsellors(req, res) {
   }
 }
 
+
+// changing counsellor settings
+
+
 module.exports = {
   getUsernamesFromUserIds,
   getAllCounsellors

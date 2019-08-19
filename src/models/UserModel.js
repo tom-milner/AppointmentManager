@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt"); // for salting and hashing
 
 const Role = require("./Role");
 
