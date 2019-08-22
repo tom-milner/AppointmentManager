@@ -20,33 +20,50 @@ async function getAllAppointments(req, res) {
   }
 }
 
-function getAppointmentsOfCounsellor({
-  reduced
+function getAppointmentsOfUser({
+  reduced,
+  isCounsellor
 }) {
 
   return async function (req, res) {
     // TODO: create policy for this function
+
+    // dynamically construct query
+    const appointmentQuery = AppointmentModel.find();
+
+    // get info from params
+    const userId = req.params.userId;
+    let beginningTime = req.params.beginningTime;
+
+    // Check to see if user needs appointments from a certain time.
+    if (beginningTime) {
+      beginningTime = moment(req.params.beginningTime);
+      // adjust query so that only appointments after beginningTime will be selected.
+      appointmentQuery.where("startTime").gte(beginningTime);
+    }
+
+    // check whether we should seach for counsellor or client
+    if (isCounsellor) {
+      appointmentQuery.where("counsellorId", userId);
+    } else {
+      appointmentQuery.where("clients", userId);
+      // remove counsellor notes
+      appointmentQuery.select({
+        counsellorNotes: 0
+      })
+    }
+    // check whether user wants reduced appointments or not.
+    if (reduced) {
+      appointmentQuery.select("startTime endTime title")
+    }
+
+    // add sort options to query
+    appointmentQuery.sort("asc");
+
     try {
-      const userId = req.params.userId;
-      let appointments = await AppointmentModel.find({
-        counsellorId: userId
-      }).sort({
-        startTime: "asc"
-      });
 
-      if (reduced) {
-        // reduce appointments down to only essential info
-        let reducedAppointments = [];
-        appointments.forEach(appointment => {
-          reducedAppointments.push({
-            title: appointment.title,
-            startTime: appointment.startTime,
-            endTime: appointment.endTime
-          });
-        });
-        appointments = reducedAppointments;
-      }
-
+      // execute the query
+      let appointments = await appointmentQuery.exec();
       res.status(200).send({
         success: true,
         message: "Counsellor appointments returned successfully",
@@ -65,41 +82,9 @@ function getAppointmentsOfCounsellor({
   }
 }
 
-// Return appointments of user
-async function getAppointmentsOfClient(req, res) {
-  // TODO: create policy for this function
-  try {
-    const userId = req.params.userId;
-
-    // get all the appointments of the user, but exclude the counsellors notes
-    const userAppointments = await AppointmentModel.find({
-      clients: userId
-    }, {
-      counsellorNotes: 0
-    }).sort({
-      startTime: "asc"
-    });
-
-    res.status(200).send({
-      success: true,
-      message: "Appointments returned successfully",
-      appointments: userAppointments
-    });
-
-  } catch (error) {
-    console.log(error);
-    res.status(400).send({
-      success: false,
-      message: "Error getting client appointments."
-    });
-  }
-}
-
 // Insert new appointment into db
 async function insertAppointment(req, res) {
-  console.log(req.body);
   try {
-    console.log(req.body);
     // load  info from body
     const appointmentStartTime = moment(req.body.startTime);
     const appointmentDuration = req.body.duration; // In Minutes
@@ -291,7 +276,6 @@ async function checkCounsellorAvailablity(
 module.exports = {
   insertAppointment,
   getAllAppointments,
-  getAppointmentsOfClient,
-  getAppointmentsOfCounsellor,
+  getAppointmentsOfUser,
   updateAppointment
 };
