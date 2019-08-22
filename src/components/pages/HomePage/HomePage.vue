@@ -97,20 +97,17 @@ export default {
       // get user appointments from API
       // check to see if user is a client or counsellor
       let userIsCounsellor = this.user.role >= Role.Counsellor;
+      let response = await AppointmentService.getAppointmentsOfUser({
+        userId: this.user._id,
+        isCounsellor: userIsCounsellor,
+        fromTime: this.moment()
+      });
 
-      let response;
-      if (userIsCounsellor) {
-        response = await AppointmentService.getFullAppointmentsOfCounsellor(
-          this.user._id
-        );
-      } else {
-        response = await AppointmentService.getAppointmentsOfClient(
-          this.user._id
-        );
-      }
       this.appointments = response.data.appointments;
     },
     toggleModal: function(appointment) {
+      //reload appointments
+      this.getUserAppointments();
       this.selectedAppointment = appointment;
       this.modalDisplayed = !this.modalDisplayed;
     }

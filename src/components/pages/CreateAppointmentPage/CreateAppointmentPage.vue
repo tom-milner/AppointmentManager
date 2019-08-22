@@ -183,19 +183,24 @@ export default {
       this.chosenCounsellor = counsellor;
     },
 
+    // TODO: refactor function
+
     // gets all the appointments that involve the clients
     getUnavailableTimeSlotsOfClient: async function() {
       // get appointments of current user
-      let result = (await AppointmentService.getAppointmentsOfClient(
-        this.user._id
-      )).data.appointments;
+      let result = (await AppointmentService.getAppointmentsOfUser({
+        userId: this.user._id,
+        isCounsellor: false
+      })).data.appointments;
       return result;
     },
     getUnavailableTimeSlotsOfCounsellor: async function() {
       // get apointments
-      let result = (await AppointmentService.getReducedAppointmentsOfCounsellor(
-        this.chosenCounsellor._id
-      )).data.appointments;
+      let result = (await AppointmentService.getAppointmentsOfUser({
+        userId: this.chosenCounsellor._id,
+        isCounsellor: true,
+        reduced: true
+      })).data.appointments;
       return result;
     },
 

@@ -1,12 +1,16 @@
 <template>
   <div class="wrapper">
+    <!-- title -->
     <h2 class="heading-2">{{appointment.title}}</h2>
 
+    <!-- Counsellor Icon -->
     <ul class="appointment-details">
       <li class="appointment-details-row">
         <icon class="icon" name="user"></icon>
         <h4 class="heading-4">{{counsellor.firstname}} {{counsellor.lastname}}</h4>
       </li>
+
+      <!-- Client Icon -->
       <li class="appointment-details-row">
         <icon class="icon" name="users"></icon>
         <h4
@@ -15,28 +19,44 @@
           class="heading-4"
         >{{client.firstname}} {{client.lastname}}</h4>
       </li>
+
+      <!-- Start Time -->
       <li class="appointment-details-row">
         <icon class="icon" name="clock"></icon>
         <h4 class="heading-4">{{getFormattedStartTime}}</h4>
       </li>
+
+      <!-- Date -->
       <li class="appointment-details-row">
         <icon class="icon" name="calendar"></icon>
         <h4 class="heading-4">{{getFormattedDate}}</h4>
       </li>
+
+      <!-- Appointment Approval Status -->
       <li class="appointment-details-row">
         <icon class="icon" name="check"></icon>
         <h4 class="heading-4" :class="getApprovalColor">{{getApprovalStatus}}</h4>
       </li>
-      <li class="appointment-details">
-        <h4 class="heading-4">Client Notes:</h4>
-        <textarea disabled class="form-input" v-model="appointment.clientNotes"></textarea>
+
+      <!-- Cient Notes -->
+      <li class="appointment-details notes">
+        <h4 class="heading-4">Client Notes (for counsellor to see) :</h4>
+        <textarea :disabled="isCounsellor" class="form-input" v-model="appointment.clientNotes"></textarea>
+        <button @click="saveNotes(false)" v-if="!isCounsellor" class="secondary-btn">Save</button>
       </li>
 
-      <li v-if="isCounsellor" class="appointment-details">
-        <h4 class="heading-4">Counsellor Notes:</h4>
-        <textarea disabled class="form-input" v-model="appointment.counsellorNotes"></textarea>
+      <!-- Counsellor Notes -->
+      <li v-if="isCounsellor" class="appointment-details notes">
+        <h4 class="heading-4">(private) Counsellor Notes:</h4>
+        <textarea
+          :disabled="!isCounsellor"
+          class="form-input"
+          v-model="appointment.counsellorNotes"
+        ></textarea>
+        <button @click="saveNotes(true)" v-if="isCounsellor" class="secondary-btn">Save</button>
       </li>
 
+      <!-- Client Attendence Buttons -->
       <li class="appointment-details attendance">
         <h4 class="heading-4">Can client attend?</h4>
         <button
@@ -51,6 +71,7 @@
         >No</button>
       </li>
 
+      <!-- Counsellor Approval Buttons -->
       <li v-if="isCounsellor" class="appointment-details attendance">
         <h4 class="heading-4">Appointment Approval</h4>
         <button
@@ -102,9 +123,8 @@ export default {
     Icon
   },
   mounted() {
-    this.getAllClients();
-    this.getCounsellor();
-    console.log(this.isCounsellor);
+    this.getClientsNames();
+    this.getCounsellorName();
   },
   methods: {
     setClientAttendance(canAttend) {
@@ -138,7 +158,27 @@ export default {
       }
     },
 
-    getAllClients: async function() {
+    saveNotes(areCounsellorNotes) {
+      // dynamically create properties object
+      let appointmentProperties = {};
+      if (areCounsellorNotes) {
+        appointmentProperties.counsellorNotes = this.appointment.counsellorNotes;
+      } else {
+        appointmentProperties.clientNotes = this.appointment.clientNotes;
+      }
+      let appointmentId = this.appointment._id;
+
+      try {
+        AppointmentService.updateAppointment({
+          appointmentProperties: appointmentProperties,
+          appointmentId: appointmentId
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    getClientsNames: async function() {
       let clientIds = this.appointment.clients;
       let clientIdsString = "";
       clientIds.forEach(id => {
@@ -151,7 +191,7 @@ export default {
       console.log(this.clients);
     },
 
-    getCounsellor: async function() {
+    getCounsellorName: async function() {
       let counsellorId = this.appointment.counsellorId;
       let result = await UserService.getUsersFromIds(counsellorId);
       this.counsellor = result.data.users[0];
@@ -172,12 +212,22 @@ export default {
   list-style: none;
   text-align: left;
   margin-top: 2rem;
+
+  .notes {
+    position: relative;
+
+    button {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      margin: 1rem 0.6rem;
+    }
+  }
   &-row {
     display: flex;
     align-items: center;
     justify-content: flex-start;
 
-    // make sure there isn't any unnecessary margin
     &:not(:last-child) {
       margin-bottom: 2rem;
     }

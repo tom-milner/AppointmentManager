@@ -8,19 +8,33 @@ export default {
   },
 
 
-  // Get appointments of client
-  getAppointmentsOfClient(userId) {
-    return Api.get(`/appointments/client/${userId}`);
-  },
+  // get appointments of a user.
+  getAppointmentsOfUser({
+    isCounsellor,
+    userId,
+    fromTime,
+    reduced
+  }) {
 
-  // Get appointments of counsellor
-  getReducedAppointmentsOfCounsellor(userId) {
-    return Api.get(`/appointments/counsellor/${userId}`);
-  },
+    console.log(isCounsellor);
+    let params = {};
+    if (fromTime) {
+      params.fromTime = fromTime;
+    }
+    let url = "/appointments";
+    if (isCounsellor) {
+      url += "/counsellor";
+      if (!reduced) {
+        url += "/full"
+      }
+    } else {
+      url += "/client"
+    }
+    url += `/${userId}`;
+    return Api.get(url, {
+      params: params
+    })
 
-  // get full detail appointments of counsellor
-  getFullAppointmentsOfCounsellor(userId) {
-    return Api.get(`/appointments/admin/counsellor/${userId}`)
   },
 
   // request an appointment
