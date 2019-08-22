@@ -56,7 +56,9 @@ function getAppointmentsOfUser({
     }
 
     // sort appointments in ascending order
-    appointmentQuery.sort("asc");
+    appointmentQuery.sort({
+      startTime: "asc"
+    });
 
     try {
 
