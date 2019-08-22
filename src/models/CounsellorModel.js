@@ -11,6 +11,10 @@ const counsellorSchema = new mongoose.Schema({
   role: {
     type: Number,
     default: Role.Counsellor
+  },
+  workingDays: {
+    type: [String],
+    default: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
   }
 })
 UserModel.discriminator("CounsellorModel", counsellorSchema);

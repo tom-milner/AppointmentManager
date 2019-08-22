@@ -28,12 +28,12 @@ function getAppointmentsOfUser({
   return async function (req, res) {
     // TODO: create policy for this function
 
-    // dynamically construct query
+    // dynamically construct mongoose query
     const appointmentQuery = AppointmentModel.find();
 
-    // get info from params
+    // get info from params + query
     const userId = req.params.userId;
-    let fromTime = req.params.fromTime;
+    let fromTime = req.query.fromTime;
 
     // Check to see if user needs appointments from a certain time.
     if (fromTime) {

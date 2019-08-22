@@ -1,6 +1,6 @@
 const Joi = require("joi");
 
-function getUsersOfIds(req, res, next) {
+function getReducedUsers(req, res, next) {
   const joiSchema = {
     userIds: Joi.string().required(),
   }
@@ -34,5 +34,5 @@ function getUsersOfIds(req, res, next) {
 }
 
 module.exports = {
-  getUsersOfIds
+  getReducedUsers
 }

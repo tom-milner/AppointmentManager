@@ -4,7 +4,7 @@ const UserModel = require("../models/UserModel");
 const Role = require("../models/Role");
 
 // takes array of user Ids an returns simple user object.
-async function getUsernamesFromUserIds(req, res) {
+async function getReducedUsers(req, res) {
   // userIds is a string with comma seperated values
   try {
     let userIds = (req.query.userIds).split(",").filter(Boolean);
@@ -12,9 +12,7 @@ async function getUsernamesFromUserIds(req, res) {
     for (id of userIds) {
       let user = await UserModel.findOne({
         _id: id
-      }, {
-        password: 0
-      });
+      }, "username firstname lastname");
       if (user) users.push(user);
     }
     res.status(200).send({
@@ -67,6 +65,6 @@ async function getAllCounsellors(req, res) {
 
 // changing counsellor settings
 module.exports = {
-  getUsernamesFromUserIds,
+  getReducedUsers,
   getAllCounsellors,
 }

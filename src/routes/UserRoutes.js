@@ -7,7 +7,7 @@ const UserControllerPolicy = require("../policies/UserControllerPolicy");
 const AuthenticationMiddleware = require("../middleware/AuthenticationMiddleware");
 
 // get list of usernames from list of user Ids
-router.get("/", AuthenticationMiddleware.isLoggedIn, UserControllerPolicy.getUsersOfIds, UserController.getUsernamesFromUserIds);
+router.get("/", AuthenticationMiddleware.isLoggedIn, UserControllerPolicy.getReducedUsers, UserController.getReducedUsers);
 
 // get list of counsellors
 router.get("/counsellors", AuthenticationMiddleware.isLoggedIn, UserController.getAllCounsellors);
