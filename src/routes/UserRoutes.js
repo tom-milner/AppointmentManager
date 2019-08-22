@@ -16,4 +16,7 @@ router.get("/counsellors", AuthenticationMiddleware.isLoggedIn, UserController.g
 // TODO: add route to get info from single user (/user/:userId)
 // router.get("/:userId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck())
 
+// TODO: here for testing
+router.get("/user", UserController.getUser);
+
 module.exports = router;

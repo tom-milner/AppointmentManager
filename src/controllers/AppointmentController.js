@@ -1,6 +1,5 @@
 // Import required models
 const AppointmentModel = require("../models/AppointmentModel");
-const UserModel = require("../models/UserModel");
 const moment = require("moment");
 
 // Fetch all appointments regardless

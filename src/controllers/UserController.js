@@ -1,9 +1,11 @@
+const CounsellorModel = require("../models/CounsellorModel");
 const UserModel = require("../models/UserModel");
+
 const Role = require("../models/Role");
 
-// takes array of client Ids an returns simple user object.
+// takes array of user Ids an returns simple user object.
 async function getUsernamesFromUserIds(req, res) {
-  // clientIds is a string with comma seperated values
+  // userIds is a string with comma seperated values
   try {
     let userIds = (req.query.userIds).split(",").filter(Boolean);
     let users = [];
@@ -29,6 +31,17 @@ async function getUsernamesFromUserIds(req, res) {
   }
 
 }
+
+
+
+// TODO: this is only for testing!!!!
+async function getUser(req, res) {
+  let user = await UserModel.findById(req.query.userId);
+  res.send({
+    user: user
+  });
+}
+
 
 // get list of all the counsellors with a the counsellor role level
 async function getAllCounsellors(req, res) {
@@ -71,5 +84,6 @@ async function getAllCounsellors(req, res) {
 
 module.exports = {
   getUsernamesFromUserIds,
-  getAllCounsellors
+  getAllCounsellors,
+  getUser
 }
