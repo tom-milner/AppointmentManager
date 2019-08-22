@@ -27,7 +27,7 @@ router.get("/counsellor/:userId", AuthenticationMiddleware.roleCheck({
 }));
 
 // get all full appointments of a counsellor
-router.get("/admin/counsellor/:userId", AuthenticationMiddleware.roleCheck({
+router.get("/counsellor/full/:userId", AuthenticationMiddleware.roleCheck({
   role: Role.Counsellor
 }), AppointmentController.getAppointmentsOfUser({
   reduced: false,

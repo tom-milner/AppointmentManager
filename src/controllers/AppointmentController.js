@@ -33,13 +33,13 @@ function getAppointmentsOfUser({
 
     // get info from params
     const userId = req.params.userId;
-    let beginningTime = req.params.beginningTime;
+    let fromTime = req.params.fromTime;
 
     // Check to see if user needs appointments from a certain time.
-    if (beginningTime) {
-      beginningTime = moment(req.params.beginningTime);
-      // adjust query so that only appointments after beginningTime will be selected.
-      appointmentQuery.where("startTime").gte(beginningTime);
+    if (fromTime) {
+      fromTime = moment(req.params.fromTime);
+      // adjust query so that only appointments after fromTime will be selected.
+      appointmentQuery.where("startTime").gte(fromTime);
     }
 
     // check whether we should seach for counsellor or client
@@ -48,16 +48,14 @@ function getAppointmentsOfUser({
     } else {
       appointmentQuery.where("clients", userId);
       // remove counsellor notes
-      appointmentQuery.select({
-        counsellorNotes: 0
-      })
+      appointmentQuery.select("-counsellorNotes")
     }
     // check whether user wants reduced appointments or not.
     if (reduced) {
-      appointmentQuery.select("startTime endTime title")
+      appointmentQuery.select("+startTime +endTime +title")
     }
 
-    // add sort options to query
+    // sort appointments in ascending order
     appointmentQuery.sort("asc");
 
     try {
@@ -160,13 +158,15 @@ async function updateAppointment(req, res) {
   try {
     let newAppointmentProperties = req.body.appointmentProperties;
     let appointmentId = req.body.appointmentId;
-    await AppointmentModel.findByIdAndUpdate(
+    let updatedAppointment = await AppointmentModel.findByIdAndUpdate(
       appointmentId,
       newAppointmentProperties
     );
     res.status(200).send({
       success: true,
-      message: "Appointment updated successfully"
+      message: "Appointment updated successfully",
+      updatedAppointment: updatedAppointment
+
     });
   } catch (error) {
     res.status(400).send({

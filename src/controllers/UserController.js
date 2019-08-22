@@ -38,14 +38,15 @@ async function getAllCounsellors(req, res) {
     // get all the counsellors but exclude their personal information.
     let counsellors = await CounsellorModel.find({}, {
       password: 0,
-      email: 0
+      email: 0,
+      type: 0
     });
 
     // make sure counsellors could be found
-    if (!counsellors) {
+    if (counsellors.length === 0) {
       throw {
         message: "No counsellors could be found.",
-        code: 404
+        code: 400
       }
     }
 
