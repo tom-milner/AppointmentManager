@@ -16,12 +16,12 @@
           </router-link>
         </li>
         <li>
-          <router-link to="/create" class="nav-item">
+          <router-link v-if="!userIsCounsellor" to="/create" class="nav-item">
             <icon name="plus-square" class="icon-nav-item" />
           </router-link>
         </li>
         <li>
-          <router-link v-if="user.role>=2 " to="/admin" class="nav-item">
+          <router-link v-if="userIsCounsellor " to="/admin" class="nav-item">
             <icon name="shield" class="icon-nav-item" />
           </router-link>
         </li>
@@ -36,6 +36,7 @@
 <script>
 import UserService from "@/services/UserService";
 import Icon from "vue-icon/lib/vue-feather.esm";
+import Role from "@/models/Role";
 
 export default {
   components: {
@@ -52,6 +53,12 @@ export default {
     logout: async function() {
       UserService.logoutUser();
       this.$router.push("/");
+    }
+  },
+
+  computed: {
+    userIsCounsellor() {
+      return this.user.role >= Role.Counsellor;
     }
   },
 

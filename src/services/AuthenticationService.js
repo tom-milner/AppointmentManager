@@ -107,7 +107,6 @@ function setupAccessDeniedResponseInterceptor(err) {
   if ((err.response.status == 401 && err.config && !err.config.__isRetryRequest)) {
     // token must be expired - clear token in store
     UserService.logoutUser();
-    Router.push("/");
   }
   // return the error 
   return Promise.reject(err);

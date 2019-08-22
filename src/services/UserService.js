@@ -9,11 +9,12 @@ import Store from "@/store/store";
 async function loginUser(username, password) {
   // Send post request to login route
   Store.commit("authentication/auth_request");
-  try {
-    const result = await Api.post("/auth/login", {
-      username: username,
-      password: password
-    });
+
+  const result = await Api.post("/auth/login", {
+    username: username,
+    password: password
+  });
+  if (result.data.success) {
     const token = result.data.token;
     const user = result.data.user;
     // store token in store
@@ -21,35 +22,33 @@ async function loginUser(username, password) {
       token,
       user
     });
-    console.log(Store.state.authentication.user);
-    return result;
-  } catch (err) {
-    console.log(err.response.data);
+  } else {
     Store.commit("authentication/auth_error")
-    // invalid token - remove it from storage
-    throw err.response.data;
   }
+  return result;
+
 }
+
 
 // Register User
 async function registerUser(newUser) {
   Store.commit("authentication/auth_request");
-  try {
-    // Send post request to register route
-    const result = await Api.post("/auth/register", newUser);
+
+  // Send post request to register route
+  const result = await Api.post("/auth/register", newUser);
+  if (result.data.success) {
     const token = result.token;
     const user = result.user;
-
     // store info in store 
     Store.commit("authentication/auth_success", {
       token,
       user
     });
-  } catch (err) {
+
+  } else {
     Store.commit("authentication/auth_error");
-    console.log(err.response);
-    throw err.response.data;
   }
+  return result;
 }
 
 // Logout User

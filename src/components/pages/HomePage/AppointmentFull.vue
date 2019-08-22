@@ -110,23 +110,31 @@ export default {
     setClientAttendance(canAttend) {
       if (this.appointment.clientCanAttend != canAttend) {
         this.appointment.clientCanAttend = canAttend;
-        AppointmentService.updateAppointment({
-          appointmentProperties: {
-            clientCanAttend: canAttend
-          },
-          appointmentId: this.appointment._id
-        });
+        try {
+          AppointmentService.updateAppointment({
+            appointmentProperties: {
+              clientCanAttend: canAttend
+            },
+            appointmentId: this.appointment._id
+          });
+        } catch (error) {
+          console.log(error);
+        }
       }
     },
     setCounsellorApproval(isApproved) {
       if (this.appointment.isApproved != isApproved) {
         this.appointment.isApproved = isApproved;
-        AppointmentService.updateAppointment({
-          appointmentProperties: {
-            isApproved: isApproved
-          },
-          appointmentId: this.appointment._id
-        });
+        try {
+          AppointmentService.updateAppointment({
+            appointmentProperties: {
+              isApproved: isApproved
+            },
+            appointmentId: this.appointment._id
+          });
+        } catch (error) {
+          console.log(error);
+        }
       }
     },
 
@@ -136,6 +144,7 @@ export default {
       clientIds.forEach(id => {
         clientIdsString = clientIdsString.concat(id, ",");
       });
+
       let result = await UserService.getUsersFromIds(clientIdsString);
 
       this.clients = result.data.users;

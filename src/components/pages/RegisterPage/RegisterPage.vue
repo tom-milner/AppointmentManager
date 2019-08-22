@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <card v-bind:showBack="true">
-      <div class="item-container">
+      <form v-on:submit.prevent="register()" class="item-container">
         <h1 class="heading-1">Register</h1>
         <div class="login-items">
           <div class="login-field">
@@ -35,8 +35,8 @@
           </div>
         </div>
         <h4 class="heading-4 error errorText" v-html="errorMessage" />
-        <button class="primary-btn" v-on:click="register()">Submit</button>
-      </div>
+        <button class="primary-btn">Submit</button>
+      </form>
     </card>
   </div>
 </template>

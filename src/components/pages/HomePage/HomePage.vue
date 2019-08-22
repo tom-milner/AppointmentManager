@@ -3,7 +3,7 @@
     <h2 class="heading-2">Welcome, {{user.firstname}}</h2>
 
     <!-- Upcoming Appointments -->
-    <div class="appointments-container">
+    <div class="container">
       <h2 class="heading-2">Upcoming Appointments</h2>
 
       <div
@@ -23,7 +23,7 @@
     </div>
 
     <!-- Pending Appointments -->
-    <div class="appointments-container">
+    <div class="container">
       <h2 class="heading-2">Pending Appointments</h2>
 
       <div
@@ -43,7 +43,7 @@
     </div>
 
     <!-- Calendar -->
-    <div class="appointments-container calendar">
+    <div class="container calendar">
       <h2 class="heading-2">Your Calendar</h2>
       <!-- TODO: add click to view appointment -->
       <appointment-calendar :events="events"></appointment-calendar>
@@ -64,7 +64,6 @@ import Modal from "@/components/layout/Modal";
 import AppointmentService from "@/services/AppointmentService";
 import AppointmentCalendar from "@/components/misc/AppointmentCalendar";
 import Role from "@/models/Role";
-import { setInterval, clearInterval } from "timers";
 
 export default {
   components: {
@@ -122,8 +121,7 @@ export default {
       user: {},
       modalDisplayed: false,
       selectedAppointment: {},
-      events: { userEvents: {} },
-      timer: ""
+      events: { userEvents: {} }
     };
   },
   mounted: async function() {
@@ -132,7 +130,7 @@ export default {
 
     // set timer for refreshing data
     //TODO: replace with a socket
-    this.timer = setInterval(this.getUserAppointments, 3000);
+    // this.timer = setInterval(this.getUserAppointments, 3000);
 
     // TODO: remove function duplication
     this.events.userEvents = this.appointments.map(appointment => ({
@@ -140,16 +138,12 @@ export default {
       end: appointment.endTime,
       start: appointment.startTime
     }));
-  },
-
-  beforeDestroy() {
-    clearInterval(this.timer);
   }
 };
 </script>
 
 <style lang="scss" scoped>
-.appointments-container {
+.container {
   margin-top: 5rem;
   overflow: hidden;
 

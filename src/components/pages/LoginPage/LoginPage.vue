@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <card v-bind:showBack="true">
-      <div class="item-container">
+      <form v-on:submit="login()" class="item-container">
         <h1 class="heading-1">Login</h1>
         <div class="login-items">
           <div class="login-field">
@@ -14,8 +14,8 @@
           </div>
         </div>
         <p class="errorText">{{errorMessage}}</p>
-        <button class="primary-btn" v-on:click="login()">Submit</button>
-      </div>
+        <button class="primary-btn">Submit</button>
+      </form>
     </card>
   </div>
 </template>
@@ -39,11 +39,12 @@ export default {
       const username = this.username;
       const password = this.password;
       try {
-        await UserService.loginUser(username, password);
+        let result = await UserService.loginUser(username, password);
+        console.log(result);
         this.$router.push("/home");
       } catch (err) {
-        console.log(err);
-        this.errorMessage = err.message;
+        console.log(err.response);
+        this.errorMessage = err.response.data.message;
       }
     }
   }
