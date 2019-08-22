@@ -4,7 +4,7 @@
 
     <!-- Upcoming Appointments -->
     <div class="container">
-      <h2 class="heading-2">Upcoming Appointments</h2>
+      <h2 class="heading-2">Upcoming Approved Appointments</h2>
 
       <div
         v-if=" approvedAppointments!=undefined && approvedAppointments.length > 0"
@@ -12,7 +12,7 @@
       >
         <AppointmentCard
           v-for="appointment in approvedAppointments"
-          v-bind:key="appointment._id"
+          v-bind:key="appointment.startTime"
           :appointment="appointment"
           @click.native="toggleModal(appointment)"
         ></AppointmentCard>
@@ -24,7 +24,7 @@
 
     <!-- Pending Appointments -->
     <div class="container">
-      <h2 class="heading-2">Pending Appointments</h2>
+      <h2 class="heading-2">Upcoming Pending Appointments</h2>
 
       <div
         v-if=" pendingAppointments!=undefined && pendingAppointments.length > 0"
@@ -32,7 +32,7 @@
       >
         <AppointmentCard
           v-for="appointment in pendingAppointments"
-          v-bind:key="appointment._id"
+          v-bind:key="appointment.startTime"
           :appointment="appointment"
           @click.native="toggleModal(appointment)"
         ></AppointmentCard>
@@ -49,6 +49,7 @@
       <appointment-calendar :events="events"></appointment-calendar>
     </div>
 
+    <!-- Modal -->
     <Modal v-on:close-modal="toggleModal()" v-if="modalDisplayed">
       <div class="modal-content">
         <AppointmentFull :isCounsellor="isUserCounsellor" :appointment="selectedAppointment"></AppointmentFull>
@@ -73,21 +74,31 @@ export default {
     AppointmentCalendar
   },
 
+  watch: {
+    appointments: function() {
+      let now = this.moment();
+      this.appointmentsFromNow = this.appointments.filter(
+        appointment => this.moment(appointment.startTime) >= now
+      );
+    }
+  },
+
   computed: {
     isUserCounsellor() {
       return this.user.role >= Role.Counsellor;
     },
     // returns a list of all the approved appointments
     approvedAppointments() {
-      return this.appointments
-        ? this.appointments.filter(appointment => appointment.isApproved)
+      return this.appointmentsFromNow
+        ? this.appointmentsFromNow.filter(appointment => appointment.isApproved)
         : [];
     },
-
     // returns a list of all the non-approved (pending) appointments
     pendingAppointments() {
-      return this.appointments
-        ? this.appointments.filter(appointment => !appointment.isApproved)
+      return this.appointmentsFromNow
+        ? this.appointmentsFromNow.filter(
+            appointment => !appointment.isApproved
+          )
         : [];
     }
   },
@@ -99,8 +110,7 @@ export default {
       let userIsCounsellor = this.user.role >= Role.Counsellor;
       let response = await AppointmentService.getAppointmentsOfUser({
         userId: this.user._id,
-        isCounsellor: userIsCounsellor,
-        fromTime: this.moment()
+        isCounsellor: userIsCounsellor
       });
 
       this.appointments = response.data.appointments;
@@ -114,7 +124,8 @@ export default {
   },
   data() {
     return {
-      appointments: null,
+      appointments: [],
+      appointmentsFromNow: [],
       user: {},
       modalDisplayed: false,
       selectedAppointment: {},

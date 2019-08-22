@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import AppointmentService from "@/services/AppointmentService";
+// import AppointmentService from "@/services/AppointmentService";
 
 export default {
   data() {
@@ -36,8 +36,8 @@ export default {
   },
   methods: {
     updateWorkingDays(day) {
-      if (!availableWorkDays.includes(day)) {
-        availableWorkDays.push(day);
+      if (!this.availableWorkDays.includes(day)) {
+        this.availableWorkDays.push(day);
 
         // store results in server
       }
