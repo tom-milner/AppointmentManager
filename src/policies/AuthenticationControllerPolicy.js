@@ -7,7 +7,8 @@ function register(req, res, next) {
     firstname: Joi.string().min(1).max(50).required(),
     lastname: Joi.string().min(1).max(50).required(),
     email: Joi.string().email().required(),
-    password: Joi.string().min(8).max(32).required()
+    password: Joi.string().min(8).max(32).required(),
+    isCounsellor: Joi.bool()
   }
 
   const {

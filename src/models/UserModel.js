@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const Role = require("./Role");
 
+const options = {
+  discriminatorKey: "type"
+}
+
 let UserSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -33,7 +37,7 @@ let UserSchema = new mongoose.Schema({
     type: Number,
     default: Role.Client
   }
-});
+}, options);
 
 userModel = mongoose.model("UserModel", UserSchema);
 

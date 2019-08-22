@@ -1,20 +1,21 @@
+const CounsellorModel = require("../models/CounsellorModel");
 const UserModel = require("../models/UserModel");
+
 const Role = require("../models/Role");
 
-// takes array of client Ids an returns simple user object.
+// takes array of user Ids an returns simple user object.
 async function getUsernamesFromUserIds(req, res) {
-  // clientIds is a string with comma seperated values
+  // userIds is a string with comma seperated values
   try {
     let userIds = (req.query.userIds).split(",").filter(Boolean);
     let users = [];
     for (id of userIds) {
       let user = await UserModel.findOne({
         _id: id
+      }, {
+        password: 0
       });
-      if (user) {
-        user.password = undefined;
-        users.push(user);
-      }
+      if (user) users.push(user);
     }
     res.status(200).send({
       success: true,
@@ -34,8 +35,10 @@ async function getUsernamesFromUserIds(req, res) {
 async function getAllCounsellors(req, res) {
 
   try {
-    let counsellors = await UserModel.find({
-      role: Role.Counsellor
+    // get all the counsellors but exclude their personal information.
+    let counsellors = await CounsellorModel.find({}, {
+      password: 0,
+      email: 0
     });
 
     // make sure counsellors could be found
@@ -45,11 +48,6 @@ async function getAllCounsellors(req, res) {
         code: 404
       }
     }
-
-    // exclude unnecessary info.
-    counsellors.forEach(counsellor => {
-      counsellor.password = counsellor.email = undefined;
-    });
 
     res.status(200).send({
       success: true,
@@ -67,9 +65,7 @@ async function getAllCounsellors(req, res) {
 
 
 // changing counsellor settings
-
-
 module.exports = {
   getUsernamesFromUserIds,
-  getAllCounsellors
+  getAllCounsellors,
 }

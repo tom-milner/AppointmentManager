@@ -1,59 +1,85 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const CounsellorModel = require("../models/CounsellorModel");
+const ClientModel = require("../models/ClientModel");
 const UserModel = require("../models/UserModel");
+// Register a new counsellor
+async function registerCounsellor(req, res) {
 
-// Give client a token for validation in other parts of the API
-function jwtSignUser(user) {
-  const oneDay = 60 * 60 * 24;
-  const expirationTime = oneDay;
-  // make user a plain object
-  user = JSON.parse(JSON.stringify(user));
-  // Create token
-  var token = jwt.sign(user, process.env.JWT_SECRET, {
-    expiresIn: expirationTime
-  });
-  return token;
+  try {
+
+    let {
+      email,
+      username,
+      firstname,
+      lastname,
+      password
+    } = req.body;
+
+    let newCounsellor = new CounsellorModel({
+      email: email,
+      username: username,
+      firstname: firstname,
+      lastname: lastname,
+    });
+
+    // hash password
+    newCounsellor.password = await hashPassword(password);
+    // save counsellor in database
+    const savedCounsellor = await newCounsellor.save();
+    savedCounsellor.password = undefined;
+    res.status(200).send({
+      success: true,
+      message: "Counsellor created successfully.",
+      counsellor: savedCounsellor,
+      token: jwtSignUser(savedCounsellor.toJSON())
+    });
+
+  } catch (err) {
+    let errorMessage = "Error registering counsellor.";
+    let errorStatusCode = 500;
+    if (err.code == 11000) {
+      errorMessage = "Counsellor already exists.";
+      errorStatusCode = 409;
+    }
+    console.log(err.message);
+    res.status(errorStatusCode).send({
+      success: false,
+      message: errorMessage
+    });
+  }
 }
 
-// sign up a new user
-async function register(req, res) {
+// register a new client
+async function registerClient(req, res) {
   try {
-    // create user
-    let newUser = new UserModel({
+    // create client model
+    let newClient = new ClientModel({
       email: req.body.email,
       username: req.body.username,
       firstname: req.body.firstname,
       lastname: req.body.lastname,
     });
 
-    // Hash password and store in database.
-    // First, generate salt. saltRounds is the cost factor of hashing algorithm.
-    // For example, a saltRounds of 10 will mean that the bcrypt calculation is performed 2^10 (1024) times.
-    // The higher the saltRounds, the longer the salt takes to generate, but the more secure the hash.
-    const saltRounds = 10;
-    const salt = await bcrypt.genSalt(saltRounds);
+    // store hashed password in user object.
+    newClient.password = await hashPassword(req.body.password);
 
-    const hash = await bcrypt.hash(req.body.password, salt);
-
-    // Store hash in user object, ready to be saved.
-    newUser.password = hash;
-
-    // Save user to database
-    const savedUser = await newUser.save();
-    savedUser.password = undefined;
-    // Return newly created user
+    // Save client to database
+    const savedClient = await newClient.save();
+    savedClient.password = undefined;
+    // Return newly created client
     res.send({
       success: true,
-      message: "User added.",
-      user: savedUser,
+      message: "Client added.",
+      client: savedClient,
       // Sign user with new token
-      token: jwtSignUser(savedUser.toJSON())
+      token: jwtSignUser(savedClient.toJSON())
     });
   } catch (err) {
-    let errorMessage = "Error registering user.";
+    let errorMessage = "Error registering client.";
     let errorStatusCode = 500;
     if (err.code == 11000) {
-      errorMessage = "User already exists.";
+      errorMessage = "Client already exists.";
       errorStatusCode = 409;
     }
     console.log(err.message);
@@ -95,8 +121,9 @@ async function login(req, res) {
       });
       return;
     }
-    matchingUser.password = undefined;
 
+    // make sure password hash isn't returned
+    matchingUser.password = undefined;
     // return user with new access token.
     res.send({
       success: true,
@@ -134,8 +161,34 @@ async function refreshToken(req, res) {
   }
 }
 
+// helper functions - not exposed
+
+// Give client a token for validation in other parts of the API
+function jwtSignUser(user) {
+  const oneDay = 60 * 60 * 24;
+  const expirationTime = oneDay;
+  // make user a plain object
+  user = JSON.parse(JSON.stringify(user));
+  // Create token
+  var token = jwt.sign(user, process.env.JWT_SECRET, {
+    expiresIn: expirationTime
+  });
+  return token;
+}
+
+// return a hashed password
+async function hashPassword(password) {
+  // First, generate salt. saltRounds is the cost factor of hashing algorithm.
+  // For example, a saltRounds of 10 will mean that the bcrypt calculation is performed 2^10 (1024) times.
+  // The higher the saltRounds, the longer the salt takes to generate, but the more secure the hash.
+  const SALT_ROUNDS = 10;
+  const salt = await bcrypt.genSalt(SALT_ROUNDS);
+  const hash = await bcrypt.hash(password, salt);
+  return hash;
+}
 module.exports = {
-  register,
+  registerClient,
   login,
-  refreshToken
+  refreshToken,
+  registerCounsellor
 };
