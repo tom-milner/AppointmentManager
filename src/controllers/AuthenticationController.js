@@ -1,8 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const UserModel = require("../models/UserModel");
 const CounsellorModel = require("../models/CounsellorModel");
-
+const ClientModel = require("../models/ClientModel");
+const UserModel = require("../models/UserModel");
 // Register a new counsellor
 async function registerCounsellor(req, res) {
 
@@ -25,14 +25,14 @@ async function registerCounsellor(req, res) {
 
     // hash password
     newCounsellor.password = await hashPassword(password);
-
     // save counsellor in database
     const savedCounsellor = await newCounsellor.save();
     savedCounsellor.password = undefined;
     res.status(200).send({
       success: true,
       message: "Counsellor created successfully.",
-      counsellor: savedCounsellor
+      counsellor: savedCounsellor,
+      token: jwtSignUser(savedCounsellor.toJSON())
     });
 
   } catch (err) {
@@ -53,8 +53,8 @@ async function registerCounsellor(req, res) {
 // register a new client
 async function registerClient(req, res) {
   try {
-    // create user
-    let newUser = new UserModel({
+    // create client model
+    let newClient = new ClientModel({
       email: req.body.email,
       username: req.body.username,
       firstname: req.body.firstname,
@@ -62,24 +62,24 @@ async function registerClient(req, res) {
     });
 
     // store hashed password in user object.
-    newUser.password = await hashPassword(re.body.password);
+    newClient.password = await hashPassword(req.body.password);
 
-    // Save user to database
-    const savedUser = await newUser.save();
-    savedUser.password = undefined;
-    // Return newly created user
+    // Save client to database
+    const savedClient = await newClient.save();
+    savedClient.password = undefined;
+    // Return newly created client
     res.send({
       success: true,
-      message: "User added.",
-      user: savedUser,
+      message: "Client added.",
+      client: savedClient,
       // Sign user with new token
-      token: jwtSignUser(savedUser.toJSON())
+      token: jwtSignUser(savedClient.toJSON())
     });
   } catch (err) {
-    let errorMessage = "Error registering user.";
+    let errorMessage = "Error registering client.";
     let errorStatusCode = 500;
     if (err.code == 11000) {
-      errorMessage = "User already exists.";
+      errorMessage = "Client already exists.";
       errorStatusCode = 409;
     }
     console.log(err.message);
@@ -121,8 +121,9 @@ async function login(req, res) {
       });
       return;
     }
-    matchingUser.password = undefined;
 
+    // make sure password hash isn't returned
+    matchingUser.password = undefined;
     // return user with new access token.
     res.send({
       success: true,

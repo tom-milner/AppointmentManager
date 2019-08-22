@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Role = require("./Role");
 
 const options = {
-  discriminatorKey: "kind"
+  discriminatorKey: "type"
 }
 
 let UserSchema = new mongoose.Schema({

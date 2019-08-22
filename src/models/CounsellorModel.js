@@ -7,10 +7,13 @@ const counsellorSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  role: {
+    type: Number,
+    default: Role.Counsellor
   }
 })
+UserModel.discriminator("CounsellorModel", counsellorSchema);
 
-const CounsellorModel = UserModel.discriminator("CounsellorModel", counsellorSchema);
 
-
-module.exports = mongoose.model("CounsellorModel");
+module.exports = mongoose.model("CounsellorModel", counsellorSchema);

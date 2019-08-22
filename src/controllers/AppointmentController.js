@@ -70,16 +70,15 @@ async function getAppointmentsOfClient(req, res) {
   // TODO: create policy for this function
   try {
     const userId = req.params.userId;
+
+    // get all the appointments of the user, but exclude the counsellors notes
     const userAppointments = await AppointmentModel.find({
       clients: userId
+    }, {
+      counsellorNotes: 0
     }).sort({
       startTime: "asc"
     });
-
-    //  hide certain properties from client
-    userAppointments.forEach(appointment => {
-      appointment.counsellorNotes = undefined;
-    })
 
     res.status(200).send({
       success: true,

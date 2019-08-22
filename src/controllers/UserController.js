@@ -12,11 +12,10 @@ async function getUsernamesFromUserIds(req, res) {
     for (id of userIds) {
       let user = await UserModel.findOne({
         _id: id
+      }, {
+        password: 0
       });
-      if (user) {
-        user.password = undefined;
-        users.push(user);
-      }
+      if (user) users.push(user);
     }
     res.status(200).send({
       success: true,
@@ -32,23 +31,14 @@ async function getUsernamesFromUserIds(req, res) {
 
 }
 
-
-
-// TODO: this is only for testing!!!!
-async function getUser(req, res) {
-  let user = await UserModel.findById(req.query.userId);
-  res.send({
-    user: user
-  });
-}
-
-
 // get list of all the counsellors with a the counsellor role level
 async function getAllCounsellors(req, res) {
 
   try {
-    let counsellors = await UserModel.find({
-      role: Role.Counsellor
+    // get all the counsellors but exclude their personal information.
+    let counsellors = await CounsellorModel.find({}, {
+      password: 0,
+      email: 0
     });
 
     // make sure counsellors could be found
@@ -58,11 +48,6 @@ async function getAllCounsellors(req, res) {
         code: 404
       }
     }
-
-    // exclude unnecessary info.
-    counsellors.forEach(counsellor => {
-      counsellor.password = counsellor.email = undefined;
-    });
 
     res.status(200).send({
       success: true,
@@ -80,10 +65,7 @@ async function getAllCounsellors(req, res) {
 
 
 // changing counsellor settings
-
-
 module.exports = {
   getUsernamesFromUserIds,
   getAllCounsellors,
-  getUser
 }
