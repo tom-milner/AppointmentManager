@@ -17,7 +17,6 @@
 
 <script>
 // import AppointmentService from "@/services/AppointmentService";
-
 export default {
   data() {
     return {
@@ -36,11 +35,17 @@ export default {
   },
   methods: {
     updateWorkingDays(day) {
+      // check if day is already in counsellor settings
       if (!this.availableWorkDays.includes(day)) {
+        // add day
         this.availableWorkDays.push(day);
-
-        // store results in server
+      } else {
+        // remove day from array
+        let index = this.availableWorkDays.indexOf(day);
+        this.availableWorkDays.splice(index, 1);
       }
+
+      // update counsellor settings
     }
   }
 };

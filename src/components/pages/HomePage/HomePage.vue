@@ -53,7 +53,7 @@
     <Modal v-on:close-modal="toggleModal()" v-if="modalDisplayed">
       <div class="modal-content">
         <AppointmentFull :isCounsellor="isUserCounsellor" :appointment="selectedAppointment"></AppointmentFull>
-      </div>
+      </div>.map
     </Modal>
   </div>
 </template>
@@ -140,7 +140,7 @@ export default {
     //TODO: replace with a socket
     // this.timer = setInterval(this.getUserAppointments, 3000);
 
-    // TODO: remove function duplication
+    // TODO: remove duplication duplication
     this.events.userEvents = this.appointments.map(appointment => ({
       title: appointment.title,
       end: appointment.endTime,

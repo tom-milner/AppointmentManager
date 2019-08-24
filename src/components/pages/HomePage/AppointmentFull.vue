@@ -130,13 +130,14 @@ export default {
     setClientAttendance(canAttend) {
       if (this.appointment.clientCanAttend != canAttend) {
         this.appointment.clientCanAttend = canAttend;
+        let appointmentId = this.appointment._id;
         try {
-          AppointmentService.updateAppointment({
-            appointmentProperties: {
+          AppointmentService.updateAppointment(
+            {
               clientCanAttend: canAttend
             },
-            appointmentId: this.appointment._id
-          });
+            appointmentId
+          );
         } catch (error) {
           console.log(error);
         }
@@ -146,12 +147,12 @@ export default {
       if (this.appointment.isApproved != isApproved) {
         this.appointment.isApproved = isApproved;
         try {
-          AppointmentService.updateAppointment({
-            appointmentProperties: {
+          AppointmentService.updateAppointment(
+            {
               isApproved: isApproved
             },
-            appointmentId: this.appointment._id
-          });
+            this.appointment._id
+          );
         } catch (error) {
           console.log(error);
         }
@@ -169,10 +170,10 @@ export default {
       let appointmentId = this.appointment._id;
 
       try {
-        AppointmentService.updateAppointment({
-          appointmentProperties: appointmentProperties,
-          appointmentId: appointmentId
-        });
+        AppointmentService.updateAppointment(
+          appointmentProperties,
+          appointmentId
+        );
       } catch (error) {
         console.log(error);
       }
