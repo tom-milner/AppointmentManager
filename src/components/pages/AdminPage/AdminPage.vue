@@ -9,6 +9,7 @@
           v-for="day in workDays"
           :key="day"
           class="secondary-btn"
+          v-bind:class="{checked : isDayAvailable(day) }"
         >{{day}}</button>
       </div>
     </div>
@@ -20,7 +21,7 @@ import UserService from "@/services/UserService";
 export default {
   data() {
     return {
-      user: {},
+      counsellor: {},
       appointments: [],
       workDays: [
         "Monday",
@@ -34,10 +35,17 @@ export default {
       availableWorkDays: []
     };
   },
-  mounted() {
-    this.user = this.$store.state.authentication.user;
+  async mounted() {
+    this.counsellor = this.$store.state.authentication.user;
+    console.log(this.counsellor);
+    this.availableWorkDays = this.counsellor.workingDays;
   },
+
   methods: {
+    isDayAvailable(day) {
+      console.log(this.availableWorkDays.includes(day));
+      return this.availableWorkDays.includes(day);
+    },
     updateWorkingDays(day) {
       console.log("updating");
       // check if day is already in counsellor settings
@@ -51,11 +59,11 @@ export default {
       }
 
       // update counsellor settings
-      UserService.updateCounsellorSettings(
+      UserService.updateCounsellor(
         {
           workingDays: this.availableWorkDays
         },
-        this.user._id
+        this.counsellor._id
       );
     }
   }
