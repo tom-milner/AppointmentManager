@@ -59,7 +59,7 @@ function insertAppointment(req, res, next) {
 // checks if user has required access level to change property
 function updateAppointment(req, res, next) {
   try {
-    // throw error if there are no properties in request
+    // first validate body (Joi isn't needed as there's only one variable to validate)
     if (!req.body.appointmentProperties) {
       throw ({
         message: "No properties found",

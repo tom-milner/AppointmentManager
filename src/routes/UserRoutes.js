@@ -20,7 +20,7 @@ router.get("/counsellors", AuthenticationMiddleware.isLoggedIn, UserController.g
 // router.get("/:userId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck())
 
 // update counsellor settings
-router.post("/counsellors/:userId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck({
+router.post("/counsellors/update:userId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck({
   role: Role.Counsellor,
   useSpecific: true
 }), UserController.updateCounsellorSettings)

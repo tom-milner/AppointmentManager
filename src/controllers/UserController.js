@@ -65,6 +65,13 @@ async function getAllCounsellors(req, res) {
 
 // changing counsellor settings
 async function updateCounsellorSettings(req, res) {
+  // TODO: create policy
+
+  let counsellorId = req.params.counsellorId;
+  let newCounsellorSettings = req.body.counsellorSettings();
+  console.log(counsellorId);
+
+  let updatedCounsellor = await CounsellorModel.findByIdAndUpdate()
 
 }
 

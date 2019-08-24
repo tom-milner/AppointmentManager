@@ -33,6 +33,28 @@ function getReducedUsers(req, res, next) {
   }
 }
 
+
+function updateCounsellorSettings(req, res, next) {
+
+  try {
+    // Joi isn't needed - we only need to check if the object is present
+    let counsellorSettings = req.body.counsellorSettings;
+    if (!counsellorSettings) {
+      throw ({
+        message: "No settings found",
+        code: 400
+      });
+    }
+
+    next();
+  } catch (error) {
+    res.status(error.code || 400).send({
+      message: error.message || "Error updating counsellor settings",
+      success: false
+    })
+  }
+}
+
 module.exports = {
   getReducedUsers
 }
