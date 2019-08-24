@@ -64,7 +64,12 @@ async function getAllCounsellors(req, res) {
 
 
 // changing counsellor settings
+async function updateCounsellorSettings(req, res) {
+
+}
+
 module.exports = {
   getReducedUsers,
   getAllCounsellors,
+  updateCounsellorSettings
 }

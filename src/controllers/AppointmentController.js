@@ -159,11 +159,22 @@ async function insertAppointment(req, res) {
 async function updateAppointment(req, res) {
   try {
     let newAppointmentProperties = req.body.appointmentProperties;
-    let appointmentId = req.body.appointmentId;
+    let appointmentId = req.params.appointmentId;
+
     let updatedAppointment = await AppointmentModel.findByIdAndUpdate(
       appointmentId,
-      newAppointmentProperties
+      newAppointmentProperties, {
+        new: true
+      }
     );
+
+    if (!updatedAppointment) {
+      throw ({
+        message: "Appointment doesn't exist.",
+        code: 400
+      })
+    }
+
     res.status(200).send({
       success: true,
       message: "Appointment updated successfully",
@@ -171,9 +182,9 @@ async function updateAppointment(req, res) {
 
     });
   } catch (error) {
-    res.status(400).send({
+    res.status(error.code || 400).send({
       success: false,
-      message: "Error updating appointment"
+      message: error.message || "Error updating appointment"
     });
   }
 }

@@ -4,8 +4,9 @@ const router = express.Router();
 let AppointmentController = require("../controllers/AppointmentController");
 let AuthenticationMiddleware = require("../middleware/AuthenticationMiddleware");
 let AppointmentControllerPolicy = require("../policies/AppointmentControllerPolicy");
-
 let Role = require("../models/Role");
+
+// These routes are all under "/appointments"
 
 // Always requires users to be logged in for these routes - appointments contain personal information 
 router.use(AuthenticationMiddleware.isLoggedIn);
@@ -43,7 +44,7 @@ router.get("/", AuthenticationMiddleware.roleCheck({
 router.post("/", AppointmentControllerPolicy.insertAppointment, AppointmentController.insertAppointment);
 
 // update an existing appointment
-router.post("/update", AppointmentControllerPolicy.updateAppointment, AppointmentController.updateAppointment);
+router.post("/update/:appointmentId", AppointmentControllerPolicy.updateAppointment, AppointmentController.updateAppointment);
 
 
 module.exports = router;
