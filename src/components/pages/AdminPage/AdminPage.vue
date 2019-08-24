@@ -16,10 +16,11 @@
 </template>
 
 <script>
-// import AppointmentService from "@/services/AppointmentService";
+import UserService from "@/services/UserService";
 export default {
   data() {
     return {
+      user: {},
       appointments: [],
       workDays: [
         "Monday",
@@ -33,8 +34,12 @@ export default {
       availableWorkDays: []
     };
   },
+  mounted() {
+    this.user = this.$store.state.authentication.user;
+  },
   methods: {
     updateWorkingDays(day) {
+      console.log("updating");
       // check if day is already in counsellor settings
       if (!this.availableWorkDays.includes(day)) {
         // add day
@@ -46,6 +51,12 @@ export default {
       }
 
       // update counsellor settings
+      UserService.updateCounsellorSettings(
+        {
+          workingDays: this.availableWorkDays
+        },
+        this.user._id
+      );
     }
   }
 };

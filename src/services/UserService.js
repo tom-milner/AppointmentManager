@@ -73,7 +73,14 @@ function getUsersFromIds(userIds) {
 
 // get list of all counsellors
 function getAllCounsellors() {
-  return Api.get("user/counsellors");
+  return Api.get("/user/counsellors");
+}
+
+// update counsellor's settings
+function updateCounsellorSettings(counsellorSettings, counsellorId) {
+  return Api.post(`/user/counsellors/update/${counsellorId}`, {
+    counsellorSettings: counsellorSettings
+  });
 }
 
 export default {
@@ -81,5 +88,6 @@ export default {
   registerUser,
   logoutUser,
   getUsersFromIds,
-  getAllCounsellors
+  getAllCounsellors,
+  updateCounsellorSettings
 }
