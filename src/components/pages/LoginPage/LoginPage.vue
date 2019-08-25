@@ -14,7 +14,7 @@
           </div>
         </div>
         <p class="errorText">{{errorMessage}}</p>
-        <button class="primary-btn">Submit</button>
+        <button class="btn btn-primary">Submit</button>
       </form>
     </card>
   </div>

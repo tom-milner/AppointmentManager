@@ -4,9 +4,9 @@
       <div class="items-container">
         <h1 class="heading-1">Appointment Manager</h1>
         <div class="options-container">
-          <router-link to="/login" class="primary-btn">Login</router-link>
-          <router-link to="/register" class="primary-btn">Register</router-link>
-          <router-link to="/guest" class="primary-btn">Guest</router-link>
+          <router-link to="/login" class="btn btn-primary">Login</router-link>
+          <router-link to="/register" class="btn btn-primary">Register</router-link>
+          <router-link to="/guest" class="btn btn-primary">Guest</router-link>
         </div>
       </div>
     </card>

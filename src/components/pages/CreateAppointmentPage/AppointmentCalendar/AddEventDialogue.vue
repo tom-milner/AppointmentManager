@@ -35,7 +35,7 @@
       </div>
 
       <div class="segment">
-        <div @click="chooseTime" class="primary-btn">Choose Time</div>
+        <div @click="chooseTime" class="btn btn-primary">Choose Time</div>
       </div>
     </div>
   </div>

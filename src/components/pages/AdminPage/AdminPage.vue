@@ -8,7 +8,7 @@
           @click="updateWorkingDays(day)"
           v-for="day in workDays"
           :key="day"
-          class="secondary-btn"
+          class="btn btn-approved"
           v-bind:class="{checked : isDayAvailable(day) }"
         >{{day}}</button>
       </div>

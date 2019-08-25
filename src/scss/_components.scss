@@ -1,59 +1,79 @@
 // default button
-.primary-btn {
+.btn {
   text-align: center;
-  // width: 10rem;
   padding: .75rem 1rem;
-  border: 1px solid $color-primary;
   border-radius: $border-radius;
   transition: 0.15s;
   text-decoration: none;
   background-color: transparent;
 
-  &:hover {
-    background-color: $color-primary;
-    color: $color-white;
-    cursor: pointer;
-  }
+  color: $color-black;
+  font-family: $font-family;
+  font-weight: 400;
+  font-size: 1.5rem;
+  border: 1px solid $color-grey-dark;
 
   &:focus {
     outline: none;
   }
 
-  color: $color-black;
-  font-family: $font-family;
-  font-weight: 400;
-  font-size: 1.5rem;
-
-}
-
-// secondary button
-.secondary-btn {
-  text-align: center;
-  // width: 10rem;
-  padding: .55rem .8rem;
-  border: 1px solid $color-primary-dark;
-  border-radius: $border-radius;
-  transition: 0.15s;
-  text-decoration: none;
-  background-color: transparent;
-
   &:hover {
-    background-color: $color-primary-dark;
-    color: $color-white;
     cursor: pointer;
   }
 
-  &:focus {
-    outline: none;
+  // ##########################################
+  //            Primary Button
+  // ##########################################
+  &-primary {
+    border: 1px solid $color-primary;
+
+    &:hover,
+    &.checked {
+      color: $color-white;
+      background-color: $color-primary;
+    }
   }
 
-  &.checked {
-    background-color: $color-primary-dark;
-    color: $color-white;
+  // ##########################################
+  //            Secondary Button
+  // ##########################################
+  &-secondary {
+    border: 1px solid $color-primary-dark;
+    padding: .55rem .8rem;
+
+    &:hover,
+    &.checked {
+      color: $color-white;
+      background-color: $color-primary-dark;
+    }
+
   }
 
-  color: $color-black;
-  font-family: $font-family;
-  font-weight: 400;
-  font-size: 1.5rem;
+
+  // ##########################################
+  //            Approved Button
+  // ##########################################
+  &-approved {
+
+    &:hover,
+    &.checked {
+      color: $color-white;
+      border: 1px solid $color-approved;
+      background-color: $color-approved;
+    }
+  }
+
+  // ##########################################
+  //            Disapproved Button
+  // ##########################################
+  &-disapproved {
+
+    &:hover,
+    &.checked {
+      color: $color-white;
+      background-color: $color-error;
+    }
+
+  }
+
 }

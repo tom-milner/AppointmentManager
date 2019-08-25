@@ -29,7 +29,7 @@
           disabled
         />
         <div
-          class="secondary-btn short-input"
+          class="btn btn-secondary short-input"
           @click="toggleAppointmentCalendarModal"
         >Choose from calendar</div>
       </div>
@@ -49,7 +49,7 @@
 
       <!-- Submit form -->
       <div class="form-field">
-        <button @click="requestAppointment" class="primary-btn">Request Appointment</button>
+        <button @click="requestAppointment" class="btn btn-primary">Request Appointment</button>
       </div>
     </div>
 

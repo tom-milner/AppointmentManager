@@ -35,7 +35,7 @@
           </div>
         </div>
         <h4 class="heading-4 error errorText" v-html="errorMessage" />
-        <button class="primary-btn">Submit</button>
+        <button class="btn btn-primary">Submit</button>
       </form>
     </card>
   </div>

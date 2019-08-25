@@ -42,7 +42,7 @@
       <li class="appointment-details notes">
         <h4 class="heading-4">Client Notes (for counsellor to see) :</h4>
         <textarea :disabled="isCounsellor" class="form-input" v-model="appointment.clientNotes"></textarea>
-        <button @click="saveNotes(false)" v-if="!isCounsellor" class="secondary-btn">Save</button>
+        <button @click="saveNotes(false)" v-if="!isCounsellor" class="btn btn-secondary">Save</button>
       </li>
 
       <!-- Counsellor Notes -->
@@ -53,7 +53,7 @@
           class="form-input"
           v-model="appointment.counsellorNotes"
         ></textarea>
-        <button @click="saveNotes(true)" v-if="isCounsellor" class="secondary-btn">Save</button>
+        <button @click="saveNotes(true)" v-if="isCounsellor" class="btn btn-secondary">Save</button>
       </li>
 
       <!-- Client Attendence Buttons -->
@@ -61,12 +61,12 @@
         <h4 class="heading-4">Can client attend?</h4>
         <button
           @click="setClientAttendance(true)"
-          class="primary-btn"
+          class="btn btn-primary"
           :class="{checked: appointment.clientCanAttend}"
         >Yes</button>
         <button
           @click="setClientAttendance(false)"
-          class="primary-btn"
+          class="btn btn-primary"
           :class="{checked: !appointment.clientCanAttend}"
         >No</button>
       </li>
@@ -76,12 +76,12 @@
         <h4 class="heading-4">Appointment Approval</h4>
         <button
           @click="setCounsellorApproval(true)"
-          class="primary-btn"
+          class="btn btn-primary"
           :class="{checked: appointment.isApproved}"
         >Approved</button>
         <button
           @click="setCounsellorApproval(false)"
-          class="primary-btn"
+          class="btn btn-primary"
           :class="{checked: !appointment.isApproved}"
         >Not Approved</button>
       </li>
