@@ -41,7 +41,6 @@ function initializeNavigationGuard() {
           next("/home");
         }
       } else {
-        console.log("user must be logged in")
         // make the user login first.
         next("/login");
       }
@@ -58,7 +57,10 @@ async function setupTokenRefresher(config) {
   let token = Store.state.authentication.token;
   // ignore requests to register or signup routes - these are already getting new tokens.
   // also only allow refresh if token exists, and if the token isn't currently being updated
-  if ((config.url).includes("login") || (config.url).includes("register") || !token || Store.state.authentication.status == "loading") {
+  if ((config.url).includes("login") || (config.url).includes("register") || !token || Store.state.authentication.status == "loading" || Store.state.authentication.status == "error") {
+    console.log(config.headers.post);
+    console.log(config.headers.common);
+
     return config;
   }
 
@@ -108,11 +110,13 @@ async function setupTokenRefresher(config) {
 
 // intercept 401 responses (expired token) and redirect to login page
 function setupAccessDeniedResponseInterceptor(err) {
-  console.log("logging out")
+  console.log("intercepting");
   // check to see if the error from the server is a 401 error
   if ((err.response.status == 401 && err.config && !err.config.__isRetryRequest)) {
     // token must be expired - clear token in store
     UserService.logoutUser();
+    console.log(err);
+    console.log("logging out");
   }
   // return the error 
   return Promise.reject(err);

@@ -3,8 +3,13 @@ import AuthenticationService from "@/services/AuthenticationService";
 
 
 const axiosInstance = axios.create({
-  baseURL: process.env.VUE_APP_API_URL
+  baseURL: process.env.VUE_APP_API_URL,
 });
+
+// set headers
+axiosInstance.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+
+
 // authorization interceptors
 axiosInstance.interceptors.request.use(AuthenticationService.setupTokenRefresher);
 

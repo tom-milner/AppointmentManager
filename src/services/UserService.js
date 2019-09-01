@@ -10,11 +10,12 @@ async function loginUser(username, password) {
   // Send post request to login route
   Store.commit("authentication/auth_request");
 
-  console.log(Store);
-  const result = await Api.post("/auth/login", {
+  let loginInfo = {
     username: username,
     password: password
-  });
+  };
+  console.log("state:", Store.state.authentication.status);
+  const result = await Api.post("/auth/login", loginInfo);
 
   console.log(result);
 
