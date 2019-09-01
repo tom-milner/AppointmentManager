@@ -10,13 +10,18 @@ async function loginUser(username, password) {
   // Send post request to login route
   Store.commit("authentication/auth_request");
 
+  console.log(Store);
   const result = await Api.post("/auth/login", {
     username: username,
     password: password
   });
+
+  console.log(result);
+
   if (result.data.success) {
     const token = result.data.token;
     const user = result.data.user;
+
     // store token in store
     Store.commit("authentication/auth_success", {
       token,

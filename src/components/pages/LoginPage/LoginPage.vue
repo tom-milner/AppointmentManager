@@ -1,7 +1,7 @@
 <template>
   <div class="container">
-    <card v-bind:showBack="true">
-      <form v-on:submit="login()" class="item-container">
+    <card :showBack="true" backUrl="/">
+      <form v-on:submit="login" class="item-container">
         <h1 class="heading-1">Login</h1>
         <div class="login-items">
           <div class="login-field">
@@ -39,9 +39,10 @@ export default {
       const username = this.username;
       const password = this.password;
       try {
+        console.log("logging in");
         let result = await UserService.loginUser(username, password);
         console.log(result);
-        this.$router.push("/home");
+        // this.$router.push("/home");
       } catch (err) {
         console.log(err.response);
         this.errorMessage = err.response.data.message;

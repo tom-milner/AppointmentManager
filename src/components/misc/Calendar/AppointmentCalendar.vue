@@ -2,6 +2,7 @@
   <div>
     <full-calendar
       @dateClick="handleDateClick"
+      @eventClick="handleEventClick"
       ref="fullCalendar"
       :weekends="true"
       :header="{
@@ -15,15 +16,25 @@
         { events: this.events.counsellorEvents, className:'counsellorEvent' }
       ]"
     ></full-calendar>
+
     <div v-if="isEditable">
-      <AddEventDialogue
-        v-on:close-dialogue="toggleShowAddEventDialogue"
-        v-on:date-chosen="dateChosen"
-        v-if="showAddEventDialogue"
-        :day="chosenDay"
-        :dayEvents="getEventsOfChosenDay"
-      ></AddEventDialogue>
+      <CalendarPopup v-on:close-popup="toggleShowAddEventPopup" v-on:date-chosen="dateChosen">
+        <AddEventDialogue
+          v-if="showAddEventDialogue"
+          :day="chosenDay"
+          :dayEvents="getEventsOfChosenDay"
+        ></AddEventDialogue>
+      </CalendarPopup>
     </div>
+
+    <!-- TODO: currently abstracting calendarPopup to seperate layer -->
+    <CalendarPopup
+      v-if="showEventPopup"
+      @close-popup="toggleEventPopup"
+      :spaceClicked="chosenEventRectangle"
+    >
+      <h1>It works</h1>
+    </CalendarPopup>
   </div>
 </template>
 
@@ -35,19 +46,22 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
 // custom components
-import AddEventDialogue from "../pages/CreateAppointmentPage/AppointmentCalendar/AddEventDialogue";
-
+import AddEventDialogue from "../../pages/CreateAppointmentPage/AppointmentCalendar/AddEventDialogue.vue";
+import CalendarPopup from "../../misc/Calendar/CalendarPopup";
 export default {
   data() {
     return {
       calendarPlugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
       showAddEventDialogue: false,
-      chosenDay: {}
+      showEventPopup: false,
+      chosendayRectangle: {},
+      chosenEventRectangle: {}
     };
   },
   components: {
     FullCalendar,
-    AddEventDialogue
+    AddEventDialogue,
+    CalendarPopup
   },
 
   computed: {
@@ -69,7 +83,7 @@ export default {
     }
   },
 
-  // add temporary event to show user (color it green or something to show its temporary)
+  // TODO: add temporary event to show user (color it green or something to show its temporary)
   methods: {
     dateChosen({ appointmentStartTime, appointmentDuration }) {
       // add date to appointment start time
@@ -82,19 +96,32 @@ export default {
       this.$emit("close-modal");
     },
 
+    // triggered when an event is clicked
+    handleEventClick(event) {
+      this.chosenEventRectangle = event.el.getBoundingClientRect();
+      this.showEventPopup = !this.showEventPopup;
+    },
+
     handleDateClick: function(day) {
       // trigger new appointment dialogue
       // get screen coordinates of day clicked
       this.chosenDay = day;
       if (!this.showAddEventDialogue) {
-        this.toggleShowAddEventDialogue();
+        this.toggleShowAddEventPopup();
       }
     },
-    toggleShowAddEventDialogue() {
+
+    // show or hide the add event popup
+    toggleShowAddEventPopup() {
       this.showAddEventDialogue = !this.showAddEventDialogue;
     },
 
-    checkEventSourcesForDuplicates: function() {
+    // show or hide the event popup
+    toggleEventPopup() {
+      this.showEventPopup = !this.showEventPopup;
+    },
+
+    removeDuplicateEventsForDuplicates: function() {
       // remove all duplicate start events from counsellor events array
       let userEvents = this.events.userEvents;
       let counsellorEvents = this.events.counsellorEvents;
@@ -126,13 +153,13 @@ export default {
         this.events.counsellorEvents.length > 0 ||
         this.events.userEvents.length > 0
       ) {
-        this.checkEventSourcesForDuplicates();
+        this.removeDuplicateEventsForDuplicates();
       }
     }
   },
-  // check for duplicate events before mounting
+  // remove duplicate events before mounting
   beforeMount() {
-    this.checkEventSourcesForDuplicates();
+    this.removeDuplicateEventsForDuplicates();
   }
 };
 </script>
@@ -156,45 +183,5 @@ export default {
   outline: none;
   border: none;
   padding: 0.2rem;
-}
-
-// have to use !important to override component css
-
-.fc {
-  font-family: $font-family !important;
-  tr {
-    height: 2rem !important;
-
-    td {
-      font-size: 1.5rem;
-
-      .fc-axis {
-        width: 5rem !important;
-      }
-    }
-  }
-  &-event {
-    font-size: 1.4rem !important ;
-  }
-  &-toolbar h2 {
-    font-size: 3rem !important;
-    font-weight: 300 !important;
-  }
-
-  &-day-number {
-    font-size: 1.5rem;
-  }
-
-  &-button {
-    text-transform: uppercase;
-    font-weight: 200;
-    color: $color-white;
-  }
-
-  &-widget-header {
-    font-size: 1.5rem;
-    font-weight: 300;
-    color: $color-primary-dark;
-  }
 }
 </style>

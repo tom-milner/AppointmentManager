@@ -70,7 +70,7 @@
 import AppointmentService from "@/services/AppointmentService";
 import UserService from "@/services/UserService";
 import Dropdown from "@/components/layout/Dropdown";
-import AppointmentCalendar from "../../misc/AppointmentCalendar";
+import AppointmentCalendar from "../../misc/Calendar/AppointmentCalendar";
 import Modal from "@/components/layout/Modal";
 import Utils from "@/utils";
 

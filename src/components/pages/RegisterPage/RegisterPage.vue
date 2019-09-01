@@ -87,10 +87,11 @@ export default {
 
           // catch and display errors
         } catch (err) {
-          if (err.message != null) {
+          console.log(err.response);
+          if (err.response.data.message) {
             this.errorMessage = "Error registering user";
           }
-          this.errorMessage = err.message;
+          this.errorMessage = err.response.data.message;
         }
       } else {
         this.errorMessage = "Passwords don't match";

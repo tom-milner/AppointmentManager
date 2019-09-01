@@ -5,6 +5,7 @@ import UserService from "@/services/UserService";
 import Utils from "@/utils";
 
 
+
 function initializeNavigationGuard() {
   // Handle unauthorized access
   // This is a navigation guard. It is called every time the user tries to navigate to a different route.
@@ -15,9 +16,11 @@ function initializeNavigationGuard() {
       minimumAuthRole
     } = to.meta;
 
-    if (minimumAuthRole) { // If any routes have the "minimumAuthRole" meta property
-      if (Store.getters["authentication/isLoggedIn"]) {
+    console.log(to.meta);
 
+    if (minimumAuthRole) { // If any routes have the "minimumAuthRole" meta property
+      let isLoggedIn = Store.getters["authentication/isLoggedIn"];
+      if (isLoggedIn) {
         // make sure the user exists in store
         // the store is wiped on refresh, so this makes sure that there is always a user in the store.
         // the user was originally kept in localStorage but I decided this wasn't secure enough
@@ -38,6 +41,7 @@ function initializeNavigationGuard() {
           next("/home");
         }
       } else {
+        console.log("user must be logged in")
         // make the user login first.
         next("/login");
       }
@@ -52,12 +56,12 @@ function initializeNavigationGuard() {
 async function setupTokenRefresher(config) {
 
   let token = Store.state.authentication.token;
-
   // ignore requests to register or signup routes - these are already getting new tokens.
   // also only allow refresh if token exists, and if the token isn't currently being updated
   if ((config.url).includes("login") || (config.url).includes("register") || !token || Store.state.authentication.status == "loading") {
     return config;
   }
+
   // try and decode token
   try {
     // check how long token is valid for.
@@ -74,6 +78,8 @@ async function setupTokenRefresher(config) {
     if (timeToExpire <= oneHour && timeToExpire >= 0) {
       // let other services know token is changing 
       Store.commit("authentication/auth_request");
+
+      console.log("refreshing token.");
 
       // here we have to set the access token manually, as we are in the process of setting up the global axios instance and so cannot access the global headers.
       let response = await Api.get("/auth/token", {
@@ -102,7 +108,7 @@ async function setupTokenRefresher(config) {
 
 // intercept 401 responses (expired token) and redirect to login page
 function setupAccessDeniedResponseInterceptor(err) {
-
+  console.log("logging out")
   // check to see if the error from the server is a 401 error
   if ((err.response.status == 401 && err.config && !err.config.__isRetryRequest)) {
     // token must be expired - clear token in store
@@ -117,7 +123,6 @@ function setupAccessDeniedResponseInterceptor(err) {
 
 // expose functions
 export default {
-  // initialPersistenceCheck,
   initializeNavigationGuard,
   setupAccessDeniedResponseInterceptor,
   setupTokenRefresher
