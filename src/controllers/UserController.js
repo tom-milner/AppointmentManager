@@ -7,12 +7,15 @@ const Role = require("../models/Role");
 async function getReducedUsers(req, res) {
   // userIds is a string with comma seperated values
   try {
-    let userIds = (req.query.userIds).split(",").filter(Boolean);
+    let userIds = req.query.userIds.split(",").filter(Boolean);
     let users = [];
     for (id of userIds) {
-      let user = await UserModel.findOne({
-        _id: id
-      }, "username firstname lastname");
+      let user = await UserModel.findOne(
+        {
+          _id: id
+        },
+        "username firstname lastname"
+      );
       if (user) users.push(user);
     }
     res.status(200).send({
@@ -24,46 +27,44 @@ async function getReducedUsers(req, res) {
     res.status(400).send({
       success: false,
       message: "Error getting usernames."
-    })
+    });
   }
-
 }
 
 // get list of all the counsellors with a the counsellor role level
 async function getAllCounsellors(req, res) {
-
   try {
     // get all the counsellors but exclude their personal information.
-    let counsellors = await CounsellorModel.find({}, {
-      password: 0,
-      email: 0,
-      type: 0
-    });
+    let counsellors = await CounsellorModel.find(
+      {},
+      {
+        password: 0,
+        email: 0,
+        type: 0
+      }
+    );
     // make sure counsellors could be found
     if (counsellors.length === 0) {
       throw {
         message: "No counsellors could be found.",
         code: 400
-      }
+      };
     }
 
     res.status(200).send({
       success: true,
       message: "Counsellors returned successfully",
       counsellors: counsellors
-    })
-
+    });
   } catch (error) {
-
     console.log(error);
 
     res.status(error.code || 500).send({
       success: false,
-      message: error.message || "Error returning counsellors.",
-    })
+      message: error.message || "Error returning counsellors."
+    });
   }
 }
-
 
 // changing counsellor settings
 async function updateCounsellor(req, res) {
@@ -73,29 +74,32 @@ async function updateCounsellor(req, res) {
   let newCounsellorSettings = req.body.counsellorSettings;
 
   try {
-    let updatedCounsellorSettings = await CounsellorModel.findByIdAndUpdate(counsellorId, newCounsellorSettings, {
-      new: true,
-    });
+    let updatedCounsellorSettings = await CounsellorModel.findByIdAndUpdate(
+      counsellorId,
+      newCounsellorSettings,
+      {
+        new: true
+      }
+    );
 
     console.log(updatedCounsellorSettings);
 
     if (!updatedCounsellorSettings) {
-      throw ({
+      throw {
         message: "Counsellor doesn't exist",
         code: 400
-      });
+      };
     }
     res.status(200).send({
       success: true,
       message: "Counsellor settings updated."
-    })
+    });
   } catch (error) {
     res.status(error.code || 400).send({
       success: false,
       message: error.message || "Error updating counsellor settings"
-    })
+    });
   }
-
 }
 
 async function getCounsellor(req, res) {
@@ -116,7 +120,6 @@ async function getCounsellor(req, res) {
       success: false
     });
   }
-
 }
 
 module.exports = {
@@ -124,4 +127,4 @@ module.exports = {
   getAllCounsellors,
   updateCounsellor,
   getCounsellor
-}
+};

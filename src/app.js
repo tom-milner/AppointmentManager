@@ -5,6 +5,10 @@ const app = express();
 const dotenv = require("dotenv");
 dotenv.config();
 
+// Automatic CORS-policy handling
+const cors = require("cors");
+app.use(cors());
+
 // Logging
 const morgan = require('morgan');
 app.use(morgan('dev'));
@@ -15,10 +19,6 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 app.use(bodyParser.json());
-
-// Automatic CORS-policy handling
-const cors = require("cors");
-app.use(cors());
 
 // load application routes
 const routes = require("./routes");

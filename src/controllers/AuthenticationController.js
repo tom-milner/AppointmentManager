@@ -68,7 +68,7 @@ async function registerClient(req, res) {
     const savedClient = await newClient.save();
     savedClient.password = undefined;
     // Return newly created client
-    res.send({
+    res.status(200).send({
       success: true,
       message: "Client added.",
       client: savedClient,
@@ -98,14 +98,16 @@ async function login(req, res) {
     const userMatches = await UserModel.find({
       username: req.body.username
     });
+
     // Only 1 user should be found - use 0th term just in case
     const matchingUser = userMatches[0];
     // Check user exists
     if (!matchingUser) {
-      return res.status(401).send({
+      res.status(401).send({
         success: false,
         message: "Incorrect login information."
       });
+      return;
     }
 
     // Hash password and check against hash in database
@@ -119,20 +121,24 @@ async function login(req, res) {
       return;
     }
 
-    console.log("password is valid");
-
     // make sure password hash isn't returned
     matchingUser.password = undefined;
+
+
+
     // return user with new access token.
-    res.send({
+    const token = await jwtSignUser(matchingUser);
+    res.status(200).send({
       success: true,
       message: "User logged in",
       user: matchingUser,
-      token: jwtSignUser(matchingUser)
+      token: token
     });
 
+    return;
+
   } catch (err) {
-    console.log(err.message);
+    console.log(err);
     res.status(500).send({
       success: false,
       // Generic error message so as to not reveal too much about the login process.
@@ -164,13 +170,13 @@ async function refreshToken(req, res) {
 // helper functions - not exposed
 
 // Give client a token for validation in other parts of the API
-function jwtSignUser(user) {
+async function jwtSignUser(user) {
   const oneDay = 60 * 60 * 24;
   const expirationTime = oneDay;
   // make user a plain object
   user = JSON.parse(JSON.stringify(user));
   // Create token
-  var token = jwt.sign(user, process.env.JWT_SECRET, {
+  const token = await jwt.sign(user, process.env.JWT_SECRET, {
     expiresIn: expirationTime
   });
   return token;
