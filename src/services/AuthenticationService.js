@@ -111,11 +111,11 @@ async function setupTokenRefresher(config) {
 // intercept 401 responses (expired token) and redirect to login page
 function setupAccessDeniedResponseInterceptor(err) {
   console.log("intercepting");
+  console.log(err.config);
   // check to see if the error from the server is a 401 error
   if ((err.response.status == 401 && err.config && !err.config.__isRetryRequest)) {
     // token must be expired - clear token in store
     UserService.logoutUser();
-    console.log(err);
     console.log("logging out");
   }
   // return the error 

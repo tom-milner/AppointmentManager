@@ -4,10 +4,8 @@ import AuthenticationService from "@/services/AuthenticationService";
 
 const axiosInstance = axios.create({
   baseURL: process.env.VUE_APP_API_URL,
+  timeout: 30 * 1000 // 30s timeout
 });
-
-// set headers
-axiosInstance.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
 
 
 // authorization interceptors

@@ -14,11 +14,9 @@ async function loginUser(username, password) {
     username: username,
     password: password
   };
-  console.log("state:", Store.state.authentication.status);
   const result = await Api.post("/auth/login", loginInfo);
 
   console.log(result);
-
   if (result.data.success) {
     const token = result.data.token;
     const user = result.data.user;

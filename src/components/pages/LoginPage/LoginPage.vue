@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <card :showBack="true" backUrl="/">
-      <form v-on:submit="login" class="item-container">
+      <form v-on:submit.prevent="login" class="item-container">
         <h1 class="heading-1">Login</h1>
         <div class="login-items">
           <div class="login-field">
@@ -42,9 +42,9 @@ export default {
         console.log("logging in");
         let result = await UserService.loginUser(username, password);
         console.log(result);
-        // this.$router.push("/home");
+        this.$router.push("/home");
       } catch (err) {
-        console.log(err.response);
+        console.log(err);
         this.errorMessage = err.response.data.message;
       }
     }
