@@ -39,7 +39,6 @@ async function getAllCounsellors(req, res) {
       email: 0,
       type: 0
     });
-
     // make sure counsellors could be found
     if (counsellors.length === 0) {
       throw {
@@ -55,6 +54,9 @@ async function getAllCounsellors(req, res) {
     })
 
   } catch (error) {
+
+    console.log(error);
+
     res.status(error.code || 500).send({
       success: false,
       message: error.message || "Error returning counsellors.",
@@ -64,19 +66,62 @@ async function getAllCounsellors(req, res) {
 
 
 // changing counsellor settings
-async function updateCounsellorSettings(req, res) {
+async function updateCounsellor(req, res) {
   // TODO: create policy
 
   let counsellorId = req.params.counsellorId;
-  let newCounsellorSettings = req.body.counsellorSettings();
-  console.log(counsellorId);
+  let newCounsellorSettings = req.body.counsellorSettings;
 
-  let updatedCounsellor = await CounsellorModel.findByIdAndUpdate()
+  try {
+    let updatedCounsellorSettings = await CounsellorModel.findByIdAndUpdate(counsellorId, newCounsellorSettings, {
+      new: true,
+    });
+
+    console.log(updatedCounsellorSettings);
+
+    if (!updatedCounsellorSettings) {
+      throw ({
+        message: "Counsellor doesn't exist",
+        code: 400
+      });
+    }
+    res.status(200).send({
+      success: true,
+      message: "Counsellor settings updated."
+    })
+  } catch (error) {
+    res.status(error.code || 400).send({
+      success: false,
+      message: error.message || "Error updating counsellor settings"
+    })
+  }
+
+}
+
+async function getCounsellor(req, res) {
+  let counsellorId = req.params.counsellorId;
+
+  try {
+    let counsellor = await CounsellorModel.findById(counsellorId);
+    console.log(counsellor);
+    if (counsellor) {
+      res.status(200).send({
+        message: "Counsellor returned successfully",
+        success: true
+      });
+    }
+  } catch (error) {
+    res.status(400).send({
+      message: "Counsellor couldn't be found",
+      success: false
+    });
+  }
 
 }
 
 module.exports = {
   getReducedUsers,
   getAllCounsellors,
-  updateCounsellorSettings
+  updateCounsellor,
+  getCounsellor
 }

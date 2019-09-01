@@ -94,12 +94,10 @@ async function registerClient(req, res) {
 async function login(req, res) {
   try {
 
-
     // Find matching users in database
     const userMatches = await UserModel.find({
       username: req.body.username
     });
-
     // Only 1 user should be found - use 0th term just in case
     const matchingUser = userMatches[0];
     // Check user exists
@@ -109,7 +107,6 @@ async function login(req, res) {
         message: "Incorrect login information."
       });
     }
-
 
     // Hash password and check against hash in database
     const isPasswordValid = await bcrypt.compare(req.body.password, matchingUser.password);
@@ -122,6 +119,8 @@ async function login(req, res) {
       return;
     }
 
+    console.log("password is valid");
+
     // make sure password hash isn't returned
     matchingUser.password = undefined;
     // return user with new access token.
@@ -131,6 +130,7 @@ async function login(req, res) {
       user: matchingUser,
       token: jwtSignUser(matchingUser)
     });
+
   } catch (err) {
     console.log(err.message);
     res.status(500).send({

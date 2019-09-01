@@ -34,7 +34,7 @@ function getReducedUsers(req, res, next) {
 }
 
 
-function updateCounsellorSettings(req, res, next) {
+function updateCounsellor(req, res, next) {
 
   try {
     // Joi isn't needed - we only need to check if the object is present
@@ -56,5 +56,6 @@ function updateCounsellorSettings(req, res, next) {
 }
 
 module.exports = {
-  getReducedUsers
+  getReducedUsers,
+  updateCounsellor
 }

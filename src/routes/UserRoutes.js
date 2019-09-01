@@ -19,10 +19,15 @@ router.get("/counsellors", AuthenticationMiddleware.isLoggedIn, UserController.g
 // TODO: add route to get info from single user (/user/:userId)
 // router.get("/:userId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck())
 
-// update counsellor settings
-router.post("/counsellors/update:userId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck({
+// update counsellor
+router.post("/counsellors/:counsellorId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck({
   role: Role.Counsellor,
   useSpecific: true
-}), UserController.updateCounsellorSettings)
+}), UserControllerPolicy.updateCounsellor, UserController.updateCounsellor)
+
+// get counsellor
+router.get("/counsellors/:counsellorId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck({
+  role: Role.Counsellor
+}), UserController.getCounsellor);
 
 module.exports = router;
