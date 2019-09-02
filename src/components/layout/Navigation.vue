@@ -22,7 +22,7 @@
         </li>
         <li>
           <router-link v-if="userIsCounsellor " to="/admin" class="nav-item">
-            <icon name="shield" class="icon-nav-item" />
+            <icon name="calendar" class="icon-nav-item" />
           </router-link>
         </li>
       </ul>

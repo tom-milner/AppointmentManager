@@ -1,9 +1,12 @@
 <template>
   <div class="wrapper">
+    <!-- Header -->
     <h1 class="heading-2">Your Work Calendar</h1>
+
+    <!-- Free days input -->
     <div class="container">
       <h3 class="heading-3">What days are you free to work?</h3>
-      <div class="working-days">
+      <div class="working-days-buttons">
         <button
           @click="updateWorkingDays(day)"
           v-for="day in workDays"
@@ -13,11 +16,22 @@
         >{{day}}</button>
       </div>
     </div>
+
+    <!-- Working hours input -->
+    <div class="container">
+      <h3 class="heading-3">What hours are you free to work?</h3>
+
+      <div class="working-hours-input">
+        <h2 v-bind:key="day.name" v-for="day in availableWorkDays">{{day.name}}</h2>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import UserService from "@/services/UserService";
+import WorkDay from "@/models/WorkDay";
+
 export default {
   data() {
     return {
@@ -36,29 +50,29 @@ export default {
     };
   },
   async mounted() {
-    this.counsellor = this.$store.state.authentication.user;
-    console.log(this.counsellor);
+    let counsellorId = this.$store.state.authentication.user._id;
+    let result = await UserService.getCounsellor(counsellorId);
+    this.counsellor = result.data.counsellor;
     this.availableWorkDays = this.counsellor.workingDays;
   },
 
   methods: {
-    isDayAvailable(day) {
-      console.log(this.availableWorkDays.includes(day));
-      return this.availableWorkDays.includes(day);
+    isDayAvailable(chosenDay) {
+      return this.availableWorkDays.find(day => day.name == chosenDay);
     },
-    updateWorkingDays(day) {
-      console.log("updating");
+    updateWorkingDays(currentDay) {
       // check if day is already in counsellor settings
-      if (!this.availableWorkDays.includes(day)) {
-        // add day
-        this.availableWorkDays.push(day);
-      } else {
+      let dayFound = this.isDayAvailable(currentDay);
+      if (dayFound) {
         // remove day from array
-        let index = this.availableWorkDays.indexOf(day);
+        let index = this.availableWorkDays.indexOf(dayFound);
         this.availableWorkDays.splice(index, 1);
+      } else {
+        // add day
+        this.availableWorkDays.push(new WorkDay(currentDay));
       }
 
-      // update counsellor settings
+      // update server counsellor settings
       UserService.updateCounsellor(
         {
           workingDays: this.availableWorkDays
@@ -74,13 +88,16 @@ export default {
 .container {
   margin-top: 5rem;
 
-  .working-days {
+  .working-days-buttons {
     margin-top: 1rem;
     button {
       &:not(:last-child) {
         margin-right: 2rem;
       }
     }
+  }
+
+  .working-hours-input {
   }
 }
 </style>
