@@ -108,7 +108,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "../../../../scss/global.scss";
+@import "src/scss/global";
 
 .headers {
   display: flex;

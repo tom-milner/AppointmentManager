@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- Calendar -->
+    <!-- Customised Calendar -->
     <full-calendar
       @dateClick="handleDateClick"
       @eventClick="handleEventClick"
@@ -19,65 +19,77 @@
     ></full-calendar>
 
     <!-- Add Event Popup -->
-    <div v-if="isEditable">
+    <div v-if="userCanAddEvents">
       <CalendarPopup
         v-if="showAddEventPopup"
         :spaceClicked="chosenDayRectangle"
-        v-on:close-popup="toggleShowAddEventPopup"
+        v-on:close-popup="toggleAddEventPopup"
       >
-        <!-- <AddEventDialogue
-          :day="chosenDay"
-          :dayEvents="getEventsOfChosenDay"
-          v-on:date-chosen="dateChosen"
-        ></AddEventDialogue>-->
-
-        <h2>This works</h2>
+        <!-- Add Event Form -->
+        <AddEvent :day="chosenDay" :dayEvents="getEventsOfChosenDay" v-on:date-chosen="dateChosen"></AddEvent>
       </CalendarPopup>
     </div>
 
     <!-- View Event Popup -->
     <CalendarPopup
-      v-if="showEventPopup"
-      @close-popup="toggleEventPopup"
+      v-if="showViewEventPopup"
+      @close-popup="toggleViewEventPopup"
       :spaceClicked="chosenEventRectangle"
     >
-      <h1>It works</h1>
+      <!-- View Event Component -->
+      <ViewEvent />
     </CalendarPopup>
   </div>
 </template>
 
 <script>
-// calendar
+// Calendar Imports
 import FullCalendar from "@fullcalendar/vue";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
 // custom components
-import AddEventDialogue from "../../pages/CreateAppointmentPage/AppointmentCalendar/AddEventDialogue.vue";
-import CalendarPopup from "../../misc/Calendar/CalendarPopup";
+import AddEvent from "./AddEvent.vue";
+import ViewEvent from "./ViewEvent.vue";
+import CalendarPopup from "./CalendarPopup";
+
 export default {
   data() {
     return {
       calendarPlugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
       showAddEventPopup: false,
-      showEventPopup: false,
+      showViewEventPopup: false,
       chosenDayRectangle: {},
+      chosenDay: {},
       chosenEventRectangle: {}
     };
   },
+  props: {
+    // events to display in the calendar.
+    events: {},
+    // whether the user can add events or not.
+    userCanAddEvents: Boolean
+  },
+
   components: {
     FullCalendar,
-    AddEventDialogue,
+    AddEvent,
+    ViewEvent,
     CalendarPopup
   },
 
   computed: {
+    // This function returns all the events in an event source that are on a day.
     getEventsOfChosenDay() {
+      // merge both the counsellor and user events into a single array.
       let allEvents = this.events.userEvents.concat(
         this.events.counsellorEvents
       );
+      // create moment object from the day chosen
       let chosenDayTime = this.moment(this.chosenDay.date);
+
+      // Filter all the events, excluding any events that don't have a start or end time that falls on the same day.
       let dayEvents = allEvents.filter(event => {
         // check to see if event is on the same day
         return (
@@ -85,17 +97,18 @@ export default {
           chosenDayTime.isSame(event.end, "day")
         );
       });
+
+      // return all the events of that given day.
       return dayEvents;
     }
   },
 
   // TODO: add temporary event to show user (color it green or something to show its temporary)
   methods: {
+    // function to run when a user selects a day.
     dateChosen({ appointmentStartTime, appointmentDuration }) {
       // add date to appointment start time
-      console.log(appointmentStartTime);
-      console.log(this.chosenDay);
-      appointmentStartTime = this.$emit("date-chosen", {
+      this.$emit("date-chosen", {
         appointmentStartTime,
         appointmentDuration
       });
@@ -104,54 +117,59 @@ export default {
 
     // triggered when an event is clicked
     handleEventClick(event) {
+      console.log(event);
+      // set the rectangle of screen that the event resides in.
       this.chosenEventRectangle = event.el.getBoundingClientRect();
-      this.showEventPopup = !this.showEventPopup;
+      // toggle the event popup
+      this.toggleViewEventPopup();
     },
 
+    // triggered when user clicks on a day
     handleDateClick: function(day) {
-      // trigger new appointment popup
+      // store the day clicked
+      this.chosenDay = day;
       // get screen coordinates of day clicked
-      this.chosenDayRectangle = day.el.getBoundingClientRect();
-      this.showAddEventPopup = !this.showAddEventPopup;
+      this.chosenDayRectangle = day.dayEl.getBoundingClientRect();
+      // toggle the add event popup.
+      this.toggleAddEventPopup();
     },
 
     // show or hide the add event popup
-    toggleShowAddEventPopup() {
+    toggleAddEventPopup() {
       this.showAddEventPopup = !this.showAddEventPopup;
     },
 
     // show or hide the event popup
-    toggleEventPopup() {
-      this.showEventPopup = !this.showEventPopup;
+    toggleViewEventPopup() {
+      this.showViewEventPopup = !this.showViewEventPopup;
     },
 
+    // This function removes any duplicate events in the counsellor events array (where the counsellor will be counselling the current user)
     removeDuplicateEventsForDuplicates: function() {
-      // remove all duplicate start events from counsellor events array
       let userEvents = this.events.userEvents;
       let counsellorEvents = this.events.counsellorEvents;
-      console.log("checking");
 
       if (counsellorEvents) {
+        // filter counsellorEvents, only including events that don't match the start or end time of a user event.
         counsellorEvents = counsellorEvents.filter(function(counsellorEvent) {
-          console.log(counsellorEvent);
+          // see if userEvents contains the current counsellor event, and find it's index.
           let index = userEvents.findIndex(
             userEvent =>
               userEvent.start == counsellorEvent.start ||
               userEvent.end == counsellorEvent.end
           );
+
+          // if the index is -1, counsellorEvent is not in userEvents. Therefore it can stay in counsellor events.
           return index == -1;
         });
-
+        // save the filtered counsellorEvents
         this.events.counsellorEvents = counsellorEvents;
       }
     }
   },
-  props: {
-    events: {},
-    isEditable: Boolean
-  },
 
   watch: {
+    // function watches for changes to the events prop, and removes duplicates.
     events: function() {
       if (
         this.events.counsellorEvents.length > 0 ||
@@ -160,21 +178,20 @@ export default {
         this.removeDuplicateEventsForDuplicates();
       }
     }
-  },
-  // remove duplicate events before mounting
-  beforeMount() {
-    this.removeDuplicateEventsForDuplicates();
   }
 };
 </script>
 
 <style lang="scss" >
+// global styles
 @import "src/scss/global";
+
 // calendar css
 @import "~@fullcalendar/core/main.css";
 @import "~@fullcalendar/daygrid/main.css";
 @import "~@fullcalendar/timegrid/main.css";
 
+// Event from user
 .userEvent {
   background-color: $color-primary !important;
   outline: none;
@@ -182,6 +199,7 @@ export default {
   padding: 0.2rem;
 }
 
+// Event from calendar
 .counsellorEvent {
   background-color: $color-grey !important;
   outline: none;

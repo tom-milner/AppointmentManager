@@ -1,12 +1,17 @@
 <template>
   <div>
+    <!-- Header -->
     <h1 class="heading-2">Request An Appointment</h1>
+
+    <!-- Form -->
     <div class="request-form">
+      <!-- Appointment Title -->
       <div class="form-field">
         <h3 class="form-heading">Appointment Title</h3>
         <input v-model="chosenTitle" class="form-input short-input" />
       </div>
 
+      <!-- Counsellor Selection Dropdown -->
       <div class="form-field">
         <h3 class="form-heading">Counsellor</h3>
         <div class="short-input">
@@ -20,6 +25,7 @@
         </div>
       </div>
 
+      <!-- Appointment Date Selection -->
       <div class="form-field">
         <h3 class="form-heading">Appointment Date</h3>
         <input
@@ -34,33 +40,37 @@
         >Choose from calendar</div>
       </div>
 
+      <!-- Displays the chosen duration (if present) -->
       <div v-if="chosenDuration" class="form-field">
         <h3 class="form-heading">Appointment duration</h3>
         <h2 class="heading-3">{{chosenDuration}} minutes</h2>
       </div>
 
+      <!-- Client Notes Input -->
       <div class="form-field">
         <p class="form-heading">Notes:</p>
         <textarea v-model="notes" class="form-input"></textarea>
       </div>
+
+      <!-- Error Message -->
       <div v-if="errorMessage.length > 0" class="form-field">
         <h4 class="heading-4 error">{{this.errorMessage}}</h4>
       </div>
 
-      <!-- Submit form -->
+      <!-- Submit form button-->
       <div class="form-field">
         <button @click="requestAppointment" class="btn btn-primary">Request Appointment</button>
       </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Calendar Modal -->
     <Modal v-on:close-modal="toggleAppointmentCalendarModal()" v-if="appointmentCalendarDisplayed">
       <div class="modal-content">
         <AppointmentCalendar
-          isEditable
+          userCanAddEvents
           v-on:close-modal="toggleAppointmentCalendarModal()"
           v-on:date-chosen="dateChosen"
-          :events="{ counsellorEvents: counsellorDisabledDates, userEvents:userDisabledDates}"
+          :events="{ counsellorEvents: counsellorDates, userEvents:userDates}"
         />
       </div>
     </Modal>
@@ -82,6 +92,7 @@ export default {
   },
 
   computed: {
+    // Formats the date
     getFormattedChosenDate() {
       if (Utils.objIsEmpty(this.chosenStartTime)) return "No date chosen";
       return this.moment(this.chosenStartTime).format("LLL");
@@ -90,8 +101,8 @@ export default {
   data() {
     return {
       user: {},
-      userDisabledDates: [],
-      counsellorDisabledDates: [],
+      userDates: [],
+      counsellorDates: [],
       chosenCounsellor: {},
       counsellors: [],
       chosenStartTime: {},
@@ -103,6 +114,8 @@ export default {
     };
   },
   methods: {
+    // validate any input from the user. This process is also repeated on the server.
+    // returns an object containing error and message.
     validateInput() {
       // check for title
       if (!this.chosenTitle) {
@@ -135,13 +148,13 @@ export default {
           message: "Please choose a valid duration for your appointment."
         };
       }
-
       // data is all good!!!!
       return {
         error: false
       };
     },
 
+    // This function uses the AppointmentService to request a new appointment.
     requestAppointment: async function() {
       try {
         // validate input
@@ -150,6 +163,7 @@ export default {
         if (error) {
           throw message;
         }
+
         // build request body
         let appointment = {
           startTime: this.chosenStartTime,
@@ -158,6 +172,7 @@ export default {
           counsellorId: this.chosenCounsellor._id,
           clientNotes: this.notes
         };
+
         // send request
         let result = await AppointmentService.requestAppointment(appointment);
 
@@ -166,7 +181,7 @@ export default {
           throw result.data.message;
         }
 
-        // request was a success - redirect user
+        // request was a success (appointment has been made) - redirect user
         this.$router.push("/");
       } catch (errorMessage) {
         console.log(errorMessage);
@@ -174,19 +189,19 @@ export default {
       }
     },
 
+    // when a date has been chosen from the calendar, set the local state.
     dateChosen({ appointmentStartTime, appointmentDuration }) {
       this.chosenStartTime = appointmentStartTime;
       this.chosenDuration = appointmentDuration;
     },
 
+    // update the local state of the counsellor.
     updateCounsellor: function(counsellor) {
       this.chosenCounsellor = counsellor;
     },
 
-    // TODO: refactor function
-
     // gets all the appointments that involve the clients
-    getUnavailableTimeSlotsOfClient: async function() {
+    getAppointmentsOfClient: async function() {
       // get appointments of current user
       let result = (await AppointmentService.getAppointmentsOfUser({
         userId: this.user._id,
@@ -194,8 +209,10 @@ export default {
       })).data.appointments;
       return result;
     },
-    getUnavailableTimeSlotsOfCounsellor: async function() {
-      // get apointments
+
+    // get all the appointments that involve the counsellor.
+    getAppointmentsOfCounsellor: async function() {
+      // get appointments
       let result = (await AppointmentService.getAppointmentsOfUser({
         userId: this.chosenCounsellor._id,
         isCounsellor: true,
@@ -204,6 +221,7 @@ export default {
       return result;
     },
 
+    // This function turns an array of appointments into an array of simple object, consisting of {start, end, title}
     mapAppointmentsToDates(appointments) {
       // turn appointments into date ranges
       return appointments.map(appointment => ({
@@ -220,10 +238,10 @@ export default {
   },
 
   watch: {
-    // watch chosenCounsellor and find unavailable times whenever one is chosen
+    // watch chosenCounsellor and get their appointments whenever one is chosen
     chosenCounsellor: async function() {
-      let counsellorAppointments = await this.getUnavailableTimeSlotsOfCounsellor();
-      this.counsellorDisabledDates = this.mapAppointmentsToDates(
+      let counsellorAppointments = await this.getAppointmentsOfCounsellor();
+      this.counsellorDates = this.mapAppointmentsToDates(
         counsellorAppointments
       );
     }
@@ -237,10 +255,10 @@ export default {
     this.user = this.$store.state.authentication.user;
 
     // get times when client is unavailable
-    let userAppointments = await this.getUnavailableTimeSlotsOfClient();
+    let userAppointments = await this.getAppointmentsOfClient();
 
-    // disable the dates on the calendar
-    this.userDisabledDates = this.mapAppointmentsToDates(userAppointments);
+    // save the user dates.
+    this.userDates = this.mapAppointmentsToDates(userAppointments);
   }
 };
 </script>
