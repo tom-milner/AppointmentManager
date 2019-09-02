@@ -1,7 +1,12 @@
 @import "./mixins";
 
 @import "./variables";
-@import "./components";
+
+// import components
+@import "./components/buttons.scss";
+@import "./components/calendar.scss";
+
+
 @import "./base";
 @import "./typography";
 

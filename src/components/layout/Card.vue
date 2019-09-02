@@ -18,11 +18,13 @@ export default {
   },
   methods: {
     goBack: function() {
-      this.$router.go(-1);
+      if (this.backUrl) this.$router.push(this.backUrl);
+      else this.$router.go(-1);
     }
   },
   props: {
-    showBack: Boolean
+    showBack: Boolean,
+    backUrl: String
   }
 };
 </script>

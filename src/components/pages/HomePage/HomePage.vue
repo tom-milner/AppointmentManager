@@ -45,7 +45,6 @@
     <!-- Calendar -->
     <div class="container calendar">
       <h2 class="heading-2">Your Calendar</h2>
-      <!-- TODO: add click to view appointment -->
       <appointment-calendar :events="events"></appointment-calendar>
     </div>
 
@@ -53,7 +52,7 @@
     <Modal v-on:close-modal="toggleModal()" v-if="modalDisplayed">
       <div class="modal-content">
         <AppointmentFull :isCounsellor="isUserCounsellor" :appointment="selectedAppointment"></AppointmentFull>
-      </div>.map
+      </div>
     </Modal>
   </div>
 </template>
@@ -63,7 +62,7 @@ import AppointmentCard from "@/components/pages/HomePage/AppointmentCard.vue";
 import AppointmentFull from "@/components/pages/HomePage/AppointmentFull.vue";
 import Modal from "@/components/layout/Modal";
 import AppointmentService from "@/services/AppointmentService";
-import AppointmentCalendar from "@/components/misc/AppointmentCalendar";
+import AppointmentCalendar from "@/components/misc/Calendar/AppointmentCalendar";
 import Role from "@/models/Role";
 
 export default {

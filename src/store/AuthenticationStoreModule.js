@@ -4,7 +4,8 @@
 // The data to be kept in the store.
 const state = {
   token: "" || localStorage.getItem("token"),
-  user: ""
+  user: "",
+  status: ""
 };
 
 // Mutations are methods to be ran whenever a state change is needed.
@@ -14,6 +15,7 @@ const mutations = {
     token,
     user
   }) {
+
     state.token = token;
     state.user = user;
     state.status = "success";
