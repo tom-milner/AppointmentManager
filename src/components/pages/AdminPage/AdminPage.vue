@@ -19,10 +19,13 @@
 
     <!-- Working hours input -->
     <div class="container">
-      <h3 class="heading-3">What hours are you free to work?</h3>
-
+      <h3 class="heading-3">What hours are you free to work (start / end) ?</h3>
       <div class="working-hours-input">
-        <h2 v-bind:key="day.name" v-for="day in availableWorkDays">{{day.name}}</h2>
+        <div v-bind:key="day.name" v-for="day in availableWorkDays" class="day">
+          <h4 class="heading-4">{{day.name}}</h4>
+          <input step="3600" type="time" v-model="chosenDuration" class="form-input time-select" />
+          <input step="3600" type="time" v-model="chosenDuration" class="form-input time-select" />
+        </div>
       </div>
     </div>
   </div>
@@ -33,6 +36,8 @@ import UserService from "@/services/UserService";
 import WorkDay from "@/models/WorkDay";
 
 export default {
+  components: {},
+
   data() {
     return {
       counsellor: {},
@@ -98,6 +103,30 @@ export default {
   }
 
   .working-hours-input {
+    margin-top: 1rem;
+
+    .day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 10rem;
+      display: inline-block;
+      text-align: center;
+
+      &:not(:last-child) {
+        margin-right: 4rem;
+      }
+
+      h4 {
+        font-weight: 300;
+      }
+
+      .time-select {
+        font-size: 1.5rem;
+        display: block;
+      }
+    }
   }
 }
 </style>

@@ -15,7 +15,6 @@
         inputSize="sm"
         onlyTime
         :disabled-hours="disabledHours"
-        class="time-picker"
       ></TimePicker>
     </div>
     <div class="segment">
