@@ -16,9 +16,22 @@ const counsellorSchema = new mongoose.Schema({
   },
   workingDays: {
     type: [{
-      name: String,
-      startTime: Date,
-      endTime: Date
+      name: {
+        type: String,
+        required: true
+      },
+      startTime: {
+        type: String,
+        default: "09:00",
+        required: true
+
+      },
+      endTime: {
+        type: String,
+        required: true,
+        default: "17:00"
+
+      }
     }],
     validate: [workDayLimit, "{PATH} exceeds limit of 7 work days."]
   }
