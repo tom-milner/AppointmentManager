@@ -1,7 +1,6 @@
-const CounsellorModel = require("../models/CounsellorModel");
-const UserModel = require("../models/UserModel");
+const CounsellorModel = require("../models/MongooseModels/CounsellorModel");
+const UserModel = require("../models/MongooseModels/UserModel");
 
-const Role = require("../models/Role");
 
 // takes array of user Ids an returns simple user object.
 async function getReducedUsers(req, res) {
@@ -68,7 +67,6 @@ async function updateCounsellor(req, res) {
 
   let counsellorId = req.params.counsellorId;
   let newCounsellorSettings = req.body.counsellorSettings;
-
   try {
     let updatedCounsellorSettings = await CounsellorModel.findByIdAndUpdate(
       counsellorId,
@@ -99,14 +97,12 @@ async function getCounsellor(req, res) {
   let counsellorId = req.params.counsellorId;
 
   try {
-    let counsellor = await CounsellorModel.findById(counsellorId);
-    console.log(counsellor);
-    if (counsellor) {
-      res.status(200).send({
-        message: "Counsellor returned successfully",
-        success: true
-      });
-    }
+    let counsellor = await CounsellorModel.findById(counsellorId, "-password");
+    res.status(200).send({
+      message: "Counsellor returned successfully",
+      success: true,
+      counsellor: counsellor,
+    });
   } catch (error) {
     res.status(400).send({
       message: "Counsellor couldn't be found",

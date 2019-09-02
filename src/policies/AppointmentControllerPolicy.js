@@ -1,6 +1,6 @@
 const Joi = require("joi");
 const Role = require("../models/Role");
-const AppointmentModel = require("../models/AppointmentModel");
+const AppointmentModel = require("../models/MongooseModels/AppointmentModel");
 
 function insertAppointment(req, res, next) {
 

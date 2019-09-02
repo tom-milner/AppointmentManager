@@ -1,5 +1,5 @@
 // Import required models
-const AppointmentModel = require("../models/AppointmentModel");
+const AppointmentModel = require("../models/MongooseModels/AppointmentModel");
 const moment = require("moment");
 
 // Fetch all appointments regardless

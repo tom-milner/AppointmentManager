@@ -1,8 +1,10 @@
 const mongoose = require("mongoose");
 
 const UserModel = require("./UserModel");
-const Role = require("./Role");
+const Role = require("../Role.js");
 
+
+// Counsellor Schema
 const counsellorSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
@@ -13,10 +15,19 @@ const counsellorSchema = new mongoose.Schema({
     default: Role.Counsellor
   },
   workingDays: {
-    type: [String],
-    default: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    type: [{
+      name: String,
+      startTime: Date,
+      endTime: Date
+    }],
+    validate: [workDayLimit, "{PATH} exceeds limit of 7 work days."]
   }
 })
+
+function workDayLimit(days) {
+  return days.length <= 7;
+}
+
 UserModel.discriminator("CounsellorModel", counsellorSchema);
 
 

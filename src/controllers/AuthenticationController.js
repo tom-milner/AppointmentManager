@@ -1,8 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const CounsellorModel = require("../models/CounsellorModel");
-const ClientModel = require("../models/ClientModel");
-const UserModel = require("../models/UserModel");
+const CounsellorModel = require("../models/MongooseModels/CounsellorModel");
+const ClientModel = require("../models/MongooseModels/ClientModel");
+const UserModel = require("../models/MongooseModels/UserModel");
 // Register a new counsellor
 async function registerCounsellor(req, res) {
 
