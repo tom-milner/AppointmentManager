@@ -10,8 +10,7 @@ async function getReducedUsers(req, res) {
     let userIds = req.query.userIds.split(",").filter(Boolean);
     let users = [];
     for (id of userIds) {
-      let user = await UserModel.findOne(
-        {
+      let user = await UserModel.findOne({
           _id: id
         },
         "username firstname lastname"
@@ -35,14 +34,11 @@ async function getReducedUsers(req, res) {
 async function getAllCounsellors(req, res) {
   try {
     // get all the counsellors but exclude their personal information.
-    let counsellors = await CounsellorModel.find(
-      {},
-      {
-        password: 0,
-        email: 0,
-        type: 0
-      }
-    );
+    let counsellors = await CounsellorModel.find({}, {
+      password: 0,
+      email: 0,
+      type: 0
+    });
     // make sure counsellors could be found
     if (counsellors.length === 0) {
       throw {
@@ -76,13 +72,10 @@ async function updateCounsellor(req, res) {
   try {
     let updatedCounsellorSettings = await CounsellorModel.findByIdAndUpdate(
       counsellorId,
-      newCounsellorSettings,
-      {
+      newCounsellorSettings, {
         new: true
       }
     );
-
-    console.log(updatedCounsellorSettings);
 
     if (!updatedCounsellorSettings) {
       throw {
