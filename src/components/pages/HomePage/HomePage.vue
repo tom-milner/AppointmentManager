@@ -45,7 +45,6 @@
     <!-- Calendar -->
     <div class="container calendar">
       <h2 class="heading-2">Your Calendar</h2>
-      <!-- TODO: add click to view appointment -->
       <appointment-calendar :events="events"></appointment-calendar>
     </div>
 

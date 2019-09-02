@@ -13,7 +13,7 @@
             <input v-model="password" type="password" />
           </div>
         </div>
-        <p class="errorText">{{errorMessage}}</p>
+        <h4 class="heading-4 error errorText">{{errorMessage}}</h4>
         <button class="btn btn-primary">Submit</button>
       </form>
     </card>
