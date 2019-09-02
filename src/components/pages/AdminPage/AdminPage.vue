@@ -23,8 +23,8 @@
       <div class="working-hours-input">
         <div v-bind:key="day.name" v-for="day in availableWorkDays" class="day">
           <h4 class="heading-4">{{day.name}}</h4>
-          <input step="3600" type="time" v-model="chosenDuration" class="form-input time-select" />
-          <input step="3600" type="time" v-model="chosenDuration" class="form-input time-select" />
+          <input step="3600" type="time" :v-model="day.startTime" class="form-input time-select" />
+          <input step="3600" type="time" :v-model="day.endTime" class="form-input time-select" />
         </div>
       </div>
     </div>
@@ -59,6 +59,8 @@ export default {
     let result = await UserService.getCounsellor(counsellorId);
     this.counsellor = result.data.counsellor;
     this.availableWorkDays = this.counsellor.workingDays;
+
+    console.log(this.availableWorkDays[0]);
   },
 
   methods: {
