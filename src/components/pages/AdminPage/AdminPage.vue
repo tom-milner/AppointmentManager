@@ -18,7 +18,7 @@
     </div>
 
     <!-- Working hours input -->
-    <div class="container">
+    <div v-if="availableWorkDays.length >0" class="container">
       <h3 class="heading-3">What hours are you free to work (start / end) ?</h3>
       <div class="working-hours-input">
         <div v-bind:key="day.name" v-for="day in availableWorkDays" class="day">

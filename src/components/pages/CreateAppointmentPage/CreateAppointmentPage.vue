@@ -240,10 +240,12 @@ export default {
   watch: {
     // watch chosenCounsellor and get their appointments whenever one is chosen
     chosenCounsellor: async function() {
-      let counsellorAppointments = await this.getAppointmentsOfCounsellor();
-      this.counsellorDates = this.mapAppointmentsToDates(
-        counsellorAppointments
-      );
+      if (this.chosenCounsellor._id) {
+        let counsellorAppointments = await this.getAppointmentsOfCounsellor();
+        this.counsellorDates = this.mapAppointmentsToDates(
+          counsellorAppointments
+        );
+      }
     }
   },
 
