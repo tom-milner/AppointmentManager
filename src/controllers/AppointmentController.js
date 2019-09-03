@@ -1,5 +1,6 @@
 // Import required models
 const AppointmentModel = require("../models/MongooseModels/AppointmentModel");
+const CounsellorModel = require("../models/MongooseModels/CounsellorModel");
 const moment = require("moment");
 
 // Fetch all appointments regardless
@@ -20,12 +21,8 @@ async function getAllAppointments(req, res) {
   }
 }
 
-function getAppointmentsOfUser({
-  reduced,
-  isCounsellor
-}) {
-
-  return async function (req, res) {
+function getAppointmentsOfUser({ reduced, isCounsellor }) {
+  return async function(req, res) {
     // TODO: create policy for this function
 
     // dynamically construct mongoose query
@@ -48,11 +45,11 @@ function getAppointmentsOfUser({
     } else {
       appointmentQuery.where("clients", userId);
       // remove counsellor notes
-      appointmentQuery.select("-counsellorNotes")
+      appointmentQuery.select("-counsellorNotes");
     }
     // check whether user wants reduced appointments or not.
     if (reduced) {
-      appointmentQuery.select("+startTime +endTime +title")
+      appointmentQuery.select("+startTime +endTime +title");
     }
 
     // sort appointments in ascending order
@@ -61,7 +58,6 @@ function getAppointmentsOfUser({
     });
 
     try {
-
       // execute the query
       let appointments = await appointmentQuery.exec();
       res.status(200).send({
@@ -69,8 +65,6 @@ function getAppointmentsOfUser({
         message: "Counsellor appointments returned successfully",
         appointments: appointments
       });
-
-
     } catch (error) {
       console.log(error);
       // return an error message
@@ -79,7 +73,7 @@ function getAppointmentsOfUser({
         message: "Error returning counsellor's appointments."
       });
     }
-  }
+  };
 }
 
 // Insert new appointment into db
@@ -114,8 +108,6 @@ async function insertAppointment(req, res) {
     // throw the error
     if (error) throw error;
 
-    console.log(req.body);
-
     // Create new appointment model
     let appointment = new AppointmentModel({
       title: req.body.title,
@@ -129,7 +121,7 @@ async function insertAppointment(req, res) {
     });
 
     // Save the model to the database
-    await appointment.save(function (err, newAppointment) {
+    await appointment.save(function(err, newAppointment) {
       if (err) {
         console.log(err);
         throw {
@@ -148,7 +140,6 @@ async function insertAppointment(req, res) {
 
     // Catch any errors and respond appropriately
   } catch (error) {
-    console.log(error);
     res.status(error.code || 500).send({
       message: error.message || "Error creating appointment",
       success: false
@@ -163,23 +154,23 @@ async function updateAppointment(req, res) {
 
     let updatedAppointment = await AppointmentModel.findByIdAndUpdate(
       appointmentId,
-      newAppointmentProperties, {
+      newAppointmentProperties,
+      {
         new: true
       }
     );
 
     if (!updatedAppointment) {
-      throw ({
+      throw {
         message: "Appointment doesn't exist.",
         code: 400
-      })
+      };
     }
 
     res.status(200).send({
       success: true,
       message: "Appointment updated successfully",
       updatedAppointment: updatedAppointment
-
     });
   } catch (error) {
     res.status(error.code || 400).send({
@@ -200,8 +191,10 @@ async function checkClientAvailability(
   let clashingAppointments = await AppointmentModel.find({
     clients: clientId,
     // check to see if any of the clients have any other appointments have start or end times that occur between the desired start and end times of the new appointment.
-    $or: [{
-        $and: [{
+    $or: [
+      {
+        $and: [
+          {
             startTime: {
               $lte: desiredEndTime
             }
@@ -214,7 +207,8 @@ async function checkClientAvailability(
         ]
       },
       {
-        $and: [{
+        $and: [
+          {
             endTime: {
               $gte: desiredStartTime
             }
@@ -242,13 +236,55 @@ async function checkCounsellorAvailablity(
   desiredEndTime,
   counsellorId
 ) {
+  // First check to see if counsellor is working the required day.
+  const counsellor = await CounsellorModel.findById(counsellorId); // Get the counsellor from the database.
+  let availableWorkDays = counsellor.workingDays;
+
+  // get Day string from start time e.g. "Monday" (we're assuming no appointments run over 2 days)
+  let requiredDay = desiredStartTime.format("dddd");
+
+  // check counsellor is working on given day.
+  let validDay = availableWorkDays.find(day => day.name == requiredDay);
+
+  // if counsellor isn't working that day, return an error
+  if (!validDay) {
+    return {
+      message: `Counsellor is not available on ${requiredDay}.`,
+      code: 200
+    };
+  }
+  // Now check if counsellor is working the required hours.
+
+  // create new moment objects for requested day containing the start and end times. The moment objects are needed for reliable comparison.
+  let startOfDay = getMomentFromTimeString(
+    desiredStartTime,
+    validDay.startTime
+  );
+  let endOfDay = getMomentFromTimeString(desiredEndTime, validDay.endTime);
+
+  // check start and end times are valid (Counsellor is working on during the requested appointment time.).
+  let timeIsValid =
+    desiredStartTime.isBetween(startOfDay, endOfDay, null, []) &&
+    desiredEndTime.isBetween(startOfDay, endOfDay, null, []); // AND operation - counsellor must be free for both the start and end.
+
+  // If the requried time isn't valid, return an error.
+  if (!timeIsValid) {
+    return {
+      message: "Counsellor is not working at that time",
+      code: 200
+    };
+  }
+
+  // Now we know that the counsellor is working during the requested times, we need to check to see if the desired time clashes with any other appointments.
+
   // get all appointments of counsellor where an appointment either starts or ends between the given start or end time.
-  const counsellorAppointments = await AppointmentModel.find({
+  const clashingAppointments = await AppointmentModel.find({
     counsellorId: counsellorId,
     // check to see if the counsellor has any other appointments have start or end times that occur between the desired start and end times of the new appointment.
-
-    $or: [{
-        $and: [{
+    $or: [
+      {
+        $and: [
+          {
             startTime: {
               $lte: desiredEndTime
             }
@@ -261,7 +297,8 @@ async function checkCounsellorAvailablity(
         ]
       },
       {
-        $and: [{
+        $and: [
+          {
             endTime: {
               $gte: desiredStartTime
             }
@@ -275,14 +312,27 @@ async function checkCounsellorAvailablity(
       }
     ]
   });
-  console.log(counsellorAppointments);
-  // 0 clashes - counsellor is free
-  if (counsellorAppointments.length > 0) {
+
+  // If there are any clashing appointments, return an error (the counsellor isn't free).
+  if (clashingAppointments.length > 0) {
     return {
       message: "Counsellor is not available at that time.",
       code: 200
     };
   }
+
+  // If we make it this far, the appointment times are valid!!
+  return;
+}
+
+// This function creates a moment object on the same day as another, but with a different time.
+function getMomentFromTimeString(originalMoment, time) {
+  let parts = time.split(":");
+  let hours = parts[0];
+  let minutes = parts[1];
+
+  // edit moment, changing hours and minutes
+  return originalMoment.hours(hours).minutes(minutes);
 }
 
 // expose functions

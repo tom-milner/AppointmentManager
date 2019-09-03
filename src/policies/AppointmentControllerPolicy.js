@@ -9,7 +9,7 @@ function insertAppointment(req, res, next) {
     title: Joi.string().required(),
     duration: Joi.required(),
     counsellorId: Joi.string().required(),
-    clientNotes: Joi.string()
+    clientNotes: Joi
   }
 
   const {
