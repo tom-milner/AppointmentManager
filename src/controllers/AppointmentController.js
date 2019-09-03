@@ -321,7 +321,7 @@ async function checkCounsellorAvailablity(
     };
   }
 
-  // If we make it this far, the appointment times are valid!!
+  // If we make it this far, the requested appointment time is valid!!
   return;
 }
 
