@@ -23,8 +23,8 @@
       <div class="working-hours-input">
         <div v-bind:key="day.name" v-for="day in availableWorkDays" class="day">
           <h4 class="heading-4">{{day.name}}</h4>
-          <input step="3600" type="time" :v-model="day.startTime" class="form-input time-select" />
-          <input step="3600" type="time" :v-model="day.endTime" class="form-input time-select" />
+          <input step="3600" type="time" v-model="day.startTime" class="form-input time-select" />
+          <input step="3600" type="time" v-model="day.endTime" class="form-input time-select" />
         </div>
       </div>
     </div>
@@ -51,7 +51,8 @@ export default {
         "Saturday",
         "Sunday"
       ],
-      availableWorkDays: []
+      availableWorkDays: [],
+      randomText: "Hello"
     };
   },
   async mounted() {
@@ -59,14 +60,21 @@ export default {
     let result = await UserService.getCounsellor(counsellorId);
     this.counsellor = result.data.counsellor;
     this.availableWorkDays = this.counsellor.workingDays;
-
-    console.log(this.availableWorkDays[0]);
   },
 
+  computed: {},
+
   methods: {
+    formatTime(time) {
+      console.log("raw: ", time);
+      let formattedTime = this.moment(time);
+      return formattedTime;
+    },
     isDayAvailable(chosenDay) {
       return this.availableWorkDays.find(day => day.name == chosenDay);
     },
+
+    // This function updates the local state of availableWorkDays whenever a button is pressed.
     updateWorkingDays(currentDay) {
       // check if day is already in counsellor settings
       let dayFound = this.isDayAvailable(currentDay);
@@ -78,14 +86,22 @@ export default {
         // add day
         this.availableWorkDays.push(new WorkDay(currentDay));
       }
-
-      // update server counsellor settings
-      UserService.updateCounsellor(
-        {
-          workingDays: this.availableWorkDays
-        },
-        this.counsellor._id
-      );
+    }
+  },
+  watch: {
+    // This function pushes any changes made to the server.
+    availableWorkDays: {
+      // listen to object properties aswell
+      deep: true,
+      handler() {
+        // update server counsellor settings
+        UserService.updateCounsellor(
+          {
+            workingDays: this.availableWorkDays
+          },
+          this.counsellor._id
+        );
+      }
     }
   }
 };
