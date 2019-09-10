@@ -49,7 +49,7 @@
       <!-- Client Notes Input -->
       <div class="form-field">
         <p class="form-heading">Notes:</p>
-        <textarea v-model="notes" class="form-input"></textarea>
+        <textarea v-model="clientNotes" class="form-input"></textarea>
       </div>
 
       <!-- Error Message -->
@@ -100,17 +100,17 @@ export default {
   },
   data() {
     return {
-      user: {},
-      userDates: [],
-      counsellorDates: [],
-      chosenCounsellor: {},
-      counsellors: [],
-      chosenStartTime: {},
-      chosenTitle: "",
-      chosenDuration: 0,
-      notes: "",
+      user: {}, // current user object
+      userDates: [], // the dates where the user is busy
+      counsellorDates: [], // the dates where the counsellor is busy
+      chosenCounsellor: {}, // the counsellor the user has chosen
+      counsellors: [], // a list of all the counsellors
+      chosenStartTime: {}, // the desired start time of the appointment
+      chosenTitle: "", // the desired title of the appointment
+      chosenDuration: 0, // the desired duration of the appointment
+      clientNotes: "", // any notes the client (current user) has about the appointment.
       appointmentCalendarDisplayed: false,
-      errorMessage: ""
+      errorMessage: "" // if there is an error message it is stored here.
     };
   },
   methods: {
@@ -159,7 +159,7 @@ export default {
       try {
         // validate input
         let { error, message } = this.validateInput();
-        // only send request if there's no inut validation error
+        // only send request if there's no input validation error
         if (error) {
           throw message;
         }
@@ -170,7 +170,7 @@ export default {
           title: this.chosenTitle,
           duration: this.chosenDuration,
           counsellorId: this.chosenCounsellor._id,
-          clientNotes: this.notes
+          clientNotes: this.clientNotes
         };
 
         // send request
@@ -240,12 +240,14 @@ export default {
   watch: {
     // watch chosenCounsellor and get their appointments whenever one is chosen
     chosenCounsellor: async function() {
-      if (this.chosenCounsellor._id) {
-        let counsellorAppointments = await this.getAppointmentsOfCounsellor();
-        this.counsellorDates = this.mapAppointmentsToDates(
-          counsellorAppointments
-        );
-      }
+      // Make sure we only perform requests if the user has chosen a counsellor.
+      if (!this.chosenCounsellor._id) return;
+
+      // get counsellor appointments.
+      let counsellorAppointments = await this.getAppointmentsOfCounsellor();
+      this.counsellorDates = this.mapAppointmentsToDates(
+        counsellorAppointments
+      );
     }
   },
 

@@ -51,8 +51,7 @@ export default {
         "Saturday",
         "Sunday"
       ],
-      availableWorkDays: [],
-      randomText: "Hello"
+      availableWorkDays: []
     };
   },
   async mounted() {

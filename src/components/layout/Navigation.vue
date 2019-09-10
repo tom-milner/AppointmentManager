@@ -11,6 +11,8 @@
           </router-link>
         </li>
         <li>
+
+          <!-- TODO: create list of icons in js, then render them. -->
           <router-link to="/home" class="nav-item">
             <icon name="home" class="icon-nav-item" />
           </router-link>

@@ -4,7 +4,6 @@ import Api from "@/services/Api.js";
 import Store from "@/store/store";
 
 
-// These function are triggered by user events
 // Login user
 async function loginUser(username, password) {
   // Send post request to login route
@@ -26,6 +25,7 @@ async function loginUser(username, password) {
       token,
       user
     });
+
   } else {
     Store.commit("authentication/auth_error")
   }
@@ -88,7 +88,7 @@ function updateCounsellor(counsellorSettings, counsellorId) {
 }
 
 function getCounsellor(counsellorId) {
-  return Api.get(`/user/counsellors/${counsellorId}`);
+  return Api.get(`/user/counsellors/full/${counsellorId}`);
 }
 
 export default {

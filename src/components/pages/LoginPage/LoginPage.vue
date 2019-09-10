@@ -39,9 +39,7 @@ export default {
       const username = this.username;
       const password = this.password;
       try {
-        console.log("logging in");
         let result = await UserService.loginUser(username, password);
-        console.log(result);
         this.$router.push("/home");
       } catch (err) {
         console.log(err);
