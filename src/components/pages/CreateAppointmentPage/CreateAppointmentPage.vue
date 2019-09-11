@@ -70,7 +70,7 @@
           userCanAddEvents
           v-on:close-modal="toggleAppointmentCalendarModal()"
           v-on:date-chosen="dateChosen"
-          :events="{ counsellorEvents: counsellorDates, userEvents:userDates}"
+          :events="{ counsellorEvents: counsellorDates, userEvents:userDates, disabledEvents:businessHours}"
         />
       </div>
     </Modal>
@@ -103,6 +103,7 @@ export default {
       user: {}, // current user object
       userDates: [], // the dates where the user is busy
       counsellorDates: [], // the dates where the counsellor is busy
+      businessHours: [], // dates that the counsellor isn't available
       chosenCounsellor: {}, // the counsellor the user has chosen
       counsellors: [], // a list of all the counsellors
       chosenStartTime: {}, // the desired start time of the appointment
@@ -234,6 +235,20 @@ export default {
     // open and close appointment calendar
     toggleAppointmentCalendarModal() {
       this.appointmentCalendarDisplayed = !this.appointmentCalendarDisplayed;
+    },
+
+    createBusinessHours() {
+      this.businessHours = this.chosenCounsellor.workingDays.map(day => {
+        // return start, end and title
+
+        let dayNumber = Utils.getNumberOfDay(day.name);
+
+        return {
+          start: day.startTime,
+          end: day.endTime,
+          daysOfWeek: [dayNumber]
+        };
+      });
     }
   },
 
@@ -242,6 +257,10 @@ export default {
     chosenCounsellor: async function() {
       // Make sure we only perform requests if the user has chosen a counsellor.
       if (!this.chosenCounsellor._id) return;
+
+      //TODO: currently updating calendar to support disabled dates. check todo.md
+      // update disabledDates with the dates the counsellor can't make
+      this.createBusinessHours();
 
       // get counsellor appointments.
       let counsellorAppointments = await this.getAppointmentsOfCounsellor();

@@ -14,8 +14,9 @@
       :plugins="calendarPlugins"
       :eventSources="[
         { events: this.events.userEvents, className:'userEvent' },
-        { events: this.events.counsellorEvents, className:'counsellorEvent' }
+        { events: this.events.counsellorEvents, className:'counsellorEvent' },
       ]"
+      :businessHours="businessHours"
     ></full-calendar>
 
     <!-- Add Event Popup -->
@@ -62,7 +63,8 @@ export default {
       showViewEventPopup: false,
       chosenDayRectangle: {},
       chosenDay: {},
-      chosenEventRectangle: {}
+      chosenEventRectangle: {},
+      businessHours: []
     };
   },
   props: {
@@ -77,6 +79,11 @@ export default {
     AddEvent,
     ViewEvent,
     CalendarPopup
+  },
+
+  beforeMount() {
+    this.businessHours = this.events.disabledEvents;
+    console.log(this.businessHours);
   },
 
   computed: {
@@ -117,7 +124,6 @@ export default {
 
     // triggered when an event is clicked
     handleEventClick(event) {
-      console.log(event);
       // set the rectangle of screen that the event resides in.
       this.chosenEventRectangle = event.el.getBoundingClientRect();
       // toggle the event popup
@@ -126,12 +132,15 @@ export default {
 
     // triggered when user clicks on a day
     handleDateClick: function(day) {
-      // store the day clicked
-      this.chosenDay = day;
-      // get screen coordinates of day clicked
-      this.chosenDayRectangle = day.dayEl.getBoundingClientRect();
-      // toggle the add event popup.
-      this.toggleAddEventPopup();
+      console.log(day.view.type);
+      if (day.view.type == "dayGridMonth") {
+        // store the day clicked
+        this.chosenDay = day;
+        // get screen coordinates of day clicked
+        this.chosenDayRectangle = day.dayEl.getBoundingClientRect();
+        // toggle the add event popup.
+        this.toggleAddEventPopup();
+      }
     },
 
     // show or hide the add event popup
@@ -190,6 +199,9 @@ export default {
 @import "~@fullcalendar/core/main.css";
 @import "~@fullcalendar/daygrid/main.css";
 @import "~@fullcalendar/timegrid/main.css";
+
+// custom css to override deafult calendar styling.
+@import "src/scss/components/calendar";
 
 // Event from user
 .userEvent {
