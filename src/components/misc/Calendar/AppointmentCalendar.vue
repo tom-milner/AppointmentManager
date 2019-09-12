@@ -17,6 +17,8 @@
         { events: this.events.counsellorEvents, className:'counsellorEvent' },
       ]"
       :businessHours="businessHours"
+      :selectConstraint="businessHours"
+      :selectable="userCanAddEvents"
     ></full-calendar>
 
     <!-- Add Event Popup -->
@@ -133,6 +135,7 @@ export default {
     // triggered when user clicks on a day
     handleDateClick: function(day) {
       console.log(day.view.type);
+      console.log(day);
       if (day.view.type == "dayGridMonth") {
         // store the day clicked
         this.chosenDay = day;

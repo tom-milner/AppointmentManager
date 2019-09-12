@@ -165,6 +165,8 @@ export default {
           throw message;
         }
 
+        console.log(this.chosenStartTime.toString());
+
         // build request body
         let appointment = {
           startTime: this.chosenStartTime,
@@ -173,6 +175,7 @@ export default {
           counsellorId: this.chosenCounsellor._id,
           clientNotes: this.clientNotes
         };
+        console.log(appointment);
 
         // send request
         let result = await AppointmentService.requestAppointment(appointment);
@@ -242,13 +245,14 @@ export default {
         // return start, end and title
 
         let dayNumber = Utils.getNumberOfDay(day.name);
-
         return {
-          start: day.startTime,
-          end: day.endTime,
+          startTime: day.startTime,
+          endTime: day.endTime,
           daysOfWeek: [dayNumber]
         };
       });
+
+      console.log(this.businessHours);
     }
   },
 

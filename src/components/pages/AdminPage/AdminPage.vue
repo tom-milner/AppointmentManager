@@ -92,8 +92,11 @@ export default {
     availableWorkDays: {
       // listen to object properties aswell
       deep: true,
-      handler() {
+      handler(newValue) {
         // update server counsellor settings
+
+        console.log(newValue);
+
         UserService.updateCounsellor(
           {
             workingDays: this.availableWorkDays

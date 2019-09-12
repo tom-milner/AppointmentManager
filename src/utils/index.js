@@ -36,7 +36,7 @@ export default {
       case "Saturday":
         return 6;
       case "Sunday":
-        return 7;
+        return 0;
     }
   }
 
