@@ -11,7 +11,6 @@
           </router-link>
         </li>
         <li>
-
           <!-- TODO: create list of icons in js, then render them. -->
           <router-link to="/home" class="nav-item">
             <icon name="home" class="icon-nav-item" />
@@ -24,7 +23,7 @@
         </li>
         <li>
           <router-link v-if="userIsCounsellor " to="/admin" class="nav-item">
-            <icon name="calendar" class="icon-nav-item" />
+            <icon name="settings" class="icon-nav-item" />
           </router-link>
         </li>
       </ul>

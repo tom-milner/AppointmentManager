@@ -70,7 +70,8 @@
           userCanAddEvents
           v-on:close-modal="toggleAppointmentCalendarModal()"
           v-on:date-chosen="dateChosen"
-          :events="{ counsellorEvents: counsellorDates, userEvents:userDates, disabledEvents:businessHours}"
+          :events="{ counsellorEvents: counsellorDates, userEvents:userDates}"
+          :businessHours="businessHours"
         />
       </div>
     </Modal>
@@ -244,7 +245,7 @@ export default {
       this.businessHours = this.chosenCounsellor.workingDays.map(day => {
         // return start, end and title
 
-        let dayNumber = Utils.getNumberOfDay(day.name);
+        let dayNumber = Utils.getNumberOfDayInWeek(day.name);
         return {
           startTime: day.startTime,
           endTime: day.endTime,

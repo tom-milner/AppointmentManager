@@ -29,7 +29,12 @@
         v-on:close-popup="toggleAddEventPopup"
       >
         <!-- Add Event Form -->
-        <AddEvent :day="chosenDay" :dayEvents="getEventsOfChosenDay" v-on:date-chosen="dateChosen"></AddEvent>
+        <AddEvent
+          :day="chosenDay"
+          :dayEvents="getEventsOfChosenDay"
+          :businessHours="getBusinessHoursOfDay"
+          v-on:date-chosen="dateChosen"
+        ></AddEvent>
       </CalendarPopup>
     </div>
 
@@ -51,7 +56,6 @@ import FullCalendar from "@fullcalendar/vue";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-
 // custom components
 import AddEvent from "./AddEvent.vue";
 import ViewEvent from "./ViewEvent.vue";
@@ -65,13 +69,13 @@ export default {
       showViewEventPopup: false,
       chosenDayRectangle: {},
       chosenDay: {},
-      chosenEventRectangle: {},
-      businessHours: []
+      chosenEventRectangle: {}
     };
   },
   props: {
     // events to display in the calendar.
     events: {},
+    businessHours: {},
     // whether the user can add events or not.
     userCanAddEvents: Boolean
   },
@@ -81,11 +85,6 @@ export default {
     AddEvent,
     ViewEvent,
     CalendarPopup
-  },
-
-  beforeMount() {
-    this.businessHours = this.events.disabledEvents;
-    console.log(this.businessHours);
   },
 
   computed: {
@@ -109,6 +108,16 @@ export default {
 
       // return all the events of that given day.
       return dayEvents;
+    },
+
+    getBusinessHoursOfDay() {
+      // the number of the day chosen in the week (0: Sunday, 6: Saturday)
+      let chosenDay = this.moment(this.chosenDay.date).day();
+
+      // Find the businessHours object of the day clicked.
+      return this.businessHours.find(day => {
+        return day.daysOfWeek[0] == chosenDay;
+      });
     }
   },
 
@@ -134,8 +143,6 @@ export default {
 
     // triggered when user clicks on a day
     handleDateClick: function(day) {
-      console.log(day.view.type);
-      console.log(day);
       if (day.view.type == "dayGridMonth") {
         // store the day clicked
         this.chosenDay = day;

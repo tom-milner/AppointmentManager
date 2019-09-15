@@ -1,5 +1,8 @@
 // utility functions
 
+// import libs
+import moment from "moment";
+
 export default {
   // convert rem value into pixels
   convertRemToPixels(rem) {
@@ -21,7 +24,7 @@ export default {
     return JSON.parse(decoded);
   },
 
-  getNumberOfDay(dayName) {
+  getNumberOfDayInWeek(dayName) {
     switch (dayName) {
       case "Monday":
         return 1;
@@ -38,6 +41,17 @@ export default {
       case "Sunday":
         return 0;
     }
+  },
+
+  // This function creates a moment object on the same day as another, but with a different time.
+  getMomentFromTimeString(originalMoment, time) {
+    let parts = time.split(":");
+    let hours = parts[0];
+    let minutes = parts[1];
+    let newMoment = moment(originalMoment).startOf("day");
+    // edit moment, changing hours and minutes
+    return newMoment.hours(hours).minutes(minutes);
   }
+
 
 }
