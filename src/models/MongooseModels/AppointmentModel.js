@@ -48,12 +48,11 @@ let appointmentSchema = new Schema({
     startTime: {
         type: Date,
         required: true,
-        unique: true
     },
     endTime: {
         type: Date,
         required: true,
-        unique: true
+
     },
     // whether the apointment has been confirmed or not
     isApproved: {

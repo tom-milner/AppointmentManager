@@ -39,4 +39,5 @@ function workDayLimit(days) {
   return days.length <= 7;
 }
 UserModel.discriminator("CounsellorModel", counsellorSchema);
+
 module.exports = mongoose.model("CounsellorModel", counsellorSchema);
