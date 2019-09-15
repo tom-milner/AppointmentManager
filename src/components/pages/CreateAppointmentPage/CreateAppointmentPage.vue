@@ -35,6 +35,7 @@
           disabled
         />
         <div
+          v-if="chosenCounsellor._id"
           class="btn btn-secondary short-input"
           @click="toggleAppointmentCalendarModal"
         >Choose from calendar</div>
@@ -53,7 +54,7 @@
       </div>
 
       <!-- Error Message -->
-      <div v-if="errorMessage.length > 0" class="form-field">
+      <div v-if="errorMessage" class="form-field">
         <h4 class="heading-4 error">{{this.errorMessage}}</h4>
       </div>
 
@@ -180,14 +181,14 @@ export default {
 
         // send request
         let result = await AppointmentService.requestAppointment(appointment);
-
+        console.log(result.data);
         // check for server error
         if (!result.data.success || result.data.status == 400) {
           throw result.data.message;
         }
 
         // request was a success (appointment has been made) - redirect user
-        this.$router.push("/");
+        this.$router.push("/home");
       } catch (errorMessage) {
         console.log(errorMessage);
         this.errorMessage = errorMessage;
@@ -272,6 +273,8 @@ export default {
       this.counsellorDates = this.mapAppointmentsToDates(
         counsellorAppointments
       );
+
+      console.log(this.counsellorDates);
     }
   },
 

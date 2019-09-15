@@ -13,8 +13,8 @@ import Utils from "@/utils";
 export default {
   data() {
     return {
-      elementWidth: 40,
-      elementHeight: 35
+      popupWidth: 40,
+      popupHeight: 35
     };
   },
   methods: {
@@ -38,8 +38,8 @@ export default {
       let windowWidth = window.innerWidth;
       let windowHeight = window.innerHeight;
       // convert dimensions of the dialogue box into pixels
-      let elementHeightPx = Utils.convertRemToPixels(this.elementHeight);
-      let elementWidthPx = Utils.convertRemToPixels(this.elementWidth);
+      let popupHeightPx = Utils.convertRemToPixels(this.popupHeight);
+      let popupWidthPx = Utils.convertRemToPixels(this.popupWidth);
 
       // buffer x and y to make dialogue look more natural
       let bufferY = 10;
@@ -54,13 +54,13 @@ export default {
         elementX = elementRectangle.left + elementRectangle.width + bufferX;
       } else {
         // on the right - move dialogue box to the left
-        elementX = elementRectangle.left - elementWidthPx - bufferX;
+        elementX = elementRectangle.left - popupWidthPx - bufferX;
       }
 
       // check to see if the dialoge will fit on the screen
-      if (elementRectangle.top >= windowHeight - elementHeightPx) {
+      if (elementRectangle.top >= windowHeight - popupHeightPx) {
         // dialogue won't fit - move it up so that it does
-        elementY = windowHeight - elementHeightPx - bufferY;
+        elementY = windowHeight - popupHeightPx - bufferY;
       } else {
         // dialogue fits
         elementY = elementRectangle.top + bufferY;
@@ -69,8 +69,8 @@ export default {
         position: "fixed",
         left: `${elementX}px`,
         top: `${elementY}px`,
-        width: `${this.elementWidth}rem`,
-        minHeight: `${this.elementHeight}rem`
+        width: `${this.popupWidth}rem`,
+        minHeight: `${this.popupHeight}rem`
       };
     }
   }

@@ -91,6 +91,7 @@ export default {
       console.log(this.errorMessage);
     },
     getAppointmentTimeSlots() {
+      if (this.businessHours == null || this.businessHours.length > 0) return;
       // create new timeslots
       let dayStart = Utils.getMomentFromTimeString(
         this.day.date,

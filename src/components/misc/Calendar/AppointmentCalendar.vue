@@ -25,7 +25,7 @@
     <div v-if="userCanAddEvents">
       <CalendarPopup
         v-if="showAddEventPopup"
-        :spaceClicked="chosenDayRectangle"
+        :spaceClicked="screenToAvoid"
         v-on:close-popup="toggleAddEventPopup"
       >
         <!-- Add Event Form -->
@@ -42,7 +42,7 @@
     <CalendarPopup
       v-if="showViewEventPopup"
       @close-popup="toggleViewEventPopup"
-      :spaceClicked="chosenEventRectangle"
+      :spaceClicked="screenToAvoid"
     >
       <!-- View Event Component -->
       <ViewEvent />
@@ -67,9 +67,8 @@ export default {
       calendarPlugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
       showAddEventPopup: false,
       showViewEventPopup: false,
-      chosenDayRectangle: {},
-      chosenDay: {},
-      chosenEventRectangle: {}
+      screenToAvoid: {},
+      chosenDay: {}
     };
   },
   props: {
@@ -136,21 +135,28 @@ export default {
     // triggered when an event is clicked
     handleEventClick(event) {
       // set the rectangle of screen that the event resides in.
-      this.chosenEventRectangle = event.el.getBoundingClientRect();
+      this.screenToAvoid = event.el.getBoundingClientRect();
       // toggle the event popup
       this.toggleViewEventPopup();
     },
 
     // triggered when user clicks on a day
     handleDateClick: function(day) {
+      // store the day clicked
+      this.chosenDay = day;
       if (day.view.type == "dayGridMonth") {
-        // store the day clicked
-        this.chosenDay = day;
         // get screen coordinates of day clicked
-        this.chosenDayRectangle = day.dayEl.getBoundingClientRect();
+        this.screenToAvoid = day.dayEl.getBoundingClientRect();
         // toggle the add event popup.
-        this.toggleAddEventPopup();
       }
+      if (day.view.type == "timeGridWeek") {
+        // for this view, just move the modal out of the way of the mouse.
+        // let mouseX = day.jsEvent.clientX;
+        // let mouseY = day.jsEvent.clientY;
+
+        this.screenToAvoid = day.jsEvent.srcElement.getBoundingClientRect();
+      }
+      this.toggleAddEventPopup();
     },
 
     // show or hide the add event popup
@@ -164,7 +170,7 @@ export default {
     },
 
     // This function removes any duplicate events in the counsellor events array (where the counsellor will be counselling the current user)
-    removeDuplicateEventsForDuplicates: function() {
+    removeDuplicateEvents: function() {
       let userEvents = this.events.userEvents;
       let counsellorEvents = this.events.counsellorEvents;
 
@@ -177,7 +183,7 @@ export default {
               userEvent.start == counsellorEvent.start ||
               userEvent.end == counsellorEvent.end
           );
-
+          console.log(index == -1);
           // if the index is -1, counsellorEvent is not in userEvents. Therefore it can stay in counsellor events.
           return index == -1;
         });
@@ -187,16 +193,8 @@ export default {
     }
   },
 
-  watch: {
-    // function watches for changes to the events prop, and removes duplicates.
-    events: function() {
-      if (
-        this.events.counsellorEvents.length > 0 ||
-        this.events.userEvents.length > 0
-      ) {
-        this.removeDuplicateEventsForDuplicates();
-      }
-    }
+  beforeMount() {
+    this.removeDuplicateEvents();
   }
 };
 </script>
