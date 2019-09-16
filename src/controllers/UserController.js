@@ -104,18 +104,29 @@ function getCounsellor({
 
     counsellorQuery.where("_id", counsellorId);
 
-    if (reduced) counsellorQuery.select("+firstname +_id +lastname +workingDays -type ");
-    else counsellorQuery.select("-password -type"); // everything but the counsellor's password.
+    counsellorQuery.select("-password -type"); // everything but the counsellor's password.
 
     try {
       // get the counsellor.
       let counsellor = await counsellorQuery.exec();
+      console.log(counsellor);
+
+      // If we need to return a reduced object, recreate the counsellor object with the required data. 
+      if (reduced) counsellor = {
+        firstname: counsellor.firstname,
+        lastname: counsellor.lastname,
+        _id: counsellor._id,
+        workingDays: counsellor.workingDays
+      };
+
       res.status(200).send({
         message: "Counsellor returned successfully",
         success: true,
         counsellor: counsellor,
       });
     } catch (error) {
+
+      console.log(error);
       res.status(400).send({
         message: "Counsellor couldn't be found",
         success: false

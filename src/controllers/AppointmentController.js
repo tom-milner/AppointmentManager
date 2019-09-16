@@ -21,11 +21,8 @@ async function getAllAppointments(req, res) {
   }
 }
 
-function getAppointmentsOfUser({
-  reduced,
-  isCounsellor
-}) {
-  return async function (req, res) {
+function getAppointmentsOfUser({ reduced, isCounsellor }) {
+  return async function(req, res) {
     // TODO: create policy for this function
 
     // dynamically construct mongoose query
@@ -42,7 +39,6 @@ function getAppointmentsOfUser({
       appointmentQuery.where("startTime").gte(fromTime);
     }
 
-
     // check whether we should seach for counsellor or client
     if (isCounsellor) {
       appointmentQuery.where("counsellorId", userId);
@@ -50,10 +46,6 @@ function getAppointmentsOfUser({
       appointmentQuery.where("clients", userId);
       // remove counsellor notes
       appointmentQuery.select("-counsellorNotes");
-    }
-    // check whether user wants reduced appointments or not.
-    if (reduced) {
-      appointmentQuery.select("+startTime +endTime +title");
     }
 
     // sort appointments in ascending order
@@ -64,6 +56,19 @@ function getAppointmentsOfUser({
     try {
       // execute the query
       let appointments = await appointmentQuery.exec();
+
+      // check whether user wants reduced appointments or not.
+      if (reduced) {
+        // remove everything but startTime, endTime and title
+        // this was originally implemented as a projection, however mongo doesn't support both inclusion and exclusion on a single projection.
+        appointments = appointments.map(appointment => ({
+          startTime: appointment.startTime,
+          endTime: appointment.endTime,
+          // Set title to "Counsellor Appointment" so as not to expose any clients.
+          title: "Counsellor Appointment"
+        }));
+      }
+
       res.status(200).send({
         success: true,
         message: "Counsellor appointments returned successfully",
@@ -127,7 +132,7 @@ async function insertAppointment(req, res) {
     });
 
     // Save the model to the database
-    await appointment.save(function (err, newAppointment) {
+    await appointment.save(function(err, newAppointment) {
       if (err) {
         console.log(err);
         throw {
@@ -160,7 +165,8 @@ async function updateAppointment(req, res) {
 
     let updatedAppointment = await AppointmentModel.findByIdAndUpdate(
       appointmentId,
-      newAppointmentProperties, {
+      newAppointmentProperties,
+      {
         new: true
       }
     );
@@ -196,8 +202,10 @@ async function checkClientAvailability(
   let clashingAppointments = await AppointmentModel.find({
     clients: clientId,
     // check to see if any of the clients have any other appointments have start or end times that occur between the desired start and end times of the new appointment.
-    $or: [{
-        $and: [{
+    $or: [
+      {
+        $and: [
+          {
             startTime: {
               $lte: desiredEndTime
             }
@@ -210,7 +218,8 @@ async function checkClientAvailability(
         ]
       },
       {
-        $and: [{
+        $and: [
+          {
             endTime: {
               $gte: desiredStartTime
             }
@@ -266,8 +275,9 @@ async function checkCounsellorAvailablity(
   let endOfDay = getMomentFromTimeString(desiredEndTime, validDay.endTime);
 
   // check start and end times are valid (Counsellor is working on during the requested appointment time.).
-  let timeIsValid = (desiredStartTime.isBetween(startOfDay, endOfDay, null, []) &&
-    desiredEndTime.isBetween(startOfDay, endOfDay, null, [])); // AND operation - counsellor must be free for both the start and end.
+  let timeIsValid =
+    desiredStartTime.isBetween(startOfDay, endOfDay, null, []) &&
+    desiredEndTime.isBetween(startOfDay, endOfDay, null, []); // AND operation - counsellor must be free for both the start and end.
 
   // If the required time isn't valid, return an error.
   if (!timeIsValid) {
@@ -285,8 +295,10 @@ async function checkCounsellorAvailablity(
   const clashingAppointments = await AppointmentModel.find({
     counsellorId: counsellorId,
     // check to see if the counsellor has any other appointments have start or end times that occur between the desired start and end times of the new appointment.
-    $or: [{
-        $and: [{
+    $or: [
+      {
+        $and: [
+          {
             startTime: {
               $lte: desiredEndTime
             }
@@ -299,7 +311,8 @@ async function checkCounsellorAvailablity(
         ]
       },
       {
-        $and: [{
+        $and: [
+          {
             endTime: {
               $gte: desiredStartTime
             }
