@@ -7,27 +7,33 @@ const UserControllerPolicy = require("../policies/UserControllerPolicy");
 const AuthenticationMiddleware = require("../middleware/AuthenticationMiddleware");
 const Role = require("../models/Role");
 
-// these toutes are all under "/user"
+// these routes are all under "/user"
+
+// All routes require the user to be logged in.
+router.use(AuthenticationMiddleware.isLoggedIn);
 
 // get list of usernames from list of user Ids
-router.get("/", AuthenticationMiddleware.isLoggedIn, UserControllerPolicy.getReducedUsers, UserController.getReducedUsers);
+router.get("/", UserControllerPolicy.getReducedUsers, UserController.getReducedUsers);
 
 // get list of counsellors
-router.get("/counsellors", AuthenticationMiddleware.isLoggedIn, UserController.getAllCounsellors);
-
-// get info about single user 
-// TODO: add route to get info from single user (/user/:userId)
-// router.get("/:userId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck())
+router.get("/counsellors", UserController.getAllCounsellorsReduced);
 
 // update counsellor
-router.post("/counsellors/:counsellorId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck({
+router.post("/counsellors/:counsellorId", AuthenticationMiddleware.roleCheck({
   role: Role.Counsellor,
   useSpecific: true
 }), UserControllerPolicy.updateCounsellor, UserController.updateCounsellor)
 
-// get counsellor
-router.get("/counsellors/:counsellorId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck({
+// get all info about a counsellor
+router.get("/counsellors/full/:counsellorId", AuthenticationMiddleware.roleCheck({
   role: Role.Counsellor
-}), UserController.getCounsellor);
+}), UserController.getCounsellor({
+  reduced: false
+}));
+
+// get reduced info about a counsellor (wokring hours, name etc)
+router.get("/counsellors/:counsellorId", UserController.getCounsellor({
+  reduced: true
+}));
 
 module.exports = router;

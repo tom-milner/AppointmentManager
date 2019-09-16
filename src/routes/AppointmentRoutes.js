@@ -24,7 +24,8 @@ router.get("/client/:userId", AuthenticationMiddleware.roleCheck({
 router.get("/counsellor/:userId", AuthenticationMiddleware.roleCheck({
   role: Role.Client,
 }), AppointmentController.getAppointmentsOfUser({
-  reduced: true
+  reduced: true,
+  isCounsellor: true
 }));
 
 // get all full appointments of a counsellor
@@ -37,7 +38,7 @@ router.get("/counsellor/full/:userId", AuthenticationMiddleware.roleCheck({
 
 // Get all appointments
 router.get("/", AuthenticationMiddleware.roleCheck({
-  role: Role.Counsellor
+  role: Role.Admin
 }), AppointmentController.getAllAppointments);
 
 // Insert new appointment

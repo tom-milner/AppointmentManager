@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const Role = require("./Role");
+const Role = require("../Role.js");
 
 const options = {
   discriminatorKey: "type"

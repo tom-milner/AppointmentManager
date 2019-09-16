@@ -1,7 +1,6 @@
-const CounsellorModel = require("../models/CounsellorModel");
-const UserModel = require("../models/UserModel");
+const CounsellorModel = require("../models/MongooseModels/CounsellorModel");
+const UserModel = require("../models/MongooseModels/UserModel");
 
-const Role = require("../models/Role");
 
 // takes array of user Ids an returns simple user object.
 async function getReducedUsers(req, res) {
@@ -30,8 +29,8 @@ async function getReducedUsers(req, res) {
   }
 }
 
-// get list of all the counsellors with a the counsellor role level
-async function getAllCounsellors(req, res) {
+// get list of all the counsellors 
+async function getAllCounsellorsReduced(req, res) {
   try {
     // get all the counsellors but exclude their personal information.
     let counsellors = await CounsellorModel.find({}, {
@@ -68,7 +67,6 @@ async function updateCounsellor(req, res) {
 
   let counsellorId = req.params.counsellorId;
   let newCounsellorSettings = req.body.counsellorSettings;
-
   try {
     let updatedCounsellorSettings = await CounsellorModel.findByIdAndUpdate(
       counsellorId,
@@ -95,29 +93,51 @@ async function updateCounsellor(req, res) {
   }
 }
 
-async function getCounsellor(req, res) {
-  let counsellorId = req.params.counsellorId;
+function getCounsellor({
+  reduced
+}) {
 
-  try {
-    let counsellor = await CounsellorModel.findById(counsellorId);
-    console.log(counsellor);
-    if (counsellor) {
+  return async function (req, res) {
+    let counsellorId = req.params.counsellorId;
+
+    let counsellorQuery = CounsellorModel.findOne();
+
+    counsellorQuery.where("_id", counsellorId);
+
+    counsellorQuery.select("-password -type"); // everything but the counsellor's password.
+
+    try {
+      // get the counsellor.
+      let counsellor = await counsellorQuery.exec();
+      console.log(counsellor);
+
+      // If we need to return a reduced object, recreate the counsellor object with the required data. 
+      if (reduced) counsellor = {
+        firstname: counsellor.firstname,
+        lastname: counsellor.lastname,
+        _id: counsellor._id,
+        workingDays: counsellor.workingDays
+      };
+
       res.status(200).send({
         message: "Counsellor returned successfully",
-        success: true
+        success: true,
+        counsellor: counsellor,
+      });
+    } catch (error) {
+
+      console.log(error);
+      res.status(400).send({
+        message: "Counsellor couldn't be found",
+        success: false
       });
     }
-  } catch (error) {
-    res.status(400).send({
-      message: "Counsellor couldn't be found",
-      success: false
-    });
   }
 }
 
 module.exports = {
   getReducedUsers,
-  getAllCounsellors,
+  getAllCounsellorsReduced,
   updateCounsellor,
   getCounsellor
-};
+}
