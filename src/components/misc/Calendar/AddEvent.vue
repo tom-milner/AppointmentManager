@@ -2,26 +2,22 @@
   <div>
     <div class="headers">
       <h2 class="dialogue-header heading-2">Add Appointment</h2>
-      <h3 class="dialogue-date heading-3">{{formattedDate}}</h3>
+      <h3 class="dialogue-date heading-3">{{getFormattedDate}}</h3>
     </div>
     <div class="segment">
       <h3 class="form-heading">Choose a start time:</h3>
-      <TimePicker
-        v-model="chosenTime"
-        format="hh:mm a"
-        formatted="hh:mm a"
-        minuteInterval="30"
-        noLabel
-        inputSize="sm"
-        onlyTime
-        :disabled-hours="disabledHours"
-        class="time-picker"
-      ></TimePicker>
+      <select v-model="chosenTime" class="form-input select">
+        <option
+          v-for="timeSlot in timeSlots"
+          :value="timeSlot"
+          :key="timeSlot.startTime.toString()"
+        >{{getFormattedTimeSlot(timeSlot)}}</option>
+      </select>
     </div>
     <div class="segment">
       <h3 class="form-heading">Choose a duration:</h3>
       <!-- TODO: store durations in backend -->
-      <select v-model="chosenDuration" class="form-input duration-select">
+      <select v-model="chosenDuration" class="form-input select">
         <option
           :value="duration"
           :key="duration"
@@ -40,28 +36,36 @@
 </template>
 
 <script>
-import TimePicker from "vue-ctk-date-time-picker";
-import "vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css";
-
+import Utils from "@/utils";
 export default {
   data() {
     return {
       errorMessage: "",
       chosenTime: this.moment().startOf("day"),
-      chosenDuration: 0,
-      chosenDateTime: {},
       // 10 minutes between appointments
       appointmentBufferTime: 10,
       notes: String,
-      durationOptions: [50]
+      // TODO: store these in backend
+      durationOptions: [50],
+
+      // 50 mins is default
+      chosenDuration: 50,
+      timeSlots: []
     };
-  },
-  components: {
-    TimePicker
   },
   props: {
     day: {},
-    dayEvents: {}
+    dayEvents: {},
+    businessHours: {}
+  },
+  computed: {
+    getFormattedDate() {
+      return this.moment(this.day.date).format("Do MMM Y");
+    }
+  },
+  beforeMount() {
+    this.getAppointmentTimeSlots();
+    console.log(this.timeSlots.length);
   },
   methods: {
     closeDialogue() {
@@ -69,13 +73,14 @@ export default {
     },
     chooseTime() {
       // data validation - no need for seperate function as we are only checking two variables
-      if (!this.chosenDateTime._isAMomentObject) {
+      if (!this.chosenTime.startTime._isAMomentObject) {
         this.errorMessage = "Please choose a valid time.";
+        console.log(this.chosenTime);
       } else if (this.chosenDuration == 0) {
         this.errorMessage = "Please choose a valid duration.";
       } else {
         this.$emit("close-dialogue");
-        let appointmentStartTime = this.chosenDateTime;
+        let appointmentStartTime = this.chosenTime.startTime;
         let appointmentDuration = this.chosenDuration;
         this.$emit("date-chosen", {
           appointmentStartTime,
@@ -84,6 +89,75 @@ export default {
       }
 
       console.log(this.errorMessage);
+    },
+    getAppointmentTimeSlots() {
+      if (this.businessHours == null || this.businessHours.length > 0) return;
+      // create new timeslots
+      let dayStart = Utils.getMomentFromTimeString(
+        this.day.date,
+        this.businessHours.startTime
+      );
+      let dayEnd = Utils.getMomentFromTimeString(
+        this.day.date,
+        this.businessHours.endTime
+      );
+
+      // The times already booked by clients
+      let disabledTimes = this.dayEvents.map(event => this.moment(event.start));
+      console.log(disabledTimes);
+
+      // You can only schedule 1 appointment per hour
+      let oneHour = this.moment.duration(1, "hour");
+      let appointmentDuration = this.moment.duration(
+        this.chosenDuration,
+        "minutes"
+      );
+
+      let timeSlots = [];
+      let firstTimeSlot = {};
+      firstTimeSlot.startTime = dayStart;
+      firstTimeSlot.endTime = this.moment(dayStart).add(appointmentDuration);
+
+      timeSlots.push(firstTimeSlot);
+
+      // TODO: currently fiddling with timeslots so that counsellor can choose off-hour appointments without too much affect in behaviour
+
+      // create timeSlots
+      let lastTimeSlot = firstTimeSlot;
+      while (!lastTimeSlot.startTime.isSameOrAfter(dayEnd)) {
+        // calculate new time slot
+        let nextTimeSlot = {};
+        nextTimeSlot.startTime = this.moment(lastTimeSlot.startTime).add(
+          oneHour
+        );
+        nextTimeSlot.endTime = this.moment(nextTimeSlot.startTime).add(
+          appointmentDuration
+        );
+
+        // check if it is disabled
+        let alreadyBooked = disabledTimes.some(timeSlot => {
+          timeSlot.isBetween(nextTimeSlot.startTime, nextTimeSlot.endTime);
+          return timeSlot.isBetween(
+            nextTimeSlot.startTime,
+            nextTimeSlot.endTime,
+            null,
+            []
+          );
+        });
+
+        lastTimeSlot = nextTimeSlot;
+
+        if (alreadyBooked) break;
+
+        // add to timeslot array
+        timeSlots.push(lastTimeSlot);
+        // NOTE: first slot of day is already added^^!!!
+      }
+
+      this.timeSlots = timeSlots;
+    },
+    getFormattedTimeSlot(timeSlot) {
+      return timeSlot.startTime.format("HH:mm");
     }
   },
   watch: {
@@ -93,15 +167,7 @@ export default {
       let date = this.moment(this.day.date).format("YYYY MM DD");
       let time = newVal;
       let dateTime = date + " " + time;
-      this.chosenDateTime = this.moment(dateTime);
-    }
-  },
-  computed: {
-    formattedDate() {
-      return this.moment(this.day.date).format("Do MMM Y");
-    },
-    disabledHours() {
-      return this.dayEvents.map(event => this.moment(event.start).format("HH"));
+      this.chosenDateTimeMoment = this.moment(dateTime);
     }
   }
 };
@@ -123,7 +189,7 @@ export default {
   }
 }
 
-.duration-select {
+.select {
   font-size: 1.5rem;
   height: auto;
 }

@@ -2,31 +2,40 @@
   <div>
     <!-- Customised Calendar -->
     <full-calendar
-      @dateClick="handleDateClick"
+      @select="handleDateClick"
       @eventClick="handleEventClick"
       ref="fullCalendar"
+      defaultView="timeGridWeek"
       :weekends="true"
       :header="{
         left: 'prev,next, today',
         center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
       }"
       :plugins="calendarPlugins"
       :eventSources="[
         { events: this.events.userEvents, className:'userEvent' },
-        { events: this.events.counsellorEvents, className:'counsellorEvent' }
+        { events: this.events.counsellorEvents, className:'counsellorEvent' },
       ]"
+      :businessHours="businessHours"
+      :selectConstraint="businessHours"
+      :selectable="userCanAddEvents"
     ></full-calendar>
 
     <!-- Add Event Popup -->
     <div v-if="userCanAddEvents">
       <CalendarPopup
         v-if="showAddEventPopup"
-        :spaceClicked="chosenDayRectangle"
+        :spaceClicked="screenToAvoid"
         v-on:close-popup="toggleAddEventPopup"
       >
         <!-- Add Event Form -->
-        <AddEvent :day="chosenDay" :dayEvents="getEventsOfChosenDay" v-on:date-chosen="dateChosen"></AddEvent>
+        <AddEvent
+          :day="chosenDay"
+          :dayEvents="getEventsOfChosenDay"
+          :businessHours="getBusinessHoursOfDay"
+          v-on:date-chosen="dateChosen"
+        ></AddEvent>
       </CalendarPopup>
     </div>
 
@@ -34,7 +43,7 @@
     <CalendarPopup
       v-if="showViewEventPopup"
       @close-popup="toggleViewEventPopup"
-      :spaceClicked="chosenEventRectangle"
+      :spaceClicked="screenToAvoid"
     >
       <!-- View Event Component -->
       <ViewEvent />
@@ -48,7 +57,6 @@ import FullCalendar from "@fullcalendar/vue";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-
 // custom components
 import AddEvent from "./AddEvent.vue";
 import ViewEvent from "./ViewEvent.vue";
@@ -60,14 +68,14 @@ export default {
       calendarPlugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
       showAddEventPopup: false,
       showViewEventPopup: false,
-      chosenDayRectangle: {},
-      chosenDay: {},
-      chosenEventRectangle: {}
+      screenToAvoid: {},
+      chosenDay: {}
     };
   },
   props: {
     // events to display in the calendar.
     events: {},
+    businessHours: {},
     // whether the user can add events or not.
     userCanAddEvents: Boolean
   },
@@ -100,6 +108,16 @@ export default {
 
       // return all the events of that given day.
       return dayEvents;
+    },
+
+    getBusinessHoursOfDay() {
+      // the number of the day chosen in the week (0: Sunday, 6: Saturday)
+      let chosenDay = this.moment(this.chosenDay.date).day();
+
+      // Find the businessHours object of the day clicked.
+      return this.businessHours.find(day => {
+        return day.daysOfWeek[0] == chosenDay;
+      });
     }
   },
 
@@ -117,9 +135,8 @@ export default {
 
     // triggered when an event is clicked
     handleEventClick(event) {
-      console.log(event);
       // set the rectangle of screen that the event resides in.
-      this.chosenEventRectangle = event.el.getBoundingClientRect();
+      this.screenToAvoid = event.el.getBoundingClientRect();
       // toggle the event popup
       this.toggleViewEventPopup();
     },
@@ -128,9 +145,18 @@ export default {
     handleDateClick: function(day) {
       // store the day clicked
       this.chosenDay = day;
-      // get screen coordinates of day clicked
-      this.chosenDayRectangle = day.dayEl.getBoundingClientRect();
-      // toggle the add event popup.
+      if (day.view.type == "dayGridMonth") {
+        // get screen coordinates of day clicked
+        this.screenToAvoid = day.dayEl.getBoundingClientRect();
+        // toggle the add event popup.
+      }
+      if (day.view.type == "timeGridWeek") {
+        // for this view, just move the modal out of the way of the mouse.
+        // let mouseX = day.jsEvent.clientX;
+        // let mouseY = day.jsEvent.clientY;
+
+        this.screenToAvoid = day.jsEvent.srcElement.getBoundingClientRect();
+      }
       this.toggleAddEventPopup();
     },
 
@@ -145,7 +171,7 @@ export default {
     },
 
     // This function removes any duplicate events in the counsellor events array (where the counsellor will be counselling the current user)
-    removeDuplicateEventsForDuplicates: function() {
+    removeDuplicateEvents: function() {
       let userEvents = this.events.userEvents;
       let counsellorEvents = this.events.counsellorEvents;
 
@@ -158,7 +184,7 @@ export default {
               userEvent.start == counsellorEvent.start ||
               userEvent.end == counsellorEvent.end
           );
-
+          console.log(index == -1);
           // if the index is -1, counsellorEvent is not in userEvents. Therefore it can stay in counsellor events.
           return index == -1;
         });
@@ -168,16 +194,8 @@ export default {
     }
   },
 
-  watch: {
-    // function watches for changes to the events prop, and removes duplicates.
-    events: function() {
-      if (
-        this.events.counsellorEvents.length > 0 ||
-        this.events.userEvents.length > 0
-      ) {
-        this.removeDuplicateEventsForDuplicates();
-      }
-    }
+  beforeMount() {
+    this.removeDuplicateEvents();
   }
 };
 </script>
@@ -190,6 +208,9 @@ export default {
 @import "~@fullcalendar/core/main.css";
 @import "~@fullcalendar/daygrid/main.css";
 @import "~@fullcalendar/timegrid/main.css";
+
+// custom css to override deafult calendar styling.
+@import "src/scss/components/calendar";
 
 // Event from user
 .userEvent {

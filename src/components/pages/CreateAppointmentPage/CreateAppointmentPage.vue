@@ -35,6 +35,7 @@
           disabled
         />
         <div
+          v-if="chosenCounsellor._id"
           class="btn btn-secondary short-input"
           @click="toggleAppointmentCalendarModal"
         >Choose from calendar</div>
@@ -49,11 +50,11 @@
       <!-- Client Notes Input -->
       <div class="form-field">
         <p class="form-heading">Notes:</p>
-        <textarea v-model="notes" class="form-input"></textarea>
+        <textarea v-model="clientNotes" class="form-input"></textarea>
       </div>
 
       <!-- Error Message -->
-      <div v-if="errorMessage.length > 0" class="form-field">
+      <div v-if="errorMessage" class="form-field">
         <h4 class="heading-4 error">{{this.errorMessage}}</h4>
       </div>
 
@@ -71,6 +72,7 @@
           v-on:close-modal="toggleAppointmentCalendarModal()"
           v-on:date-chosen="dateChosen"
           :events="{ counsellorEvents: counsellorDates, userEvents:userDates}"
+          :businessHours="businessHours"
         />
       </div>
     </Modal>
@@ -100,17 +102,18 @@ export default {
   },
   data() {
     return {
-      user: {},
-      userDates: [],
-      counsellorDates: [],
-      chosenCounsellor: {},
-      counsellors: [],
-      chosenStartTime: {},
-      chosenTitle: "",
-      chosenDuration: 0,
-      notes: "",
+      user: {}, // current user object
+      userDates: [], // the dates where the user is busy
+      counsellorDates: [], // the dates where the counsellor is busy
+      businessHours: [], // dates that the counsellor isn't available
+      chosenCounsellor: {}, // the counsellor the user has chosen
+      counsellors: [], // a list of all the counsellors
+      chosenStartTime: {}, // the desired start time of the appointment
+      chosenTitle: "", // the desired title of the appointment
+      chosenDuration: 0, // the desired duration of the appointment
+      clientNotes: "", // any notes the client (current user) has about the appointment.
       appointmentCalendarDisplayed: false,
-      errorMessage: ""
+      errorMessage: "" // if there is an error message it is stored here.
     };
   },
   methods: {
@@ -159,10 +162,12 @@ export default {
       try {
         // validate input
         let { error, message } = this.validateInput();
-        // only send request if there's no inut validation error
+        // only send request if there's no input validation error
         if (error) {
           throw message;
         }
+
+        console.log(this.chosenStartTime.toString());
 
         // build request body
         let appointment = {
@@ -170,19 +175,20 @@ export default {
           title: this.chosenTitle,
           duration: this.chosenDuration,
           counsellorId: this.chosenCounsellor._id,
-          clientNotes: this.notes
+          clientNotes: this.clientNotes
         };
+        console.log(appointment);
 
         // send request
         let result = await AppointmentService.requestAppointment(appointment);
-
+        console.log(result.data);
         // check for server error
         if (!result.data.success || result.data.status == 400) {
           throw result.data.message;
         }
 
         // request was a success (appointment has been made) - redirect user
-        this.$router.push("/");
+        this.$router.push("/home");
       } catch (errorMessage) {
         console.log(errorMessage);
         this.errorMessage = errorMessage;
@@ -234,16 +240,41 @@ export default {
     // open and close appointment calendar
     toggleAppointmentCalendarModal() {
       this.appointmentCalendarDisplayed = !this.appointmentCalendarDisplayed;
+    },
+
+    createBusinessHours() {
+      this.businessHours = this.chosenCounsellor.workingDays.map(day => {
+        // return start, end and title
+
+        let dayNumber = Utils.getNumberOfDayInWeek(day.name);
+        return {
+          startTime: day.startTime,
+          endTime: day.endTime,
+          daysOfWeek: [dayNumber]
+        };
+      });
+
+      console.log(this.businessHours);
     }
   },
 
   watch: {
     // watch chosenCounsellor and get their appointments whenever one is chosen
     chosenCounsellor: async function() {
+      // Make sure we only perform requests if the user has chosen a counsellor.
+      if (!this.chosenCounsellor._id) return;
+
+      //TODO: currently updating calendar to support disabled dates. check todo.md
+      // update disabledDates with the dates the counsellor can't make
+      this.createBusinessHours();
+
+      // get counsellor appointments.
       let counsellorAppointments = await this.getAppointmentsOfCounsellor();
       this.counsellorDates = this.mapAppointmentsToDates(
         counsellorAppointments
       );
+
+      console.log(this.counsellorDates);
     }
   },
 

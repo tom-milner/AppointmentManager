@@ -58,8 +58,6 @@ async function setupTokenRefresher(config) {
   // ignore requests to register or signup routes - these are already getting new tokens.
   // also only allow refresh if token exists, and if the token isn't currently being updated
   if ((config.url).includes("login") || (config.url).includes("register") || !token || Store.state.authentication.status == "loading" || Store.state.authentication.status == "error") {
-    console.log(config.headers.post);
-    console.log(config.headers.common);
 
     return config;
   }
@@ -75,13 +73,11 @@ async function setupTokenRefresher(config) {
     let currentTime = Date.now();
     let tokenExpiryTime = decodedPayload.exp * 1000;
     let timeToExpire = tokenExpiryTime - currentTime;
-    // If token is set to expire in less than 2 seconds, renew it
+    // If token is set to expire in less than one hour seconds, renew it
     const oneHour = 3600000;
     if (timeToExpire <= oneHour && timeToExpire >= 0) {
       // let other services know token is changing 
       Store.commit("authentication/auth_request");
-
-      console.log("refreshing token.");
 
       // here we have to set the access token manually, as we are in the process of setting up the global axios instance and so cannot access the global headers.
       let response = await Api.get("/auth/token", {
