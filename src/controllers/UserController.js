@@ -109,7 +109,6 @@ function getCounsellor({
     try {
       // get the counsellor.
       let counsellor = await counsellorQuery.exec();
-      console.log(counsellor);
 
       // If we need to return a reduced object, recreate the counsellor object with the required data. 
       if (reduced) counsellor = {
