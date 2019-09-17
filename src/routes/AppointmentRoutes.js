@@ -48,4 +48,13 @@ router.post("/", AppointmentControllerPolicy.insertAppointment, AppointmentContr
 router.post("/update/:appointmentId", AppointmentControllerPolicy.updateAppointment, AppointmentController.updateAppointment);
 
 
+// Create a new appointment type
+router.post("/type", AuthenticationMiddleware.roleCheck({
+  role: Role.Counsellor
+}), AppointmentController.createAppointmentType);
+
+// Get all appointment types
+router.get("/type", AppointmentController.getAllAppointmentTypes);
+
+
 module.exports = router;

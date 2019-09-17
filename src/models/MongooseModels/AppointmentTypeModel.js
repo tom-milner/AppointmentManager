@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 let Schema = mongoose.Schema;
 
 let appointmentTypeSchema = new Schema({
-  title: {
+  name: {
     type: String,
     require: true,
   },

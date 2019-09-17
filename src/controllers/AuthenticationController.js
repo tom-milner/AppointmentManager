@@ -174,7 +174,13 @@ async function jwtSignUser(user) {
   const oneDay = 60 * 60 * 24;
   const expirationTime = oneDay;
   // make user a plain object
-  user = JSON.parse(JSON.stringify(user));
+  user = {
+    firstname: user.firstname,
+    lastname: user.lastname,
+    user: user.username,
+    role: user.role
+  };
+
   // Create token
   const token = await jwt.sign(user, process.env.JWT_SECRET, {
     expiresIn: expirationTime
