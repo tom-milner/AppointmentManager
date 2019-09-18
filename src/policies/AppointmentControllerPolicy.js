@@ -1,57 +1,84 @@
 const Joi = require("joi");
 const Role = require("../models/Role");
 const AppointmentModel = require("../models/MongooseModels/AppointmentModel");
+const Utils = require("../utils/Utils");
+
 
 function insertAppointment(req, res, next) {
 
+
+  // first check presence
   const joiSchema = {
     startTime: Joi.date().required(),
     title: Joi.string().required(),
-    duration: Joi.required(),
+    typeId: Joi.string().required(),
     counsellorId: Joi.string().required(),
     clientNotes: Joi
   }
+  try {
+    const {
+      error,
+      value
+    } = Joi.validate(req.body, joiSchema);
 
-  const {
-    error,
-    value
-  } = Joi.validate(req.body, joiSchema);
+    let validatedBody = value;
+    let errorMessage = "";
+    let errorCode = 400;
 
-  let errorMessage = "";
-  let errorCode = 400;
+    if (error) {
+      switch (error.details[0].context.key) {
+        case "startTime":
+          errorMessage = "Invalid start time"
+          break;
+        case "title":
+          errorMessage = "Invalid title."
+          break;
+        case "typeId":
+          errorMessage = "Invalid appointment type Id";
+          break;
+        case "counsellorId":
+          errorMessage = "Invalid counsellorId";
+          break;
+        case "clientNotes":
+          errorMessage = "Invalid clientNotes";
+          break;
+        default:
+          errorMessage = "Error creating appointment";
+          break;
+      }
 
-
-  if (error) {
-    switch (error.details[0].context.key) {
-      case "startTime":
-        errorMessage = "Invalid start time"
-        errorCode = 400;
-        break;
-      case "title":
-        errorMessage = "Invalid title."
-        break;
-      case "duration":
-        errorMessage = "Invalid duration";
-        break;
-      case "counsellorId":
-        errorMessage = "Invalid counsellorId";
-        break;
-      case "clientNotes":
-        errorMessage = "Invalid clientNotes";
-        break;
-      default:
-        errorMessage = "Error creating appointment";
-        break;
+      throw ({
+        message: errorMessage,
+        code: errorCode
+      })
     }
-    console.log(error);
 
-    res.status(errorCode).send({
-      message: errorMessage,
-      success: false,
-    })
-  } else {
+    // check typeId 
+    let typeIdIsValid = Utils.validateMongoId(validatedBody.typeId);
+    if (!typeIdIsValid) {
+      throw ({
+        message: "Invalid appointment type id",
+        code: 400
+      });
+    }
+
+    // check counsellor Id
+    let counsellorIdIsValid = Utils.validateMongoId(validatedBody.counsellorId);
+    if (!counsellorIdIsValid) {
+      throw ({
+        message: "Invalid counsellor id",
+        code: 400
+      });
+    }
+
     // let the request through - all data is valid.
     next();
+
+  } catch (error) {
+    res.status(error.code || 500).send({
+      message: error.message || "Error validating request body.",
+      success: false
+    })
   }
 
 }
