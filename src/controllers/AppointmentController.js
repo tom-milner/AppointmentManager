@@ -100,6 +100,7 @@ async function insertAppointment(req, res) {
     // load  info from body
     const appointmentStartTime = moment(req.body.startTime);
     const appointmentDuration = req.body.duration; // In Minutes
+    const appointmentTypeId = req.body.typeId;
     const appointmentEndTime = moment(req.body.startTime).add(
       appointmentDuration,
       "minutes"
@@ -126,12 +127,17 @@ async function insertAppointment(req, res) {
     // throw the error
     if (error) throw error;
 
+    error = await validateAppointmentType(appointmentTypeId);
+    if (error) throw error;
+
+
     // Create new appointment model
     let appointment = new AppointmentModel({
       title: req.body.title,
       startTime: appointmentStartTime,
       // TODO: add buffer to end time
       endTime: appointmentEndTime,
+      appointmentType: appointmentTypeId,
       clients: [req.user],
       isApproved: false,
       counsellorId: counsellorId,
@@ -152,6 +158,7 @@ async function insertAppointment(req, res) {
 
     // Catch any errors and respond appropriately
   } catch (error) {
+    console.log(error);
     res.status(error.code || 500).send({
       message: error.message || "Error creating appointment",
       success: false
@@ -225,7 +232,12 @@ async function createAppointmentType(req, res) {
     });
 
   } catch (error) {
-    res.status(error.code || 500).send({
+    let responseCode;
+    if (error.code == 11000) {
+      error.message = "Appointment Type name already exists.";
+      responseCode = 200;
+    }
+    res.status(responseCode || 500).send({
       success: false,
       message: error.message || "Error creating appointment type."
     });
@@ -243,7 +255,8 @@ async function getAllAppointmentTypes(req, res) {
     })
   } catch (error) {
     console.log(error);
-    res.status(error.code || 500).send({
+
+    res.status(500).send({
       success: false,
       message: error.message || "Error getting appointment types."
     });
@@ -265,7 +278,13 @@ async function getAllAppointmentTypes(req, res) {
 
 
 
-
+async function validateAppointmentType(typeId) {
+  let foundType = await AppointmentTypeModel.findById(typeId);
+  if (!foundType) return {
+    message: "Appointment type doesn't exist",
+    code: 400
+  };
+}
 
 async function checkClientAvailability(
   desiredStartTime,

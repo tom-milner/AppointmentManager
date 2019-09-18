@@ -177,8 +177,9 @@ async function jwtSignUser(user) {
   user = {
     firstname: user.firstname,
     lastname: user.lastname,
-    user: user.username,
-    role: user.role
+    username: user.username,
+    role: user.role,
+    _id: user._id
   };
 
   // Create token
