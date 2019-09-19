@@ -33,10 +33,13 @@ function getReducedUsers(req, res, next) {
     }
 
     // check ids
-    let validIds = value.userIds.some(id => {
+    let userIds = value.userIds.split(",").filter(Boolean);
+    console.log(userIds);
+    let invalidIds = userIds.some(id => {
+      console.log(!Utils.validateMongoId(id));
       return !Utils.validateMongoId(id);
     })
-    if (!validIds) {
+    if (invalidIds) {
       throw ({
         message: "Invalid user ids",
         code: 400
