@@ -58,8 +58,19 @@ export default {
 
   // sends the updated state of the appointment to the server
   updateAppointment(appointmentProperties, appointmentId) {
-    return Api.post(`appointments/update/${appointmentId}`, {
+    return Api.post(`/appointments/update${appointmentId}`, {
       appointmentProperties: appointmentProperties
     });
+  },
+
+  getAppointmentTypes() {
+    return Api.get("/appointments/type");
+  },
+
+  createAppointmentType(typeOptions) {
+    return Api.post("/appointments/type", {
+      duration: typeOptions.duration,
+      name: typeOptions.name
+    })
   }
 }

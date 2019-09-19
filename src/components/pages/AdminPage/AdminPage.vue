@@ -61,9 +61,25 @@ export default {
     this.availableWorkDays = this.counsellor.workingDays;
   },
 
-  computed: {},
-
   methods: {
+    sortAvailableWorkDays() {
+      console.log("sorting");
+      // sort available week days
+      let days = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ];
+      this.availableWorkDays = this.availableWorkDays.sort(function(a, b) {
+        console.log(days.indexOf(a.name) > days.indexOf(b.name));
+        return days.indexOf(a.name) > days.indexOf(b.name);
+      });
+    },
+
     formatTime(time) {
       console.log("raw: ", time);
       let formattedTime = this.moment(time);
@@ -92,10 +108,8 @@ export default {
     availableWorkDays: {
       // listen to object properties aswell
       deep: true,
-      handler(newValue) {
+      handler() {
         // update server counsellor settings
-
-        console.log(newValue);
 
         UserService.updateCounsellor(
           {

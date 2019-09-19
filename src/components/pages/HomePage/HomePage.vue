@@ -43,9 +43,9 @@
     </div>
 
     <!-- Calendar -->
-    <div class="container calendar">
+    <div class="container">
       <h2 class="heading-2">Your Calendar</h2>
-      <appointment-calendar :events="events"></appointment-calendar>
+      <appointment-calendar :events="events" class="calendar" ></appointment-calendar>
     </div>
 
     <!-- Modal -->
@@ -157,6 +157,7 @@ export default {
   .no-appointments-box {
     padding: 4rem 0 0 4rem;
   }
+
 }
 
 .scrolling-appointments {
