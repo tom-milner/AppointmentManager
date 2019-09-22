@@ -1,11 +1,10 @@
 <template>
   <div class="wrapper">
-    <!-- Header -->
-    <h1 class="heading-2">Your Work Calendar</h1>
-
+    <!-- Work Day Settings -->
+    <h2 class="heading-2">Work Calendar</h2>
     <!-- Free days input -->
     <div class="container">
-      <h3 class="heading-3">What days are you free to work?</h3>
+      <h3 class="heading-3">Available Work Days</h3>
       <div class="working-days-buttons">
         <button
           @click="updateWorkingDays(day)"
@@ -19,7 +18,7 @@
 
     <!-- Working hours input -->
     <div v-if="availableWorkDays.length >0" class="container">
-      <h3 class="heading-3">What hours are you free to work (start / end) ?</h3>
+      <h3 class="heading-3">Available Work Hours (start / end) ?</h3>
       <div class="working-hours-input">
         <div v-bind:key="day.name" v-for="day in availableWorkDays" class="day">
           <h4 class="heading-4">{{day.name}}</h4>
@@ -27,6 +26,11 @@
           <input step="3600" type="time" v-model="day.endTime" class="form-input time-select" />
         </div>
       </div>
+    </div>
+
+    <!-- Save Button -->
+    <div class="container">
+      <button @click="saveSettings" class="btn btn-primary save-button">Save</button>
     </div>
   </div>
 </template>
@@ -101,23 +105,15 @@ export default {
         // add day
         this.availableWorkDays.push(new WorkDay(currentDay));
       }
-    }
-  },
-  watch: {
-    // This function pushes any changes made to the server.
-    availableWorkDays: {
-      // listen to object properties aswell
-      deep: true,
-      handler() {
-        // update server counsellor settings
+    },
 
-        UserService.updateCounsellor(
-          {
-            workingDays: this.availableWorkDays
-          },
-          this.counsellor._id
-        );
-      }
+    saveSettings() {
+      UserService.updateCounsellor(
+        {
+          workingDays: this.availableWorkDays
+        },
+        this.counsellor._id
+      );
     }
   }
 };
@@ -126,7 +122,6 @@ export default {
 <style  lang="scss" scoped>
 .container {
   margin-top: 5rem;
-
   .working-days-buttons {
     margin-top: 1rem;
     button {
@@ -161,6 +156,9 @@ export default {
         display: block;
       }
     }
+  }
+  .save-button {
+    width: 30rem;
   }
 }
 </style>

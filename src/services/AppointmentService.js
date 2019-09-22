@@ -63,14 +63,5 @@ export default {
     });
   },
 
-  getAppointmentTypes() {
-    return Api.get("/appointments/type");
-  },
 
-  createAppointmentType(typeOptions) {
-    return Api.post("/appointments/type", {
-      duration: typeOptions.duration,
-      name: typeOptions.name
-    })
-  }
 }

@@ -16,16 +16,25 @@
             <icon name="home" class="icon-nav-item" />
           </router-link>
         </li>
+
         <li>
           <router-link v-if="!userIsCounsellor" to="/create" class="nav-item">
             <icon name="plus-square" class="icon-nav-item" />
           </router-link>
         </li>
-        <li>
-          <router-link v-if="userIsCounsellor " to="/admin" class="nav-item">
-            <icon name="settings" class="icon-nav-item" />
-          </router-link>
-        </li>
+
+        <div v-if="userIsCounsellor ">
+          <li>
+            <router-link to="/calendar" class="nav-item">
+              <icon name="calendar" class="icon-nav-item" />
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/appointment-settings" class="nav-item">
+              <icon name="settings" class="icon-nav-item" />
+            </router-link>
+          </li>
+        </div>
       </ul>
       <div class="logout-button-box" @click="logout">
         <icon name="log-out" class="logout-button"></icon>
