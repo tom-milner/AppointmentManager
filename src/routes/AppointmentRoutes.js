@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
+const AppointmentTypeRoutes = require("./AppointmentTypeRoutes");
 let AppointmentController = require("../controllers/AppointmentController");
 let AuthenticationMiddleware = require("../middleware/AuthenticationMiddleware");
 let AppointmentControllerPolicy = require("../policies/AppointmentControllerPolicy");
@@ -10,6 +11,9 @@ let Role = require("../models/Role");
 
 // Always requires users to be logged in for these routes - appointments contain personal information 
 router.use(AuthenticationMiddleware.isLoggedIn);
+
+// import Appointment Type Routes
+router.use("/type", AppointmentTypeRoutes);
 
 // Get all appointments of a specific user
 router.get("/client/:userId", AuthenticationMiddleware.roleCheck({
@@ -46,15 +50,5 @@ router.post("/", AppointmentControllerPolicy.insertAppointment, AppointmentContr
 
 // update an existing appointment
 router.post("/update/:appointmentId", AppointmentControllerPolicy.updateAppointment, AppointmentController.updateAppointment);
-
-
-// Create a new appointment type
-router.post("/type", AuthenticationMiddleware.roleCheck({
-  role: Role.Counsellor
-}), AppointmentController.createAppointmentType);
-
-// Get all appointment types
-router.get("/type", AppointmentController.getAllAppointmentTypes);
-
 
 module.exports = router;
