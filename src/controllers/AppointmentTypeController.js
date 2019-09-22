@@ -5,21 +5,8 @@ const ErrorController = require("../controllers/ErrorController");
 // create a new appointment type
 async function createAppointmentType(req, res) {
   try {
-
-    // data validation - don't need seperate function (policy) as we're only checking 2 variables. 
-    let duration = req.body.duration;
     let name = req.body.name;
-
-    if (!duration) throw ({
-      code: 400,
-      message: "Include an appointment type duration."
-    });
-
-    if (!name) throw ({
-      code: 400,
-      message: "Include an appointment type name"
-    });
-
+    let duration = req.body.duration;
     // create new appointment type
     let newAppointmentType = new AppointmentTypeModel({
       name: name,
@@ -66,11 +53,37 @@ async function getAllAppointmentTypes(req, res) {
 }
 
 // function called by counsellor to change appointment type details.
-function updateAppointmentType(req, res) {
+async function updateAppointmentType(req, res) {
   try {
+    const newAppointmentTypeProperties = req.body.appointmentTypeProperties;
+    const appointmentTypeId = req.params.appointmentTypeId;
+    console.log(req.body);
+    let updatedAppointmentType = await AppointmentTypeModel.findByIdAndUpdate(
+      appointmentTypeId,
+      newAppointmentTypeProperties, {
+        new: true,
+        runValidators: true
+      }
+    );
+    // This check is in the controller, not the policy. This is because checking the existence of the appointment type has to involve querying the database for it, and doing that twice would require unnecessary computing.
+    if (!updatedAppointmentType) {
+      throw ({
+        message: "Appointment Type doesn't exist",
+        code: 400
+      });
+    }
+
+    // appointment type updated successfully
+    res.status(200).send({
+      success: true,
+      message: "Appointment type updated successfully",
+      updatedAppointmentType: updatedAppointmentType
+    });
 
   } catch (error) {
-
+    let errorMessage = error.message || "Error updating appointment type.";
+    let errorCode = error.code || 500;
+    ErrorController.sendError(res, errorMessage, errorCode);
   }
 }
 

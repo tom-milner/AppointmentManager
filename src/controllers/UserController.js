@@ -71,7 +71,8 @@ async function updateCounsellor(req, res) {
     let updatedCounsellorSettings = await CounsellorModel.findByIdAndUpdate(
       counsellorId,
       newCounsellorSettings, {
-        new: true
+        new: true,
+        runValidators: true
       }
     );
 
@@ -86,7 +87,6 @@ async function updateCounsellor(req, res) {
       message: "Counsellor settings updated."
     });
   } catch (error) {
-
     // send an appropriate error message.
     let errorMessage = error.message || 400;
     let errorCode = error.code || "Error updating counsellor settings";

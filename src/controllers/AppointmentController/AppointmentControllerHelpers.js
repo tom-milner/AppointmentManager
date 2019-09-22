@@ -1,5 +1,6 @@
 const CounsellorModel = require("../../models/MongooseModels/CounsellorModel");
 const AppointmentTypeModel = require("../../models/MongooseModels/AppointmentTypeModel");
+const AppointmentModel = require("../../models/MongooseModels/AppointmentModel")
 const Utils = require("../../utils/Utils");
 
 

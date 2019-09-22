@@ -121,6 +121,7 @@ async function insertAppointment(req, res) {
     // throw the error
     if (error) throw error;
 
+    // make sure the appointment type exist
     error = await AppointmentControllerHelpers.validateAppointmentType(appointmentTypeId);
     if (error) throw error;
 
@@ -168,7 +169,9 @@ async function updateAppointment(req, res) {
     let updatedAppointment = await AppointmentModel.findByIdAndUpdate(
       appointmentId,
       newAppointmentProperties, {
-        new: true
+        // get the newly created appointment
+        new: true,
+        runValidators: true
       }
     );
 

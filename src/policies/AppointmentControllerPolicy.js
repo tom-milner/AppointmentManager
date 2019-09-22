@@ -136,8 +136,21 @@ function updateAppointment(req, res, next) {
         disallowedProperties: disallowedProperties
       });
     }
+
+
+    //  validate appointment Id
+    let validAppointmentId = Utils.validateMongoId(req.params.appointmentId);
+    if (!validAppointmentId) {
+      throw ({
+        message: "Invalid appointment Id",
+        code: 400
+      })
+    }
+
     // user can access all properties - allow request to be processed
     next();
+
+
   } catch (error) {
     let errorMessage = error.message || "Error updating appointment";
     let errorCode = error.code || 400;
