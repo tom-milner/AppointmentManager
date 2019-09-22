@@ -2,7 +2,7 @@ const Joi = require("joi");
 const Role = require("../models/Role");
 const AppointmentModel = require("../models/MongooseModels/AppointmentModel");
 const Utils = require("../utils/Utils");
-
+const ErrorController = require("../controllers/ErrorController");
 
 function insertAppointment(req, res, next) {
 
@@ -75,10 +75,12 @@ function insertAppointment(req, res, next) {
     next();
 
   } catch (error) {
-    res.status(error.code || 500).send({
-      message: error.message || "Error validating request body.",
-      success: false
-    })
+
+    let errorMessage = error.message || "Error validating request body.";
+    let errorCode = error.code || 500;
+
+    // send an error back to the user.
+    ErrorController.sendError(res, errorMessage, errorCode);
   }
 
 }
@@ -119,6 +121,7 @@ function updateAppointment(req, res, next) {
 
     }
 
+
     // check properties user wants to update against properties they're allowed to update
     // if any properties not in the allowed properties list are found, they awill be added to disallowedProperties
     const disallowedProperties = requestedAppointmentProperties.filter(property => {
@@ -136,12 +139,11 @@ function updateAppointment(req, res, next) {
     // user can access all properties - allow request to be processed
     next();
   } catch (error) {
-    console.log(error);
-    res.status(error.code || 400).send({
-      success: false,
-      message: error.message || "Error updating appointment",
-      disallowedProperties: error.disallowedProperties || undefined
-    });
+    let errorMessage = error.message || "Error updating appointment";
+    let errorCode = error.code || 400;
+
+    // send back an error along with the disallowed properties
+    ErrorController.sendError(res, errorMessage, errorCode, error.disallowedProperties);
   }
 }
 

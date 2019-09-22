@@ -1,5 +1,6 @@
 // import json web token library
 const jwt = require("jsonwebtoken"); // used for using token based authentication
+const ErrorControlller = require("../controllers/ErrorController");
 
 // middleware for checking user access
 function isLoggedIn(req, res, next) {
@@ -8,14 +9,14 @@ function isLoggedIn(req, res, next) {
   // decode token (if present)
   if (token) {
     token = token.replace("Bearer ", "");
+
     // validate secret
+    // The jsonwebtoken library doesn't support promises yet.
     jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
       if (err) {
         // return error if token isn't valid
-        return res.status(401).json({
-          success: false,
-          error: "Failed to authenticate token"
-        });
+        ErrorControlller.sendError(res, "Failed to authenticate token", 401);
+
       } else {
         // token is valid
         // store token in browser for later usage
@@ -27,10 +28,7 @@ function isLoggedIn(req, res, next) {
     });
   } else {
     // no token - return an error
-    return res.status(403).send({
-      success: false,
-      error: "No authentication token provided."
-    });
+    ErrorControlller.sendError(res, "No authentication token provided", 403);
   }
 }
 
@@ -61,10 +59,7 @@ function roleCheck({
       }
     }
     // deny access - user does not meet any of the above criteria
-    res.status(403).send({
-      success: false,
-      message: "Access Denied"
-    });
+    ErrorControlller.sendError(res, "Access Denied", 403);
   };
 }
 

@@ -1,11 +1,6 @@
 // Import required models
-const AppointmentModel = require("../models/MongooseModels/AppointmentModel");
-const CounsellorModel = require("../models/MongooseModels/CounsellorModel");
 const AppointmentTypeModel = require("../models/MongooseModels/AppointmentTypeModel");
-const Utils = require("../utils/Utils");
-const moment = require("moment");
-
-
+const ErrorController = require("../controllers/ErrorController");
 
 // create a new appointment type
 async function createAppointmentType(req, res) {
@@ -41,15 +36,16 @@ async function createAppointmentType(req, res) {
     });
 
   } catch (error) {
-    let responseCode;
+    let responseCode = error.code || 500;
+    let errorMessage = error.message || "Error creating appointment type.";
+
     if (error.code == 11000) {
-      error.message = "Appointment Type name already exists.";
+      errorMessage = "Appointment Type name already exists.";
       responseCode = 200;
     }
-    res.status(responseCode || 500).send({
-      success: false,
-      message: error.message || "Error creating appointment type."
-    });
+
+    ErrorController.sendError(res, errorMessage, responseCode);
+
   }
 }
 
@@ -64,11 +60,8 @@ async function getAllAppointmentTypes(req, res) {
     })
   } catch (error) {
     console.log(error);
-
-    res.status(500).send({
-      success: false,
-      message: error.message || "Error getting appointment types."
-    });
+    let errorMessage = error.message || "Error getting appointment types.";
+    ErrorController.sendError(res, errorMessage, 500);
   }
 }
 

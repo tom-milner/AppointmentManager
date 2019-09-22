@@ -1,5 +1,6 @@
 const Joi = require("joi");
 const Utils = require("../utils/Utils");
+const ErrorController = require("../controllers/ErrorController");
 
 
 function getReducedUsers(req, res, next) {
@@ -69,10 +70,10 @@ function updateCounsellor(req, res, next) {
 
     next();
   } catch (error) {
-    res.status(error.code || 400).send({
-      message: error.message || "Error updating counsellor settings",
-      success: false
-    })
+    // send an error to the user.
+    let errorMessage = error.message || "Error updating counsellor settings.";
+    let errorCode = error.code || 400;
+    ErrorController.sendError(res, errorMessage, errorCode);
   }
 }
 
