@@ -1,9 +1,9 @@
 const Utils = require("../utils/Utils");
 const ErrorController = require("../controllers/ErrorController");
+const Joi = require("joi");
 
 function updateAppointmentType(req, res, next) {
 
-  // No need to use Joi - only 2 variables.
   try {
     const newAppointmentTypeProperties = req.body.appointmentTypeProperties;
     const appointmentTypeId = req.params.appointmentTypeId;
@@ -39,26 +39,53 @@ function updateAppointmentType(req, res, next) {
 
 
 function createAppointmentType(req, res, next) {
-  // No need to use Joi here - only 2 variables.
-  try {
 
-    // check duration
-    if (!req.body.duration) throw ({
-      code: 400,
-      message: "Include an appointment type duration."
-    });
-
-    // check name
-    if (!req.body.name) throw ({
-      code: 400,
-      message: "Include an appointment type name"
-    });
-
-
-    next();
-  } catch (error) {
-    ErrorController.sendError(res, error.message, error.code);
+  const joiSchema = {
+    name: Joi.string().max(20).required(),
+    duration: Joi.number().required(),
+    description: Joi.string().max(200),
+    isRecurring: Joi.boole()
   }
+
+  // validate the request body against the schema
+  const {
+    error
+  } = Joi.validate(req.body, joiSchema);
+
+  // set error message and code. These will be overwritten if there is a more specific error.
+  let errorMessage;
+  let errorCode;
+
+  // check error
+  if (error) {
+    switch (error.details[0].context.key) {
+      case "name":
+        errorCode = 400;
+        errorMessage = "Must include valid name.";
+        break;
+      case "duration":
+        errorCode = 400;
+        errorMessage = "Must include valid duration."
+        break;
+      case "description":
+        errorCode = 400;
+        errorMessage = "Invalid Description.";
+        break;
+      case "isRecurring":
+        errorCode = 400;
+        errorMessage = "Value of isRecurring must be boolean."
+        break;
+      default:
+        errorCode = 500;
+        errorMessage = "Error creating appointment type.";
+        break;
+    }
+    // send the error
+    ErrorController.sendError(res, errorMessage, errorCode);
+    return;
+  }
+  next();
+
 }
 
 

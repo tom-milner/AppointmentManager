@@ -44,10 +44,11 @@ function register(req, res, next) {
     }
     // return an error
     ErrorController.sendError(res, errorMessage, errorCode);
+    return;
 
-  } else {
-    next();
   }
+  next();
+
 }
 
 

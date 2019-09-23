@@ -7,6 +7,10 @@ async function createAppointmentType(req, res) {
   try {
     let name = req.body.name;
     let duration = req.body.duration;
+    let description = req.body.description;
+    let isRecurring = req.body.isRecurring;
+
+
     // create new appointment type
     let newAppointmentType = new AppointmentTypeModel({
       name: name,
@@ -25,7 +29,6 @@ async function createAppointmentType(req, res) {
   } catch (error) {
     let responseCode = error.code || 500;
     let errorMessage = error.message || "Error creating appointment type.";
-
     if (error.code == 11000) {
       errorMessage = "Appointment Type name already exists.";
       responseCode = 200;
@@ -82,7 +85,11 @@ async function updateAppointmentType(req, res) {
 
   } catch (error) {
     let errorMessage = error.message || "Error updating appointment type.";
-    let errorCode = error.code || 500;
+    let errorCode = error.code || 400;
+    if (errorCode == 11000) {
+      errorMessage = "Appointment Type name already exists.";
+      errorCode = 200;
+    }
     ErrorController.sendError(res, errorMessage, errorCode);
   }
 }
