@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const ErrorController = require("../controllers/ErrorController");
 
 function register(req, res, next) {
 
@@ -16,8 +17,9 @@ function register(req, res, next) {
     value
   } = Joi.validate(req.body, joiSchema);
 
-  let errorMessage = "";
-  let errorCode;
+  // If the error is more specific these will be overwritten.
+  let errorMessage = "Error registering user.";
+  let errorCode = 500;
 
   if (error) {
     switch (error.details[0].context.key) {
@@ -40,14 +42,13 @@ function register(req, res, next) {
         errorMessage = error.details[0].message
         errorCode = 400;
     }
+    // return an error
+    ErrorController.sendError(res, errorMessage, errorCode);
+    return;
 
-    res.status(errorCode).send({
-      success: false,
-      message: errorMessage || "Error registering user."
-    });
-  } else {
-    next();
   }
+  next();
+
 }
 
 

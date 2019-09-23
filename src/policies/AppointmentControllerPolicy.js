@@ -1,57 +1,86 @@
 const Joi = require("joi");
 const Role = require("../models/Role");
 const AppointmentModel = require("../models/MongooseModels/AppointmentModel");
+const Utils = require("../utils/Utils");
+const ErrorController = require("../controllers/ErrorController");
 
 function insertAppointment(req, res, next) {
 
+
+  // first check presence
   const joiSchema = {
     startTime: Joi.date().required(),
     title: Joi.string().required(),
-    duration: Joi.required(),
+    typeId: Joi.string().required(),
     counsellorId: Joi.string().required(),
     clientNotes: Joi
   }
+  try {
+    const {
+      error,
+      value
+    } = Joi.validate(req.body, joiSchema);
 
-  const {
-    error,
-    value
-  } = Joi.validate(req.body, joiSchema);
+    let validatedBody = value;
+    let errorMessage = "";
+    let errorCode = 400;
 
-  let errorMessage = "";
-  let errorCode = 400;
+    if (error) {
+      switch (error.details[0].context.key) {
+        case "startTime":
+          errorMessage = "Invalid start time"
+          break;
+        case "title":
+          errorMessage = "Invalid title."
+          break;
+        case "typeId":
+          errorMessage = "Invalid appointment type Id";
+          break;
+        case "counsellorId":
+          errorMessage = "Invalid counsellorId";
+          break;
+        case "clientNotes":
+          errorMessage = "Invalid clientNotes";
+          break;
+        default:
+          errorMessage = "Error creating appointment";
+          break;
+      }
 
-
-  if (error) {
-    switch (error.details[0].context.key) {
-      case "startTime":
-        errorMessage = "Invalid start time"
-        errorCode = 400;
-        break;
-      case "title":
-        errorMessage = "Invalid title."
-        break;
-      case "duration":
-        errorMessage = "Invalid duration";
-        break;
-      case "counsellorId":
-        errorMessage = "Invalid counsellorId";
-        break;
-      case "clientNotes":
-        errorMessage = "Invalid clientNotes";
-        break;
-      default:
-        errorMessage = "Error creating appointment";
-        break;
+      throw ({
+        message: errorMessage,
+        code: errorCode
+      })
     }
-    console.log(error);
 
-    res.status(errorCode).send({
-      message: errorMessage,
-      success: false,
-    })
-  } else {
+    // check typeId 
+    let typeIdIsValid = Utils.validateMongoId(validatedBody.typeId);
+    if (!typeIdIsValid) {
+      throw ({
+        message: "Invalid appointment type id",
+        code: 400
+      });
+    }
+
+    // check counsellor Id
+    let counsellorIdIsValid = Utils.validateMongoId(validatedBody.counsellorId);
+    if (!counsellorIdIsValid) {
+      throw ({
+        message: "Invalid counsellor id",
+        code: 400
+      });
+    }
+
     // let the request through - all data is valid.
     next();
+
+  } catch (error) {
+
+    let errorMessage = error.message || "Error validating request body.";
+    let errorCode = error.code || 500;
+
+    // send an error back to the user.
+    ErrorController.sendError(res, errorMessage, errorCode);
   }
 
 }
@@ -81,15 +110,17 @@ function updateAppointment(req, res, next) {
       // no case for guests - they can't edit anything
       case Role.Client:
         // client can only access clientCanAttend (for now)
+        // TODO: Move this into file of constants
         allowedProperties.push("clientCanAttend");
         break;
-      case Role.Counsellor:
+      case Role.Counsellor: // THIS IS INTENTIONAL!! If the users role if Counsellor the switch will cascade to admin, as they (currently) have the same update rights.
       case Role.Admin:
         // counsellors and admins can access everything
         allowedProperties = allowedProperties.concat(allAppointmentProperties);
         break;
 
     }
+
 
     // check properties user wants to update against properties they're allowed to update
     // if any properties not in the allowed properties list are found, they awill be added to disallowedProperties
@@ -105,15 +136,27 @@ function updateAppointment(req, res, next) {
         disallowedProperties: disallowedProperties
       });
     }
+
+
+    //  validate appointment Id
+    let validAppointmentId = Utils.validateMongoId(req.params.appointmentId);
+    if (!validAppointmentId) {
+      throw ({
+        message: "Invalid appointment Id",
+        code: 400
+      })
+    }
+
     // user can access all properties - allow request to be processed
     next();
+
+
   } catch (error) {
-    console.log(error);
-    res.status(error.code || 400).send({
-      success: false,
-      message: error.message || "Error updating appointment",
-      disallowedProperties: error.disallowedProperties || undefined
-    });
+    let errorMessage = error.message || "Error updating appointment";
+    let errorCode = error.code || 400;
+
+    // send back an error along with the disallowed properties
+    ErrorController.sendError(res, errorMessage, errorCode, error.disallowedProperties);
   }
 }
 

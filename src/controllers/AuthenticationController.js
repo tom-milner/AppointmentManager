@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const CounsellorModel = require("../models/MongooseModels/CounsellorModel");
 const ClientModel = require("../models/MongooseModels/ClientModel");
 const UserModel = require("../models/MongooseModels/UserModel");
+const ErrorController = require("../controllers/ErrorController");
+
 // Register a new counsellor
 async function registerCounsellor(req, res) {
 
@@ -43,10 +45,9 @@ async function registerCounsellor(req, res) {
       errorStatusCode = 409;
     }
     console.log(err.message);
-    res.status(errorStatusCode).send({
-      success: false,
-      message: errorMessage
-    });
+
+    ErrorController.sendError(res, errorMessage, errorStatusCode);
+
   }
 }
 
@@ -83,10 +84,8 @@ async function registerClient(req, res) {
       errorStatusCode = 409;
     }
     console.log(err.message);
-    res.status(errorStatusCode).send({
-      success: false,
-      message: errorMessage
-    });
+
+    ErrorController.sendError(res, errorMessage, errorStatusCode);
   }
 }
 
@@ -103,10 +102,8 @@ async function login(req, res) {
     const matchingUser = userMatches[0];
     // Check user exists
     if (!matchingUser) {
-      res.status(401).send({
-        success: false,
-        message: "Incorrect login information."
-      });
+      // user doesn't exist - send error
+      ErrorController.sendError(res, "Incorrect login information", 401);
       return;
     }
 
@@ -114,17 +111,13 @@ async function login(req, res) {
     const isPasswordValid = await bcrypt.compare(req.body.password, matchingUser.password);
 
     if (!isPasswordValid) {
-      res.status(401).send({
-        success: false,
-        message: "Incorrect password."
-      });
+      // Invalid password - send error.
+      ErrorController.sendError(res, "Incorrect password.", 401);
       return;
     }
 
     // make sure password hash isn't returned
     matchingUser.password = undefined;
-
-
 
     // return user with new access token.
     const token = await jwtSignUser(matchingUser);
@@ -139,11 +132,8 @@ async function login(req, res) {
 
   } catch (err) {
     console.log(err);
-    res.status(500).send({
-      success: false,
-      // Generic error message so as to not reveal too much about the login process.
-      message: "An error has occured."
-    });
+    // Generic error message so as to not reveal too much about the login process.
+    ErrorController.sendError(res, "An error has occured", 500);
   }
 }
 
@@ -160,10 +150,7 @@ async function refreshToken(req, res) {
       success: true
     })
   } catch (err) {
-    res.status(500).send({
-      success: false,
-      message: "An error occured refreshing the token."
-    });
+    ErrorController.sendError(res, "An error occured refreshing the token", 500);
   }
 }
 
@@ -174,7 +161,14 @@ async function jwtSignUser(user) {
   const oneDay = 60 * 60 * 24;
   const expirationTime = oneDay;
   // make user a plain object
-  user = JSON.parse(JSON.stringify(user));
+  user = {
+    firstname: user.firstname,
+    lastname: user.lastname,
+    username: user.username,
+    role: user.role,
+    _id: user._id
+  };
+
   // Create token
   const token = await jwt.sign(user, process.env.JWT_SECRET, {
     expiresIn: expirationTime

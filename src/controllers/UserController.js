@@ -1,5 +1,6 @@
 const CounsellorModel = require("../models/MongooseModels/CounsellorModel");
 const UserModel = require("../models/MongooseModels/UserModel");
+const ErrorController = require("../controllers/ErrorController");
 
 
 // takes array of user Ids an returns simple user object.
@@ -22,10 +23,9 @@ async function getReducedUsers(req, res) {
       users: users
     });
   } catch (error) {
-    res.status(400).send({
-      success: false,
-      message: "Error getting usernames."
-    });
+
+    ErrorController.sendError(res, "Error getting usernames.", 400);
+
   }
 }
 
@@ -54,10 +54,10 @@ async function getAllCounsellorsReduced(req, res) {
   } catch (error) {
     console.log(error);
 
-    res.status(error.code || 500).send({
-      success: false,
-      message: error.message || "Error returning counsellors."
-    });
+    let errorMessage = error.message || "Error returning counsellors."
+    let errorCode = error.code || 500;
+
+    ErrorController.sendError(res, errorMessage, errorCode);
   }
 }
 
@@ -71,7 +71,8 @@ async function updateCounsellor(req, res) {
     let updatedCounsellorSettings = await CounsellorModel.findByIdAndUpdate(
       counsellorId,
       newCounsellorSettings, {
-        new: true
+        new: true,
+        runValidators: true
       }
     );
 
@@ -86,10 +87,10 @@ async function updateCounsellor(req, res) {
       message: "Counsellor settings updated."
     });
   } catch (error) {
-    res.status(error.code || 400).send({
-      success: false,
-      message: error.message || "Error updating counsellor settings"
-    });
+    // send an appropriate error message.
+    let errorMessage = error.message || 400;
+    let errorCode = error.code || "Error updating counsellor settings";
+    ErrorController.sendError(res, errorMessage, errorCode);
   }
 }
 
@@ -109,7 +110,6 @@ function getCounsellor({
     try {
       // get the counsellor.
       let counsellor = await counsellorQuery.exec();
-      console.log(counsellor);
 
       // If we need to return a reduced object, recreate the counsellor object with the required data. 
       if (reduced) counsellor = {
@@ -127,10 +127,8 @@ function getCounsellor({
     } catch (error) {
 
       console.log(error);
-      res.status(400).send({
-        message: "Counsellor couldn't be found",
-        success: false
-      });
+      ErrorController.sendError(res, "Counsellor couldn't be found", 400);
+
     }
   }
 }

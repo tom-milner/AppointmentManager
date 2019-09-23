@@ -1,75 +1,63 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+
+
+
 // define schema
 let appointmentSchema = new Schema({
 
-    // title of appointment
-    title: {
-        type: String,
-        require: true,
-        max: 100
-    },
-    counsellorId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    },
-    // clients that booked the appointment
-    clients: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    }],
-    // client notes about appointment
-    clientNotes: {
-        type: String,
-    },
-    // counsellor notes about appointment
-    counsellorNotes: {
-        type: String,
-    },
-    // location of appointment
+  title: {
+    type: String,
+    require: true,
+    max: 100
+  },
 
-    location: {
-        type: String
-    },
+  appointmentType: {
+    type: Schema.Types.ObjectId,
+    ref: "AppointmentTypeModel"
+  },
 
-    // TODO: Use actual coordinates for location
-    // loc: {
-    //     type: {
-    //         type: String,
-    //         // required: true
-    //     },
-    //     coordinates: {
-    //         type: [Number], // MUST BE LONGITUDE, THEN LATITUDE
-    //         // required: true,
-    //     }
-    // },
-    // allocated time for appointment
-    startTime: {
-        type: Date,
-        required: true,
-    },
-    endTime: {
-        type: Date,
-        required: true,
-
-    },
-    // whether the apointment has been confirmed or not
-    isApproved: {
-        type: Boolean,
-        required: true,
-        default: false
-    },
-    clientCanAttend: {
-        type: Boolean,
-        default: true,
+  counsellorId: {
+    type: Schema.Types.ObjectId,
+    ref: "UserModel"
+  },
+  // clients that booked the appointment
+  clients: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "UserModel"
     }
+  ],
+  // client notes about appointment
+  clientNotes: {
+    type: String
+  },
+  // counsellor notes about appointment
+  counsellorNotes: {
+    type: String
+  },
+  // location of appointment
+
+  // allocated time for appointment
+  startTime: {
+    type: Date,
+    required: true
+  },
+  endTime: {
+    type: Date,
+    required: true
+  },
+  // whether the apointment has been confirmed or not
+  isApproved: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  clientCanAttend: {
+    type: Boolean,
+    default: true
+  }
 });
-
-// tie an index to the schema so that it can be used to search
-// appointmentSchema.index({
-//     "loc": "2dsphere"
-// });
-
 
 module.exports = mongoose.model("AppointmentModel", appointmentSchema);
