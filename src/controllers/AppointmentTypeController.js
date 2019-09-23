@@ -94,9 +94,29 @@ async function updateAppointmentType(req, res) {
   }
 }
 
+async function deleteAppointmentType(req, res) {
+  let appointmentTypeId = req.params.appointmentTypeId;
+
+  try {
+    let response = await AppointmentTypeModel.findByIdAndRemove(appointmentTypeId);
+    console.log(response);
+
+    res.status(200).send({
+      success: true,
+      message: "Appointment Type deleted successfully."
+    })
+  } catch (error) {
+    let errorMessage = error.message || "Error deleting appointment type.";
+    let errorCode = error.code || 500;
+    ErrorController.sendError(res, errorMessage, errorCode);
+
+  }
+}
+
 
 module.exports = {
   createAppointmentType,
   getAllAppointmentTypes,
-  updateAppointmentType
+  updateAppointmentType,
+  deleteAppointmentType
 }

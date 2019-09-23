@@ -44,7 +44,7 @@ function createAppointmentType(req, res, next) {
     name: Joi.string().max(20).required(),
     duration: Joi.number().required(),
     description: Joi.string().max(200),
-    isRecurring: Joi.boole()
+    isRecurring: Joi.bool()
   }
 
   // validate the request body against the schema
@@ -88,9 +88,18 @@ function createAppointmentType(req, res, next) {
 
 }
 
+function deleteAppointmentType(req, res, next) {
+  let appointmentTypeId = req.params.appointmentTypeId;
+  let idIsValid = Utils.validateMongoId(appointmentTypeId);
+  if (!idIsValid) {
+    ErrorController.sendError(res, "Invalid appointment type.", 400);
+  }
+  next();
+}
 
 
 module.exports = {
   createAppointmentType,
-  updateAppointmentType
+  updateAppointmentType,
+  deleteAppointmentType
 }

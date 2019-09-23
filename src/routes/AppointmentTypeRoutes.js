@@ -25,4 +25,8 @@ router.post("/update/:appointmentTypeId", AuthenticationMiddleware.roleCheck({
   role: Role.Counsellor
 }), AppointmentTypeControllerPolicy.updateAppointmentType, AppointmentTypeController.updateAppointmentType)
 
+// delete an appointment route
+router.post("/delete/:appointmentTypeId", AuthenticationMiddleware.roleCheck({
+  role: Role.Counsellor
+}), AppointmentTypeControllerPolicy.deleteAppointmentType, AppointmentTypeController.deleteAppointmentType)
 module.exports = router;
