@@ -39,11 +39,12 @@
       </div>
 
       <!-- Edit Button -->
-      <div @click="toggleIsEditable" class="icon-box">
-        <Icon v-if="!isEditable" class="icon" name="edit" />
+      <div v-if="!isEditable" @click="toggleIsEditable" class="icon-box">
+        <Icon class="icon" name="edit" />
       </div>
+
       <!-- Save Button -->
-      <button @click="saveAppointmentType" v-if="isEditable" class="btn btn-secondary">Save</button>
+      <button @click="saveAppointmentType" v-if="isEditable" class="btn btn-primary">Save</button>
     </div>
 
     <!-- The extended appointment type -->
@@ -154,7 +155,7 @@ export default {
 
     // Convert minutes to hours.
     minsToHours(mins) {
-      return Math.round(mins / 600) * 10;
+      return Math.round((mins / 60) * 10) / 10;
     },
 
     // validate all user input
@@ -172,7 +173,7 @@ export default {
       if (duration < this.minDuration || duration > this.maxDuration) {
         this.errorMessage = `Max duration is ${
           this.maxDuration
-        } minutes ( ~ ${this.minsToHours(this.maxDuration)} hours)`;
+        } minutes (${this.minsToHours(this.maxDuration)} hours)`;
         return false;
       }
 
