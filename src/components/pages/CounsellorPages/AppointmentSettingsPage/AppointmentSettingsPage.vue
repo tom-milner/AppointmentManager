@@ -7,10 +7,13 @@
       <h3 class="heading-3">Appointment Types</h3>
       <ul class="appointment-type-list">
         <li class="list-item" v-for="type in appointmentTypes" :key="type._id">
-          <AppointmentTypeContainer :appointmentType="type" />
+          <AppointmentTypeContainer
+            @refresh-appointments="getAppointmentTypes"
+            :appointmentType="type"
+          />
         </li>
         <li class="list-item">
-          <button class="btn btn-secondary">Add New</button>
+          <button @click="addNewAppointmentType" class="btn btn-secondary">Add New</button>
         </li>
       </ul>
     </div>
@@ -32,6 +35,15 @@ export default {
     };
   },
   methods: {
+    addNewAppointmentType() {
+      this.appointmentTypes.push({
+        name: "",
+        description: "",
+        duration: 50,
+        isRecurring: false
+      });
+    },
+
     async getAppointmentTypes() {
       let result = await AppointmentTypeService.getAppointmentTypes();
       if (result.data.success) {

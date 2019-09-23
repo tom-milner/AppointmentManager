@@ -43,7 +43,7 @@
         <Icon v-if="!isEditable" class="icon" name="edit" />
       </div>
       <!-- Save Button -->
-      <button @click="updateAppointmentType" v-if="isEditable" class="btn btn-secondary">Save</button>
+      <button @click="saveAppointmentType" v-if="isEditable" class="btn btn-secondary">Save</button>
     </div>
 
     <!-- The extended appointment type -->
@@ -67,7 +67,28 @@
         :class="getRecurringButtonClass"
         v-else
       >{{isRecurring}}</button>
+
+      <!-- Delete appointment type -->
+      <button
+        @click="showDeleteDialogue = true"
+        class="btn btn-disapproved delete-button"
+        v-if="isEditable"
+      >Delete</button>
     </div>
+
+    <!-- Delete Dialogue -->
+    <Dialogue @close-dialogue="showDeleteDialogue = false" v-if="showDeleteDialogue">
+      <div class="dialogue-content">
+        <h4 class="heading-4">
+          Are you sure you want to delete the appointment type
+          <span>{{appointmentType.name}}</span> ?
+        </h4>
+        <div class="dialogue-row">
+          <button @click="deleteAppointmentType" class="btn btn-disapproved">Yes</button>
+          <button @click="showDeleteDialogue = false" class="btn btn-approved">No</button>
+        </div>
+      </div>
+    </Dialogue>
   </div>
 </template>
 
@@ -75,6 +96,7 @@
 <script>
 import Icon from "vue-icon/lib/vue-feather.esm";
 import AppointmentTypeService from "@/services/AppointmentTypeService";
+import Dialogue from "@/components/layout/DialogueBox";
 
 export default {
   data() {
@@ -84,11 +106,13 @@ export default {
       maxNameLength: 20,
       maxDuration: 400,
       minDuration: 5,
-      showFullType: false
+      showFullType: false,
+      showDeleteDialogue: false
     };
   },
   components: {
-    Icon
+    Icon,
+    Dialogue
   },
   props: {
     appointmentType: {}
@@ -104,8 +128,23 @@ export default {
       return this.appointmentType.isRecurring ? "Yes" : "No";
     }
   },
+  beforeMount() {
+    if (!this.appointmentType._id) {
+      this.isEditable = true;
+    }
+  },
 
   methods: {
+    // sends request to delete appointment
+    async deleteAppointmentType() {
+      // send delete request
+      await AppointmentTypeService.deleteAppointmentType(
+        this.appointmentType._id
+      );
+      // refresh appointments
+      this.$emit("refresh-appointments");
+    },
+
     toggleIsRecurring() {
       this.appointmentType.isRecurring = !this.appointmentType.isRecurring;
     },
@@ -145,15 +184,7 @@ export default {
       this.isEditable = !this.isEditable;
     },
 
-    // send a request to the api to update the appointment type.
     async updateAppointmentType() {
-      // validate the user entered data.
-      let isValid = this.validateData();
-      if (!isValid) {
-        this.isEditable = true;
-        return;
-      }
-
       // load relevant properties into new object.
       let newProperties = {};
       newProperties.name = this.appointmentType.name;
@@ -161,6 +192,7 @@ export default {
       newProperties.isRecurring = this.appointmentType.isRecurring;
       newProperties.description = this.appointmentType.description;
 
+      // send a request to the api to update the appointment type.
       try {
         // send request
         let response = await AppointmentTypeService.updateAppointmentType(
@@ -171,13 +203,47 @@ export default {
         if (!response.data.success) {
           throw { response };
         }
-
-        // reset variables
-        this.isEditable = false;
-        this.errorMessage = "";
       } catch (error) {
         this.errorMessage = error.response.data.message;
       }
+    },
+
+    async createAppointmentType() {
+      try {
+        let response = await AppointmentTypeService.createAppointmentType(
+          this.appointmentType
+        );
+        if (!response.data.success) {
+          throw {
+            response
+          };
+        }
+        this.$emit("refresh-appointments");
+      } catch (error) {
+        this.errorMessage = error.response.data.message;
+      }
+    },
+
+    // save the appointment
+    async saveAppointmentType() {
+      // validate the user entered data.
+      let isValid = this.validateData();
+      if (!isValid) {
+        this.isEditable = true;
+        return;
+      }
+
+      // check to see if the appointment is new.
+      if (!this.appointmentType._id) {
+        this.createAppointmentType();
+      } else {
+        // update appointment type
+        this.updateAppointmentType();
+      }
+
+      // reset variables
+      this.isEditable = false;
+      this.errorMessage = "";
     }
   }
 };
@@ -192,7 +258,7 @@ export default {
   background-color: $color-grey-very-light;
 
   border-left: 4px solid $color-primary;
-
+  position: relative;
   transition: all 0.2s;
   width: auto;
   display: inline-block;
@@ -214,13 +280,14 @@ export default {
     input {
       height: 3rem;
       font-size: 2rem;
-      padding: 0;
+      padding-left: 0.5rem;
       width: auto;
       margin-right: 2rem;
     }
 
     .number-input {
       width: 5rem;
+      padding-right: 1px;
     }
     h4 {
       min-width: 12rem;
@@ -266,5 +333,31 @@ export default {
 textarea {
   resize: none;
   height: 10rem !important;
+}
+
+.delete-button {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+}
+
+.dialogue-content {
+  height: 100%;
+  width: 30rem;
+
+  h4 {
+    span {
+      color: $color-error;
+    }
+  }
+  .dialogue-row {
+    margin-top: 3rem;
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    button {
+      width: 45%;
+    }
+  }
 }
 </style>

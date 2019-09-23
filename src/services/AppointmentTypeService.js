@@ -17,5 +17,9 @@
         duration: typeOptions.duration,
         name: typeOptions.name
       })
+    },
+
+    deleteAppointmentType(appointmentTypeId) {
+      return Api.post(`/appointments/type/delete/${appointmentTypeId}`);
     }
   }
