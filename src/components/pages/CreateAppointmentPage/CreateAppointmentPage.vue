@@ -10,7 +10,6 @@
         <h3 class="form-heading">Appointment Title</h3>
         <input v-model="chosenTitle" class="form-input short-input" />
       </div>
-
       <!-- Counsellor Selection Dropdown -->
       <div class="form-field">
         <h3 class="form-heading">Counsellor</h3>
@@ -41,10 +40,10 @@
         >Choose from calendar</div>
       </div>
 
-      <!-- Displays the chosen duration (if present) -->
-      <div v-if="chosenDuration" class="form-field">
+      <!-- Displays the chosen appointment type (if present) -->
+      <div v-if="chosenAppointmentType.duration" class="form-field">
         <h3 class="form-heading">Appointment duration</h3>
-        <h2 class="heading-3">{{chosenDuration}} minutes</h2>
+        <h2 class="heading-3">{{chosenAppointmentType.duration}} minutes</h2>
       </div>
 
       <!-- Client Notes Input -->
@@ -110,7 +109,7 @@ export default {
       counsellors: [], // a list of all the counsellors
       chosenStartTime: {}, // the desired start time of the appointment
       chosenTitle: "", // the desired title of the appointment
-      chosenDuration: 0, // the desired duration of the appointment
+      chosenAppointmentType: {}, // the desired type of the appointment
       clientNotes: "", // any notes the client (current user) has about the appointment.
       appointmentCalendarDisplayed: false,
       errorMessage: "" // if there is an error message it is stored here.
@@ -145,10 +144,11 @@ export default {
       // TODO: create file for error message constants
 
       // check to see if user has chosen a duration
-      if (this.chosenDuration == 0) {
+      if (!this.chosenAppointmentType.duration) {
         return {
           error: true,
-          message: "Please choose a valid duration for your appointment."
+          message:
+            "Please choose a valid appointment type for your appointment."
         };
       }
       // data is all good!!!!
@@ -167,16 +167,15 @@ export default {
           throw message;
         }
 
-        console.log(this.chosenStartTime.toString());
-
         // build request body
         let appointment = {
           startTime: this.chosenStartTime,
           title: this.chosenTitle,
-          duration: this.chosenDuration,
+          typeId: this.chosenAppointmentType._id,
           counsellorId: this.chosenCounsellor._id,
           clientNotes: this.clientNotes
         };
+
         console.log(appointment);
 
         // send request
@@ -196,9 +195,10 @@ export default {
     },
 
     // when a date has been chosen from the calendar, set the local state.
-    dateChosen({ appointmentStartTime, appointmentDuration }) {
+    dateChosen({ appointmentStartTime, appointmentType }) {
       this.chosenStartTime = appointmentStartTime;
-      this.chosenDuration = appointmentDuration;
+
+      this.chosenAppointmentType = appointmentType;
     },
 
     // update the local state of the counsellor.
@@ -253,8 +253,6 @@ export default {
           daysOfWeek: [dayNumber]
         };
       });
-
-      console.log(this.businessHours);
     }
   },
 
@@ -273,8 +271,6 @@ export default {
       this.counsellorDates = this.mapAppointmentsToDates(
         counsellorAppointments
       );
-
-      console.log(this.counsellorDates);
     }
   },
 

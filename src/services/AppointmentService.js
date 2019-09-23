@@ -58,8 +58,10 @@ export default {
 
   // sends the updated state of the appointment to the server
   updateAppointment(appointmentProperties, appointmentId) {
-    return Api.post(`appointments/update/${appointmentId}`, {
+    return Api.post(`/appointments/update${appointmentId}`, {
       appointmentProperties: appointmentProperties
     });
-  }
+  },
+
+
 }

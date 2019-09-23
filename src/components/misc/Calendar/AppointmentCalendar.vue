@@ -95,8 +95,8 @@ export default {
         this.events.counsellorEvents
       );
       // create moment object from the day chosen
-      let chosenDayTime = this.moment(this.chosenDay.date);
-
+      let chosenDayTime = this.moment(this.chosenDay.start);
+      console.log(allEvents);
       // Filter all the events, excluding any events that don't have a start or end time that falls on the same day.
       let dayEvents = allEvents.filter(event => {
         // check to see if event is on the same day
@@ -106,13 +106,15 @@ export default {
         );
       });
 
+      console.log(dayEvents);
+
       // return all the events of that given day.
       return dayEvents;
     },
 
     getBusinessHoursOfDay() {
       // the number of the day chosen in the week (0: Sunday, 6: Saturday)
-      let chosenDay = this.moment(this.chosenDay.date).day();
+      let chosenDay = this.moment(this.chosenDay.start).day();
 
       // Find the businessHours object of the day clicked.
       return this.businessHours.find(day => {
@@ -124,11 +126,11 @@ export default {
   // TODO: add temporary event to show user (color it green or something to show its temporary)
   methods: {
     // function to run when a user selects a day.
-    dateChosen({ appointmentStartTime, appointmentDuration }) {
+    dateChosen({ appointmentStartTime, appointmentType }) {
       // add date to appointment start time
       this.$emit("date-chosen", {
         appointmentStartTime,
-        appointmentDuration
+        appointmentType
       });
       this.$emit("close-modal");
     },
@@ -184,7 +186,6 @@ export default {
               userEvent.start == counsellorEvent.start ||
               userEvent.end == counsellorEvent.end
           );
-          console.log(index == -1);
           // if the index is -1, counsellorEvent is not in userEvents. Therefore it can stay in counsellor events.
           return index == -1;
         });

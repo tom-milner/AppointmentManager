@@ -160,7 +160,6 @@ export default {
     },
 
     saveNotes(areCounsellorNotes) {
-      // dynamically create properties object
       let appointmentProperties = {};
       if (areCounsellorNotes) {
         appointmentProperties.counsellorNotes = this.appointment.counsellorNotes;

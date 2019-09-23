@@ -71,6 +71,7 @@
     &:hover,
     &.checked {
       color: $color-white;
+      border: 1px solid $color-error;
       background-color: $color-error;
     }
 

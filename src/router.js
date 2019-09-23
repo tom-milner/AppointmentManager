@@ -1,11 +1,12 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import AdminPage from '@/components/pages/AdminPage/AdminPage.vue'
+import WorkCalendarPage from '@/components/pages/CounsellorPages/WorkCalendarPage/WorkCalendarPage.vue'
 import LandingPage from '@/components/pages/LandingPage/LandingPage.vue'
 import LoginPage from '@/components/pages/LoginPage/LoginPage.vue'
 import RegisterPage from "@/components/pages/RegisterPage/RegisterPage.vue"
 import HomePage from "@/components/pages/HomePage/HomePage.vue";
 import CreateAppointmentPage from "@/components/pages/CreateAppointmentPage/CreateAppointmentPage";
+import AppointmentSettingsPage from "@/components/pages/CounsellorPages/AppointmentSettingsPage/AppointmentSettingsPage";
 import Role from "@/models/Role";
 // Sets up the different frontend routes 
 // e.g. /login will lead to the login page
@@ -16,9 +17,9 @@ Vue.use(Router)
 let router = new Router({
   mode: "history",
   routes: [{
-      path: '/admin',
-      name: 'AdminPage',
-      component: AdminPage,
+      path: '/calendar',
+      name: 'WorkCalendarPage',
+      component: WorkCalendarPage,
       meta: {
         minimumAuthRole: Role.Counsellor
       }
@@ -62,6 +63,19 @@ let router = new Router({
       meta: {
         minimumAuthRole: Role.Client
       }
+    },
+    {
+      path: "/appointment-settings",
+      name: "AppointmentSettingsPage",
+      component: AppointmentSettingsPage,
+      meta: {
+        minimumAuthRole: Role.Counsellor
+      }
+    },
+    // 404
+    {
+      path: "*",
+      redirect: "/"
     }
   ]
 });

@@ -3,6 +3,8 @@
 .fc {
   font-family: $font-family !important;
 
+  overflow-y: scroll;
+
   tr {
     height: 2rem !important;
 
