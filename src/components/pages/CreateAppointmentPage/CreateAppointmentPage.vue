@@ -10,6 +10,7 @@
         <h3 class="form-heading">Appointment Title</h3>
         <input v-model="chosenTitle" class="form-input short-input" />
       </div>
+
       <!-- Counsellor Selection Dropdown -->
       <div class="form-field">
         <h3 class="form-heading">Counsellor</h3>
@@ -22,6 +23,12 @@
             :placeholder="'Choose a counsellor'"
           ></dropdown>
         </div>
+      </div>
+
+      <!-- Client selection dropdown - only for counsellors!! -->
+      <div class="form-field">
+        <h3 class="form-heading">Client</h3>
+        <div class="short-input"></div>
       </div>
 
       <!-- Appointment Date Selection -->
@@ -84,6 +91,7 @@ import Dropdown from "@/components/layout/Dropdown";
 import AppointmentCalendar from "../../misc/Calendar/AppointmentCalendar";
 import Modal from "@/components/layout/Modal";
 import Utils from "@/utils";
+import Role from "@/models/Role";
 
 export default {
   components: {
@@ -93,6 +101,10 @@ export default {
   },
 
   computed: {
+    userIsCounsellor() {
+      return this.user.role >= Role.Counsellor;
+    },
+
     // Formats the date
     getFormattedChosenDate() {
       if (Utils.objIsEmpty(this.chosenStartTime)) return "No date chosen";

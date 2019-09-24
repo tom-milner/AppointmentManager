@@ -91,6 +91,10 @@ function getCounsellor(counsellorId) {
   return Api.get(`/user/counsellors/full/${counsellorId}`);
 }
 
+function getAllClients() {
+  return Api.get("/user/clients")
+}
+
 export default {
   loginUser,
   registerUser,
@@ -98,5 +102,6 @@ export default {
   getUsersFromIds,
   getAllCounsellors,
   updateCounsellor,
-  getCounsellor
+  getCounsellor,
+  getAllClients
 }

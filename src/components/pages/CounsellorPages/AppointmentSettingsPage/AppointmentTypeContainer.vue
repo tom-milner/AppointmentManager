@@ -56,6 +56,7 @@
           :disabled="!isEditable"
           class="dropdown-info form-input"
           v-model="appointmentType.description"
+          :maxlength="maxDescriptionLength"
         ></textarea>
       </div>
 
@@ -105,10 +106,12 @@ export default {
       isEditable: false,
       errorMessage: "",
       maxNameLength: 20,
+      maxDescriptionLength: 200,
       maxDuration: 400,
       minDuration: 5,
       showFullType: false,
-      showDeleteDialogue: false
+      showDeleteDialogue: false,
+      appointmentType: {}
     };
   },
   components: {
@@ -116,7 +119,7 @@ export default {
     Dialogue
   },
   props: {
-    appointmentType: {}
+    type: {}
   },
   computed: {
     getRecurringButtonClass() {
@@ -130,6 +133,8 @@ export default {
     }
   },
   beforeMount() {
+    // assign to data to avoid mutating props
+    this.appointmentType = this.type;
     if (!this.appointmentType._id) {
       this.isEditable = true;
     }
@@ -253,7 +258,7 @@ export default {
 <style lang="scss" scoped>
 @import "src/scss/global";
 .wrapper {
-  box-shadow: -1px 2px 4px rgba($color-black, 0.5);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   border-radius: 2px;
   padding: 2rem;
   background-color: $color-grey-very-light;
@@ -291,6 +296,8 @@ export default {
       padding-right: 1px;
     }
     h4 {
+      vertical-align: center;
+
       min-width: 12rem;
       margin-right: 2rem;
       display: inline-block;

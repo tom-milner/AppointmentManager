@@ -6,6 +6,7 @@ import LoginPage from '@/components/pages/LoginPage/LoginPage.vue'
 import RegisterPage from "@/components/pages/RegisterPage/RegisterPage.vue"
 import HomePage from "@/components/pages/HomePage/HomePage.vue";
 import CreateAppointmentPage from "@/components/pages/CreateAppointmentPage/CreateAppointmentPage";
+import ManageClientsPage from "@/components/pages/CounsellorPages/ManageClientsPage/ManageClientsPage";
 import AppointmentSettingsPage from "@/components/pages/CounsellorPages/AppointmentSettingsPage/AppointmentSettingsPage";
 import Role from "@/models/Role";
 // Sets up the different frontend routes 
@@ -68,6 +69,14 @@ let router = new Router({
       path: "/appointment-settings",
       name: "AppointmentSettingsPage",
       component: AppointmentSettingsPage,
+      meta: {
+        minimumAuthRole: Role.Counsellor
+      }
+    },
+    {
+      path: "/clients",
+      name: "ManageClientsPage",
+      component: ManageClientsPage,
       meta: {
         minimumAuthRole: Role.Counsellor
       }

@@ -4,7 +4,7 @@
 
     <!-- Upcoming Appointments -->
     <div class="container">
-      <h2 class="heading-2">Upcoming Approved Appointments</h2>
+      <h3 class="heading-3">Upcoming Approved Appointments</h3>
 
       <div
         v-if=" approvedAppointments!=undefined && approvedAppointments.length > 0"
@@ -24,7 +24,7 @@
 
     <!-- Pending Appointments -->
     <div class="container">
-      <h2 class="heading-2">Upcoming Pending Appointments</h2>
+      <h3 class="heading-3">Upcoming Pending Appointments</h3>
 
       <div
         v-if=" pendingAppointments!=undefined && pendingAppointments.length > 0"
@@ -44,8 +44,8 @@
 
     <!-- Calendar -->
     <div class="container">
-      <h2 class="heading-2">Your Calendar</h2>
-      <appointment-calendar :events="events" class="calendar" ></appointment-calendar>
+      <h3 class="heading-3">Your Calendar</h3>
+      <appointment-calendar :events="events" class="calendar"></appointment-calendar>
     </div>
 
     <!-- Modal -->
@@ -157,7 +157,6 @@ export default {
   .no-appointments-box {
     padding: 4rem 0 0 4rem;
   }
-
 }
 
 .scrolling-appointments {

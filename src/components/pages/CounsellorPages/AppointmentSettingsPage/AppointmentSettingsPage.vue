@@ -7,10 +7,7 @@
       <h3 class="heading-3">Appointment Types</h3>
       <ul class="appointment-type-list">
         <li class="list-item" v-for="type in appointmentTypes" :key="type._id">
-          <AppointmentTypeContainer
-            @refresh-appointments="getAppointmentTypes"
-            :appointmentType="type"
-          />
+          <AppointmentTypeContainer @refresh-appointments="getAppointmentTypes" :type="type" />
         </li>
         <li class="list-item">
           <button @click="addNewAppointmentType" class="btn btn-secondary">Add New</button>

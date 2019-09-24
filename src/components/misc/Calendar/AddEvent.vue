@@ -48,7 +48,7 @@
 
 <script>
 import Utils from "@/utils";
-import AppointmentService from "@/services/AppointmentService";
+import AppointmentTypeService from "@/services/AppointmentTypeService";
 export default {
   data() {
     return {
@@ -77,7 +77,7 @@ export default {
   },
   async mounted() {
     // get all the appointment types
-    this.appointmentTypes = (await AppointmentService.getAppointmentTypes()).data.appointmentTypes;
+    this.appointmentTypes = (await AppointmentTypeService.getAppointmentTypes()).data.appointmentTypes;
   },
   methods: {
     timeChosen() {
