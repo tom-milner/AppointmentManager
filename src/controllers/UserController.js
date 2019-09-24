@@ -1,6 +1,7 @@
 const CounsellorModel = require("../models/MongooseModels/CounsellorModel");
 const UserModel = require("../models/MongooseModels/UserModel");
 const ErrorController = require("../controllers/ErrorController");
+const ClientModel = require("../models/MongooseModels/ClientModel");
 
 
 // takes array of user Ids an returns simple user object.
@@ -133,9 +134,26 @@ function getCounsellor({
   }
 }
 
+
+async function getAllClients(req, res) {
+  // return all the clients.
+  // TODO: implement limits
+  try {
+    let allClients = await ClientModel.find({}, "-password");
+    res.status(200).send({
+      success: true,
+      message: "Clients returned successfully.",
+      clients: allClients
+    })
+  } catch (error) {
+    ErrorController.sendError(res, "Error finding clients.", 500);
+  }
+}
+
 module.exports = {
   getReducedUsers,
   getAllCounsellorsReduced,
   updateCounsellor,
-  getCounsellor
+  getCounsellor,
+  getAllClients
 }

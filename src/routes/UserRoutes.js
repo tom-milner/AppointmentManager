@@ -15,6 +15,11 @@ router.use(AuthenticationMiddleware.isLoggedIn);
 // get list of usernames from list of user Ids
 router.get("/", UserControllerPolicy.getReducedUsers, UserController.getReducedUsers);
 
+
+// get list of all clients.
+router.get("/clients", UserController.getAllClients);
+
+
 // get list of counsellors
 router.get("/counsellors", UserController.getAllCounsellorsReduced);
 
