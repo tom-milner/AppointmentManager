@@ -1,34 +1,5 @@
-const CounsellorModel = require("../models/MongooseModels/CounsellorModel");
-const UserModel = require("../models/MongooseModels/UserModel");
-const ErrorController = require("../controllers/ErrorController");
-const ClientModel = require("../models/MongooseModels/ClientModel");
-
-
-// takes array of user Ids an returns simple user object.
-async function getReducedUsers(req, res) {
-  // userIds is a string with comma seperated values
-  try {
-    let userIds = req.query.userIds.split(",").filter(Boolean);
-    let users = [];
-    for (id of userIds) {
-      let user = await UserModel.findOne({
-          _id: id
-        },
-        "username firstname lastname"
-      );
-      if (user) users.push(user);
-    }
-    res.status(200).send({
-      success: true,
-      message: "Users returned successfully",
-      users: users
-    });
-  } catch (error) {
-
-    ErrorController.sendError(res, "Error getting usernames.", 400);
-
-  }
-}
+const CounsellorModel = require("../../models/MongooseModels/CounsellorModel");
+const ErrorController = require("../ErrorController");
 
 // get list of all the counsellors 
 async function getAllCounsellorsReduced(req, res) {
@@ -135,25 +106,8 @@ function getCounsellor({
 }
 
 
-async function getAllClients(req, res) {
-  // return all the clients.
-  // TODO: implement limits
-  try {
-    let allClients = await ClientModel.find({}, "-password");
-    res.status(200).send({
-      success: true,
-      message: "Clients returned successfully.",
-      clients: allClients
-    })
-  } catch (error) {
-    ErrorController.sendError(res, "Error finding clients.", 500);
-  }
-}
-
 module.exports = {
-  getReducedUsers,
   getAllCounsellorsReduced,
   updateCounsellor,
   getCounsellor,
-  getAllClients
 }

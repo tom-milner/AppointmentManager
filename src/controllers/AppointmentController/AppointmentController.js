@@ -2,6 +2,7 @@
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel");
 const AppointmentControllerHelpers = require("./AppointmentControllerHelpers");
 const ErrorController = require("../ErrorController");
+const Role = require("../../models/Role");
 const moment = require("moment");
 
 // Fetch all appointments regardless
@@ -165,6 +166,16 @@ async function updateAppointment(req, res) {
   try {
     let newAppointmentProperties = req.body.appointmentProperties;
     let appointmentId = req.params.appointmentId;
+
+    // make sure clients can't edit other people's appointments.
+    if (req.user.role == Role.Client) {
+      let appointment = await AppointmentModel.findById(appointmentId);
+      let validClient = appointment.clients.indexOf(req.user._id) > -1;
+      if (!validClient) throw {
+        message: "You do not have permission to edit this appointment.",
+        code: 403
+      }
+    }
 
     let updatedAppointment = await AppointmentModel.findByIdAndUpdate(
       appointmentId,

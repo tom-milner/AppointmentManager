@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
 
-const AppointmentTypeController = require("../controllers/AppointmentTypeController");
-const AuthenticationMiddleware = require("../middleware/AuthenticationMiddleware");
-const AppointmentTypeControllerPolicy = require("../policies/AppointmentTypeControllerPolicy");
-const Role = require("../models/Role");
+const AppointmentTypeController = require("../../controllers/AppointmentTypeController");
+const AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
+const AppointmentTypeControllerPolicy = require("../../policies/AppointmentTypeControllerPolicy");
+const Role = require("../../models/Role");
 
 
 // Appointment Type Routes

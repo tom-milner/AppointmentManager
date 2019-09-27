@@ -27,6 +27,7 @@ app.use(routes);
 // Connect to the database and start the application
 (async () => {
     const database = require("./config/database")
+    console.log("Connecting to database...");
     if (await database.initialize(process.env.DB_URL)) {
         // Database is required, so only start server if database connection can be established
         app.listen(process.env.PORT, function () {
