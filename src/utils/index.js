@@ -51,6 +51,10 @@ export default {
     let newMoment = moment(originalMoment).startOf("day");
     // edit moment, changing hours and minutes
     return newMoment.hours(hours).minutes(minutes);
+  },
+
+  isString(value) {
+    return Object.prototype.toString.call(value) == "[object String]";
   }
 
 

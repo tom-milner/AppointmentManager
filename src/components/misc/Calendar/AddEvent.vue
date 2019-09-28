@@ -20,7 +20,7 @@
 
     <!-- Start Time Input -->
     <div class="segment">
-      <h3 class="form-heading">Choose a start time:</h3>
+      <h3 class="form-heading">Choose a time slot:</h3>
       <select
         :disabled="!!!chosenAppointmentType.duration"
         v-model="chosenTime"
@@ -54,10 +54,10 @@ export default {
     return {
       errorMessage: "",
       chosenTime: {},
-      // 10 minutes between appointments
-      appointmentBufferTime: 10,
       notes: String,
       timeSlots: [],
+      // appointment buffer time
+      appointmentBufferTime: 10,
       appointmentTypes: {},
       chosenAppointmentType: {}
     };
@@ -124,6 +124,7 @@ export default {
         this.chosenAppointmentType.duration,
         "minutes"
       );
+      console.log(appointmentDuration.toString());
 
       // initialize empty timeSlots array
       let timeSlots = [];
@@ -152,51 +153,67 @@ export default {
       // filter out disabled appointments.
       let filteredTimeSlots = this.filterTimeSlots(timeSlots);
 
-      filteredTimeSlots.forEach(slot => {
-        console.log(
-          slot.startTime.format("HH:mm"),
-          slot.endTime.format("HH:mm")
-        );
-      });
       this.timeSlots = filteredTimeSlots;
     },
 
     filterTimeSlots(timeSlots) {
       // create moment objects
+      let bufferTime = this.appointmentBufferTime;
       let disabledTimes = this.dayEvents.map(event => ({
         startTime: this.moment(event.start),
-        endTime: this.moment(event.end)
+        endTime: this.moment(event.end).add(bufferTime, "minutes")
       }));
 
-      // filter out disabled events from timeslots.
-      disabledTimes.forEach(disabledTime => {
-        // find the index of any clashing timeSlots
-        let alreadyBookedIndex = timeSlots.findIndex(timeSlot => {
-          // check to see if the timeslot starts or ends during a disabled time.
+      let filteredTimeSlots = [];
+      timeSlots.forEach(timeSlot => {
+        // find the index of any disabled times.
+
+        let conflictingAppoinment = disabledTimes.find(disabledTime => {
+          // check to see if there are conflicting appointments
+
           return (
+            disabledTime.startTime.isBetween(
+              timeSlot.startTime,
+              timeSlot.endTime,
+              null,
+              "()"
+            ) ||
+            disabledTime.endTime.isBetween(
+              timeSlot.startTime,
+              timeSlot.endTime,
+              null,
+              "()"
+            ) ||
             timeSlot.startTime.isBetween(
               disabledTime.startTime,
               disabledTime.endTime,
               null,
-              [] // [] indicates inclusivity
+              "()"
             ) ||
             timeSlot.endTime.isBetween(
               disabledTime.startTime,
               disabledTime.endTime,
               null,
-              [] // [] indicates inclusivity
+              "()"
             )
           );
         });
-        // remove timeSlot from list.
-        if (alreadyBookedIndex) timeSlots.splice(alreadyBookedIndex, 1);
+
+        if (!conflictingAppoinment) {
+          filteredTimeSlots.push(timeSlot);
+        }
       });
+
       // return filtered time slots.
-      return timeSlots;
+      return filteredTimeSlots;
     },
 
     getFormattedTimeSlot(timeSlot) {
-      return timeSlot.startTime.format("HH:mm");
+      return (
+        timeSlot.startTime.format("HH:mm") +
+        " - " +
+        timeSlot.endTime.format("HH:mm")
+      );
     }
   },
   watch: {

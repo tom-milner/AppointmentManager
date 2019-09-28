@@ -107,7 +107,7 @@ export default {
       errorMessage: "",
       maxNameLength: 20,
       maxDescriptionLength: 200,
-      maxDuration: 400,
+      maxDuration: 120,
       minDuration: 5,
       showFullType: false,
       showDeleteDialogue: false,

@@ -8,56 +8,78 @@
         <h4 class="heading-4">Search:</h4>
         <input type="text" v-model="searchQuery" class="form-input search-box" />
       </div>
+
+      <!-- Sort bar -->
       <div>
         <h4 class="heading-4">Sort:</h4>
         <select v-model="sortKey" class="form-input select">
-          <option>Firstname</option>
-          <option>Lastname</option>
-          <option>Username</option>
+          <option v-for="key in getClientKeys" :key="key">{{key}}</option>
         </select>
       </div>
     </div>
+
     <!-- List of clients -->
     <div class="container">
+      <h3 class="heading-3">Clients:</h3>
       <ul class="client-list">
         <li class="client-item" v-for="client in getFilteredClients" :key="client._id">
-          <ClientContainer :client="client"></ClientContainer>
+          <ClientContainer @click.native="viewClient(client)" :client="client">
+            <div class="modal-content"></div>
+          </ClientContainer>
         </li>
       </ul>
     </div>
+
+    <!-- Modal -->
+    <Modal v-on:close-modal="showViewClient=false" v-if="showViewClient">
+      <div class="modal-content">
+        <UserStats :client="chosenClient" />
+      </div>
+    </Modal>
   </div>
 </template>
 
 <script>
 import UserService from "@/services/UserService";
 import ClientContainer from "@/components/pages/CounsellorPages/ManageClientsPage/ClientContainer.vue";
+import Modal from "@/components/layout/Modal";
+import UserStats from "./UserStats";
 export default {
   data() {
     return {
       allClients: [],
-
       sortKey: "Firstname",
-      searchQuery: ""
+      searchQuery: "",
+      chosenClient: {},
+      showViewClient: false
     };
   },
   components: {
-    ClientContainer
+    ClientContainer,
+    Modal,
+    UserStats
   },
   mounted() {
     this.getAllClients();
   },
   computed: {
     getFilteredClients() {
-      let query = this.searchQuery.toUpperCase();
+      // create local copies of variables - you can't use "this" in  a forEach
+      let query = this.searchQuery.toLowerCase();
       let sortKey = this.sortKey.toLowerCase();
       let filteredClients = [];
-      this.allClients.forEach((client, index) => {
-        if (client[sortKey].toUpperCase().indexOf(query) > -1) {
+
+      // create new array of filtered clients.
+      this.allClients.forEach(client => {
+        if (client[sortKey].toLowerCase().indexOf(query) > -1) {
           filteredClients.push(client);
         }
       });
 
       return filteredClients;
+    },
+    getClientKeys() {
+      return ["Username", "Firstname", "Lastname"];
     }
   },
   watch: {
@@ -66,10 +88,13 @@ export default {
     }
   },
   methods: {
+    viewClient(client) {
+      this.chosenClient = client;
+      this.showViewClient = true;
+    },
     async getAllClients() {
       try {
         let response = await UserService.getAllClients();
-        console.log(response);
         this.allClients = response.data.clients;
         this.sortClientsAlphabetically();
       } catch (error) {
@@ -121,5 +146,9 @@ export default {
   select {
     width: 30rem;
   }
+}
+
+.modal-content {
+  width: 75rem;
 }
 </style>

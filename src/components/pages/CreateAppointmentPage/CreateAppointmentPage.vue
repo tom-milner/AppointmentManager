@@ -274,6 +274,7 @@ export default {
       // Make sure we only perform requests if the user has chosen a counsellor.
       if (!this.chosenCounsellor._id) return;
 
+      this.chosenStartTime = undefined;
       //TODO: currently updating calendar to support disabled dates. check todo.md
       // update disabledDates with the dates the counsellor can't make
       this.createBusinessHours();
