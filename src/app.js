@@ -1,9 +1,15 @@
+"use strict";
+
 const express = require('express');
 const app = express();
 
 // Load in environment variables
 const dotenv = require("dotenv");
 dotenv.config();
+
+// load config file. This maps the environment variables to javascript objects.
+const Config = require("./config/Config")
+
 
 // Automatic CORS-policy handling
 const cors = require("cors");
@@ -26,12 +32,12 @@ app.use(routes);
 
 // Connect to the database and start the application
 (async () => {
-    const database = require("./config/database")
+    const database = require("./config/Database")
     console.log("Connecting to database...");
-    if (await database.initialize(process.env.DB_URL)) {
+    if (await database.initialize(Config.db.url)) {
         // Database is required, so only start server if database connection can be established
-        app.listen(process.env.PORT, function () {
-            console.log(`started on port ${process.env.PORT}`);
+        app.listen(Config.port, function () {
+            console.log(`started on port ${Config.port}`);
         });
     }
 })();

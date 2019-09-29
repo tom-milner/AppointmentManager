@@ -47,8 +47,37 @@ function register(req, res, next) {
 
 }
 
+function forgotPassword(req, res, next) {
+  const joiSchema = {
+    email: Joi.string().email().required()
+  }
+
+  const {
+    error,
+    validBody
+  } = Joi.validate(req.body, joiSchema);
+
+  let errorMessage, errorCode;
+
+  if (error) {
+    if (error.details[0].context.key == "email") {
+      errorMessage = "Invalid email."
+      errorCode = 400;
+    } else {
+      errorMessage = "Error sending reset email"
+      errorCode = 400;
+    }
+    ErrorController.sendError(res, errorMessage, errorCode);
+    return;
+  }
+
+  // email is fine
+  next();
+}
+
 
 
 module.exports = {
-  register
+  register,
+  forgotPassword
 }
