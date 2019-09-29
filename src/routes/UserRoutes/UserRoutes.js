@@ -3,7 +3,7 @@ const router = express.Router();
 
 // import controllers
 const UserController = require("../../controllers/UserControllers/UserController");
-const UserControllerPolicy = require("../../policies/UserControllerPolicy");
+const UserControllerPolicy = require("../../policies/UserPolicies/UserControllerPolicy");
 const AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
 const ClientRoutes = require("./ClientRoutes");
 const CounsellorRoutes = require("./CounsellorRoutes");

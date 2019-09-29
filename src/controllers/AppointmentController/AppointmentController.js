@@ -34,6 +34,7 @@ function getAppointmentsOfUser({
     const userId = req.params.userId;
     let fromTime = req.query.fromTime;
 
+
     // Check to see if user needs appointments from a certain time.
     if (fromTime) {
       fromTime = moment(req.params.fromTime);
@@ -58,7 +59,6 @@ function getAppointmentsOfUser({
     // make appointments contain their appointment type
     appointmentQuery.populate("AppointmentTypeModel");
 
-
     try {
       // execute the query
       let appointments = await appointmentQuery.exec();
@@ -71,19 +71,19 @@ function getAppointmentsOfUser({
           startTime: appointment.startTime,
           endTime: appointment.endTime,
           // Set title to "Counsellor Appointment" so as not to expose any clients.
-          title: "Counsellor Appointment"
+          title: isCounsellor ? "Counsellor Appointment" : appointment.title
         }));
       }
 
       res.status(200).send({
         success: true,
-        message: "Counsellor appointments returned successfully",
+        message: "Appointments returned successfully",
         appointments: appointments
       });
     } catch (error) {
       console.log(error);
       // return an error message
-      ErrorController.sendError(res, "Error returning counsellor's appointments.", 400);
+      ErrorController.sendError(res, "Error returning appointments.", 400);
 
     }
   };
@@ -94,14 +94,29 @@ async function insertAppointment(req, res) {
   try {
     // load  info from body
     const appointmentStartTime = moment(req.body.startTime);
-    const appointmentDuration = req.body.duration; // In Minutes
     const appointmentTypeId = req.body.typeId;
-    const appointmentEndTime = moment(req.body.startTime).add(
-      appointmentDuration,
-      "minutes"
-    );
     const counsellorId = req.body.counsellorId;
-    const clientId = req.user._id;
+    let clientId;
+
+    // only counsellors can make appointments for other people.
+    if (req.user.role >= Role.Counsellor) {
+      clientId = req.body.clientId;
+    } else {
+      // clients can only make appointments for themselves.
+      clientId = req.user._id;
+    }
+
+    console.log(clientId);
+
+    // make sure the appointment type exist
+    let appointmentType = await AppointmentControllerHelpers.getAppointmentType(appointmentTypeId);
+    if (!appointmentType) throw {
+      message: "Appointment type doesn't exist",
+      code: 400
+    }
+    // calculate end time
+    let appointmentEndTime = moment(appointmentStartTime);
+    appointmentEndTime.add(appointmentType.duration, "minutes");
 
     let error;
     // check to see if client is free
@@ -122,9 +137,6 @@ async function insertAppointment(req, res) {
     // throw the error
     if (error) throw error;
 
-    // make sure the appointment type exist
-    error = await AppointmentControllerHelpers.validateAppointmentType(appointmentTypeId);
-    if (error) throw error;
 
 
     // Create new appointment model
@@ -134,7 +146,8 @@ async function insertAppointment(req, res) {
       // TODO: add buffer to end time
       endTime: appointmentEndTime,
       appointmentType: appointmentTypeId,
-      clients: [req.user],
+      // This is an array as I plan on adding support for multiple clients. This is an extension objective.
+      clients: [clientId],
       isApproved: false,
       counsellorId: counsellorId,
       clientNotes: req.body.clientNotes
@@ -185,6 +198,8 @@ async function updateAppointment(req, res) {
         runValidators: true
       }
     );
+    // exclude the counsellor notes if the user is a client
+    if (req.user.role == Role.Client) updatedAppointment.counsellorNotes = undefined;
 
     if (!updatedAppointment) {
       throw {

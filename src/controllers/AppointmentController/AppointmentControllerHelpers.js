@@ -1,4 +1,5 @@
 const CounsellorModel = require("../../models/MongooseModels/CounsellorModel");
+const ClientModel = require("../../models/MongooseModels/ClientModel");
 const AppointmentTypeModel = require("../../models/MongooseModels/AppointmentTypeModel");
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel")
 const Utils = require("../../utils/Utils");
@@ -11,12 +12,10 @@ const Utils = require("../../utils/Utils");
 // Helper functions - not called directly by route handler
 // ########################################################
 
-async function validateAppointmentType(typeId) {
+async function getAppointmentType(typeId) {
   let foundType = await AppointmentTypeModel.findById(typeId);
-  if (!foundType) return {
-    message: "Appointment type doesn't exist",
-    code: 400
-  };
+  if (!foundType) return;
+  return foundType;
 }
 
 async function checkClientAvailability(
@@ -24,6 +23,16 @@ async function checkClientAvailability(
   desiredEndTime,
   clientId
 ) {
+
+  // first make sure the client exists
+  let validClient = await ClientModel.findById(clientId);
+  if (!validClient) {
+    return {
+      message: "Client doesn't exist",
+      code: 400
+    }
+  }
+
   // check to see if client has any clashing appointments
   let clashingAppointments = await AppointmentModel.find({
     clients: clientId,
@@ -70,8 +79,16 @@ async function checkCounsellorAvailablity(
   desiredEndTime,
   counsellorId
 ) {
-  // First check to see if counsellor is working the required day.
+  // First check to see if counsellor exists.
   const counsellor = await CounsellorModel.findById(counsellorId); // Get the counsellor from the database.
+  if (!counsellor) {
+    return {
+      message: "Counsellor doesn't exist",
+      code: 400
+    }
+  }
+
+  // now check to see if the counsellor if available to work at the desired time.
   let availableWorkDays = counsellor.workingDays;
 
   // get Day string from start time e.g. "Monday" (we're assuming no appointments run over 2 days)
@@ -156,7 +173,7 @@ async function checkCounsellorAvailablity(
 }
 
 module.exports = {
-  validateAppointmentType,
+  getAppointmentType,
   checkClientAvailability,
   checkCounsellorAvailablity
 }

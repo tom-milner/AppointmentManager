@@ -13,7 +13,8 @@ function insertAppointment(req, res, next) {
     title: Joi.string().required(),
     typeId: Joi.string().required(),
     counsellorId: Joi.string().required(),
-    clientNotes: Joi
+    clientNotes: Joi.string().allow(""),
+    clientId: Joi.string().allow("")
   }
   try {
     const {
@@ -41,6 +42,9 @@ function insertAppointment(req, res, next) {
           break;
         case "clientNotes":
           errorMessage = "Invalid clientNotes";
+          break;
+        case "clientId":
+          errorMessage = "Invalid client Id";
           break;
         default:
           errorMessage = "Error creating appointment";
@@ -71,6 +75,16 @@ function insertAppointment(req, res, next) {
       });
     }
 
+    // check client Id
+    if (validatedBody.clientId) {
+      let clientIsValid = Utils.validateMongoId(validatedBody.clientId);
+      if (!clientIsValid) {
+        throw ({
+          message: "Invalid client id",
+          code: 400
+        });
+      }
+    }
     // let the request through - all data is valid.
     next();
 
@@ -88,7 +102,17 @@ function insertAppointment(req, res, next) {
 // checks if user has required access level to change property
 function updateAppointment(req, res, next) {
   try {
-    // first validate body (Joi isn't needed as there's only one variable to validate)
+
+    //  validate appointment Id
+    let validAppointmentId = Utils.validateMongoId(req.params.appointmentId);
+    if (!validAppointmentId) {
+      throw ({
+        message: "Invalid appointment Id",
+        code: 400
+      })
+    }
+
+    // validate body (Joi isn't needed as there's only one variable to validate)
     if (!req.body.appointmentProperties) {
       throw ({
         message: "No properties found",
@@ -101,12 +125,9 @@ function updateAppointment(req, res, next) {
     // AppointmentModel.schema is the original schema of the model. .paths is an object containing all tyhe properties of the schema.
     let allAppointmentProperties = Object.keys(AppointmentModel.schema.paths);
 
-    // get current user 
-    let user = req.user;
-
     // allowedProperties is a whitelist of properties that can be edited
     let allowedProperties = [];
-    switch (user.role) {
+    switch (req.user.role) {
       // no case for guests - they can't edit anything
       case Role.Client:
         // client can only access clientCanAttend (for now)
@@ -135,16 +156,6 @@ function updateAppointment(req, res, next) {
         code: 400,
         disallowedProperties: disallowedProperties
       });
-    }
-
-
-    //  validate appointment Id
-    let validAppointmentId = Utils.validateMongoId(req.params.appointmentId);
-    if (!validAppointmentId) {
-      throw ({
-        message: "Invalid appointment Id",
-        code: 400
-      })
     }
 
     // user can access all properties - allow request to be processed

@@ -1,6 +1,6 @@
 const Joi = require("joi");
-const Utils = require("../utils/Utils");
-const ErrorController = require("../controllers/ErrorController");
+const Utils = require("../../utils/Utils");
+const ErrorController = require("../../controllers/ErrorController");
 
 
 function getReducedUsers(req, res, next) {

@@ -3,7 +3,7 @@ const router = express.Router();
 
 const CounsellorController = require("../../controllers/UserControllers/CounsellorController");
 const AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
-const UserControllerPolicy = require("../../policies/UserControllerPolicy");
+const UserControllerPolicy = require("../../policies/UserPolicies/UserControllerPolicy");
 const Role = require("../../models/Role");
 
 
