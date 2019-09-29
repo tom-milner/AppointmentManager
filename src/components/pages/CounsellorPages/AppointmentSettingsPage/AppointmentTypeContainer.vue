@@ -61,7 +61,7 @@
       </div>
 
       <!-- IsRecurring -->
-      <h3 class="form-heading dropdown-heading">Recurring Appointment:</h3>
+      <h4 class="form-heading dropdown-heading">Recurring Appointment:</h4>
       <p v-if="!isEditable" class="dropdown-info">{{isRecurring}}</p>
       <button
         @click="toggleIsRecurring"

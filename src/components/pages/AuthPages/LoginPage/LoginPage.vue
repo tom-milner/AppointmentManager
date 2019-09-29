@@ -2,7 +2,7 @@
   <div class="container">
     <card :showBack="true" backUrl="/">
       <form v-on:submit.prevent="login" class="item-container">
-        <h1 class="heading-1">Login</h1>
+        <h2 class="heading-2">Login</h2>
         <div class="login-items">
           <div class="login-field">
             <h3>Username/Email</h3>
@@ -14,7 +14,12 @@
           </div>
         </div>
         <h4 class="heading-4 error errorText">{{errorMessage}}</h4>
-        <button class="btn btn-primary">Submit</button>
+        <div class="action-row">
+          <router-link to="/password-reset">
+            <p class="paragraph">Forgot password?</p>
+          </router-link>
+          <button class="btn btn-primary">Submit</button>
+        </div>
       </form>
     </card>
   </div>
@@ -104,6 +109,19 @@ export default {
     &:focus {
       border: 1px solid $color-primary;
     }
+  }
+}
+
+.action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  button {
+    display: inline;
+  }
+  p {
+    display: inline;
   }
 }
 

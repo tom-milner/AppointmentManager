@@ -128,7 +128,7 @@ export default {
       user: {},
       modalDisplayed: false,
       selectedAppointment: {},
-      events: { userEvents: {} }
+      events: { clientEvents: {} }
     };
   },
   mounted: async function() {
@@ -140,7 +140,7 @@ export default {
     // this.timer = setInterval(this.getUserAppointments, 3000);
 
     // TODO: remove duplication duplication
-    this.events.userEvents = this.appointments.map(appointment => ({
+    this.events.clientEvents = this.appointments.map(appointment => ({
       title: appointment.title,
       end: appointment.endTime,
       start: appointment.startTime
