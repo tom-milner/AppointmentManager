@@ -2,7 +2,7 @@
   <div class="wrapper">
     <card showBack>
       <div class="container">
-        <h2 class="heading-2">Reset Password</h2>
+        <h2 class="heading-2">Forgot your password?</h2>
         <form v-on:submit.prevent="sendEmail">
           <div class="row">
             <h3 class="form-heading">Enter Email:</h3>
@@ -11,13 +11,13 @@
           <div class="row">
             <p
               class="paragraph"
-            >Pressing the save button will send a password reset email to the above address. Follow the instructions in the email to reset you password.</p>
+            >Pressing the send button will send a password reset email to the above address. Follow the instructions in the email to reset you password.</p>
           </div>
           <div class="row">
-            <h4 class="heading-4 error errorText">{{errorMessage}}</h4>
+            <h4 class="heading-4 error message" :class="{success: sentSuccessfully  }">{{message}}</h4>
           </div>
           <div class="row send-button">
-            <button class="btn btn-primary">Send Email</button>
+            <button class="btn btn-primary">{{buttonContent}}</button>
           </div>
         </form>
       </div>
@@ -27,6 +27,8 @@
 
 <script>
 import Card from "@/components/layout/Card";
+import AuthenticationService from "@/services/AuthenticationService";
+import Utils from "@/utils";
 export default {
   components: {
     Card
@@ -34,18 +36,35 @@ export default {
   data() {
     return {
       email: "",
-      errorMessage: ""
+      message: "",
+      sentSuccessfully: false,
+      buttonContent: "Send Email"
     };
   },
   methods: {
-    sendEmail() {
+    async sendEmail() {
       // data validation
       if (!this.email) {
-        this.errorMessage = "Please enter a valid email.";
+        this.message = "Please enter a valid email.";
         return;
       }
 
       // send the request.
+      try {
+        let response = await AuthenticationService.forgotPassword(this.email);
+        console.log(response);
+
+        if (!response.data.success) {
+          throw response.data.message;
+        } else {
+          this.message = response.data.message;
+          this.sentSuccessfully = true;
+          this.buttonContent = "Didn't get it? Send again.";
+        }
+      } catch (error) {
+        if (Utils.isString(error)) this.message = error;
+        this.message = error.response.data.message;
+      }
     }
   }
 };
@@ -83,7 +102,7 @@ export default {
     }
   }
 
-  .errorText {
+  .message {
     text-align: center;
   }
 }

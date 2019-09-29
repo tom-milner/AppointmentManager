@@ -8,7 +8,7 @@ import HomePage from "@/components/pages/HomePage/HomePage.vue";
 import CreateAppointmentPage from "@/components/pages/CreateAppointmentPage/CreateAppointmentPage";
 import ManageClientsPage from "@/components/pages/CounsellorPages/ManageClientsPage/ManageClientsPage";
 import AppointmentSettingsPage from "@/components/pages/CounsellorPages/AppointmentSettingsPage/AppointmentSettingsPage";
-import PasswordResetPage from "@/components/pages/AuthPages/PasswordResetPage/PasswordResetPage";
+import ForgotPasswordPage from "@/components/pages/AuthPages/ForgotPasswordPage/ForgotPasswordPage";
 import Role from "@/models/Role";
 // Sets up the different frontend routes 
 // e.g. /login will lead to the login page
@@ -52,9 +52,9 @@ let router = new Router({
     },
     // password reset route
     {
-      path: "/password-reset",
-      name: "PasswordResetPage",
-      component: PasswordResetPage,
+      path: "/forgot-password",
+      name: "ForgotPasswordPage",
+      component: ForgotPasswordPage,
       meta: {
         hideNavigation: true
       }
