@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
+const moment = require("moment");
 const Config = require("../config/Config");
 const Mailer = require("../config/Mailer");
 const CounsellorModel = require("../models/MongooseModels/CounsellorModel");
@@ -163,7 +164,6 @@ async function forgotPassword(req, res) {
 
   // get the email from the request body and search for the user associated with it.
   let email = req.body.email;
-
   try {
     let foundUser = await UserModel.findOne({
       email: email
@@ -173,17 +173,19 @@ async function forgotPassword(req, res) {
       message: "There is no user with that email",
       code: 200
     }
+
+    // get ip address of request.
+    let requestIp = req.header('x-forwarded-for') || req.connection.remoteAddress;
+
     // create random token
     let token = await generatePasswordResetToken();
-
+    console.log(token);
     // create a hash of the token to store in a database.
-    let tokenHash = crypto.createHash("sha256");
-    tokenHash.update(token);
-    const tokenHashDigest = (tokenHash.digest("hex"));
-
+    let tokenHash = generateTokenHash(token);
+    console.log(tokenHash);
     // store hash and timestamp in the database.
     let passwordReset = new PasswordResetModel({
-      hash: tokenHashDigest,
+      hash: tokenHash,
       timestamp: Date.now(),
       userId: foundUser._id
     });
@@ -196,10 +198,11 @@ async function forgotPassword(req, res) {
       html: `<p>Hi ${foundUser.firstname}.</p>
             <p>We see you've forgotten your password.</p> 
             <p>Please follow this link to reset your password:</p>
-            <a href="${Config.url}/reset-password?token=${token}">Reset Password</a> `,
+            <a href="${Config.url}auth/reset-password?token=${token}">Reset Password</a> 
+            <p>Ip: ${requestIp}</p>
+            `
     };
     await Mailer.send(msg)
-
     // let the user know the email was sent.
     res.status(200).send({
       success: true,
@@ -212,7 +215,56 @@ async function forgotPassword(req, res) {
 
 }
 
+async function resetPassword(req, res) {
+  let token = req.body.token;
+  let password = req.body.password;
 
+  // create token hash
+  let tokenHash = generateTokenHash(token);
+  try {
+    // use hash as id to find relevant password reset in db.
+    let foundPasswordReset = await PasswordResetModel.findOne({
+      hash: tokenHash
+    });
+    console.log(foundPasswordReset);
+    if (!foundPasswordReset) throw {
+      message: "Invalid token",
+      code: 400
+    }
+    // users only have 30 mins to reset password.
+    let tokenExpiryTime = 30;
+    let tokenExpires = moment(foundPasswordReset.timestamp).add(tokenExpiryTime, "minutes");
+
+    // check if the token has expired.
+    if (moment().isAfter(tokenExpires)) {
+      // remove the password reset from the db - we don't need to await this.
+      await PasswordResetModel.findByIdAndDelete(foundPasswordReset._id);
+      throw {
+        message: "Token has expired.",
+        code: 410
+      }
+    }
+
+    // Token is valid!! reset the users password.
+    let newPassword = await hashPassword(password);
+    let updatedUser = await UserModel.findByIdAndUpdate(foundPasswordReset.userId, {
+      password: newPassword
+    });
+    // remove the password reset from the db - we don't need to await this.
+    await PasswordResetModel.findByIdAndDelete(foundPasswordReset._id);
+    // return user
+    updatedUser.password = undefined;
+    res.status(200).send({
+      success: true,
+      message: "Password updated successfully",
+      updatedUser: updatedUser
+    });
+
+  } catch (error) {
+    ErrorController.sendError(res, error.message || "Error resetting password", error.code || 500);
+  }
+
+}
 
 // #############################
 //      HELPER FUNCTIONS
@@ -251,12 +303,20 @@ async function hashPassword(password) {
   return hash;
 }
 
+function generateTokenHash(token) {
+  let tokenHash = crypto.createHash("sha256");
+  tokenHash.update(token);
+  return tokenHashDigest = (tokenHash.digest("hex"));
+
+}
+
 // generate a password reset token
 function generatePasswordResetToken() {
   return new Promise((resolve, reject) => {
-    crypto.randomBytes(128, function (error, buffer) {
+    crypto.randomBytes(64, function (error, buffer) {
       if (error) reject(error);
       let token = buffer.toString("hex");
+      console.log(token.length);
       resolve(token);
     })
   })
@@ -267,5 +327,6 @@ module.exports = {
   login,
   refreshToken,
   registerCounsellor,
-  forgotPassword
+  forgotPassword,
+  resetPassword
 };

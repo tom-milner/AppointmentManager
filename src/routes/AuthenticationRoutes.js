@@ -1,9 +1,10 @@
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+const router = express.Router();
 
 const AuthenticationController = require("../controllers/AuthenticationController");
 const AuthenticationMiddleware = require("../middleware/AuthenticationMiddleware");
 const Role = require("../models/Role");
+
 
 const AuthenticationControllerPolicy = require("../policies/AuthenticationControllerPolicy");
 
@@ -22,7 +23,10 @@ router.post("/login", AuthenticationController.login);
 router.get("/token", AuthenticationMiddleware.isLoggedIn, AuthenticationController.refreshToken);
 
 
-// reset password
+// forgot password
 router.post("/forgot-password", AuthenticationControllerPolicy.forgotPassword, AuthenticationController.forgotPassword)
+
+// reset password
+router.post("/reset-password", AuthenticationControllerPolicy.resetPassword, AuthenticationController.resetPassword)
 
 module.exports = router;

@@ -23,12 +23,10 @@ let appointmentSchema = new Schema({
     ref: "UserModel"
   },
   // clients that booked the appointment
-  clients: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "UserModel"
-    }
-  ],
+  clients: [{
+    type: Schema.Types.ObjectId,
+    ref: "UserModel"
+  }],
   // client notes about appointment
   clientNotes: {
     type: String

@@ -54,7 +54,6 @@ function forgotPassword(req, res, next) {
 
   const {
     error,
-    validBody
   } = Joi.validate(req.body, joiSchema);
 
   let errorMessage, errorCode;
@@ -75,9 +74,46 @@ function forgotPassword(req, res, next) {
   next();
 }
 
+function resetPassword(req, res, next) {
+
+  const joiSchema = {
+    password: Joi.string().min(8).max(32).required(),
+    token: Joi.string().hex().length(128).required()
+  }
+
+  const {
+    error
+  } = Joi.validate(req.body, joiSchema);
+
+  let errorMessage, errorCode;
+  if (error) {
+    console.log(error);
+    switch (error.details[0].context.key) {
+      case "password":
+        errorMessage = "Password must be between 8 and 32 characters in length";
+        errorCode = 400;
+        break;
+      case "token":
+
+        errorMessage = "Invalid token.";
+        errorCode = 400;
+        break;
+      default:
+        errorMessage = "Error sending reset email"
+        errorCode = 400;
+    }
+    ErrorController.sendError(res, errorMessage, errorCode);
+    return;
+
+  }
+
+  next();
+
+}
 
 
 module.exports = {
   register,
-  forgotPassword
+  forgotPassword,
+  resetPassword
 }

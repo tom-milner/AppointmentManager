@@ -10,6 +10,11 @@ const passwordResetSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "UserModel",
+    required: true
+  },
 });
 
 

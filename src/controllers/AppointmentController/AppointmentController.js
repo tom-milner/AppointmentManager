@@ -96,14 +96,17 @@ async function insertAppointment(req, res) {
     const appointmentStartTime = moment(req.body.startTime);
     const appointmentTypeId = req.body.typeId;
     const counsellorId = req.body.counsellorId;
-    let clientId;
+    let clientId, counsellorNotes, clientNotes;
 
-    // only counsellors can make appointments for other people.
+    // only counsellors can make appointments for other people and set counsellor notes
     if (req.user.role >= Role.Counsellor) {
       clientId = req.body.clientId;
+      counsellorNotes = req.body.counsellorNotes;
+
     } else {
       // clients can only make appointments for themselves.
       clientId = req.user._id;
+      clientNotes = req.body.clientNotes;
     }
 
     console.log(clientId);
@@ -150,7 +153,8 @@ async function insertAppointment(req, res) {
       clients: [clientId],
       isApproved: false,
       counsellorId: counsellorId,
-      clientNotes: req.body.clientNotes
+      clientNotes: clientNotes,
+      counsellorNotes: counsellorNotes
     });
 
 
