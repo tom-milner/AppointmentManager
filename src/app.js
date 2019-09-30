@@ -1,5 +1,7 @@
 "use strict";
 
+console.log("\n")
+
 const express = require('express');
 const app = express();
 
@@ -30,14 +32,21 @@ app.use(bodyParser.json());
 const routes = require("./routes");
 app.use(routes);
 
+// start cron jobs
+const Scheduler = require("./config/scheduler/Scheduler");
+Scheduler.start();
+
+
 // Connect to the database and start the application
 (async () => {
     const database = require("./config/Database")
-    console.log("Connecting to database...");
+    console.log("- Connecting to database...");
     if (await database.initialize(Config.db.url)) {
         // Database is required, so only start server if database connection can be established
         app.listen(Config.port, function () {
-            console.log(`started on port ${Config.port}`);
+            console.log(`- Started server on port ${Config.port}`);
+            console.log("\n")
+
         });
     }
 })();

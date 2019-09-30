@@ -11,7 +11,10 @@ async function initialize(url) {
   }
 
   // connect to database
-  return mongoose.connect(url).then(function (res) {
+  mongoose.set('useCreateIndex', true)
+  return mongoose.connect(url, {
+    useNewUrlParser: true
+  }).then(function (res) {
     return true;
   }).catch(function (err) {
     console.log(`Error connecting to MongoDB database at ${url}`);

@@ -179,10 +179,10 @@ async function forgotPassword(req, res) {
 
     // create random token
     let token = await generatePasswordResetToken();
-    console.log(token);
+
     // create a hash of the token to store in a database.
     let tokenHash = generateTokenHash(token);
-    console.log(tokenHash);
+
     // store hash and timestamp in the database.
     let passwordReset = new PasswordResetModel({
       hash: tokenHash,
@@ -202,7 +202,7 @@ async function forgotPassword(req, res) {
             <p>Ip: ${requestIp}</p>
             `
     };
-    await Mailer.send(msg)
+    // await Mailer.send(msg)
     // let the user know the email was sent.
     res.status(200).send({
       success: true,
@@ -226,7 +226,6 @@ async function resetPassword(req, res) {
     let foundPasswordReset = await PasswordResetModel.findOne({
       hash: tokenHash
     });
-    console.log(foundPasswordReset);
     if (!foundPasswordReset) throw {
       message: "Invalid token",
       code: 400
@@ -265,7 +264,6 @@ async function resetPassword(req, res) {
   }
 
 }
-
 // #############################
 //      HELPER FUNCTIONS
 // #############################
