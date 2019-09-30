@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <!-- Heading-->
-    <h2 class="heading-2">User Statistics</h2>
+    <h2 class="heading-2">User Details</h2>
 
     <ul class="user-details">
       <!-- Client name -->

@@ -33,7 +33,7 @@
     <!-- Modal -->
     <Modal v-on:close-modal="showViewClient=false" v-if="showViewClient">
       <div class="modal-content">
-        <UserStats :client="chosenClient" />
+        <UserDetails :client="chosenClient" />
       </div>
     </Modal>
   </div>
@@ -43,7 +43,7 @@
 import UserService from "@/services/UserService";
 import ClientContainer from "@/components/pages/CounsellorPages/ManageClientsPage/ClientContainer.vue";
 import Modal from "@/components/layout/Modal";
-import UserStats from "./UserStats";
+import UserDetails from "./UserDetails";
 export default {
   data() {
     return {
@@ -57,7 +57,7 @@ export default {
   components: {
     ClientContainer,
     Modal,
-    UserStats
+    UserDetails
   },
   mounted() {
     this.getAllClients();

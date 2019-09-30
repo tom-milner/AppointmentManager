@@ -8,7 +8,7 @@
 
     <!-- Appointment Type Dropdown -->
     <div class="segment">
-      <h3 class="form-heading">Choose an appointment type:</h3>
+      <h4 class="form-heading">Choose an appointment type:</h4>
       <select v-model="chosenAppointmentType" class="form-input select">
         <option
           v-for="type in appointmentTypes"
@@ -20,7 +20,7 @@
 
     <!-- Start Time Input -->
     <div class="segment">
-      <h3 class="form-heading">Choose a time slot:</h3>
+      <h4 class="form-heading">Choose a time slot:</h4>
       <select
         :disabled="!!!chosenAppointmentType.duration"
         v-model="chosenTime"
@@ -160,7 +160,7 @@ export default {
       // create moment objects
       let bufferTime = this.appointmentBufferTime;
       let disabledTimes = this.dayEvents.map(event => ({
-        startTime: this.moment(event.start),
+        startTime: this.moment(event.start).subtract(bufferTime, "minutes"),
         endTime: this.moment(event.end).add(bufferTime, "minutes")
       }));
 

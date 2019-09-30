@@ -25,17 +25,17 @@
 
         <div v-if="userIsCounsellor ">
           <li>
-            <router-link to="/calendar" class="nav-item">
+            <router-link to="/counsellor/calendar" class="nav-item">
               <icon name="calendar" class="icon-nav-item" />
             </router-link>
           </li>
           <li>
-            <router-link to="/appointment-settings" class="nav-item">
+            <router-link to="/counsellor/appointment-settings" class="nav-item">
               <icon name="settings" class="icon-nav-item" />
             </router-link>
           </li>
           <li>
-            <router-link to="/clients" class="nav-item">
+            <router-link to="/counsellor/clients" class="nav-item">
               <icon name="users" class="icon-nav-item" />
             </router-link>
           </li>
