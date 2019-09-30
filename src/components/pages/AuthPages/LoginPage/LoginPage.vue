@@ -15,7 +15,7 @@
         </div>
         <h4 class="heading-4 error errorText">{{errorMessage}}</h4>
         <div class="action-row">
-          <router-link to="/forgot-password">
+          <router-link to="/auth/forgot-password">
             <p class="paragraph">Forgot password?</p>
           </router-link>
           <button class="btn btn-primary">Submit</button>

@@ -16,7 +16,7 @@
           <div class="row">
             <h4 class="heading-4 error message" :class="{success: sentSuccessfully  }">{{message}}</h4>
           </div>
-          <div class="row send-button">
+          <div :disabled="triesRemaining < 1" class="row send-button">
             <button class="btn btn-primary">{{buttonContent}}</button>
           </div>
         </form>
@@ -38,7 +38,8 @@ export default {
       email: "",
       message: "",
       sentSuccessfully: false,
-      buttonContent: "Send Email"
+      buttonContent: "Send Email",
+      triesRemaining: 3
     };
   },
   methods: {
@@ -46,6 +47,12 @@ export default {
       // data validation
       if (!this.email) {
         this.message = "Please enter a valid email.";
+        return;
+      }
+
+      if (this.triesRemaining < 1) {
+        this.message = "You can only send 3 emails a minute";
+        this.sentSuccessfully = false;
         return;
       }
 
@@ -57,6 +64,7 @@ export default {
         if (!response.data.success) {
           throw response.data.message;
         } else {
+          this.triesRemaining--;
           this.message = response.data.message;
           this.sentSuccessfully = true;
           this.buttonContent = "Didn't get it? Send again.";
@@ -66,6 +74,12 @@ export default {
         this.message = error.response.data.message;
       }
     }
+  },
+  mounted() {
+    // reset amount of password tries every minute
+    setInterval(function() {
+      this.triesRemaining = 3;
+    }, 60000);
   }
 };
 </script>
@@ -75,7 +89,7 @@ export default {
 
 .wrapper {
   height: 100vh;
-  width: 100%;
+  width: 100vw;
   background-color: $color-canvas;
   display: flex;
   justify-content: center;

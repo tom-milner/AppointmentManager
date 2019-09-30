@@ -12,6 +12,13 @@ function forgotPassword(email) {
   });
 }
 
+function resetPassword(password, token) {
+  return Api.post("/auth/reset-password", {
+    token: token,
+    password: password
+  })
+}
+
 function initializeNavigationGuard() {
   // Handle unauthorized access
   // This is a navigation guard. It is called every time the user tries to navigate to a different route.
@@ -132,5 +139,6 @@ export default {
   initializeNavigationGuard,
   setupAccessDeniedResponseInterceptor,
   setupTokenRefresher,
-  forgotPassword
+  forgotPassword,
+  resetPassword
 }
