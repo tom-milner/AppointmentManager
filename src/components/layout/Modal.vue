@@ -49,10 +49,10 @@ export default {
     },
     printModal() {
       // hide any buttons
-      let buttons = document.querySelectorAll("button");
-      buttons.forEach(btn => {
-        btn.style.display = "none";
-      });
+      // let buttons = document.querySelectorAll("button");
+      // buttons.forEach(btn => {
+      //   btn.style.display = "none";
+      // });
 
       // Get HTML to print from element
       const prtHtml = document.getElementById("printContents").innerHTML;
@@ -89,9 +89,10 @@ export default {
       WinPrint.print();
       WinPrint.close();
 
-      buttons.forEach(btn => {
-        btn.style.display = "block";
-      });
+      // redisplay al buttons
+      // buttons.forEach(btn => {
+      //   btn.style.display = "block";
+      // });
     }
   }
 };

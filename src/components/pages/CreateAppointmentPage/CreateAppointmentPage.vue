@@ -53,8 +53,8 @@
 
       <!-- Displays the chosen appointment type (if present) -->
       <div v-if="chosenAppointmentType.duration" class="form-field">
-        <h4 class="form-heading">Appointment duration</h4>
-        <h2 class="heading-3">{{chosenAppointmentType.duration}} minutes</h2>
+        <h4 class="form-heading">Appointment Type</h4>
+        <AppointmentTypeContainer :type="chosenAppointmentType"></AppointmentTypeContainer>
       </div>
 
       <!-- Counsellor notes input -->
@@ -104,11 +104,13 @@ import AppointmentCalendar from "../../misc/Calendar/AppointmentCalendar";
 import Modal from "@/components/layout/Modal";
 import Utils from "@/utils";
 import Role from "@/models/Role";
+import AppointmentTypeContainer from "@/components/misc/AppointmentTypeContainer";
 
 export default {
   components: {
     AppointmentCalendar,
-    Modal
+    Modal,
+    AppointmentTypeContainer
   },
 
   computed: {
