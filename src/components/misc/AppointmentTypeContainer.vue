@@ -1,8 +1,8 @@
 <template>
-  <div class="wrapper">
+  <div class="appointment-type-wrapper">
     <div class="row">
       <!-- If the user is not currently editing  -->
-      <div v-if="!isEditable">
+      <div class="inline" v-if="!isEditable">
         <h4 class="heading-4">{{appointmentType.name}}</h4>
         <h4 class="heading-4">
           <span>{{appointmentType.duration}}</span>
@@ -32,21 +32,22 @@
         <h4 class="heading-4 error">{{errorMessage}}</h4>
       </div>
 
-      <!-- Dropdown Icon -->
-      <div @click="showFullAppointmentType" class="icon-box">
-        <Icon v-if="!showFullType" class="edit" name="chevron-down"></Icon>
-        <Icon v-else class="edit" name="chevron-up"></Icon>
-      </div>
+      <div class="right">
+        <!-- Dropdown Icon -->
+        <div @click="showFullAppointmentType" class="icon-box">
+          <Icon v-if="!showFullType" class="edit" name="chevron-down"></Icon>
+          <Icon v-else class="edit" name="chevron-up"></Icon>
+        </div>
 
-      <!-- Edit Button -->
-      <div v-if="!isEditable" @click="toggleIsEditable" class="icon-box">
-        <Icon class="icon" name="edit" />
-      </div>
+        <!-- Edit Button -->
+        <div v-if="!isEditable && userCanEdit" @click="toggleIsEditable" class="icon-box">
+          <Icon class="icon" name="edit" />
+        </div>
 
-      <!-- Save Button -->
-      <button @click="saveAppointmentType" v-if="isEditable" class="btn btn-primary">Save</button>
+        <!-- Save Button -->
+        <button @click="saveAppointmentType" v-if="isEditable" class="btn btn-primary">Save</button>
+      </div>
     </div>
-
     <!-- The extended appointment type -->
     <div v-if="showFullType">
       <!-- Appointment Type Description -->
@@ -119,7 +120,8 @@ export default {
     Dialogue
   },
   props: {
-    type: {}
+    type: {},
+    userCanEdit: Boolean
   },
   computed: {
     getRecurringButtonClass() {
@@ -187,7 +189,9 @@ export default {
 
     // change whether the user can edit the appointment type.
     toggleIsEditable() {
-      this.isEditable = !this.isEditable;
+      if (this.userCanEdit) {
+        this.isEditable = !this.isEditable;
+      }
     },
 
     async updateAppointmentType() {
@@ -257,7 +261,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "src/scss/global";
-.wrapper {
+.appointment-type-wrapper {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   border-radius: 2px;
   padding: 2rem;
@@ -266,23 +270,15 @@ export default {
   border-left: 4px solid $color-primary;
   position: relative;
   transition: all 0.2s;
-  width: auto;
+  width: 50rem;
+  min-height: 6rem;
   display: inline-block;
 
   .row {
     &:not(:last-child) {
       margin-bottom: 1rem;
     }
-    // put spacing between elements in row.
-    *:not(:last-child) {
-      *:not(span) {
-        margin-right: 2rem;
-      }
-    }
 
-    div {
-      display: inline-block;
-    }
     input {
       height: 3rem;
       font-size: 2rem;
@@ -296,8 +292,6 @@ export default {
       padding-right: 1px;
     }
     h4 {
-      vertical-align: center;
-
       min-width: 12rem;
       margin-right: 2rem;
       display: inline-block;
@@ -311,6 +305,11 @@ export default {
       display: inline-block;
       height: 100%;
       width: auto;
+
+      &:not(:last-child) {
+        margin-right: 2rem;
+      }
+
       &:hover {
         .icon {
           color: $color-primary;
@@ -367,5 +366,13 @@ textarea {
       width: 45%;
     }
   }
+}
+
+.right {
+  float: right;
+}
+
+.inline {
+  display: inline-block;
 }
 </style>

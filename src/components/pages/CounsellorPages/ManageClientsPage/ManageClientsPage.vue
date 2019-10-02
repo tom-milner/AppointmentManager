@@ -22,10 +22,18 @@
     <div class="container">
       <h3 class="heading-3">Clients:</h3>
       <ul class="client-list">
-        <li class="client-item" v-for="client in getFilteredClients" :key="client._id">
-          <ClientContainer @click.native="viewClient(client)" :client="client">
-            <div class="modal-content"></div>
-          </ClientContainer>
+        <li
+          @click="viewClient(client)"
+          class="client-item"
+          v-for="client in getFilteredClients"
+          :key="client._id"
+        >
+          <div class="client">
+            <div class="client-content">
+              <h4 class="heading-4 fullname">{{client.firstname}} {{client.lastname}}</h4>
+              <p class="username">{{client.username}}</p>
+            </div>
+          </div>
         </li>
       </ul>
     </div>
@@ -41,7 +49,6 @@
 
 <script>
 import UserService from "@/services/UserService";
-import ClientContainer from "@/components/pages/CounsellorPages/ManageClientsPage/ClientContainer.vue";
 import Modal from "@/components/layout/Modal";
 import UserDetails from "./UserDetails";
 export default {
@@ -55,7 +62,6 @@ export default {
     };
   },
   components: {
-    ClientContainer,
     Modal,
     UserDetails
   },
@@ -117,6 +123,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "src/scss/global";
+
 .container {
   margin-top: 2rem;
 }
@@ -127,6 +135,33 @@ export default {
   .client-item {
     &:not(:last-child) {
       margin-bottom: 1rem;
+    }
+    border-radius: 2px;
+    padding: 1rem 2rem;
+    background-color: $color-canvas;
+
+    padding-right: 5rem;
+    border-left: 4px solid $color-primary;
+    position: relative;
+    transition: all 0.2s;
+    display: block;
+    width: 50rem;
+    .client-content {
+      margin-left: 0.5rem;
+
+      h4 {
+        display: inline-block;
+        width: 15rem;
+        font-weight: 300;
+        margin-right: 5rem;
+      }
+
+      p {
+        display: inline-block;
+        margin-right: 5rem;
+        font-weight: 300;
+        font-size: 1.5rem;
+      }
     }
   }
 }

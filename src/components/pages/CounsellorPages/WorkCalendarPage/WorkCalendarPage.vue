@@ -108,12 +108,9 @@ export default {
     },
 
     saveSettings() {
-      UserService.updateCounsellor(
-        {
-          workingDays: this.availableWorkDays
-        },
-        this.counsellor._id
-      );
+      UserService.updateCounsellor(this.counsellor._id, {
+        workingDays: this.availableWorkDays
+      });
     }
   }
 };

@@ -57,8 +57,14 @@
         <h2 class="heading-3">{{chosenAppointmentType.duration}} minutes</h2>
       </div>
 
-      <!-- Client Notes Input -->
-      <div class="form-field">
+      <!-- Counsellor notes input -->
+      <div v-if="userIsCounsellor" class="form-field">
+        <h4 class="form-heading">Counsellor Notes</h4>
+        <textarea v-model="counsellorNotes" class="form-input"></textarea>
+      </div>
+
+      <!-- Client Notes Input (Only for clients)-->
+      <div v-else class="form-field">
         <h4 class="form-heading">Client Notes</h4>
         <p class="paragraph note">
           <span>Note:</span> These are viewable by your chosen counsellor
@@ -139,6 +145,7 @@ export default {
       chosenTitle: "", // the desired title of the appointment
       chosenAppointmentType: {}, // the desired type of the appointment
       clientNotes: "", // any notes the client (current user) has about the appointment.
+      counsellorNotes: "",
       appointmentCalendarDisplayed: false,
       errorMessage: "" // if there is an error message it is stored here.
     };
@@ -209,7 +216,8 @@ export default {
           typeId: this.chosenAppointmentType._id,
           counsellorId: this.chosenCounsellor._id,
           clientId: this.chosenClient._id,
-          clientNotes: this.clientNotes
+          clientNotes: this.clientNotes,
+          counsellorNotes: this.counsellorNotes
         };
         // send request
         let result = await AppointmentService.requestAppointment(appointment);

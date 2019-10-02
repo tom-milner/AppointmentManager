@@ -7,7 +7,7 @@
     },
 
     updateAppointmentType(appointmentTypeId, appointmentTypeSettings) {
-      return Api.post(`/appointments/type/update/${appointmentTypeId}`, {
+      return Api.post(`/appointments/type/${appointmentTypeId}`, {
         appointmentTypeProperties: appointmentTypeSettings
       });
     },

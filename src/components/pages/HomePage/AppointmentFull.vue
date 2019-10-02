@@ -23,7 +23,9 @@
       <!-- Start Time -->
       <li class="appointment-details-row">
         <icon class="icon" name="clock"></icon>
-        <h4 class="heading-4">{{getFormattedStartTime}}</h4>
+        <h4
+          class="heading-4"
+        >{{getFormattedTime(appointment.startTime)}} - {{getFormattedTime(appointment.endTime)}}</h4>
       </li>
 
       <!-- Date -->
@@ -38,50 +40,56 @@
         <h4 class="heading-4" :class="getApprovalColor">{{getApprovalStatus}}</h4>
       </li>
 
+      <!-- Appointment Type -->
+      <li class="section">
+        <h4 class="heading-4">Appointment Type</h4>
+        <AppointmentTypeContainer class="type" :type="appointment.appointmentType"></AppointmentTypeContainer>
+      </li>
+
       <!-- Cient Notes -->
-      <li class="appointment-details notes">
+      <li class="section notes">
         <h4 class="heading-4">Client Notes (for counsellor to see) :</h4>
         <textarea :disabled="isCounsellor" class="form-input" v-model="appointment.clientNotes"></textarea>
         <button @click="saveNotes(false)" v-if="!isCounsellor" class="btn btn-secondary">Save</button>
       </li>
 
       <!-- Counsellor Notes -->
-      <li v-if="isCounsellor" class="appointment-details notes">
+      <li v-if="isCounsellor" class="section notes">
         <h4 class="heading-4">(private) Counsellor Notes:</h4>
         <textarea
           :disabled="!isCounsellor"
           class="form-input"
           v-model="appointment.counsellorNotes"
         ></textarea>
-        <button @click="saveNotes(true)" v-if="isCounsellor" class="btn btn-secondary">Save</button>
+        <button @click="saveNotes(true)" v-if="isCounsellor" class="save btn btn-secondary">Save</button>
       </li>
 
       <!-- Client Attendence Buttons -->
-      <li class="appointment-details attendance">
+      <li class="section attendance">
         <h4 class="heading-4">Can client attend?</h4>
         <button
           @click="setClientAttendance(true)"
-          class="btn btn-primary"
+          class="btn btn-approved"
           :class="{checked: appointment.clientCanAttend}"
         >Yes</button>
         <button
           @click="setClientAttendance(false)"
-          class="btn btn-primary"
+          class="btn btn-disapproved"
           :class="{checked: !appointment.clientCanAttend}"
         >No</button>
       </li>
 
       <!-- Counsellor Approval Buttons -->
-      <li v-if="isCounsellor" class="appointment-details attendance">
+      <li v-if="isCounsellor" class="section attendance">
         <h4 class="heading-4">Appointment Approval</h4>
         <button
           @click="setCounsellorApproval(true)"
-          class="btn btn-primary"
+          class="btn btn-approved"
           :class="{checked: appointment.isApproved}"
         >Approved</button>
         <button
           @click="setCounsellorApproval(false)"
-          class="btn btn-primary"
+          class="btn btn-disapproved"
           :class="{checked: !appointment.isApproved}"
         >Not Approved</button>
       </li>
@@ -93,15 +101,13 @@
 import Icon from "vue-icon/lib/vue-feather.esm";
 import UserService from "@/services/UserService";
 import AppointmentService from "@/services/AppointmentService";
+import AppointmentTypeContainer from "@/components/misc/AppointmentTypeContainer";
 export default {
   props: {
     appointment: {},
     isCounsellor: Boolean
   },
   computed: {
-    getFormattedStartTime: function() {
-      return this.moment(this.appointment.startTime).format("LT");
-    },
     getFormattedDate: function() {
       return this.moment(this.appointment.startTime).format("LL");
     },
@@ -120,13 +126,17 @@ export default {
     };
   },
   components: {
-    Icon
+    Icon,
+    AppointmentTypeContainer
   },
   mounted() {
     this.getClientsNames();
     this.getCounsellorName();
   },
   methods: {
+    getFormattedTime: function(time) {
+      return this.moment(time).format("LT");
+    },
     setClientAttendance(canAttend) {
       if (this.appointment.clientCanAttend != canAttend) {
         this.appointment.clientCanAttend = canAttend;
@@ -213,16 +223,6 @@ export default {
   text-align: left;
   margin-top: 2rem;
 
-  .notes {
-    position: relative;
-
-    button {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      margin: 1rem 0.6rem;
-    }
-  }
   &-row {
     display: flex;
     align-items: center;
@@ -247,11 +247,6 @@ export default {
     }
   }
 
-  textarea {
-    resize: none;
-    height: 20rem;
-  }
-
   .attendance {
     h4 {
       display: inline;
@@ -261,6 +256,22 @@ export default {
       &:not(:last-child) {
         margin-right: 3rem;
       }
+    }
+  }
+
+  .section {
+    margin-top: 1rem;
+    position: relative;
+    textarea {
+      resize: none;
+      height: 20rem;
+    }
+
+    .save {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      margin: 1rem 0.6rem;
     }
   }
 }

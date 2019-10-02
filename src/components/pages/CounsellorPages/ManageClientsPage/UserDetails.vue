@@ -7,26 +7,66 @@
       <!-- Client name -->
       <li class="user-details-row">
         <h4 class="heading-4 header">Name:</h4>
-        <h4 class="heading-4">{{client.firstname}} {{client.lastname}}</h4>
+        <h4 class="heading-4">{{fullClient.firstname}} {{fullClient.lastname}}</h4>
       </li>
       <li class="user-details-row">
         <h4 class="heading-4 header">Username:</h4>
-        <h4 class="heading-4">{{client.username}}</h4>
+        <h4 class="heading-4">{{fullClient.username}}</h4>
       </li>
       <li class="user-details-row">
         <h4 class="heading-4 header">Email:</h4>
-        <h4 class="heading-4">{{client.email}}</h4>
+        <h4 class="heading-4">{{fullClient.email}}</h4>
+      </li>
+
+      <li class="section">
+        <h4 class="heading-4">Clinical Notes</h4>
+        <textarea class="clinical-notes form-input" v-model="fullClient.clinicalNotes"></textarea>
+      </li>
+      <!-- Error Message -->
+      <li class="section" v-if="message.length > 0">
+        <h4 class="heading-4 error" :class="{success: requestSuccessful }">{{message}}</h4>
+      </li>
+      <li class="section save-button">
+        <button @click="saveClinicalNotes" class="btn btn-primary">Save Clinical Notes</button>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
+import UserService from "@/services/UserService";
+import Utils from "@/utils";
 export default {
   props: {
     client: {}
   },
-  components: {}
+  data() {
+    return {
+      fullClient: {},
+      message: "",
+      requestSuccessful: false
+    };
+  },
+  components: {},
+  async mounted() {
+    let response = await UserService.getClient(this.client._id);
+    this.fullClient = response.data.client;
+  },
+  methods: {
+    async saveClinicalNotes() {
+      try {
+        let response = await UserService.updateClient(this.fullClient._id, {
+          clinicalNotes: this.fullClient.clinicalNotes
+        });
+        this.requestSuccessful = response.data.success;
+        if (!this.requestSuccessful) throw response;
+        this.message = response.data.message;
+      } catch (error) {
+        if (Utils.isString(error)) this.message = error;
+        else this.message = error.data.message;
+      }
+    }
+  }
 };
 </script>
 
@@ -42,7 +82,7 @@ export default {
     margin-top: 2rem;
 
     &-row {
-      margin-bottom: 1rem;
+      margin-top: 1rem;
 
       h4 {
         display: inline-block;
@@ -52,6 +92,15 @@ export default {
         width: 10rem;
         margin-right: 2rem;
       }
+    }
+  }
+
+  .section {
+    margin-top: 2rem;
+
+    .clinical-notes {
+      height: 30rem;
+      resize: none;
     }
   }
 }

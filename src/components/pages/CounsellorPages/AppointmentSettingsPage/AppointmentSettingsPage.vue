@@ -10,7 +10,11 @@
       </p>
       <ul class="appointment-type-list">
         <li class="list-item" v-for="type in appointmentTypes" :key="type._id">
-          <AppointmentTypeContainer @refresh-appointments="getAppointmentTypes" :type="type" />
+          <AppointmentTypeContainer
+            userCanEdit
+            @refresh-appointments="getAppointmentTypes"
+            :type="type"
+          />
         </li>
         <li class="list-item">
           <button @click="addNewAppointmentType" class="btn btn-secondary">Add New</button>
@@ -23,7 +27,7 @@
 
 <script>
 import AppointmentTypeService from "@/services/AppointmentTypeService";
-import AppointmentTypeContainer from "./AppointmentTypeContainer";
+import AppointmentTypeContainer from "../../../misc/AppointmentTypeContainer";
 
 export default {
   components: {
@@ -66,7 +70,7 @@ export default {
     list-style: none;
     margin-top: 1rem;
     .list-item {
-      padding: 1rem;
+      padding: 0.75rem 0;
 
       button {
         width: 10%;

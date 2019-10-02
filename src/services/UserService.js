@@ -81,9 +81,9 @@ function getAllCounsellors() {
 }
 
 // update counsellor's settings
-function updateCounsellor(counsellorSettings, counsellorId) {
+function updateCounsellor(counsellorId, counsellorInfo) {
   return Api.post(`/user/counsellors/${counsellorId}`, {
-    counsellorSettings: counsellorSettings
+    counsellorInfo: counsellorInfo
   });
 }
 
@@ -95,6 +95,16 @@ function getAllClients() {
   return Api.get("/user/clients")
 }
 
+function getClient(clientId) {
+  return Api.get(`/user/clients/full/${clientId}`);
+}
+
+function updateClient(clientId, clientInfo) {
+  return Api.post(`/user/clients/${clientId}`, {
+    clientInfo: clientInfo
+  });
+}
+
 export default {
   loginUser,
   registerUser,
@@ -103,5 +113,7 @@ export default {
   getAllCounsellors,
   updateCounsellor,
   getCounsellor,
-  getAllClients
+  getAllClients,
+  updateClient,
+  getClient
 }
