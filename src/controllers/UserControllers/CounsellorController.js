@@ -6,7 +6,6 @@ async function getAllCounsellorsReduced(req, res) {
   try {
     // get all the counsellors but exclude their personal information.
     let counsellors = await CounsellorModel.find({}, {
-      password: 0,
       email: 0,
       type: 0
     });
@@ -38,17 +37,17 @@ async function updateCounsellor(req, res) {
   // TODO: create policy
 
   let counsellorId = req.params.counsellorId;
-  let newCounsellorSettings = req.body.counsellorSettings;
+  let newCounsellorInfo = req.body.counsellorInfo;
   try {
-    let updatedCounsellorSettings = await CounsellorModel.findByIdAndUpdate(
+    let updatedcounsellorInfo = await CounsellorModel.findByIdAndUpdate(
       counsellorId,
-      newCounsellorSettings, {
+      newCounsellorInfo, {
         new: true,
         runValidators: true
       }
     );
 
-    if (!updatedCounsellorSettings) {
+    if (!updatedcounsellorInfo) {
       throw {
         message: "Counsellor doesn't exist",
         code: 400
@@ -73,15 +72,9 @@ function getCounsellor({
   return async function (req, res) {
     let counsellorId = req.params.counsellorId;
 
-    let counsellorQuery = CounsellorModel.findOne();
-
-    counsellorQuery.where("_id", counsellorId);
-
-    counsellorQuery.select("-password -type"); // everything but the counsellor's password.
-
     try {
       // get the counsellor.
-      let counsellor = await counsellorQuery.exec();
+      let counsellor = await CounsellorModel.findById(counsellorId);
 
       // If we need to return a reduced object, recreate the counsellor object with the required data. 
       if (reduced) counsellor = {

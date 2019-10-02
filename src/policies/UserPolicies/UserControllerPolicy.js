@@ -49,35 +49,11 @@ function getReducedUsers(req, res, next) {
     // all is good
     next();
   } catch (error) {
-    res.status(error.code || 500).send({
-      message: error.message || "Error getting user's Ids."
-    });
+    ErrorController.sendError(res, error.message || "Error getting users Ids", error.code || 400)
   }
 }
 
-
-function updateCounsellor(req, res, next) {
-
-  try {
-    // Joi isn't needed - we only need to check if the object is present
-    let counsellorSettings = req.body.counsellorSettings;
-    if (!counsellorSettings) {
-      throw ({
-        message: "No settings found",
-        code: 400
-      });
-    }
-
-    next();
-  } catch (error) {
-    // send an error to the user.
-    let errorMessage = error.message || "Error updating counsellor settings.";
-    let errorCode = error.code || 400;
-    ErrorController.sendError(res, errorMessage, errorCode);
-  }
-}
 
 module.exports = {
-  getReducedUsers,
-  updateCounsellor
+  getReducedUsers
 }

@@ -33,7 +33,8 @@ let appointmentSchema = new Schema({
   },
   // counsellor notes about appointment
   counsellorNotes: {
-    type: String
+    type: String,
+    select: false
   },
   // location of appointment
 

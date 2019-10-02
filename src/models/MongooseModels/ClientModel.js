@@ -10,6 +10,7 @@ const clientSchema = new mongoose.Schema({
   },
   clinicalNotes: {
     type: String,
+    select: false
   }
 })
 

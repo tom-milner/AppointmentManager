@@ -32,10 +32,7 @@ let UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-  },
-  role: {
-    type: Number,
-    default: Role.Client
+    select: false
   }
 }, options);
 

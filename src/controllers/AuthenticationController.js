@@ -34,7 +34,6 @@ async function registerCounsellor(req, res) {
     newCounsellor.password = await hashPassword(password);
     // save counsellor in database
     const savedCounsellor = await newCounsellor.save();
-    savedCounsellor.password = undefined;
     res.status(200).send({
       success: true,
       message: "Counsellor created successfully.",
@@ -72,7 +71,6 @@ async function registerClient(req, res) {
 
     // Save client to database
     const savedClient = await newClient.save();
-    savedClient.password = undefined;
     // Return newly created client
     res.status(200).send({
       success: true,
@@ -101,7 +99,9 @@ async function login(req, res) {
     // Find matching users in database
     const userMatches = await UserModel.find({
       username: req.body.username
-    });
+    }).select("+password");
+
+    console.log(userMatches);
 
     // Only 1 user should be found - use 0th term just in case
     const matchingUser = userMatches[0];
@@ -121,7 +121,6 @@ async function login(req, res) {
       return;
     }
 
-    // make sure password hash isn't returned
     matchingUser.password = undefined;
 
     // return user with new access token.
@@ -202,7 +201,7 @@ async function forgotPassword(req, res) {
             <p>Ip: ${requestIp}</p>
             `
     };
-    // await Mailer.send(msg)
+    await Mailer.send(msg)
     // let the user know the email was sent.
     res.status(200).send({
       success: true,
@@ -251,8 +250,6 @@ async function resetPassword(req, res) {
     });
     // remove the password reset from the db - we don't need to await this.
     await PasswordResetModel.findByIdAndDelete(foundPasswordReset._id);
-    // return user
-    updatedUser.password = undefined;
     res.status(200).send({
       success: true,
       message: "Password updated successfully",

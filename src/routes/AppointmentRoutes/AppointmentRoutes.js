@@ -70,7 +70,7 @@ router.post(
 
 // update an existing appointment
 router.post(
-  "/update/:appointmentId",
+  "/:appointmentId",
   AuthenticationMiddleware.roleCheck({
     role: Role.Client,
   }),

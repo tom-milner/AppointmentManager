@@ -3,8 +3,8 @@ const router = express.Router();
 
 const CounsellorController = require("../../controllers/UserControllers/CounsellorController");
 const AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
-const UserControllerPolicy = require("../../policies/UserPolicies/UserControllerPolicy");
 const Role = require("../../models/Role");
+const CounsellorControllerPolicy = require("../../policies/UserPolicies/CounsellorControllerPolicy");
 
 
 // get list of counsellors
@@ -14,7 +14,7 @@ router.get("/", CounsellorController.getAllCounsellorsReduced);
 router.post("/:counsellorId", AuthenticationMiddleware.roleCheck({
   role: Role.Counsellor,
   useSpecific: true
-}), UserControllerPolicy.updateCounsellor, CounsellorController.updateCounsellor)
+}), CounsellorControllerPolicy.updateCounsellor, CounsellorController.updateCounsellor)
 
 // get all info about a counsellor
 router.get("/full/:counsellorId", AuthenticationMiddleware.roleCheck({

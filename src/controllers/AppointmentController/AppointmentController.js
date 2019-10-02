@@ -6,12 +6,14 @@ const Role = require("../../models/Role");
 const moment = require("moment");
 
 // Fetch all appointments regardless
+
+// This is never used in the app, it is only here for testing purposes.
 async function getAllAppointments(req, res) {
   try {
     // get appointments and sort them
     let allAppointments = await AppointmentModel.find({}).sort({
       startTime: "asc"
-    }).populate("AppointmentTypeModel");
+    }).populate("appointmentType");
     // return the appointments
     res.send(allAppointments);
   } catch (error) {
@@ -25,7 +27,6 @@ function getAppointmentsOfUser({
   isCounsellor
 }) {
   return async function (req, res) {
-    // TODO: create policy for this function
 
     // dynamically construct mongoose query
     const appointmentQuery = AppointmentModel.find();
@@ -45,10 +46,11 @@ function getAppointmentsOfUser({
     // check whether we should seach for counsellor or client
     if (isCounsellor) {
       appointmentQuery.where("counsellorId", userId);
+      // include counsellor notes
+      appointmentQuery.select("+counsellorNotes");
     } else {
       appointmentQuery.where("clients", userId);
-      // remove counsellor notes
-      appointmentQuery.select("-counsellorNotes");
+
     }
 
     // sort appointments in ascending order
@@ -57,7 +59,7 @@ function getAppointmentsOfUser({
     });
 
     // make appointments contain their appointment type
-    appointmentQuery.populate("AppointmentTypeModel");
+    appointmentQuery.populate("appointmentType");
 
     try {
       // execute the query
@@ -108,8 +110,6 @@ async function insertAppointment(req, res) {
       clientId = req.user._id;
       clientNotes = req.body.clientNotes;
     }
-
-    console.log(clientId);
 
     // make sure the appointment type exist
     let appointmentType = await AppointmentControllerHelpers.getAppointmentType(appointmentTypeId);
@@ -167,23 +167,20 @@ async function insertAppointment(req, res) {
       message: "Appointment created successfully",
       appointment: createdAppointment
     });
-
     // Catch any errors and respond appropriately
   } catch (error) {
-    console.log(error);
-
-    let errorMessage = error.message || "Error creating appointment";
+    let errorMessage = error.message || "Error creating appointment.";
     let errorCode = error.code || 500;
-
     ErrorController.sendError(res, errorMessage, errorCode);
   }
 }
 
 async function updateAppointment(req, res) {
-  try {
-    let newAppointmentProperties = req.body.appointmentProperties;
-    let appointmentId = req.params.appointmentId;
 
+  let newAppointmentProperties = req.body.appointmentProperties;
+  let appointmentId = req.params.appointmentId;
+
+  try {
     // make sure clients can't edit other people's appointments.
     if (req.user.role == Role.Client) {
       let appointment = await AppointmentModel.findById(appointmentId);
@@ -202,8 +199,6 @@ async function updateAppointment(req, res) {
         runValidators: true
       }
     );
-    // exclude the counsellor notes if the user is a client
-    if (req.user.role == Role.Client) updatedAppointment.counsellorNotes = undefined;
 
     if (!updatedAppointment) {
       throw {

@@ -21,7 +21,7 @@ router.post("/", AuthenticationMiddleware.roleCheck({
 router.get("/", AppointmentTypeController.getAllAppointmentTypes);
 
 // Update an appointment type
-router.post("/update/:appointmentTypeId", AuthenticationMiddleware.roleCheck({
+router.post("/:appointmentTypeId", AuthenticationMiddleware.roleCheck({
   role: Role.Counsellor
 }), AppointmentTypeControllerPolicy.updateAppointmentType, AppointmentTypeController.updateAppointmentType)
 

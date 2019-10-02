@@ -3,10 +3,9 @@ const Role = require("../models/Role");
 const AppointmentModel = require("../models/MongooseModels/AppointmentModel");
 const Utils = require("../utils/Utils");
 const ErrorController = require("../controllers/ErrorController");
+const moment = require("moment");
 
 function insertAppointment(req, res, next) {
-
-
   // first check presence
   const joiSchema = {
     startTime: Joi.date().required(),
@@ -14,7 +13,8 @@ function insertAppointment(req, res, next) {
     typeId: Joi.string().required(),
     counsellorId: Joi.string().required(),
     clientNotes: Joi.string().allow(""),
-    clientId: Joi.string().allow("")
+    clientId: Joi.string().allow(""),
+    counsellorNotes: Joi.string().allow("")
   }
   try {
     const {
@@ -42,6 +42,9 @@ function insertAppointment(req, res, next) {
           break;
         case "clientNotes":
           errorMessage = "Invalid clientNotes";
+          break;
+        case "counsellorNotes":
+          errorMessage = "Invalid counsellor notes."
           break;
         case "clientId":
           errorMessage = "Invalid client Id";
@@ -85,11 +88,21 @@ function insertAppointment(req, res, next) {
         });
       }
     }
+
+    // clients can't make appointments in past
+    let now = moment();
+    if (moment(validatedBody.startTime).isBefore(now)) {
+      throw ({
+        message: "Appointment start time must be in the future",
+        code: 400
+      });
+    }
+
     // let the request through - all data is valid.
     next();
 
   } catch (error) {
-
+    console.log(error);
     let errorMessage = error.message || "Error validating request body.";
     let errorCode = error.code || 500;
 
@@ -119,6 +132,7 @@ function updateAppointment(req, res, next) {
         code: 400
       });
     }
+
     let requestedAppointmentProperties = Object.keys(req.body.appointmentProperties);
 
     // get list of all the properties of the model.
@@ -132,7 +146,7 @@ function updateAppointment(req, res, next) {
       case Role.Client:
         // client can only access clientCanAttend (for now)
         // TODO: Move this into file of constants
-        allowedProperties.push("clientCanAttend");
+        allowedProperties.push("clientCanAttend", "clientNotes");
         break;
       case Role.Counsellor: // THIS IS INTENTIONAL!! If the users role if Counsellor the switch will cascade to admin, as they (currently) have the same update rights.
       case Role.Admin:
