@@ -232,7 +232,7 @@ export default {
         this.$router.push("/home");
       } catch (error) {
         if (Utils.isString(error)) this.errorMessage = error;
-        else this.errorMessage = error.response.data.message;
+        else this.errorMessage = error.data.message;
       }
     },
 
@@ -247,7 +247,12 @@ export default {
       // get appointments of current user
       let result = (await AppointmentService.getAppointmentsOfUser({
         userId: this.chosenClient._id,
-        isCounsellor: false
+        isCounsellor: false,
+        params: {
+          fromTime: this.moment()
+            .startOf("week")
+            .toString()
+        }
       })).data.appointments;
       return result;
     },
@@ -258,7 +263,12 @@ export default {
       let result = (await AppointmentService.getAppointmentsOfUser({
         userId: this.chosenCounsellor._id,
         isCounsellor: true,
-        reduced: true
+        reduced: true,
+        params: {
+          fromTime: this.moment()
+            .startOf("week")
+            .toString()
+        }
       })).data.appointments;
       return result;
     },

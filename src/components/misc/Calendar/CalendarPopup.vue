@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <div v-on-clickaway="closePopup" :style="positionStyle" class="popup">
-      <slot></slot>
+      <slot id="slot"></slot>
     </div>
   </div>
 </template>
@@ -13,6 +13,7 @@ import Utils from "@/utils";
 export default {
   data() {
     return {
+      // default height + width
       popupWidth: 40,
       popupHeight: 35
     };
@@ -21,6 +22,14 @@ export default {
     closePopup() {
       this.$emit("close-popup");
     }
+  },
+  mounted() {
+    // adjust dimensions to fit content
+    let popup = document.querySelector(".popup").getBoundingClientRect();
+    let width = Utils.convertPixelsToRem(popup.width);
+    let height = Utils.convertPixelsToRem(popup.height);
+    this.popupWidth = width;
+    this.popupHeight = height;
   },
   props: {
     // spaceClicked is an object that should be obtained using getBoundingClientRect()
@@ -61,6 +70,8 @@ export default {
       if (elementRectangle.top >= windowHeight - popupHeightPx) {
         // dialogue won't fit - move it up so that it does
         elementY = windowHeight - popupHeightPx - bufferY;
+        // make extra room underneath popup
+        elementY -= 40;
       } else {
         // dialogue fits
         elementY = elementRectangle.top + bufferY;

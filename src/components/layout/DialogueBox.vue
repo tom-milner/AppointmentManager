@@ -40,7 +40,7 @@ export default {
 
 .dialogue-box {
   z-index: 1000;
-  background-color: $color-canvas;
+  background-color: $color-white;
   padding: 1rem;
 
   border-radius: 5px;

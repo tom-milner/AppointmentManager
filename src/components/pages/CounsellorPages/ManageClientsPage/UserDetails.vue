@@ -18,10 +18,12 @@
         <h4 class="heading-4">{{fullClient.email}}</h4>
       </li>
 
+      <!-- Clinical Notes -->
       <li class="section">
         <h4 class="heading-4">Clinical Notes</h4>
         <textarea class="clinical-notes form-input" v-model="fullClient.clinicalNotes"></textarea>
       </li>
+
       <!-- Error Message -->
       <li class="section" v-if="message.length > 0">
         <h4 class="heading-4 error" :class="{success: requestSuccessful }">{{message}}</h4>

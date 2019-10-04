@@ -9,6 +9,11 @@ export default {
     return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
   },
 
+  // convert pixel value into rem
+  convertPixelsToRem(pixels) {
+    return pixels / parseFloat(getComputedStyle(document.documentElement).fontSize);
+  },
+
   // function to check if object is empty
   objIsEmpty(obj) {
     for (var prop in obj) {
