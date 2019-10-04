@@ -51,7 +51,11 @@
     <!-- Modal -->
     <Modal v-on:close-modal="toggleModal()" v-if="modalDisplayed">
       <div class="modal-content">
-        <AppointmentFull :isCounsellor="isUserCounsellor" :appointment="selectedAppointment"></AppointmentFull>
+        <AppointmentFull
+          :isCounsellor="isUserCounsellor"
+          :appointment="selectedAppointment"
+          v-on:appointment-deleted="toggleModal()"
+        ></AppointmentFull>
       </div>
     </Modal>
   </div>
@@ -106,10 +110,18 @@ export default {
     getUserAppointments: async function() {
       // get user appointments from API
       // check to see if user is a client or counsellor
+      let twoMonthsAgo = this.moment()
+        .subtract(2, "month")
+        .toString();
+
       let userIsCounsellor = this.user.role >= Role.Counsellor;
       let response = await AppointmentService.getAppointmentsOfUser({
         userId: this.user._id,
-        isCounsellor: userIsCounsellor
+        isCounsellor: userIsCounsellor,
+        params: {
+          fromTime: twoMonthsAgo,
+          limit: 10
+        }
       });
 
       this.appointments = response.data.appointments;

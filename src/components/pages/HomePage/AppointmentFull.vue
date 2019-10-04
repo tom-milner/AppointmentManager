@@ -34,6 +34,14 @@
         <h4 class="heading-4">{{getFormattedDate}}</h4>
       </li>
 
+      <!-- No. of appointment in recurring series -->
+      <li class="appointment-details-row">
+        <icon class="icon" name="refresh-ccw"></icon>
+        <h4
+          class="heading-4"
+        >{{appointment.recurringNo + 1}} / {{appointment.appointmentType.recurringDuration}} appointments</h4>
+      </li>
+
       <!-- Appointment Approval Status -->
       <li class="appointment-details-row">
         <icon class="icon" name="check"></icon>
@@ -68,32 +76,51 @@
       <li class="section attendance">
         <h4 class="heading-4">Can client attend?</h4>
         <button
-          @click="setClientAttendance(true)"
-          class="btn btn-approved"
-          :class="{checked: appointment.clientCanAttend}"
-        >Yes</button>
-        <button
-          @click="setClientAttendance(false)"
-          class="btn btn-disapproved"
-          :class="{checked: !appointment.clientCanAttend}"
-        >No</button>
+          @click="toggleClientAttendance()"
+          class="btn checked"
+          :class="{'btn-approved': appointment.clientCanAttend,
+          'btn-disapproved':!appointment.clientCanAttend}"
+        >{{appointment.clientCanAttend ? "Yes" : "No"}}</button>
       </li>
 
       <!-- Counsellor Approval Buttons -->
       <li v-if="isCounsellor" class="section attendance">
         <h4 class="heading-4">Appointment Approval</h4>
         <button
-          @click="setCounsellorApproval(true)"
-          class="btn btn-approved"
-          :class="{checked: appointment.isApproved}"
-        >Approved</button>
-        <button
-          @click="setCounsellorApproval(false)"
-          class="btn btn-disapproved"
-          :class="{checked: !appointment.isApproved}"
-        >Not Approved</button>
+          @click="toggleCounsellorApproval(true)"
+          class="btn checked"
+          :class="{'btn-approved': appointment.isApproved,
+          'btn-disapproved': !appointment.isApproved}"
+        >{{appointment.isApproved ? "Approved" : "Not Approved"}}</button>
+      </li>
+
+      <!-- Delete Button -->
+      <li class="section delete">
+        <button @click="showDeleteDialogue = true" class="btn btn-disapproved">Delete Appointment</button>
       </li>
     </ul>
+
+    <!-- Delete Appointment Dialogue -->
+    <Dialogue @close-dialogue="showDeleteDialogue = false" v-if="showDeleteDialogue">
+      <div class="dialogue-content">
+        <h4 class="heading-4">Do you want to delete this appointment?</h4>
+        <h4 class="heading-4" v-if="appointment.appointmentType.isRecurring">
+          <i>(You can also delete all the recurring appointments)</i>
+        </h4>
+        <div class="dialogue-buttons">
+          <button
+            class="btn btn-disapproved"
+            @click="deleteAppointment(false)"
+          >Delete Single Appointment</button>
+          <button
+            class="btn btn-disapproved"
+            v-if="appointment.appointmentType.isRecurring"
+            @click="deleteAppointment(true)"
+          >Delete All Recurring Appointments</button>
+          <button class="btn btn-approved" @click="showDeleteDialogue = false">Cancel</button>
+        </div>
+      </div>
+    </Dialogue>
   </div>
 </template>
 
@@ -102,6 +129,8 @@ import Icon from "vue-icon/lib/vue-feather.esm";
 import UserService from "@/services/UserService";
 import AppointmentService from "@/services/AppointmentService";
 import AppointmentTypeContainer from "@/components/misc/AppointmentTypeContainer";
+import Dialogue from "@/components/layout/DialogueBox";
+
 export default {
   props: {
     appointment: {},
@@ -122,50 +151,62 @@ export default {
   data() {
     return {
       clients: [],
-      counsellor: {}
+      counsellor: {},
+      showDeleteDialogue: false
     };
   },
   components: {
     Icon,
-    AppointmentTypeContainer
+    AppointmentTypeContainer,
+    Dialogue
   },
   mounted() {
     this.getClientsNames();
     this.getCounsellorName();
   },
   methods: {
+    async deleteAppointment(deleteRecurring) {
+      // send delete request
+      try {
+        await AppointmentService.deleteAppointment(
+          this.appointment._id,
+          deleteRecurring
+        );
+        this.showDeleteDialogue = false;
+        this.$emit("appointment-deleted");
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     getFormattedTime: function(time) {
       return this.moment(time).format("LT");
     },
-    setClientAttendance(canAttend) {
-      if (this.appointment.clientCanAttend != canAttend) {
-        this.appointment.clientCanAttend = canAttend;
-        let appointmentId = this.appointment._id;
-        try {
-          AppointmentService.updateAppointment(
-            {
-              clientCanAttend: canAttend
-            },
-            appointmentId
-          );
-        } catch (error) {
-          console.log(error);
-        }
+    toggleClientAttendance() {
+      this.appointment.clientCanAttend = !this.appointment.clientCanAttend;
+      let appointmentId = this.appointment._id;
+      try {
+        AppointmentService.updateAppointment(
+          {
+            clientCanAttend: this.appointment.clientCanAttend
+          },
+          appointmentId
+        );
+      } catch (error) {
+        console.log(error);
       }
     },
-    setCounsellorApproval(isApproved) {
-      if (this.appointment.isApproved != isApproved) {
-        this.appointment.isApproved = isApproved;
-        try {
-          AppointmentService.updateAppointment(
-            {
-              isApproved: isApproved
-            },
-            this.appointment._id
-          );
-        } catch (error) {
-          console.log(error);
-        }
+    toggleCounsellorApproval() {
+      this.appointment.isApproved = !this.appointment.isApproved;
+      try {
+        AppointmentService.updateAppointment(
+          {
+            isApproved: this.appointment.isApproved
+          },
+          this.appointment._id
+        );
+      } catch (error) {
+        console.log(error);
       }
     },
 
@@ -249,7 +290,8 @@ export default {
 
   .attendance {
     h4 {
-      display: inline;
+      display: inline-block;
+      width: 20rem;
       margin-right: 4rem;
     }
     button {
@@ -272,6 +314,35 @@ export default {
       bottom: 0;
       right: 0;
       margin: 1rem 0.6rem;
+    }
+
+    &.delete {
+      margin-top: 5rem;
+      width: 100%;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.dialogue-content {
+  width: 30rem;
+  h4 {
+    &:not(:first-child) {
+      margin-top: 0.5rem;
+      color: $color-grey;
+    }
+  }
+  .dialogue-buttons {
+    margin-top: 2rem;
+
+    button {
+      width: 27.5rem;
+      &:not(:last-child) {
+        margin-bottom: 0.5rem;
+      }
     }
   }
 }

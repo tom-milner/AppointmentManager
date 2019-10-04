@@ -11,17 +11,17 @@
       </div>
 
       <!-- Turn h4 into input field so user can edit -->
-      <div v-if="isEditable">
+      <div class="inline" v-if="isEditable">
         <input
           :maxlength="maxNameLength"
           type="text"
           v-model="appointmentType.name"
-          class="form-input heading-4"
+          class="form-input heading-4 header-input"
         />
         <input
           type="number"
           v-model="appointmentType.duration"
-          class="form-input heading-4 number-input"
+          class="form-input heading-4 number-input header-input"
           :max="maxDuration"
           :min="minDuration"
         />
@@ -62,14 +62,28 @@
       </div>
 
       <!-- IsRecurring -->
-      <h4 class="form-heading dropdown-heading">Recurring Appointment:</h4>
-      <p v-if="!isEditable" class="dropdown-info">{{isRecurring}}</p>
-      <button
-        @click="toggleIsRecurring"
-        class="btn"
-        :class="getRecurringButtonClass"
-        v-else
-      >{{isRecurring}}</button>
+      <div class="recurring">
+        <h4 class="form-heading dropdown-heading">Recurring Appointment:</h4>
+        <p v-if="!isEditable" class="dropdown-info">{{isRecurringText}}</p>
+        <button
+          @click="toggleIsRecurring"
+          class="btn checked"
+          :class="getRecurringButtonClass"
+          v-else
+        >{{isRecurringText}}</button>
+        <div class="recurring-duration" v-if="appointmentType.isRecurring">
+          <input
+            v-if="isEditable"
+            v-model="appointmentType.recurringDuration"
+            type="number"
+            class="form-input number-input"
+          />
+
+          <p class="paragraph">
+            <span v-if="!isEditable" class="paragraph">{{appointmentType.recurringDuration}}</span> weeks.
+          </p>
+        </div>
+      </div>
 
       <!-- Delete appointment type -->
       <button
@@ -94,6 +108,164 @@
     </Dialogue>
   </div>
 </template>
+
+
+
+<style lang="scss" scoped>
+@import "src/scss/global";
+.appointment-type-wrapper {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  border-radius: 2px;
+  padding: 2rem;
+  background-color: $color-grey-very-light;
+
+  border-left: 4px solid $color-primary;
+  position: relative;
+  transition: all 0.2s;
+  width: 50rem;
+  min-height: 6rem;
+  display: inline-block;
+
+  .row {
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+    display: inline-block;
+    width: 100%;
+    input {
+      height: 3rem;
+      font-size: 2rem;
+      padding-left: 0.5rem;
+      width: auto;
+      display: inline-block;
+
+      &:not(:last-child) {
+        margin-right: 2rem;
+      }
+    }
+
+    h4 {
+      min-width: 12rem;
+      margin-right: 2rem;
+      display: inline-block;
+      .small {
+        font-size: 1.8rem;
+        margin: none;
+      }
+    }
+
+    .icon-box {
+      display: inline-block;
+      height: 100%;
+      width: auto;
+
+      &:not(:last-child) {
+        margin-right: 2rem;
+      }
+
+      &:hover {
+        .icon {
+          color: $color-primary;
+        }
+      }
+      .icon {
+        display: block;
+        width: 2rem;
+        height: 100%;
+        color: $color-grey;
+      }
+    }
+  }
+}
+.number-input {
+  width: 5rem;
+  padding-right: 1px;
+}
+.dropdown-heading {
+  &:not(:first-child) {
+    margin-top: 0.8rem;
+  }
+  color: $color-grey;
+  font-weight: 500;
+}
+
+.dropdown-info {
+  font-size: 1.5rem;
+  font-weight: 300;
+  display: inline;
+}
+
+textarea {
+  resize: none;
+  height: 10rem !important;
+}
+
+.delete-button {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+}
+
+.dialogue-content {
+  height: 100%;
+  width: 30rem;
+
+  h4 {
+    span {
+      color: $color-error;
+    }
+  }
+  .dialogue-row {
+    margin-top: 3rem;
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    button {
+      width: 45%;
+    }
+  }
+}
+
+.right {
+  float: right;
+  // height: 100%;
+}
+
+.inline {
+  display: inline-block;
+  width: auto;
+}
+
+.recurring {
+  vertical-align: center;
+
+  button {
+    display: inline-block;
+    margin-right: 2rem;
+    height: 3rem;
+    padding: 0 2rem;
+  }
+
+  &-duration {
+    display: inline-block;
+    height: 3rem;
+    margin-left: 1rem;
+    input {
+      // margin-top: 5rem;
+      display: inline-block;
+      height: 1.5rem;
+      font-size: 1.5rem;
+      margin-right: 0.5rem;
+      padding: 1.5rem 0 1.5rem 0.5rem;
+    }
+    p {
+      display: inline;
+      font-size: 1.5rem;
+    }
+  }
+}
+</style>
+
 
 
 <script>
@@ -126,11 +298,11 @@ export default {
   computed: {
     getRecurringButtonClass() {
       return {
-        "btn-approved": this.appointmentType.isRecurring,
-        "btn-disapproved": !this.appointmentType.isRecurring
+        "btn-approved ": this.appointmentType.isRecurring,
+        "btn-disapproved ": !this.appointmentType.isRecurring
       };
     },
-    isRecurring() {
+    isRecurringText() {
       return this.appointmentType.isRecurring ? "Yes" : "No";
     }
   },
@@ -200,6 +372,7 @@ export default {
       newProperties.name = this.appointmentType.name;
       newProperties.duration = this.appointmentType.duration;
       newProperties.isRecurring = this.appointmentType.isRecurring;
+      newProperties.recurringDuration = this.appointmentType.recurringDuration;
       newProperties.description = this.appointmentType.description;
 
       // send a request to the api to update the appointment type.
@@ -258,121 +431,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss" scoped>
-@import "src/scss/global";
-.appointment-type-wrapper {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  border-radius: 2px;
-  padding: 2rem;
-  background-color: $color-grey-very-light;
-
-  border-left: 4px solid $color-primary;
-  position: relative;
-  transition: all 0.2s;
-  width: 50rem;
-  min-height: 6rem;
-  display: inline-block;
-
-  .row {
-    &:not(:last-child) {
-      margin-bottom: 1rem;
-    }
-
-    input {
-      height: 3rem;
-      font-size: 2rem;
-      padding-left: 0.5rem;
-      width: auto;
-      margin-right: 2rem;
-    }
-
-    .number-input {
-      width: 5rem;
-      padding-right: 1px;
-    }
-    h4 {
-      min-width: 12rem;
-      margin-right: 2rem;
-      display: inline-block;
-      .small {
-        font-size: 1.8rem;
-        margin: none;
-      }
-    }
-
-    .icon-box {
-      display: inline-block;
-      height: 100%;
-      width: auto;
-
-      &:not(:last-child) {
-        margin-right: 2rem;
-      }
-
-      &:hover {
-        .icon {
-          color: $color-primary;
-        }
-      }
-      .icon {
-        height: 2rem;
-        // width: 2rem;
-        color: $color-grey;
-      }
-    }
-  }
-}
-
-.dropdown-heading {
-  &:not(:first-child) {
-    margin-top: 0.8rem;
-  }
-  color: $color-grey;
-  font-weight: 500;
-}
-
-.dropdown-info {
-  font-size: 1.5rem;
-  font-weight: 300;
-}
-
-textarea {
-  resize: none;
-  height: 10rem !important;
-}
-
-.delete-button {
-  position: absolute;
-  bottom: 2rem;
-  right: 2rem;
-}
-
-.dialogue-content {
-  height: 100%;
-  width: 30rem;
-
-  h4 {
-    span {
-      color: $color-error;
-    }
-  }
-  .dialogue-row {
-    margin-top: 3rem;
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    button {
-      width: 45%;
-    }
-  }
-}
-
-.right {
-  float: right;
-}
-
-.inline {
-  display: inline-block;
-}
-</style>

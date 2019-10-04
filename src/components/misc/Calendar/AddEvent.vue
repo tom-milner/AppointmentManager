@@ -34,6 +34,20 @@
       </select>
     </div>
 
+    <!-- Recurring Input -->
+    <div v-if="chosenAppointmentType._id" class="segment recurring">
+      <h4 class="form-heading">Is it recurring?</h4>
+      <h4
+        class="heading-4"
+        :class="{'success': chosenAppointmentType.isRecurring,
+        'error': !chosenAppointmentType.isRecurring}"
+      >{{chosenAppointmentType.isRecurring ? "Yes" : "No"}}</h4>
+      <h4
+        v-if="chosenAppointmentType.isRecurring"
+        class="form-heading"
+      >{{chosenAppointmentType.recurringDuration}} weeks.</h4>
+    </div>
+
     <!-- Error Message -->
     <div v-if="errorMessage.length > 0" class="segment">
       <h4 class="heading-4 error">{{errorMessage}}</h4>
@@ -46,6 +60,43 @@
   </div>
 </template>
 
+
+
+<style lang="scss" scoped>
+@import "src/scss/global";
+
+.headers {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  .dialogue-date {
+    text-align: right;
+  }
+  .dialoge-header {
+    text-align: left;
+  }
+}
+
+.segment {
+  &:not(:last-child) {
+    margin-bottom: 2rem;
+  }
+
+  &.recurring {
+    h4 {
+      display: inline;
+      margin-right: 2rem;
+
+      &.heading-4 {
+        margin-right: 1rem;
+      }
+    }
+  }
+}
+</style>
+
+
 <script>
 import Utils from "@/utils";
 import AppointmentTypeService from "@/services/AppointmentTypeService";
@@ -54,7 +105,6 @@ export default {
     return {
       errorMessage: "",
       chosenTime: {},
-      notes: String,
       timeSlots: [],
       // appointment buffer time
       appointmentBufferTime: 10,
@@ -124,7 +174,6 @@ export default {
         this.chosenAppointmentType.duration,
         "minutes"
       );
-      console.log(appointmentDuration.toString());
 
       // initialize empty timeSlots array
       let timeSlots = [];
@@ -224,26 +273,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss" scoped>
-@import "src/scss/global";
-
-.headers {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 2rem;
-  .dialogue-date {
-    text-align: right;
-  }
-  .dialoge-header {
-    text-align: left;
-  }
-}
-
-.segment {
-  &:not(:last-child) {
-    margin-bottom: 2rem;
-  }
-}
-</style>
