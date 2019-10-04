@@ -9,6 +9,8 @@ async function createAppointmentType(req, res) {
     let duration = req.body.duration;
     let description = req.body.description;
     let isRecurring = req.body.isRecurring;
+    let recurringDuration = req.body.recurringDuration;
+
 
 
     // create new appointment type
@@ -16,7 +18,8 @@ async function createAppointmentType(req, res) {
       name: name,
       duration: duration,
       description: description,
-      isRecurring: isRecurring
+      isRecurring: isRecurring,
+      recurringDuration: recurringDuration
     });
 
     let createdAppointmentType = await newAppointmentType.save();

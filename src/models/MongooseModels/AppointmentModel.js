@@ -56,6 +56,15 @@ let appointmentSchema = new Schema({
   clientCanAttend: {
     type: Boolean,
     default: true
+  },
+  recurringSeriesId: {
+    type: Schema.Types.ObjectId,
+    required: this.isRecurring
+  },
+  recurringNo: {
+    type: Number,
+    default: 0,
+    required: this.isRecurring
   }
 });
 

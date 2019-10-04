@@ -1,14 +1,17 @@
 const CounsellorModel = require("../../models/MongooseModels/CounsellorModel");
 const ErrorController = require("../ErrorController");
 
-// get list of all the counsellors 
+// get list of all the counsellors
 async function getAllCounsellorsReduced(req, res) {
   try {
     // get all the counsellors but exclude their personal information.
-    let counsellors = await CounsellorModel.find({}, {
-      email: 0,
-      type: 0
-    });
+    let counsellorQuery = CounsellorModel.find().select("-email")
+
+    // limit amount of counsellors returned
+    const limit = parseInt(req.query.limit);
+    if (limit) counsellorQuery.limit(limit);
+
+    const counsellors = await counsellorQuery.exec();
     // make sure counsellors could be found
     if (counsellors.length === 0) {
       throw {
@@ -25,7 +28,7 @@ async function getAllCounsellorsReduced(req, res) {
   } catch (error) {
     console.log(error);
 
-    let errorMessage = error.message || "Error returning counsellors."
+    let errorMessage = error.message || "Error returning counsellors.";
     let errorCode = error.code || 500;
 
     ErrorController.sendError(res, errorMessage, errorCode);
@@ -68,7 +71,6 @@ async function updateCounsellor(req, res) {
 function getCounsellor({
   reduced
 }) {
-
   return async function (req, res) {
     let counsellorId = req.params.counsellorId;
 
@@ -76,31 +78,29 @@ function getCounsellor({
       // get the counsellor.
       let counsellor = await CounsellorModel.findById(counsellorId);
 
-      // If we need to return a reduced object, recreate the counsellor object with the required data. 
-      if (reduced) counsellor = {
-        firstname: counsellor.firstname,
-        lastname: counsellor.lastname,
-        _id: counsellor._id,
-        workingDays: counsellor.workingDays
-      };
+      // If we need to return a reduced object, recreate the counsellor object with the required data.
+      if (reduced)
+        counsellor = {
+          firstname: counsellor.firstname,
+          lastname: counsellor.lastname,
+          _id: counsellor._id,
+          workingDays: counsellor.workingDays
+        };
 
       res.status(200).send({
         message: "Counsellor returned successfully",
         success: true,
-        counsellor: counsellor,
+        counsellor: counsellor
       });
     } catch (error) {
-
       console.log(error);
       ErrorController.sendError(res, "Counsellor couldn't be found", 400);
-
     }
-  }
+  };
 }
-
 
 module.exports = {
   getAllCounsellorsReduced,
   updateCounsellor,
-  getCounsellor,
-}
+  getCounsellor
+};

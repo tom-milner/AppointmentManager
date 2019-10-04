@@ -4,6 +4,7 @@ const AppointmentControllerHelpers = require("./AppointmentControllerHelpers");
 const ErrorController = require("../ErrorController");
 const Role = require("../../models/Role");
 const moment = require("moment");
+let MongooseObjectId = require("mongoose").Types.ObjectId;
 
 // Fetch all appointments regardless
 
@@ -11,9 +12,11 @@ const moment = require("moment");
 async function getAllAppointments(req, res) {
   try {
     // get appointments and sort them
-    let allAppointments = await AppointmentModel.find({}).sort({
-      startTime: "asc"
-    }).populate("appointmentType");
+    let allAppointments = await AppointmentModel.find({})
+      .sort({
+        startTime: "asc"
+      })
+      .populate("appointmentType");
     // return the appointments
     res.send(allAppointments);
   } catch (error) {
@@ -27,7 +30,6 @@ function getAppointmentsOfUser({
   isCounsellor
 }) {
   return async function (req, res) {
-
     // dynamically construct mongoose query
     const appointmentQuery = AppointmentModel.find();
 
@@ -35,10 +37,8 @@ function getAppointmentsOfUser({
     const userId = req.params.userId;
     let fromTime = req.query.fromTime;
 
-
     // Check to see if user needs appointments from a certain time.
     if (fromTime) {
-      fromTime = moment(req.params.fromTime);
       // adjust query so that only appointments after fromTime will be selected.
       appointmentQuery.where("startTime").gte(fromTime);
     }
@@ -50,7 +50,6 @@ function getAppointmentsOfUser({
       appointmentQuery.select("+counsellorNotes");
     } else {
       appointmentQuery.where("clients", userId);
-
     }
 
     // sort appointments in ascending order
@@ -60,6 +59,10 @@ function getAppointmentsOfUser({
 
     // make appointments contain their appointment type
     appointmentQuery.populate("appointmentType");
+
+    // check limits
+    let limit = parseInt(req.query.limit);
+    if (limit) appointmentQuery.limit(limit);
 
     try {
       // execute the query
@@ -86,7 +89,6 @@ function getAppointmentsOfUser({
       console.log(error);
       // return an error message
       ErrorController.sendError(res, "Error returning appointments.", 400);
-
     }
   };
 }
@@ -95,7 +97,6 @@ function getAppointmentsOfUser({
 async function insertAppointment(req, res) {
   try {
     // load  info from body
-    const appointmentStartTime = moment(req.body.startTime);
     const appointmentTypeId = req.body.typeId;
     const counsellorId = req.body.counsellorId;
     let clientId, counsellorNotes, clientNotes;
@@ -104,7 +105,6 @@ async function insertAppointment(req, res) {
     if (req.user.role >= Role.Counsellor) {
       clientId = req.body.clientId;
       counsellorNotes = req.body.counsellorNotes;
-
     } else {
       // clients can only make appointments for themselves.
       clientId = req.user._id;
@@ -112,60 +112,105 @@ async function insertAppointment(req, res) {
     }
 
     // make sure the appointment type exist
-    let appointmentType = await AppointmentControllerHelpers.getAppointmentType(appointmentTypeId);
-    if (!appointmentType) throw {
-      message: "Appointment type doesn't exist",
-      code: 400
-    }
+    let appointmentType = await AppointmentControllerHelpers.getAppointmentType(
+      appointmentTypeId
+    );
+    if (!appointmentType)
+      throw {
+        message: "Appointment type doesn't exist",
+        code: 400
+      };
+    // calculate start time
+    let appointmentStartTime = moment(req.body.startTime);
+
     // calculate end time
     let appointmentEndTime = moment(appointmentStartTime);
     appointmentEndTime.add(appointmentType.duration, "minutes");
 
-    let error;
-    // check to see if client is free
-    error = await AppointmentControllerHelpers.checkClientAvailability(
-      appointmentStartTime,
-      appointmentEndTime,
-      clientId
-    );
-    // throw error
-    if (error) throw error;
-
-    // check to see if counsellor is free
-    error = await AppointmentControllerHelpers.checkCounsellorAvailablity(
-      appointmentStartTime,
-      appointmentEndTime,
-      counsellorId
-    );
-    // throw the error
-    if (error) throw error;
-
-
-
-    // Create new appointment model
-    let appointment = new AppointmentModel({
+    let appointmentInfo = {
       title: req.body.title,
       startTime: appointmentStartTime,
-      // TODO: add buffer to end time
       endTime: appointmentEndTime,
-      appointmentType: appointmentTypeId,
-      // This is an array as I plan on adding support for multiple clients. This is an extension objective.
-      clients: [clientId],
-      isApproved: false,
+      clientId: clientId,
       counsellorId: counsellorId,
       clientNotes: clientNotes,
-      counsellorNotes: counsellorNotes
-    });
+      counsellorNotes: counsellorNotes,
+      appointmentType: appointmentType,
+      recurringNo: 0
+    };
+    let createdAppointments = [];
+    if (appointmentType.isRecurring) {
+
+      // give the recurring series of appointments an ID so that they can be found together easily.
+      let recurringSeriesId = new MongooseObjectId();
+      appointmentInfo.recurringSeriesId = recurringSeriesId;
+
+      // create the recurrring appointments
+      let appointments = [];
+      appointments.push(appointmentInfo);
+
+      let originalStart = appointmentInfo.startTime.clone();
+      let originalEnd = appointmentInfo.endTime.clone();
 
 
-    // Save the model to the database
-    let createdAppointment = await appointment.save()
+      // add the recurring appointments
+      for (
+        let index = 1; index < appointmentInfo.appointmentType.recurringDuration; index++
+      ) {
+        let newStart = originalStart.add(1, "week");
+        let newEnd = originalEnd.add(1, "week");
+
+        const newAppointment = Object.assign({}, appointmentInfo);
+        newAppointment.startTime = moment(newStart);
+        newAppointment.endTime = moment(newEnd);
+        newAppointment.recurringNo = index;
+        // add appointment
+        appointments[index] = newAppointment;
+      }
+
+      appointments.forEach(appo => {
+        console.log(appo.startTime.format("lll"));
+      });
+
+      // check that the counsellor and client can make all the appointments.
+      for (let appointment of appointments) {
+        let error = await AppointmentControllerHelpers.checkAllAvailability(
+          appointment.startTime,
+          appointment.endTime,
+          appointment.clientId,
+          appointment.counsellorId
+        );
+        if (error)
+          throw {
+            message: error.message,
+            code: error.code
+          };
+      }
+
+      // all appointments are free, so book them;
+      for (let appointment of appointments) {
+        createdAppointments.push(
+          await AppointmentControllerHelpers.createAndSaveAppointmentModel(
+            appointment
+          )
+        );
+      }
+    } else {
+      // create single appointment
+      createdAppointments.push(
+        await AppointmentControllerHelpers.createAndSaveAppointmentModel(
+          appointmentInfo
+        )
+      );
+    }
+
+    // create and save appointment model
 
     // Send back new appointment
     res.send({
       success: true,
       message: "Appointment created successfully",
-      appointment: createdAppointment
+      appointments: createdAppointments
     });
     // Catch any errors and respond appropriately
   } catch (error) {
@@ -176,7 +221,6 @@ async function insertAppointment(req, res) {
 }
 
 async function updateAppointment(req, res) {
-
   let newAppointmentProperties = req.body.appointmentProperties;
   let appointmentId = req.params.appointmentId;
 
@@ -185,10 +229,11 @@ async function updateAppointment(req, res) {
     if (req.user.role == Role.Client) {
       let appointment = await AppointmentModel.findById(appointmentId);
       let validClient = appointment.clients.indexOf(req.user._id) > -1;
-      if (!validClient) throw {
-        message: "You do not have permission to edit this appointment.",
-        code: 403
-      }
+      if (!validClient)
+        throw {
+          message: "You do not have permission to edit this appointment.",
+          code: 403
+        };
     }
 
     let updatedAppointment = await AppointmentModel.findByIdAndUpdate(
@@ -213,18 +258,53 @@ async function updateAppointment(req, res) {
       updatedAppointment: updatedAppointment
     });
   } catch (error) {
-
-    let errorMessage = error.message || "Error updating appointment."
+    let errorMessage = error.message || "Error updating appointment.";
     let errorCode = error.code || 400;
     ErrorController.sendError(res, errorMessage, errorCode);
   }
 }
 
+async function deleteAppointment(req, res) {
+  let appointmentId = req.params.appointmentId;
+  let deleteRecurring = req.body.deleteRecurring;
+
+  try {
+    let deletedAppointment = await AppointmentModel.findByIdAndDelete(
+      appointmentId
+    );
+    if (!deletedAppointment)
+      throw {
+        message: "Appointment doesn't exist."
+      };
+
+    if (deleteRecurring) {
+      // delete all recurring appointments
+      console.log("deleting");
+      let deletedRecurringSeries = await AppointmentModel.deleteMany({
+        recurringSeriesId: deletedAppointment.recurringSeriesId
+      })
+
+      console.log(deletedRecurringSeries);
+    }
+
+    res.status(200).send({
+      success: true,
+      message: "Appointments deleted successfully."
+    });
+  } catch (error) {
+    ErrorController.sendError(
+      res,
+      error.message || "Error deleting appointment",
+      400
+    );
+  }
+}
 
 // expose functions
 module.exports = {
   insertAppointment,
   getAllAppointments,
   getAppointmentsOfUser,
-  updateAppointment
+  updateAppointment,
+  deleteAppointment
 };
