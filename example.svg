@@ -434,7 +434,7 @@
 <g id="node18" class="node"><title>140</title>
 <polygon fill="khaki" stroke="black" points="33868.3,-675.1 33868.3,-741.5 34113.7,-741.5 34113.7,-675.1 33868.3,-675.1"/>
 <text text-anchor="middle" x="33991" y="-724.9" font-family="Times,serif" font-size="14.00">«FUNCTION&#45;EXPRESSION&#45;NAME»</text>
-<text text-anchor="middle" x="33991" y="-708.1" font-family="Times,serif" font-size="14.00"> getAllClients(req,res)</text>
+<text text-anchor="middle" x="33991" y="-708.1" font-family="Times,serif" font-size="14.00"> getClients(req,res)</text>
 <polyline fill="none" stroke="black" points="33868.3,-699.9 34113.7,-699.9 "/>
 <text text-anchor="start" x="33876.3" y="-683.3" font-family="Times,serif" font-size="14.00">&#45;allClients : variable = await</text>
 </g>

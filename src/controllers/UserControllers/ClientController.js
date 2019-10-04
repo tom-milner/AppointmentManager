@@ -3,12 +3,18 @@ const ErrorController = require("../../controllers/ErrorController");
 const Utils = require("../../utils/Utils");
 
 // get all the clients
-async function getAllClients(req, res) {
+async function getClients(req, res) {
   // return all the clients.
   // TODO: implement limits
+  const limit = parseInt(req.query.limit);
+
+  let clientQuery = ClientModel.find({}).select("username firstname lastname email");
+
+  if (limit) clientQuery.limit(limit);
+
 
   try {
-    let allClients = await ClientModel.find({}, "username firstname lastname email");
+    let allClients = await clientQuery.exec();
     res.status(200).send({
       success: true,
       message: "Clients returned successfully.",
@@ -80,7 +86,7 @@ async function updateClient(req, res) {
 
 
 module.exports = {
-  getAllClients,
+  getClients,
   getClient,
   updateClient
 }

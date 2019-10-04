@@ -185,8 +185,28 @@ function updateAppointment(req, res, next) {
   }
 }
 
+function deleteAppointment(req, res, next) {
+
+
+  let appointmentId = req.params.appointmentId;
+  let deleteRecurring = req.body.deleteRecurring;
+  console.log(req.body);
+  if (deleteRecurring && typeof deleteRecurring !== "boolean") {
+    ErrorController.sendError(res, "deleteRecurring must be a boolean", 400);
+    return;
+  }
+
+  let validId = Utils.validateMongoId(appointmentId);
+  if (!validId) {
+    ErrorController.sendError(res, "Invalid Id", 400)
+    return;
+  };
+  console.log(validId);
+  next();
+}
 
 module.exports = {
   insertAppointment,
-  updateAppointment
+  updateAppointment,
+  deleteAppointment
 }

@@ -78,4 +78,13 @@ router.post(
   AppointmentController.updateAppointment
 );
 
+// delete an appointment
+router.post("/delete/:appointmentId",
+  AuthenticationMiddleware.roleCheck({
+    role: Role.Client,
+    userSpecific: true
+  }),
+  AppointmentControllerPolicy.deleteAppointment,
+  AppointmentController.deleteAppointment)
+
 module.exports = router;

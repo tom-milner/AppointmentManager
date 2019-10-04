@@ -11,7 +11,7 @@ const Role = require("../../models/Role");
 // all routes are under "/clients"
 
 // get list of all clients.
-router.get("/", ClientController.getAllClients);
+router.get("/", ClientController.getClients);
 
 // get info about client
 router.get("/full/:clientId", AuthenticationMiddleware.roleCheck({

@@ -6,27 +6,37 @@ const AuthenticationMiddleware = require("../../middleware/AuthenticationMiddlew
 const Role = require("../../models/Role");
 const CounsellorControllerPolicy = require("../../policies/UserPolicies/CounsellorControllerPolicy");
 
-
 // get list of counsellors
 router.get("/", CounsellorController.getAllCounsellorsReduced);
 
 // update counsellor
-router.post("/:counsellorId", AuthenticationMiddleware.roleCheck({
-  role: Role.Counsellor,
-  useSpecific: true
-}), CounsellorControllerPolicy.updateCounsellor, CounsellorController.updateCounsellor)
+router.post(
+  "/:counsellorId",
+  AuthenticationMiddleware.roleCheck({
+    role: Role.Counsellor,
+    useSpecific: true
+  }),
+  CounsellorControllerPolicy.updateCounsellor,
+  CounsellorController.updateCounsellor
+);
 
 // get all info about a counsellor
-router.get("/full/:counsellorId", AuthenticationMiddleware.roleCheck({
-  role: Role.Counsellor
-}), CounsellorController.getCounsellor({
-  reduced: false
-}));
+router.get(
+  "/full/:counsellorId",
+  AuthenticationMiddleware.roleCheck({
+    role: Role.Counsellor
+  }),
+  CounsellorController.getCounsellor({
+    reduced: false
+  })
+);
 
 // get reduced info about a counsellor (wokring hours, name etc)
-router.get("/:counsellorId", CounsellorController.getCounsellor({
-  reduced: true
-}));
-
+router.get(
+  "/:counsellorId",
+  CounsellorController.getCounsellor({
+    reduced: true
+  })
+);
 
 module.exports = router;
