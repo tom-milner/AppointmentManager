@@ -140,7 +140,10 @@ export default {
       // set the rectangle of screen that the event resides in.
       this.screenToAvoid = event.el.getBoundingClientRect();
       // toggle the event popup
-      this.toggleViewEventPopup();
+      // this.toggleViewEventPopup();
+      this.$emit("display-appointment", {
+        _id: event.event.id
+      });
     },
 
     // triggered when user clicks on a day

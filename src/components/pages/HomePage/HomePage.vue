@@ -45,7 +45,11 @@
     <!-- Calendar -->
     <div class="container">
       <h3 class="heading-3">Your Calendar</h3>
-      <appointment-calendar :events="events" class="calendar"></appointment-calendar>
+      <appointment-calendar
+        v-on:display-appointment="toggleModal"
+        :events="events"
+        class="calendar"
+      ></appointment-calendar>
     </div>
 
     <!-- Modal -->
@@ -126,10 +130,16 @@ export default {
 
       this.appointments = response.data.appointments;
     },
-    toggleModal: function(appointment) {
+    toggleModal: function(chosenAppointment) {
       //reload appointments
       this.getUserAppointments();
-      this.selectedAppointment = appointment;
+      if (chosenAppointment) {
+        this.selectedAppointment = this.appointments.find(appointment => {
+          return chosenAppointment._id == appointment._id;
+        });
+      } else {
+        this.selectedAppointment = {};
+      }
       this.modalDisplayed = !this.modalDisplayed;
     }
   },
@@ -155,7 +165,8 @@ export default {
     this.events.clientEvents = this.appointments.map(appointment => ({
       title: appointment.title,
       end: appointment.endTime,
-      start: appointment.startTime
+      start: appointment.startTime,
+      id: appointment._id
     }));
   }
 };
