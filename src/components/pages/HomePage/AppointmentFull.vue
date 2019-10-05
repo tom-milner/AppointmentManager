@@ -35,7 +35,7 @@
       </li>
 
       <!-- No. of appointment in recurring series -->
-      <li class="appointment-details-row">
+      <li v-if="appointment.appointmentType.isRecurring" class="appointment-details-row">
         <icon class="icon" name="refresh-ccw"></icon>
         <h4
           class="heading-4"
@@ -104,9 +104,10 @@
     <Dialogue @close-dialogue="showDeleteDialogue = false" v-if="showDeleteDialogue">
       <div class="dialogue-content">
         <h4 class="heading-4">Do you want to delete this appointment?</h4>
-        <h4 class="heading-4" v-if="appointment.appointmentType.isRecurring">
-          <i>(You can also delete all the recurring appointments)</i>
-        </h4>
+        <h4
+          class="heading-4"
+          v-if="appointment.appointmentType.isRecurring"
+        >(You can also delete all the recurring appointments)</h4>
         <div class="dialogue-buttons">
           <button
             class="btn btn-disapproved"
@@ -332,6 +333,7 @@ export default {
   h4 {
     &:not(:first-child) {
       margin-top: 0.5rem;
+      font-style: italic;
       color: $color-grey;
     }
   }

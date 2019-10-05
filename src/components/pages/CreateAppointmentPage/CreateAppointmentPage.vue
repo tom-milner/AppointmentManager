@@ -222,17 +222,18 @@ export default {
           counsellorNotes: this.counsellorNotes
         };
         // send request
-        let result = await AppointmentService.requestAppointment(appointment);
+        let response = await AppointmentService.requestAppointment(appointment);
         // check for server error
-        if (!result.data.success) {
-          throw result;
+        if (!response.data.success) {
+          throw { response };
         }
 
         // request was a success (appointment has been made) - redirect user
         this.$router.push("/home");
       } catch (error) {
+        console.log(error);
         if (Utils.isString(error)) this.errorMessage = error;
-        else this.errorMessage = error.data.message;
+        else this.errorMessage = error.response.data.message;
       }
     },
 
