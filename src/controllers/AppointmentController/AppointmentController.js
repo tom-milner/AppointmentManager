@@ -15,8 +15,7 @@ async function getAllAppointments(req, res) {
     let allAppointments = await AppointmentModel.find({})
       .sort({
         startTime: "asc"
-      })
-      .populate("appointmentType");
+      });
     // return the appointments
     res.send(allAppointments);
   } catch (error) {
@@ -58,7 +57,7 @@ function getAppointmentsOfUser({
     });
 
     // make appointments contain their appointment type
-    appointmentQuery.populate("appointmentType");
+    appointmentQuery;
 
     // check limits
     let limit = parseInt(req.query.limit);
@@ -138,6 +137,8 @@ async function insertAppointment(req, res) {
       appointmentType: appointmentType,
       recurringNo: 0
     };
+
+    console.log(appointmentInfo);
     let createdAppointments = [];
     if (appointmentType.isRecurring) {
 

@@ -5,7 +5,6 @@ let appointmentTypeSchema = new Schema({
   name: {
     type: String,
     require: true,
-    unique: true,
     maxlength: 20,
   },
   duration: {
