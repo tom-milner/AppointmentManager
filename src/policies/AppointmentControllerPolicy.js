@@ -3,17 +3,18 @@ const Role = require("../models/Role");
 const AppointmentModel = require("../models/MongooseModels/AppointmentModel");
 const Utils = require("../utils/Utils");
 const ErrorController = require("../controllers/ErrorController");
+const moment = require("moment");
 
 function insertAppointment(req, res, next) {
-
-
   // first check presence
   const joiSchema = {
     startTime: Joi.date().required(),
     title: Joi.string().required(),
     typeId: Joi.string().required(),
     counsellorId: Joi.string().required(),
-    clientNotes: Joi
+    clientNotes: Joi.string().allow(""),
+    clientId: Joi.string().allow(""),
+    counsellorNotes: Joi.string().allow("")
   }
   try {
     const {
@@ -41,6 +42,12 @@ function insertAppointment(req, res, next) {
           break;
         case "clientNotes":
           errorMessage = "Invalid clientNotes";
+          break;
+        case "counsellorNotes":
+          errorMessage = "Invalid counsellor notes."
+          break;
+        case "clientId":
+          errorMessage = "Invalid client Id";
           break;
         default:
           errorMessage = "Error creating appointment";
@@ -71,11 +78,31 @@ function insertAppointment(req, res, next) {
       });
     }
 
+    // check client Id
+    if (validatedBody.clientId) {
+      let clientIsValid = Utils.validateMongoId(validatedBody.clientId);
+      if (!clientIsValid) {
+        throw ({
+          message: "Invalid client id",
+          code: 400
+        });
+      }
+    }
+
+    // clients can't make appointments in past
+    let now = moment();
+    if (moment(validatedBody.startTime).isBefore(now)) {
+      throw ({
+        message: "Appointment start time must be in the future",
+        code: 400
+      });
+    }
+
     // let the request through - all data is valid.
     next();
 
   } catch (error) {
-
+    console.log(error);
     let errorMessage = error.message || "Error validating request body.";
     let errorCode = error.code || 500;
 
@@ -88,30 +115,38 @@ function insertAppointment(req, res, next) {
 // checks if user has required access level to change property
 function updateAppointment(req, res, next) {
   try {
-    // first validate body (Joi isn't needed as there's only one variable to validate)
+
+    //  validate appointment Id
+    let validAppointmentId = Utils.validateMongoId(req.params.appointmentId);
+    if (!validAppointmentId) {
+      throw ({
+        message: "Invalid appointment Id",
+        code: 400
+      })
+    }
+
+    // validate body (Joi isn't needed as there's only one variable to validate)
     if (!req.body.appointmentProperties) {
       throw ({
         message: "No properties found",
         code: 400
       });
     }
+
     let requestedAppointmentProperties = Object.keys(req.body.appointmentProperties);
 
     // get list of all the properties of the model.
     // AppointmentModel.schema is the original schema of the model. .paths is an object containing all tyhe properties of the schema.
     let allAppointmentProperties = Object.keys(AppointmentModel.schema.paths);
 
-    // get current user 
-    let user = req.user;
-
     // allowedProperties is a whitelist of properties that can be edited
     let allowedProperties = [];
-    switch (user.role) {
+    switch (req.user.role) {
       // no case for guests - they can't edit anything
       case Role.Client:
         // client can only access clientCanAttend (for now)
         // TODO: Move this into file of constants
-        allowedProperties.push("clientCanAttend");
+        allowedProperties.push("clientCanAttend", "clientNotes");
         break;
       case Role.Counsellor: // THIS IS INTENTIONAL!! If the users role if Counsellor the switch will cascade to admin, as they (currently) have the same update rights.
       case Role.Admin:
@@ -137,16 +172,6 @@ function updateAppointment(req, res, next) {
       });
     }
 
-
-    //  validate appointment Id
-    let validAppointmentId = Utils.validateMongoId(req.params.appointmentId);
-    if (!validAppointmentId) {
-      throw ({
-        message: "Invalid appointment Id",
-        code: 400
-      })
-    }
-
     // user can access all properties - allow request to be processed
     next();
 
@@ -160,8 +185,28 @@ function updateAppointment(req, res, next) {
   }
 }
 
+function deleteAppointment(req, res, next) {
+
+
+  let appointmentId = req.params.appointmentId;
+  let deleteRecurring = req.body.deleteRecurring;
+  console.log(req.body);
+  if (deleteRecurring && typeof deleteRecurring !== "boolean") {
+    ErrorController.sendError(res, "deleteRecurring must be a boolean", 400);
+    return;
+  }
+
+  let validId = Utils.validateMongoId(appointmentId);
+  if (!validId) {
+    ErrorController.sendError(res, "Invalid Id", 400)
+    return;
+  };
+  console.log(validId);
+  next();
+}
 
 module.exports = {
   insertAppointment,
-  updateAppointment
+  updateAppointment,
+  deleteAppointment
 }

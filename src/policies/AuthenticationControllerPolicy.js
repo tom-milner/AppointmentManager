@@ -28,12 +28,8 @@ function register(req, res, next) {
         errorMessage = "You must provide a valid email address";
         break;
       case "password":
-        errorMessage = `The password provided failed to match the following rules: 
-                        <br>
-                        1. It must contain ONLY the following characters: lower case, upper case, numerics, and punctuation.
-                        <br>
-                        2. It must be at least 8 characters in length and not greater than 32 characters in length.
-                        `
+        errorMessage =
+          "Password must be at least 8 characters in length and not greater than 32 characters in length."
         errorCode = 400;
         break;
 
@@ -51,8 +47,73 @@ function register(req, res, next) {
 
 }
 
+function forgotPassword(req, res, next) {
+  const joiSchema = {
+    email: Joi.string().email().required()
+  }
+
+  const {
+    error,
+  } = Joi.validate(req.body, joiSchema);
+
+  let errorMessage, errorCode;
+
+  if (error) {
+    if (error.details[0].context.key == "email") {
+      errorMessage = "Invalid email."
+      errorCode = 400;
+    } else {
+      errorMessage = "Error sending reset email"
+      errorCode = 400;
+    }
+    ErrorController.sendError(res, errorMessage, errorCode);
+    return;
+  }
+
+  // email is fine
+  next();
+}
+
+function resetPassword(req, res, next) {
+
+  const joiSchema = {
+    password: Joi.string().min(8).max(32).required(),
+    token: Joi.string().hex().length(128).required()
+  }
+
+  const {
+    error
+  } = Joi.validate(req.body, joiSchema);
+
+  let errorMessage, errorCode;
+  if (error) {
+    console.log(error);
+    switch (error.details[0].context.key) {
+      case "password":
+        errorMessage = "Password must be between 8 and 32 characters in length";
+        errorCode = 400;
+        break;
+      case "token":
+
+        errorMessage = "Invalid token.";
+        errorCode = 400;
+        break;
+      default:
+        errorMessage = "Error sending reset email"
+        errorCode = 400;
+    }
+    ErrorController.sendError(res, errorMessage, errorCode);
+    return;
+
+  }
+
+  next();
+
+}
 
 
 module.exports = {
-  register
+  register,
+  forgotPassword,
+  resetPassword
 }

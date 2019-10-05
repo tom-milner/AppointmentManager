@@ -23,19 +23,18 @@ let appointmentSchema = new Schema({
     ref: "UserModel"
   },
   // clients that booked the appointment
-  clients: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "UserModel"
-    }
-  ],
+  clients: [{
+    type: Schema.Types.ObjectId,
+    ref: "UserModel"
+  }],
   // client notes about appointment
   clientNotes: {
     type: String
   },
   // counsellor notes about appointment
   counsellorNotes: {
-    type: String
+    type: String,
+    select: false
   },
   // location of appointment
 
@@ -57,6 +56,15 @@ let appointmentSchema = new Schema({
   clientCanAttend: {
     type: Boolean,
     default: true
+  },
+  recurringSeriesId: {
+    type: Schema.Types.ObjectId,
+    required: this.isRecurring
+  },
+  recurringNo: {
+    type: Number,
+    default: 0,
+    required: this.isRecurring
   }
 });
 

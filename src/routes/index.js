@@ -1,9 +1,9 @@
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+const router = express.Router();
 
 const AuthenticationRoutes = require("./AuthenticationRoutes");
-const AppointmentRoutes = require("./AppointmentRoutes");
-const UserRoutes = require("./UserRoutes");
+const AppointmentRoutes = require("./AppointmentRoutes/AppointmentRoutes");
+const UserRoutes = require("./UserRoutes/UserRoutes");
 
 // setup routes
 router.use("/auth", AuthenticationRoutes);

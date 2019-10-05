@@ -1,8 +1,9 @@
 const CounsellorModel = require("../../models/MongooseModels/CounsellorModel");
+const ClientModel = require("../../models/MongooseModels/ClientModel");
 const AppointmentTypeModel = require("../../models/MongooseModels/AppointmentTypeModel");
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel")
 const Utils = require("../../utils/Utils");
-
+const moment = require("moment");
 
 
 
@@ -11,12 +12,59 @@ const Utils = require("../../utils/Utils");
 // Helper functions - not called directly by route handler
 // ########################################################
 
-async function validateAppointmentType(typeId) {
-  let foundType = await AppointmentTypeModel.findById(typeId);
-  if (!foundType) return {
-    message: "Appointment type doesn't exist",
-    code: 400
+
+async function createAndSaveAppointmentModel(appointmentInfo) {
+
+
+  console.log(appointmentInfo.startTime.format("lll"));
+  // Create new appointment model
+  let appointment = new AppointmentModel({
+    title: appointmentInfo.title,
+    startTime: appointmentInfo.startTime,
+    // TODO: add buffer to end time
+    endTime: appointmentInfo.endTime,
+    appointmentType: appointmentInfo.appointmentType._id,
+    // This is an array as I plan on adding support for multiple clients. This is an extension objective.
+    clients: [appointmentInfo.clientId],
+    isApproved: false,
+    counsellorId: appointmentInfo.counsellorId,
+    clientNotes: appointmentInfo.clientNotes,
+    counsellorNotes: appointmentInfo.counsellorNotes,
+    recurringSeriesId: appointmentInfo.recurringSeriesId,
+    recurringNo: appointmentInfo.recurringNo
+  });
+
+
+  // Save the model to the database
+  let createdAppointment = await appointment.save();
+  return {
+    clash: false,
+    createdAppointment: createdAppointment
   };
+}
+
+
+async function getAppointmentType(typeId) {
+  let foundType = await AppointmentTypeModel.findById(typeId);
+  if (!foundType) return;
+  return foundType;
+}
+
+async function checkAllAvailability(
+  desiredStartTime,
+  desiredEndTime,
+  clientId,
+  counsellorId
+) {
+
+  // check client
+  let clientError = await checkClientAvailability(desiredStartTime, desiredEndTime, clientId);
+  if (clientError) return clientError;
+
+  // check counsellor
+  let counsellorError = await checkCounsellorAvailablity(desiredStartTime, desiredEndTime, counsellorId);
+  if (counsellorError) return counsellorError;
+
 }
 
 async function checkClientAvailability(
@@ -24,6 +72,16 @@ async function checkClientAvailability(
   desiredEndTime,
   clientId
 ) {
+
+  // first make sure the client exists
+  let validClient = await ClientModel.findById(clientId);
+  if (!validClient) {
+    return {
+      message: "Client doesn't exist",
+      code: 400
+    }
+  }
+
   // check to see if client has any clashing appointments
   let clashingAppointments = await AppointmentModel.find({
     clients: clientId,
@@ -70,8 +128,16 @@ async function checkCounsellorAvailablity(
   desiredEndTime,
   counsellorId
 ) {
-  // First check to see if counsellor is working the required day.
+  // First check to see if counsellor exists.
   const counsellor = await CounsellorModel.findById(counsellorId); // Get the counsellor from the database.
+  if (!counsellor) {
+    return {
+      message: "Counsellor doesn't exist",
+      code: 400
+    }
+  }
+
+  // now check to see if the counsellor if available to work at the desired time.
   let availableWorkDays = counsellor.workingDays;
 
   // get Day string from start time e.g. "Monday" (we're assuming no appointments run over 2 days)
@@ -87,7 +153,6 @@ async function checkCounsellorAvailablity(
       code: 200
     };
   }
-
   // Now check if counsellor is working the required hours.
   // create new moment objects for requested day containing the start and end times. The moment objects are needed for reliable comparison.
   let startOfDay = Utils.getMomentFromTimeString(
@@ -156,7 +221,7 @@ async function checkCounsellorAvailablity(
 }
 
 module.exports = {
-  validateAppointmentType,
-  checkClientAvailability,
-  checkCounsellorAvailablity
+  getAppointmentType,
+  checkAllAvailability,
+  createAndSaveAppointmentModel
 }

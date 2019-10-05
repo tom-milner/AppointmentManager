@@ -18,6 +18,12 @@ let appointmentTypeSchema = new Schema({
     type: Boolean,
     default: false
   },
+  recurringDuration: {
+    type: Number,
+    // only required if isRecurring is true
+    required: this.isRecurring,
+    default: 0
+  },
   description: {
     type: String,
     maxlength: 200

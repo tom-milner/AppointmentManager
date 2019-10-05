@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 
 const AppointmentTypeRoutes = require("./AppointmentTypeRoutes");
-let AppointmentController = require("../controllers/AppointmentController/AppointmentController");
-let AuthenticationMiddleware = require("../middleware/AuthenticationMiddleware");
-let AppointmentControllerPolicy = require("../policies/AppointmentControllerPolicy");
-let Role = require("../models/Role");
+let AppointmentController = require("../../controllers/AppointmentController/AppointmentController");
+let AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
+let AppointmentControllerPolicy = require("../../policies/AppointmentControllerPolicy");
+let Role = require("../../models/Role");
 
 // These routes are all under "/appointments"
 
@@ -70,9 +70,21 @@ router.post(
 
 // update an existing appointment
 router.post(
-  "/update/:appointmentId",
+  "/:appointmentId",
+  AuthenticationMiddleware.roleCheck({
+    role: Role.Client,
+  }),
   AppointmentControllerPolicy.updateAppointment,
   AppointmentController.updateAppointment
 );
+
+// delete an appointment
+router.post("/delete/:appointmentId",
+  AuthenticationMiddleware.roleCheck({
+    role: Role.Client,
+    userSpecific: true
+  }),
+  AppointmentControllerPolicy.deleteAppointment,
+  AppointmentController.deleteAppointment)
 
 module.exports = router;

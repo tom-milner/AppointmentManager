@@ -7,6 +7,10 @@ const clientSchema = new mongoose.Schema({
   role: {
     type: Number,
     default: Role.Client,
+  },
+  clinicalNotes: {
+    type: String,
+    select: false
   }
 })
 
