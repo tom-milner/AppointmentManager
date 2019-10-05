@@ -2,30 +2,30 @@
   <div class="container">
     <card v-bind:showBack="true">
       <form v-on:submit.prevent="register()" class="item-container">
-        <h1 class="heading-1">Register</h1>
+        <h2 class="heading-2">Register</h2>
         <div class="login-items">
           <div class="login-field">
-            <h3 class="form-heading">Firstname</h3>
+            <h4 class="form-heading">Firstname</h4>
             <input class="form-input" v-model="firstname" />
           </div>
           <div class="login-field">
-            <h3 class="form-heading">Lastname</h3>
+            <h4 class="form-heading">Lastname</h4>
             <input class="form-input" v-model="lastname" />
           </div>
           <div class="login-field">
-            <h3 class="form-heading">Username</h3>
+            <h4 class="form-heading">Username</h4>
             <input class="form-input" v-model="username" />
           </div>
           <div class="login-field">
-            <h3 class="form-heading">Email</h3>
+            <h4 class="form-heading">Email</h4>
             <input class="form-input" v-model="email" />
           </div>
           <div class="login-field">
-            <h3 class="form-heading">Password</h3>
+            <h4 class="form-heading">Password</h4>
             <input class="form-input" v-model="password" type="password" />
           </div>
           <div class="login-field">
-            <h3 class="form-heading">Confirm Password</h3>
+            <h4 class="form-heading">Confirm Password</h4>
             <input
               class="form-input"
               v-on:input="checkConfirmPassword()"
@@ -34,7 +34,7 @@
             />
           </div>
         </div>
-        <h4 class="heading-4 error errorText" v-html="errorMessage" />
+        <h4 class="heading-4 error errorText">{{errorMessage}}</h4>
         <button class="btn btn-primary">Submit</button>
       </form>
     </card>
@@ -116,7 +116,7 @@ export default {
   &:not(:last-child) {
     margin-bottom: 1.5rem;
   }
-
+  width: 40rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -138,6 +138,7 @@ export default {
 
 .errorText {
   margin-bottom: 1rem;
+  text-align: center;
 }
 </style>
 

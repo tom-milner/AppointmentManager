@@ -7,26 +7,37 @@
     <div class="request-form">
       <!-- Appointment Title -->
       <div class="form-field">
-        <h3 class="form-heading">Appointment Title</h3>
+        <h4 class="form-heading">Appointment Title</h4>
         <input v-model="chosenTitle" class="form-input short-input" />
       </div>
+
       <!-- Counsellor Selection Dropdown -->
       <div class="form-field">
-        <h3 class="form-heading">Counsellor</h3>
-        <div class="short-input">
-          <dropdown
-            :options="counsellors"
-            :selected="chosenCounsellor"
-            :dropdownKey="'username'"
-            v-on:updateOption="updateCounsellor"
-            :placeholder="'Choose a counsellor'"
-          ></dropdown>
-        </div>
+        <h4 class="form-heading">Counsellor</h4>
+        <select class="form-input short-input select" v-model="chosenCounsellor">
+          <option
+            v-for="counsellor in counsellors"
+            :key="counsellor._id"
+            :value="counsellor"
+          >{{counsellor.firstname}} {{counsellor.lastname}}</option>
+        </select>
+      </div>
+
+      <!-- Client selection dropdown - only for counsellors!! -->
+      <div class="form-field" v-if="userIsCounsellor">
+        <h4 class="form-heading">Client</h4>
+        <select class="form-input short-input select" v-model="chosenClient">
+          <option
+            v-for="client in clients"
+            :key="client._id"
+            :value="client"
+          >{{client.firstname}} {{client.lastname}}</option>
+        </select>
       </div>
 
       <!-- Appointment Date Selection -->
       <div class="form-field">
-        <h3 class="form-heading">Appointment Date</h3>
+        <h4 class="form-heading">Appointment Date</h4>
         <input
           :value="getFormattedChosenDate"
           :v-model="getFormattedChosenDate"
@@ -34,7 +45,7 @@
           disabled
         />
         <div
-          v-if="chosenCounsellor._id"
+          v-if="canDisplayOpenCalendarButton"
           class="btn btn-secondary short-input"
           @click="toggleAppointmentCalendarModal"
         >Choose from calendar</div>
@@ -42,13 +53,22 @@
 
       <!-- Displays the chosen appointment type (if present) -->
       <div v-if="chosenAppointmentType.duration" class="form-field">
-        <h3 class="form-heading">Appointment duration</h3>
-        <h2 class="heading-3">{{chosenAppointmentType.duration}} minutes</h2>
+        <h4 class="form-heading">Appointment Type</h4>
+        <AppointmentTypeContainer :type="chosenAppointmentType"></AppointmentTypeContainer>
       </div>
 
-      <!-- Client Notes Input -->
-      <div class="form-field">
-        <p class="form-heading">Notes:</p>
+      <!-- Counsellor notes input -->
+      <div v-if="userIsCounsellor" class="form-field">
+        <h4 class="form-heading">Counsellor Notes</h4>
+        <textarea v-model="counsellorNotes" class="form-input"></textarea>
+      </div>
+
+      <!-- Client Notes Input (Only for clients)-->
+      <div v-else class="form-field">
+        <h4 class="form-heading">Client Notes</h4>
+        <p class="paragraph note">
+          <span>Note:</span> These are viewable by your chosen counsellor
+        </p>
         <textarea v-model="clientNotes" class="form-input"></textarea>
       </div>
 
@@ -70,7 +90,7 @@
           userCanAddEvents
           v-on:close-modal="toggleAppointmentCalendarModal()"
           v-on:date-chosen="dateChosen"
-          :events="{ counsellorEvents: counsellorDates, userEvents:userDates}"
+          :events="{ counsellorEvents: counsellorDates, clientEvents:clientDates}"
           :businessHours="businessHours"
         />
       </div>
@@ -80,19 +100,33 @@
 <script>
 import AppointmentService from "@/services/AppointmentService";
 import UserService from "@/services/UserService";
-import Dropdown from "@/components/layout/Dropdown";
 import AppointmentCalendar from "../../misc/Calendar/AppointmentCalendar";
 import Modal from "@/components/layout/Modal";
 import Utils from "@/utils";
+import Role from "@/models/Role";
+import AppointmentTypeContainer from "@/components/misc/AppointmentTypeContainer";
 
 export default {
   components: {
-    Dropdown,
     AppointmentCalendar,
-    Modal
+    Modal,
+    AppointmentTypeContainer
   },
 
   computed: {
+    userIsCounsellor() {
+      return this.user.role >= Role.Counsellor;
+    },
+    // whether the user can open the calendar or not
+    canDisplayOpenCalendarButton() {
+      if (this.userIsCounsellor) {
+        // must have chosen counsellor and client
+        return this.chosenClient._id && this.chosenCounsellor._id;
+      } else {
+        // must have chosen counsellor
+        return this.chosenCounsellor._id;
+      }
+    },
     // Formats the date
     getFormattedChosenDate() {
       if (Utils.objIsEmpty(this.chosenStartTime)) return "No date chosen";
@@ -102,15 +136,18 @@ export default {
   data() {
     return {
       user: {}, // current user object
-      userDates: [], // the dates where the user is busy
+      clientDates: [], // the dates where the user is busy
       counsellorDates: [], // the dates where the counsellor is busy
       businessHours: [], // dates that the counsellor isn't available
-      chosenCounsellor: {}, // the counsellor the user has chosen
       counsellors: [], // a list of all the counsellors
+      clients: [], // all the clients
+      chosenClient: {}, // the chosen client for the appointment
+      chosenCounsellor: {}, // the counsellor the user has chosen
       chosenStartTime: {}, // the desired start time of the appointment
       chosenTitle: "", // the desired title of the appointment
       chosenAppointmentType: {}, // the desired type of the appointment
       clientNotes: "", // any notes the client (current user) has about the appointment.
+      counsellorNotes: "",
       appointmentCalendarDisplayed: false,
       errorMessage: "" // if there is an error message it is stored here.
     };
@@ -134,14 +171,12 @@ export default {
         };
       }
       // check to see if user has chosen a start time
-      if (!this.chosenStartTime._isAMomentObject) {
+      if (!this.chosenStartTime) {
         return {
           error: true,
           message: "Please choose a time and date for your appointment."
         };
       }
-
-      // TODO: create file for error message constants
 
       // check to see if user has chosen a duration
       if (!this.chosenAppointmentType.duration) {
@@ -151,6 +186,15 @@ export default {
             "Please choose a valid appointment type for your appointment."
         };
       }
+
+      // this check is only required for counsellors.
+      // Check to see if the user has chosen a client.
+      if (!this.chosenClient._id) {
+        return {
+          message: "Please choose a valid client"
+        };
+      }
+
       // data is all good!!!!
       return {
         error: false
@@ -173,45 +217,42 @@ export default {
           title: this.chosenTitle,
           typeId: this.chosenAppointmentType._id,
           counsellorId: this.chosenCounsellor._id,
-          clientNotes: this.clientNotes
+          clientId: this.chosenClient._id,
+          clientNotes: this.clientNotes,
+          counsellorNotes: this.counsellorNotes
         };
-
-        console.log(appointment);
-
         // send request
         let result = await AppointmentService.requestAppointment(appointment);
-        console.log(result.data);
         // check for server error
-        if (!result.data.success || result.data.status == 400) {
-          throw result.data.message;
+        if (!result.data.success) {
+          throw result;
         }
 
         // request was a success (appointment has been made) - redirect user
         this.$router.push("/home");
-      } catch (errorMessage) {
-        console.log(errorMessage);
-        this.errorMessage = errorMessage;
+      } catch (error) {
+        if (Utils.isString(error)) this.errorMessage = error;
+        else this.errorMessage = error.data.message;
       }
     },
 
     // when a date has been chosen from the calendar, set the local state.
     dateChosen({ appointmentStartTime, appointmentType }) {
       this.chosenStartTime = appointmentStartTime;
-
       this.chosenAppointmentType = appointmentType;
-    },
-
-    // update the local state of the counsellor.
-    updateCounsellor: function(counsellor) {
-      this.chosenCounsellor = counsellor;
     },
 
     // gets all the appointments that involve the clients
     getAppointmentsOfClient: async function() {
       // get appointments of current user
       let result = (await AppointmentService.getAppointmentsOfUser({
-        userId: this.user._id,
-        isCounsellor: false
+        userId: this.chosenClient._id,
+        isCounsellor: false,
+        params: {
+          fromTime: this.moment()
+            .startOf("week")
+            .toString()
+        }
       })).data.appointments;
       return result;
     },
@@ -222,7 +263,12 @@ export default {
       let result = (await AppointmentService.getAppointmentsOfUser({
         userId: this.chosenCounsellor._id,
         isCounsellor: true,
-        reduced: true
+        reduced: true,
+        params: {
+          fromTime: this.moment()
+            .startOf("week")
+            .toString()
+        }
       })).data.appointments;
       return result;
     },
@@ -262,7 +308,9 @@ export default {
       // Make sure we only perform requests if the user has chosen a counsellor.
       if (!this.chosenCounsellor._id) return;
 
-      //TODO: currently updating calendar to support disabled dates. check todo.md
+      // reset the chosen start time.
+      this.chosenStartTime = undefined;
+
       // update disabledDates with the dates the counsellor can't make
       this.createBusinessHours();
 
@@ -271,21 +319,30 @@ export default {
       this.counsellorDates = this.mapAppointmentsToDates(
         counsellorAppointments
       );
+    },
+    chosenClient: async function() {
+      if (!this.chosenClient._id) return;
+      // reset the chosen start time.
+      this.chosenStartTime = undefined;
+
+      // get client appointments
+      let clientAppointments = await this.getAppointmentsOfClient();
+      this.clientDates = this.mapAppointmentsToDates(clientAppointments);
     }
   },
 
   async mounted() {
-    // get all counsellors
-    this.counsellors = (await UserService.getAllCounsellors()).data.counsellors;
-
     // store user in local variable
     this.user = this.$store.state.authentication.user;
 
-    // get times when client is unavailable
-    let userAppointments = await this.getAppointmentsOfClient();
+    // get all counsellors
+    this.counsellors = (await UserService.getAllCounsellors()).data.counsellors;
 
-    // save the user dates.
-    this.userDates = this.mapAppointmentsToDates(userAppointments);
+    if (this.userIsCounsellor) {
+      this.clients = (await UserService.getAllClients()).data.clients;
+    } else {
+      this.chosenClient = this.user;
+    }
   }
 };
 </script>

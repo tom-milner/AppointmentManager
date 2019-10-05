@@ -5,11 +5,15 @@
     <!-- Current Appointment Types -->
     <div class="container">
       <h3 class="heading-3">Appointment Types</h3>
+      <p class="paragraph note">
+        <span>Note:</span> a 10 minute buffer period is automatically added between appointments.
+      </p>
       <ul class="appointment-type-list">
         <li class="list-item" v-for="type in appointmentTypes" :key="type._id">
           <AppointmentTypeContainer
+            userCanEdit
             @refresh-appointments="getAppointmentTypes"
-            :appointmentType="type"
+            :type="type"
           />
         </li>
         <li class="list-item">
@@ -23,7 +27,7 @@
 
 <script>
 import AppointmentTypeService from "@/services/AppointmentTypeService";
-import AppointmentTypeContainer from "./AppointmentTypeContainer";
+import AppointmentTypeContainer from "../../../misc/AppointmentTypeContainer";
 
 export default {
   components: {
@@ -66,7 +70,7 @@ export default {
     list-style: none;
     margin-top: 1rem;
     .list-item {
-      padding: 1rem;
+      padding: 0.75rem 0;
 
       button {
         width: 10%;

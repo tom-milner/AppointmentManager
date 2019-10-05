@@ -8,7 +8,7 @@
 
     <!-- Appointment Type Dropdown -->
     <div class="segment">
-      <h3 class="form-heading">Choose an appointment type:</h3>
+      <h4 class="form-heading">Choose an appointment type:</h4>
       <select v-model="chosenAppointmentType" class="form-input select">
         <option
           v-for="type in appointmentTypes"
@@ -20,7 +20,7 @@
 
     <!-- Start Time Input -->
     <div class="segment">
-      <h3 class="form-heading">Choose a start time:</h3>
+      <h4 class="form-heading">Choose a time slot:</h4>
       <select
         :disabled="!!!chosenAppointmentType.duration"
         v-model="chosenTime"
@@ -32,6 +32,20 @@
           :key="timeSlot.startTime.toString()"
         >{{getFormattedTimeSlot(timeSlot)}}</option>
       </select>
+    </div>
+
+    <!-- Recurring Input -->
+    <div v-if="chosenAppointmentType._id" class="segment recurring">
+      <h4 class="form-heading">Is it recurring?</h4>
+      <h4
+        class="heading-4"
+        :class="{'success': chosenAppointmentType.isRecurring,
+        'error': !chosenAppointmentType.isRecurring}"
+      >{{chosenAppointmentType.isRecurring ? "Yes" : "No"}}</h4>
+      <h4
+        v-if="chosenAppointmentType.isRecurring"
+        class="form-heading"
+      >{{chosenAppointmentType.recurringDuration}} weeks.</h4>
     </div>
 
     <!-- Error Message -->
@@ -46,18 +60,54 @@
   </div>
 </template>
 
+
+
+<style lang="scss" scoped>
+@import "src/scss/global";
+
+.headers {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  .dialogue-date {
+    text-align: right;
+  }
+  .dialoge-header {
+    text-align: left;
+  }
+}
+
+.segment {
+  &:not(:last-child) {
+    margin-bottom: 2rem;
+  }
+
+  &.recurring {
+    h4 {
+      display: inline;
+      margin-right: 2rem;
+
+      &.heading-4 {
+        margin-right: 1rem;
+      }
+    }
+  }
+}
+</style>
+
+
 <script>
 import Utils from "@/utils";
-import AppointmentService from "@/services/AppointmentService";
+import AppointmentTypeService from "@/services/AppointmentTypeService";
 export default {
   data() {
     return {
       errorMessage: "",
       chosenTime: {},
-      // 10 minutes between appointments
-      appointmentBufferTime: 10,
-      notes: String,
       timeSlots: [],
+      // appointment buffer time
+      appointmentBufferTime: 10,
       appointmentTypes: {},
       chosenAppointmentType: {}
     };
@@ -77,7 +127,7 @@ export default {
   },
   async mounted() {
     // get all the appointment types
-    this.appointmentTypes = (await AppointmentService.getAppointmentTypes()).data.appointmentTypes;
+    this.appointmentTypes = (await AppointmentTypeService.getAppointmentTypes()).data.appointmentTypes;
   },
   methods: {
     timeChosen() {
@@ -152,51 +202,67 @@ export default {
       // filter out disabled appointments.
       let filteredTimeSlots = this.filterTimeSlots(timeSlots);
 
-      filteredTimeSlots.forEach(slot => {
-        console.log(
-          slot.startTime.format("HH:mm"),
-          slot.endTime.format("HH:mm")
-        );
-      });
       this.timeSlots = filteredTimeSlots;
     },
 
     filterTimeSlots(timeSlots) {
       // create moment objects
+      let bufferTime = this.appointmentBufferTime;
       let disabledTimes = this.dayEvents.map(event => ({
-        startTime: this.moment(event.start),
-        endTime: this.moment(event.end)
+        startTime: this.moment(event.start).subtract(bufferTime, "minutes"),
+        endTime: this.moment(event.end).add(bufferTime, "minutes")
       }));
 
-      // filter out disabled events from timeslots.
-      disabledTimes.forEach(disabledTime => {
-        // find the index of any clashing timeSlots
-        let alreadyBookedIndex = timeSlots.findIndex(timeSlot => {
-          // check to see if the timeslot starts or ends during a disabled time.
+      let filteredTimeSlots = [];
+      timeSlots.forEach(timeSlot => {
+        // find the index of any disabled times.
+
+        let conflictingAppoinment = disabledTimes.find(disabledTime => {
+          // check to see if there are conflicting appointments
+
           return (
+            disabledTime.startTime.isBetween(
+              timeSlot.startTime,
+              timeSlot.endTime,
+              null,
+              "()"
+            ) ||
+            disabledTime.endTime.isBetween(
+              timeSlot.startTime,
+              timeSlot.endTime,
+              null,
+              "()"
+            ) ||
             timeSlot.startTime.isBetween(
               disabledTime.startTime,
               disabledTime.endTime,
               null,
-              [] // [] indicates inclusivity
+              "()"
             ) ||
             timeSlot.endTime.isBetween(
               disabledTime.startTime,
               disabledTime.endTime,
               null,
-              [] // [] indicates inclusivity
+              "()"
             )
           );
         });
-        // remove timeSlot from list.
-        if (alreadyBookedIndex) timeSlots.splice(alreadyBookedIndex, 1);
+
+        if (!conflictingAppoinment) {
+          filteredTimeSlots.push(timeSlot);
+        }
       });
+
       // return filtered time slots.
-      return timeSlots;
+      return filteredTimeSlots;
     },
 
     getFormattedTimeSlot(timeSlot) {
-      return timeSlot.startTime.format("HH:mm");
+      return (
+        timeSlot.startTime.format("HH:mm") +
+        " - " +
+        timeSlot.endTime.format("HH:mm")
+      );
     }
   },
   watch: {
@@ -207,26 +273,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss" scoped>
-@import "src/scss/global";
-
-.headers {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 2rem;
-  .dialogue-date {
-    text-align: right;
-  }
-  .dialoge-header {
-    text-align: left;
-  }
-}
-
-.segment {
-  &:not(:last-child) {
-    margin-bottom: 2rem;
-  }
-}
-</style>

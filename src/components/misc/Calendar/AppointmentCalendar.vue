@@ -14,7 +14,7 @@
       }"
       :plugins="calendarPlugins"
       :eventSources="[
-        { events: this.events.userEvents, className:'userEvent' },
+        { events: this.events.clientEvents, className:'userEvent' },
         { events: this.events.counsellorEvents, className:'counsellorEvent' },
       ]"
       :businessHours="businessHours"
@@ -91,7 +91,7 @@ export default {
     // This function returns all the events in an event source that are on a day.
     getEventsOfChosenDay() {
       // merge both the counsellor and user events into a single array.
-      let allEvents = this.events.userEvents.concat(
+      let allEvents = this.events.clientEvents.concat(
         this.events.counsellorEvents
       );
       // create moment object from the day chosen
@@ -140,7 +140,10 @@ export default {
       // set the rectangle of screen that the event resides in.
       this.screenToAvoid = event.el.getBoundingClientRect();
       // toggle the event popup
-      this.toggleViewEventPopup();
+      // this.toggleViewEventPopup();
+      this.$emit("display-appointment", {
+        _id: event.event.id
+      });
     },
 
     // triggered when user clicks on a day
@@ -174,19 +177,19 @@ export default {
 
     // This function removes any duplicate events in the counsellor events array (where the counsellor will be counselling the current user)
     removeDuplicateEvents: function() {
-      let userEvents = this.events.userEvents;
+      let clientEvents = this.events.clientEvents;
       let counsellorEvents = this.events.counsellorEvents;
 
       if (counsellorEvents) {
         // filter counsellorEvents, only including events that don't match the start or end time of a user event.
         counsellorEvents = counsellorEvents.filter(function(counsellorEvent) {
-          // see if userEvents contains the current counsellor event, and find it's index.
-          let index = userEvents.findIndex(
+          // see if clientEvents contains the current counsellor event, and find it's index.
+          let index = clientEvents.findIndex(
             userEvent =>
               userEvent.start == counsellorEvent.start ||
               userEvent.end == counsellorEvent.end
           );
-          // if the index is -1, counsellorEvent is not in userEvents. Therefore it can stay in counsellor events.
+          // if the index is -1, counsellorEvent is not in clientEvents. Therefore it can stay in counsellor events.
           return index == -1;
         });
         // save the filtered counsellorEvents

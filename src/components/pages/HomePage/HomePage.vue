@@ -4,7 +4,7 @@
 
     <!-- Upcoming Appointments -->
     <div class="container">
-      <h2 class="heading-2">Upcoming Approved Appointments</h2>
+      <h3 class="heading-3">Upcoming Approved Appointments</h3>
 
       <div
         v-if=" approvedAppointments!=undefined && approvedAppointments.length > 0"
@@ -24,7 +24,7 @@
 
     <!-- Pending Appointments -->
     <div class="container">
-      <h2 class="heading-2">Upcoming Pending Appointments</h2>
+      <h3 class="heading-3">Upcoming Pending Appointments</h3>
 
       <div
         v-if=" pendingAppointments!=undefined && pendingAppointments.length > 0"
@@ -44,14 +44,22 @@
 
     <!-- Calendar -->
     <div class="container">
-      <h2 class="heading-2">Your Calendar</h2>
-      <appointment-calendar :events="events" class="calendar" ></appointment-calendar>
+      <h3 class="heading-3">Your Calendar</h3>
+      <appointment-calendar
+        v-on:display-appointment="toggleModal"
+        :events="events"
+        class="calendar"
+      ></appointment-calendar>
     </div>
 
     <!-- Modal -->
     <Modal v-on:close-modal="toggleModal()" v-if="modalDisplayed">
       <div class="modal-content">
-        <AppointmentFull :isCounsellor="isUserCounsellor" :appointment="selectedAppointment"></AppointmentFull>
+        <AppointmentFull
+          :isCounsellor="isUserCounsellor"
+          :appointment="selectedAppointment"
+          v-on:appointment-deleted="toggleModal()"
+        ></AppointmentFull>
       </div>
     </Modal>
   </div>
@@ -106,18 +114,32 @@ export default {
     getUserAppointments: async function() {
       // get user appointments from API
       // check to see if user is a client or counsellor
+      let twoMonthsAgo = this.moment()
+        .subtract(2, "month")
+        .toString();
+
       let userIsCounsellor = this.user.role >= Role.Counsellor;
       let response = await AppointmentService.getAppointmentsOfUser({
         userId: this.user._id,
-        isCounsellor: userIsCounsellor
+        isCounsellor: userIsCounsellor,
+        params: {
+          fromTime: twoMonthsAgo,
+          limit: 10
+        }
       });
 
       this.appointments = response.data.appointments;
     },
-    toggleModal: function(appointment) {
+    toggleModal: function(chosenAppointment) {
       //reload appointments
       this.getUserAppointments();
-      this.selectedAppointment = appointment;
+      if (chosenAppointment) {
+        this.selectedAppointment = this.appointments.find(appointment => {
+          return chosenAppointment._id == appointment._id;
+        });
+      } else {
+        this.selectedAppointment = {};
+      }
       this.modalDisplayed = !this.modalDisplayed;
     }
   },
@@ -128,7 +150,7 @@ export default {
       user: {},
       modalDisplayed: false,
       selectedAppointment: {},
-      events: { userEvents: {} }
+      events: { clientEvents: {} }
     };
   },
   mounted: async function() {
@@ -140,10 +162,11 @@ export default {
     // this.timer = setInterval(this.getUserAppointments, 3000);
 
     // TODO: remove duplication duplication
-    this.events.userEvents = this.appointments.map(appointment => ({
+    this.events.clientEvents = this.appointments.map(appointment => ({
       title: appointment.title,
       end: appointment.endTime,
-      start: appointment.startTime
+      start: appointment.startTime,
+      id: appointment._id
     }));
   }
 };
@@ -157,7 +180,6 @@ export default {
   .no-appointments-box {
     padding: 4rem 0 0 4rem;
   }
-
 }
 
 .scrolling-appointments {

@@ -1,8 +1,8 @@
 <template>
-  <div class="wrapper">
+  <div class="appointment-type-wrapper">
     <div class="row">
       <!-- If the user is not currently editing  -->
-      <div v-if="!isEditable">
+      <div class="inline" v-if="!isEditable">
         <h4 class="heading-4">{{appointmentType.name}}</h4>
         <h4 class="heading-4">
           <span>{{appointmentType.duration}}</span>
@@ -11,17 +11,17 @@
       </div>
 
       <!-- Turn h4 into input field so user can edit -->
-      <div v-if="isEditable">
+      <div class="inline" v-if="isEditable">
         <input
           :maxlength="maxNameLength"
           type="text"
           v-model="appointmentType.name"
-          class="form-input heading-4"
+          class="form-input heading-4 header-input"
         />
         <input
           type="number"
           v-model="appointmentType.duration"
-          class="form-input heading-4 number-input"
+          class="form-input heading-4 number-input header-input"
           :max="maxDuration"
           :min="minDuration"
         />
@@ -32,20 +32,22 @@
         <h4 class="heading-4 error">{{errorMessage}}</h4>
       </div>
 
-      <!-- Dropdown Icon -->
-      <div @click="showFullAppointmentType" class="icon-box">
-        <Icon v-if="!showFullType" class="edit" name="chevron-down"></Icon>
-        <Icon v-else class="edit" name="chevron-up"></Icon>
-      </div>
+      <div class="right">
+        <!-- Dropdown Icon -->
+        <div @click="showFullAppointmentType" class="icon-box">
+          <Icon v-if="!showFullType" class="edit" name="chevron-down"></Icon>
+          <Icon v-else class="edit" name="chevron-up"></Icon>
+        </div>
 
-      <!-- Edit Button -->
-      <div @click="toggleIsEditable" class="icon-box">
-        <Icon v-if="!isEditable" class="icon" name="edit" />
+        <!-- Edit Button -->
+        <div v-if="!isEditable && userCanEdit" @click="toggleIsEditable" class="icon-box">
+          <Icon class="icon" name="edit" />
+        </div>
+
+        <!-- Save Button -->
+        <button @click="saveAppointmentType" v-if="isEditable" class="btn btn-primary">Save</button>
       </div>
-      <!-- Save Button -->
-      <button @click="saveAppointmentType" v-if="isEditable" class="btn btn-secondary">Save</button>
     </div>
-
     <!-- The extended appointment type -->
     <div v-if="showFullType">
       <!-- Appointment Type Description -->
@@ -55,18 +57,33 @@
           :disabled="!isEditable"
           class="dropdown-info form-input"
           v-model="appointmentType.description"
+          :maxlength="maxDescriptionLength"
         ></textarea>
       </div>
 
       <!-- IsRecurring -->
-      <h3 class="form-heading dropdown-heading">Recurring Appointment:</h3>
-      <p v-if="!isEditable" class="dropdown-info">{{isRecurring}}</p>
-      <button
-        @click="toggleIsRecurring"
-        class="btn"
-        :class="getRecurringButtonClass"
-        v-else
-      >{{isRecurring}}</button>
+      <div class="recurring">
+        <h4 class="form-heading dropdown-heading">Recurring Appointment:</h4>
+        <p v-if="!isEditable" class="dropdown-info">{{isRecurringText}}</p>
+        <button
+          @click="toggleIsRecurring"
+          class="btn checked"
+          :class="getRecurringButtonClass"
+          v-else
+        >{{isRecurringText}}</button>
+        <div class="recurring-duration" v-if="appointmentType.isRecurring">
+          <input
+            v-if="isEditable"
+            v-model="appointmentType.recurringDuration"
+            type="number"
+            class="form-input number-input"
+          />
+
+          <p class="paragraph">
+            <span v-if="!isEditable" class="paragraph">{{appointmentType.recurringDuration}}</span> weeks.
+          </p>
+        </div>
+      </div>
 
       <!-- Delete appointment type -->
       <button
@@ -93,6 +110,164 @@
 </template>
 
 
+
+<style lang="scss" scoped>
+@import "src/scss/global";
+.appointment-type-wrapper {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  border-radius: 2px;
+  padding: 2rem;
+  background-color: $color-grey-very-light;
+
+  border-left: 4px solid $color-primary;
+  position: relative;
+  transition: all 0.2s;
+  width: 50rem;
+  min-height: 6rem;
+  display: inline-block;
+
+  .row {
+    &:not(:last-child) {
+      margin-bottom: 1rem;
+    }
+    display: inline-block;
+    width: 100%;
+    input {
+      height: 3rem;
+      font-size: 2rem;
+      padding-left: 0.5rem;
+      width: auto;
+      display: inline-block;
+
+      &:not(:last-child) {
+        margin-right: 2rem;
+      }
+    }
+
+    h4 {
+      min-width: 12rem;
+      margin-right: 2rem;
+      display: inline-block;
+      .small {
+        font-size: 1.8rem;
+        margin: none;
+      }
+    }
+
+    .icon-box {
+      display: inline-block;
+      height: 100%;
+      width: auto;
+
+      &:not(:last-child) {
+        margin-right: 2rem;
+      }
+
+      &:hover {
+        .icon {
+          color: $color-primary;
+        }
+      }
+      .icon {
+        display: block;
+        width: 2rem;
+        height: 100%;
+        color: $color-grey;
+      }
+    }
+  }
+}
+.number-input {
+  width: 5rem;
+  padding-right: 1px;
+}
+.dropdown-heading {
+  &:not(:first-child) {
+    margin-top: 0.8rem;
+  }
+  color: $color-grey;
+  font-weight: 500;
+}
+
+.dropdown-info {
+  font-size: 1.5rem;
+  font-weight: 300;
+  display: inline;
+}
+
+textarea {
+  resize: none;
+  height: 10rem !important;
+}
+
+.delete-button {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+}
+
+.dialogue-content {
+  height: 100%;
+  width: 30rem;
+
+  h4 {
+    span {
+      color: $color-error;
+    }
+  }
+  .dialogue-row {
+    margin-top: 3rem;
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    button {
+      width: 45%;
+    }
+  }
+}
+
+.right {
+  float: right;
+  // height: 100%;
+}
+
+.inline {
+  display: inline-block;
+  width: auto;
+}
+
+.recurring {
+  vertical-align: center;
+
+  button {
+    display: inline-block;
+    margin-right: 2rem;
+    height: 3rem;
+    padding: 0 2rem;
+  }
+
+  &-duration {
+    display: inline-block;
+    height: 3rem;
+    margin-left: 1rem;
+    input {
+      // margin-top: 5rem;
+      display: inline-block;
+      height: 1.5rem;
+      font-size: 1.5rem;
+      margin-right: 0.5rem;
+      padding: 1.5rem 0 1.5rem 0.5rem;
+    }
+    p {
+      display: inline;
+      font-size: 1.5rem;
+    }
+  }
+}
+</style>
+
+
+
 <script>
 import Icon from "vue-icon/lib/vue-feather.esm";
 import AppointmentTypeService from "@/services/AppointmentTypeService";
@@ -104,10 +279,12 @@ export default {
       isEditable: false,
       errorMessage: "",
       maxNameLength: 20,
-      maxDuration: 400,
+      maxDescriptionLength: 200,
+      maxDuration: 120,
       minDuration: 5,
       showFullType: false,
-      showDeleteDialogue: false
+      showDeleteDialogue: false,
+      appointmentType: {}
     };
   },
   components: {
@@ -115,20 +292,23 @@ export default {
     Dialogue
   },
   props: {
-    appointmentType: {}
+    type: {},
+    userCanEdit: Boolean
   },
   computed: {
     getRecurringButtonClass() {
       return {
-        "btn-approved": this.appointmentType.isRecurring,
-        "btn-disapproved": !this.appointmentType.isRecurring
+        "btn-approved ": this.appointmentType.isRecurring,
+        "btn-disapproved ": !this.appointmentType.isRecurring
       };
     },
-    isRecurring() {
+    isRecurringText() {
       return this.appointmentType.isRecurring ? "Yes" : "No";
     }
   },
   beforeMount() {
+    // assign to data to avoid mutating props
+    this.appointmentType = this.type;
     if (!this.appointmentType._id) {
       this.isEditable = true;
     }
@@ -154,7 +334,7 @@ export default {
 
     // Convert minutes to hours.
     minsToHours(mins) {
-      return Math.round(mins / 600) * 10;
+      return Math.round((mins / 60) * 10) / 10;
     },
 
     // validate all user input
@@ -172,7 +352,7 @@ export default {
       if (duration < this.minDuration || duration > this.maxDuration) {
         this.errorMessage = `Max duration is ${
           this.maxDuration
-        } minutes ( ~ ${this.minsToHours(this.maxDuration)} hours)`;
+        } minutes (${this.minsToHours(this.maxDuration)} hours)`;
         return false;
       }
 
@@ -181,7 +361,9 @@ export default {
 
     // change whether the user can edit the appointment type.
     toggleIsEditable() {
-      this.isEditable = !this.isEditable;
+      if (this.userCanEdit) {
+        this.isEditable = !this.isEditable;
+      }
     },
 
     async updateAppointmentType() {
@@ -190,6 +372,7 @@ export default {
       newProperties.name = this.appointmentType.name;
       newProperties.duration = this.appointmentType.duration;
       newProperties.isRecurring = this.appointmentType.isRecurring;
+      newProperties.recurringDuration = this.appointmentType.recurringDuration;
       newProperties.description = this.appointmentType.description;
 
       // send a request to the api to update the appointment type.
@@ -248,116 +431,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss" scoped>
-@import "src/scss/global";
-.wrapper {
-  box-shadow: -1px 2px 4px rgba($color-black, 0.5);
-  border-radius: 2px;
-  padding: 2rem;
-  background-color: $color-grey-very-light;
-
-  border-left: 4px solid $color-primary;
-  position: relative;
-  transition: all 0.2s;
-  width: auto;
-  display: inline-block;
-
-  .row {
-    &:not(:last-child) {
-      margin-bottom: 1rem;
-    }
-    // put spacing between elements in row.
-    *:not(:last-child) {
-      *:not(span) {
-        margin-right: 2rem;
-      }
-    }
-
-    div {
-      display: inline-block;
-    }
-    input {
-      height: 3rem;
-      font-size: 2rem;
-      padding-left: 0.5rem;
-      width: auto;
-      margin-right: 2rem;
-    }
-
-    .number-input {
-      width: 5rem;
-      padding-right: 1px;
-    }
-    h4 {
-      min-width: 12rem;
-      margin-right: 2rem;
-      display: inline-block;
-      .small {
-        font-size: 1.8rem;
-        margin: none;
-      }
-    }
-
-    .icon-box {
-      display: inline-block;
-      height: 100%;
-      width: auto;
-      &:hover {
-        .icon {
-          color: $color-primary;
-        }
-      }
-      .icon {
-        height: 2rem;
-        // width: 2rem;
-        color: $color-grey;
-      }
-    }
-  }
-}
-
-.dropdown-heading {
-  &:not(:first-child) {
-    margin-top: 0.8rem;
-  }
-  color: $color-grey;
-  font-weight: 500;
-}
-
-.dropdown-info {
-  font-size: 1.5rem;
-  font-weight: 300;
-}
-
-textarea {
-  resize: none;
-  height: 10rem !important;
-}
-
-.delete-button {
-  position: absolute;
-  bottom: 2rem;
-  right: 2rem;
-}
-
-.dialogue-content {
-  height: 100%;
-  width: 30rem;
-
-  h4 {
-    span {
-      color: $color-error;
-    }
-  }
-  .dialogue-row {
-    margin-top: 3rem;
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    button {
-      width: 45%;
-    }
-  }
-}
-</style>

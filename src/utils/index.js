@@ -9,6 +9,11 @@ export default {
     return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
   },
 
+  // convert pixel value into rem
+  convertPixelsToRem(pixels) {
+    return pixels / parseFloat(getComputedStyle(document.documentElement).fontSize);
+  },
+
   // function to check if object is empty
   objIsEmpty(obj) {
     for (var prop in obj) {
@@ -51,6 +56,10 @@ export default {
     let newMoment = moment(originalMoment).startOf("day");
     // edit moment, changing hours and minutes
     return newMoment.hours(hours).minutes(minutes);
+  },
+
+  isString(value) {
+    return Object.prototype.toString.call(value) == "[object String]";
   }
 
 
