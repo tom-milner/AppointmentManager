@@ -100,6 +100,7 @@
           Are you sure you want to delete the appointment type
           <span>{{appointmentType.name}}</span> ?
         </h4>
+        <h4 class="heading-4">(The appointment type will remain unchanged on existing appointments)</h4>
         <div class="dialogue-row">
           <button @click="deleteAppointmentType" class="btn btn-disapproved">Yes</button>
           <button @click="showDeleteDialogue = false" class="btn btn-approved">No</button>
@@ -209,10 +210,17 @@ textarea {
 .dialogue-content {
   height: 100%;
   width: 30rem;
+  text-align: center;
 
   h4 {
     span {
       color: $color-error;
+    }
+    &:not(:first-child) {
+      margin-top: 0.5rem;
+      font-size: 1.5rem;
+      font-style: italic;
+      color: $color-grey;
     }
   }
   .dialogue-row {
@@ -386,8 +394,11 @@ export default {
         if (!response.data.success) {
           throw { response };
         }
+        // reset variables
+        this.isEditable = false;
       } catch (error) {
         this.errorMessage = error.response.data.message;
+        this.isEditable = true;
       }
     },
 
@@ -402,8 +413,11 @@ export default {
           };
         }
         this.$emit("refresh-appointments");
+        // reset variables
+        this.isEditable = false;
       } catch (error) {
         this.errorMessage = error.response.data.message;
+        this.isEditable = true;
       }
     },
 
@@ -423,10 +437,6 @@ export default {
         // update appointment type
         this.updateAppointmentType();
       }
-
-      // reset variables
-      this.isEditable = false;
-      this.errorMessage = "";
     }
   }
 };
