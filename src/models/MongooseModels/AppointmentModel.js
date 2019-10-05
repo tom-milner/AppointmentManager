@@ -65,7 +65,7 @@ let appointmentSchema = new Schema({
     type: Number,
     default: 0,
     required: this.isRecurring
-  }
+  },
 });
 
 module.exports = mongoose.model("AppointmentModel", appointmentSchema);

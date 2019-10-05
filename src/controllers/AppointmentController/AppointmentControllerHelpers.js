@@ -31,7 +31,7 @@ async function createAndSaveAppointmentModel(appointmentInfo) {
     clientNotes: appointmentInfo.clientNotes,
     counsellorNotes: appointmentInfo.counsellorNotes,
     recurringSeriesId: appointmentInfo.recurringSeriesId,
-    recurringNo: appointmentInfo.recurringNo
+    recurringNo: appointmentInfo.recurringNo,
   });
 
 
