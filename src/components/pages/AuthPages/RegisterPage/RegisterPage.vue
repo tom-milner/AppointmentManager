@@ -116,7 +116,7 @@ export default {
   &:not(:last-child) {
     margin-bottom: 1.5rem;
   }
-  width: 40rem;
+  width: 30rem;
   display: flex;
   flex-direction: column;
   align-items: center;

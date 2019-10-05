@@ -5,12 +5,12 @@
         <h2 class="heading-2">Login</h2>
         <div class="login-items">
           <div class="login-field">
-            <h3>Username/Email</h3>
-            <input v-model="username" />
+            <h4 class="form-heading">Username/Email</h4>
+            <input class="form-input" v-model="username" />
           </div>
           <div class="login-field">
-            <h3>Password</h3>
-            <input v-model="password" type="password" />
+            <h4 class="form-heading">Password</h4>
+            <input class="form-input" v-model="password" type="password" />
           </div>
         </div>
         <h4 class="heading-4 error errorText">{{errorMessage}}</h4>
@@ -92,23 +92,6 @@ export default {
     font-size: 1.5rem;
     font-weight: 300;
     margin-bottom: 0.3rem;
-  }
-
-  input {
-    width: 100%;
-    border-radius: $border-radius;
-    text-decoration: none;
-    outline: none;
-    border: 1px solid $color-grey-light;
-    padding: 0.5rem 0.75rem;
-    height: 3rem;
-    font-family: $font-family;
-    transition: all 0.2s;
-    font-size: 1.2rem;
-
-    &:focus {
-      border: 1px solid $color-primary;
-    }
   }
 }
 
