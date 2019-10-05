@@ -15,15 +15,15 @@ const moment = require("moment");
 
 async function createAndSaveAppointmentModel(appointmentInfo) {
 
+  console.log(appointmentInfo.appointmentType);
 
-  console.log(appointmentInfo.startTime.format("lll"));
   // Create new appointment model
   let appointment = new AppointmentModel({
     title: appointmentInfo.title,
     startTime: appointmentInfo.startTime,
     // TODO: add buffer to end time
     endTime: appointmentInfo.endTime,
-    appointmentType: appointmentInfo.appointmentType._id,
+    appointmentType: appointmentInfo.appointmentType,
     // This is an array as I plan on adding support for multiple clients. This is an extension objective.
     clients: [appointmentInfo.clientId],
     isApproved: false,
