@@ -76,7 +76,7 @@
       </div>
 
       <!-- Error Message -->
-      <div v-if="errorMessage" class="form-field">
+      <div v-if="errorMessage" class="form-field error">
         <h4 class="heading-4 error">{{this.errorMessage}}</h4>
       </div>
 
@@ -213,9 +213,7 @@ export default {
         // validate input
         let { error, message } = this.validateInput();
         // only send request if there's no input validation error
-        if (error) {
-          throw message;
-        }
+        if (error) throw message;
 
         // build request body
         let appointment = {
@@ -238,8 +236,20 @@ export default {
         this.$router.push("/home");
       } catch (error) {
         console.log(error);
-        if (Utils.isString(error)) this.errorMessage = error;
-        else this.errorMessage = error.response.data.message;
+        if (Utils.isString(error)) {
+          this.errorMessage = error;
+          return;
+        }
+        console.log(error.response.data);
+        if (error.response.data.clashInfo) {
+          let clashInfo = error.response.data.clashInfo;
+          let formattedStart = this.moment(clashInfo[0].startTime).format("LT");
+          let formattedEnd = this.moment(clashInfo[0].endTime).format("LT");
+          let day = this.moment(clashInfo[0].startTime).format("dddd");
+          this.errorMessage = `Appointment Clash:\n${day}, ${formattedStart} - ${formattedEnd} is booked for the next ${clashInfo[0].noFutureAppointments} weeks.`;
+          return;
+        }
+        this.errorMessage = error.response.data.message;
       }
     },
 
@@ -393,6 +403,9 @@ export default {
   }
 }
 
+.error {
+  white-space: pre;
+}
 .modal-content {
   width: 110rem;
 }

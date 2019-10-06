@@ -124,7 +124,7 @@ export default {
         isCounsellor: userIsCounsellor,
         params: {
           fromTime: twoMonthsAgo,
-          limit: 10
+          limit: 75
         }
       });
 
