@@ -11,7 +11,7 @@ const AuthenticationControllerPolicy = require("../policies/AuthenticationContro
 // these routes are all under "/auth"
 
 // Creating new Clients
-router.post("/register", AuthenticationControllerPolicy.register({
+router.post("/register/client", AuthenticationControllerPolicy.register({
   isGuest: false
 }), AuthenticationController.registerClient)
 

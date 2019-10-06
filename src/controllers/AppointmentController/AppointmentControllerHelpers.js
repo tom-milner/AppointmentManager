@@ -1,9 +1,8 @@
 const CounsellorModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
-const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
+const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 const AppointmentTypeModel = require("../../models/MongooseModels/AppointmentTypeModel");
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel")
 const Utils = require("../../utils/Utils");
-const moment = require("moment");
 
 
 
@@ -74,7 +73,7 @@ async function checkClientAvailability(
 ) {
 
   // first make sure the client exists
-  let validClient = await ClientModel.findById(clientId);
+  let validClient = await UserModel.findById(clientId);
   if (!validClient) {
     return {
       message: "Client doesn't exist",

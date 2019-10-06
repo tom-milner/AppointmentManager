@@ -34,10 +34,11 @@ async function registerCounsellor(req, res) {
     newCounsellor.password = await AuthenticationControllerHelpers.hashPassword(password);
     // save counsellor in database
     const savedCounsellor = await newCounsellor.save();
+    savedCounsellor.password = undefined;
     res.status(200).send({
       success: true,
       message: "Counsellor created successfully.",
-      counsellor: savedCounsellor,
+      user: savedCounsellor,
       token: AuthenticationControllerHelpers.jwtSignUser(savedCounsellor.toJSON())
     });
 
@@ -71,13 +72,15 @@ async function registerClient(req, res) {
 
     // Save client to database
     const savedClient = await newClient.save();
+    savedClient.password = undefined;
+
     // Return newly created client
     res.status(200).send({
       success: true,
       message: "Client added.",
-      client: savedClient,
+      user: savedClient,
       // Sign user with new token
-      token: AuthenticationControllerHelpers.jwtSignUser(savedClient.toJSON())
+      token: await AuthenticationControllerHelpers.jwtSignUser(savedClient.toJSON())
     });
   } catch (err) {
     let errorMessage = "Error registering client.";
@@ -121,7 +124,7 @@ async function registerGuest(req, res) {
     res.status(200).send({
       success: true,
       message: "Guest created successfully",
-      guest: createdGuest,
+      user: createdGuest,
       token: await AuthenticationControllerHelpers.jwtSignUser(createdGuest)
     });
   } catch (error) {

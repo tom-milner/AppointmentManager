@@ -5,120 +5,114 @@ const Utils = require("../utils/Utils");
 const ErrorController = require("../controllers/ErrorController");
 const moment = require("moment");
 
-function insertAppointment(isGuest) {
-  // if(is)
+function insertAppointment(req, res, next) {
 
-  // client: Joi.object({
-  //   firstname: Joi.string().required(),
-  //   lastname: Joi.string().required(),
-  //   email: Joi.string().email()
-
-  // })
-
-  return function(req, res, next) {
-    // first check presence
-    const joiSchema = {
-      startTime: Joi.date().required(),
-      title: Joi.string().required(),
-      typeId: Joi.string().required(),
-      counsellorId: Joi.string().required(),
-      clientNotes: Joi.string().allow(""),
-      clientId: Joi.string().allow(""),
-      counsellorNotes: Joi.string().allow("")
-    };
-    try {
-      const { error, value } = Joi.validate(req.body, joiSchema);
-
-      let validatedBody = value;
-      let errorMessage = "";
-      let errorCode = 400;
-
-      if (error) {
-        switch (error.details[0].context.key) {
-          case "startTime":
-            errorMessage = "Invalid start time";
-            break;
-          case "title":
-            errorMessage = "Invalid title.";
-            break;
-          case "typeId":
-            errorMessage = "Invalid appointment type Id";
-            break;
-          case "counsellorId":
-            errorMessage = "Invalid counsellorId";
-            break;
-          case "clientNotes":
-            errorMessage = "Invalid clientNotes";
-            break;
-          case "counsellorNotes":
-            errorMessage = "Invalid counsellor notes.";
-            break;
-          case "clientId":
-            errorMessage = "Invalid client Id";
-            break;
-          default:
-            errorMessage = "Error creating appointment";
-            break;
-        }
-
-        throw {
-          message: errorMessage,
-          code: errorCode
-        };
-      }
-
-      // check typeId
-      let typeIdIsValid = Utils.validateMongoId(validatedBody.typeId);
-      if (!typeIdIsValid) {
-        throw {
-          message: "Invalid appointment type id",
-          code: 400
-        };
-      }
-
-      // check counsellor Id
-      let counsellorIdIsValid = Utils.validateMongoId(
-        validatedBody.counsellorId
-      );
-      if (!counsellorIdIsValid) {
-        throw {
-          message: "Invalid counsellor id",
-          code: 400
-        };
-      }
-
-      // check client Id
-      if (validatedBody.clientId) {
-        let clientIsValid = Utils.validateMongoId(validatedBody.clientId);
-        if (!clientIsValid) {
-          throw {
-            message: "Invalid client id",
-            code: 400
-          };
-        }
-      }
-
-      // clients can't make appointments in past
-      let now = moment();
-      if (moment(validatedBody.startTime).isBefore(now)) {
-        throw {
-          message: "Appointment start time must be in the future",
-          code: 400
-        };
-      }
-
-      // let the request through - all data is valid.
-      next();
-    } catch (error) {
-      console.log(error);
-      let errorMessage = error.message || "Error validating request body.";
-      let errorCode = error.code || 500;
-
-      // send an error back to the user.
-      ErrorController.sendError(res, errorMessage, errorCode);
-    }
+  // first check presence
+  const joiSchema = {
+    startTime: Joi.date().required(),
+    title: Joi.string().required(),
+    typeId: Joi.string().required(),
+    counsellorId: Joi.string().required(),
+    clientNotes: Joi.string().allow(""),
+    clientId: Joi.string().allow(""),
+    counsellorNotes: Joi.string().allow("")
   };
+  try {
+    const {
+      error,
+      value
+    } = Joi.validate(req.body, joiSchema);
+
+    let validatedBody = value;
+    let errorMessage = "";
+    let errorCode = 400;
+
+    if (error) {
+      switch (error.details[0].context.key) {
+        case "startTime":
+          errorMessage = "Invalid start time";
+          break;
+        case "title":
+          errorMessage = "Invalid title.";
+          break;
+        case "typeId":
+          errorMessage = "Invalid appointment type Id";
+          break;
+        case "counsellorId":
+          errorMessage = "Invalid counsellorId";
+          break;
+        case "clientNotes":
+          errorMessage = "Invalid clientNotes";
+          break;
+        case "counsellorNotes":
+          errorMessage = "Invalid counsellor notes.";
+          break;
+        case "clientId":
+          errorMessage = "Invalid client Id";
+          break;
+        default:
+          errorMessage = "Error creating appointment";
+          break;
+      }
+
+      throw {
+        message: errorMessage,
+        code: errorCode
+      };
+    }
+
+    // check typeId
+    let typeIdIsValid = Utils.validateMongoId(validatedBody.typeId);
+    if (!typeIdIsValid) {
+      throw {
+        message: "Invalid appointment type id",
+        code: 400
+      };
+    }
+
+    // check counsellor Id
+    let counsellorIdIsValid = Utils.validateMongoId(
+      validatedBody.counsellorId
+    );
+    if (!counsellorIdIsValid) {
+      throw {
+        message: "Invalid counsellor id",
+        code: 400
+      };
+    }
+
+    // check client Id
+    if (validatedBody.clientId) {
+      let clientIsValid = Utils.validateMongoId(validatedBody.clientId);
+      if (!clientIsValid) {
+        throw {
+          message: "Invalid client id",
+          code: 400
+        };
+      }
+    }
+
+    // clients can't make appointments in past
+    let now = moment();
+    if (moment(validatedBody.startTime).isBefore(now)) {
+      throw {
+        message: "Appointment start time must be in the future",
+        code: 400
+      };
+    }
+
+    // let the request through - all data is valid.
+    next();
+  } catch (error) {
+    console.log(error);
+    let errorMessage = error.message || "Error validating request body.";
+    let errorCode = error.code || 500;
+
+    // send an error back to the user.
+    ErrorController.sendError(res, errorMessage, errorCode);
+  }
 }
+
 
 // checks if user has required access level to change property
 function updateAppointment(req, res, next) {

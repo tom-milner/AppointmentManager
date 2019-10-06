@@ -23,8 +23,11 @@ async function getAllAppointments(req, res) {
   }
 }
 
-function getAppointmentsOfUser({ reduced, isCounsellor }) {
-  return async function(req, res) {
+function getAppointmentsOfUser({
+  reduced,
+  isCounsellor
+}) {
+  return async function (req, res) {
     // dynamically construct mongoose query
     const appointmentQuery = AppointmentModel.find();
 
@@ -95,7 +98,6 @@ async function insertAppointment(req, res) {
     const appointmentTypeId = req.body.typeId;
     const counsellorId = req.body.counsellorId;
     let clientId, counsellorNotes, clientNotes;
-
     // only counsellors can make appointments for other people and set counsellor notes
     if (req.user.role >= Role.Counsellor) {
       clientId = req.body.clientId;
@@ -150,9 +152,7 @@ async function insertAppointment(req, res) {
 
       // add the recurring appointments
       for (
-        let index = 1;
-        index < appointmentInfo.appointmentType.recurringDuration;
-        index++
+        let index = 1; index < appointmentInfo.appointmentType.recurringDuration; index++
       ) {
         let newStart = originalStart.add(1, "week");
         let newEnd = originalEnd.add(1, "week");
@@ -235,8 +235,7 @@ async function updateAppointment(req, res) {
 
     let updatedAppointment = await AppointmentModel.findByIdAndUpdate(
       appointmentId,
-      newAppointmentProperties,
-      {
+      newAppointmentProperties, {
         // get the newly created appointment
         new: true,
         runValidators: true
