@@ -6,7 +6,6 @@
         <div class="options-container">
           <router-link to="/auth/login" class="btn btn-primary">Login</router-link>
           <router-link to="/auth/register" class="btn btn-primary">Register</router-link>
-          <router-link to="/auth/guest" class="btn btn-primary">Guest</router-link>
         </div>
       </div>
     </card>

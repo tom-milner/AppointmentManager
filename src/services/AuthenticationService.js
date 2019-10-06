@@ -3,6 +3,7 @@ import Router from "@/router";
 import Api from "@/services/Api";
 import UserService from "@/services/UserService";
 import Utils from "@/utils";
+import Role from "@/models/Role"
 
 
 
@@ -50,8 +51,12 @@ function initializeNavigationGuard() {
           // allow the user to continue to their chosen route, as they are logged in 
           next();
         } else {
-          // redirect the user home - they don't have access to this area
-          next("/home");
+          // redirect the user - they don't have access to this area
+          if (currentUserRole == Role.Client) {
+            next("/home");
+          } else {
+            next("/")
+          }
         }
       } else {
         // make the user login first.

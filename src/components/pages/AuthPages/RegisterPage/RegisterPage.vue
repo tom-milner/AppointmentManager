@@ -44,6 +44,7 @@
 <script>
 import Card from "@/components/layout/Card";
 import UserService from "@/services/UserService";
+import Role from "@/models/Role";
 export default {
   components: {
     Card
@@ -80,7 +81,7 @@ export default {
 
         try {
           // call the store authentication module to register the user.
-          await UserService.registerUser(newUser);
+          await UserService.registerUser(newUser, Role.Client);
 
           // redirect user to home page
           this.$router.push("/home");

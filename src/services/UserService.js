@@ -2,7 +2,7 @@
 
 import Api from "@/services/Api.js";
 import Store from "@/store/store";
-
+import Role from "@/models/Role"
 
 // Login user
 async function loginUser(username, password) {
@@ -13,6 +13,7 @@ async function loginUser(username, password) {
     username: username,
     password: password
   };
+
   const result = await Api.post("/auth/login", loginInfo);
 
   console.log(result);
@@ -35,14 +36,31 @@ async function loginUser(username, password) {
 
 
 // Register User
-async function registerUser(newUser) {
+async function registerUser(newUser, role) {
   Store.commit("authentication/auth_request");
 
+  let userEndpoint = "";
+  switch (role) {
+    case Role.Guest:
+      userEndpoint = "guest"
+      break;
+    case Role.Client:
+    default:
+      // default is sign users up as client
+      userEndpoint = "client";
+      break;
+    case Role.Counsellor:
+      userEndpoint = "counsellor"
+      break;
+  }
+
   // Send post request to register route
-  const result = await Api.post("/auth/register", newUser);
+  const result = await Api.post(`/auth/register/${userEndpoint}`, newUser);
+  console.log(result.data);
   if (result.data.success) {
-    const token = result.token;
-    const user = result.user;
+    const token = result.data.token;
+    const user = result.data.user;
+    console.log(token, user);
     // store info in store 
     Store.commit("authentication/auth_success", {
       token,
@@ -91,6 +109,10 @@ function getCounsellor(counsellorId) {
   return Api.get(`/user/counsellors/full/${counsellorId}`);
 }
 
+function getReducedCounsellor(counsellorId) {
+  return Api.get(`/user/counsellors/${counsellorId}`);
+}
+
 function getAllClients() {
   return Api.get("/user/clients")
 }
@@ -112,6 +134,7 @@ export default {
   getUsersFromIds,
   getAllCounsellors,
   updateCounsellor,
+  getReducedCounsellor,
   getCounsellor,
   getAllClients,
   updateClient,

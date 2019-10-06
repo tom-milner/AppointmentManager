@@ -2,12 +2,22 @@
   <div class="wrapper">
     <Card :showBack="true" backUrl="/">
       <div class="container">
-        <h2 class="heading-2">Guest User</h2>
-
-        <div class="guest-form">
-          <form v-on:submit.prevent="saveUser">
+        <div class="header">
+          <h2 class="heading-2">Book An Appointment</h2>
+        </div>
+        <!-- User must enter their info first -->
+        <div class="guest-form" v-if="!guestCreated">
+          <form v-on:submit.prevent="registerGuest">
             <div class="section">
-              <h4 class="form-heading">Enter your email:</h4>
+              <h4 class="form-heading">Firstname:</h4>
+              <input type="text" v-model="firstname" class="form-input" />
+            </div>
+            <div class="section">
+              <h4 class="form-heading">Lastname:</h4>
+              <input type="text" v-model="lastname" class="form-input" />
+            </div>
+            <div class="section">
+              <h4 class="form-heading">Email:</h4>
               <input type="email" v-model="email" class="form-input" />
             </div>
             <div class="section">
@@ -19,39 +29,99 @@
             </div>
 
             <div class="section saveEmail">
-              <button class="btn btn-primary">Continue</button>
+              <button class="btn btn-primary">Choose a time</button>
             </div>
           </form>
+
+          <!-- <div v-if="guestCreated"> -->
+          <!-- Let the user book an appointment -->
+          <!-- </div> -->
+        </div>
+        <div v-if="guestCreated" class="create-form">
+          <CreateAppointmentForm :specificCounsellor="counsellor" :user="user" />
         </div>
       </div>
     </Card>
   </div>
 </template>
 <script>
+import UserService from "@/services/UserService";
 import Card from "@/components/layout/Card";
+import CreateAppointmentForm from "@/components/misc/CreateAppointmentForm";
+import Role from "@/models/Role";
+
 export default {
   data() {
     return {
       message: "",
+      firstname: "",
+      lastname: "",
       email: "",
       confirmedEmail: "",
-      emailsMatch: false
+      emailsMatch: false,
+      guestCreated: false,
+      user: {},
+      counsellor: {}
     };
   },
   components: {
-    Card
+    Card,
+    CreateAppointmentForm
   },
   methods: {
-    saveUser() {
+    validateInput() {
+      if (!this.firstname) {
+        this.message = "Invalid firstname";
+        return false;
+      }
+      if (!this.lastname) {
+        this.message = "Invalid lastname";
+        return false;
+      }
+      if (!this.email) {
+        this.message = "Invalid email.";
+        return false;
+      }
+
       if (!this.emailsMatch) {
         this.message = "Emails must match";
-        return;
+        return false;
+      }
+      return true;
+    },
+    async registerGuest() {
+      let validInput = this.validateInput();
+      if (!validInput) return;
+      let guest = {
+        firstname: this.firstname,
+        lastname: this.lastname,
+        email: this.email
+      };
+
+      try {
+        await UserService.registerUser(guest, Role.Guest);
+
+        this.guestCreated = true;
+      } catch (error) {
+        this.message = error.response.data.message;
       }
     }
   },
   watch: {
     confirmedEmail(value) {
       this.emailsMatch = value == this.email;
+    }
+  },
+  async beforeCreate() {
+    const counsellorId = this.$route.params.counsellorId;
+    console.log(counsellorId);
+    try {
+      let response = await UserService.getReducedCounsellor(counsellorId);
+      this.counsellor = response.data.counsellor;
+    } catch (error) {
+      console.log(error);
+      // if counsellorId is invalid redirect user to landing page
+      this.$router.push("/");
     }
   }
 };
@@ -61,21 +131,29 @@ export default {
 @import "src/scss/global";
 .wrapper {
   width: 100%;
-  height: 100vh;
+  height: 100%;
+  min-height: 100vh;
   background-color: $color-canvas;
   display: flex;
   justify-content: center;
   align-items: center;
 
+  .header {
+    width: 100%;
+    text-align: center;
+  }
   .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    max-width: 70rem;
 
+    .create-form {
+      width: 50rem;
+    }
     .guest-form {
-      width: 30rem;
       margin-top: 2rem;
+
+      input {
+        width: 100%;
+      }
     }
   }
 }
@@ -89,6 +167,9 @@ export default {
     margin-top: 2rem;
     text-align: center;
     width: 100%;
+    button {
+      width: 50%;
+    }
   }
 
   &.message {

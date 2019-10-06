@@ -78,7 +78,7 @@ let router = new Router({
       },
     },
     {
-      path: "/auth/guest",
+      path: "/auth/guest/:counsellorId",
       name: "GuestPage",
       component: GuestPage,
       meta: {
