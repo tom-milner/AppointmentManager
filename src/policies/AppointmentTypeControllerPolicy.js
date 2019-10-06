@@ -43,8 +43,10 @@ function createAppointmentType(req, res, next) {
   const joiSchema = {
     name: Joi.string().max(20).required(),
     duration: Joi.number().required(),
-    description: Joi.string().max(200),
-    isRecurring: Joi.bool()
+    description: Joi.string().max(200).allow(""),
+    isRecurring: Joi.bool(),
+    recurringDuration: Joi.number()
+
   }
 
   // validate the request body against the schema
@@ -58,6 +60,7 @@ function createAppointmentType(req, res, next) {
 
   // check error
   if (error) {
+    console.log(error);
     switch (error.details[0].context.key) {
       case "name":
         errorCode = 400;

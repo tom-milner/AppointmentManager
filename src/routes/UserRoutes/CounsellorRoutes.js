@@ -9,9 +9,11 @@ const CounsellorControllerPolicy = require("../../policies/UserPolicies/Counsell
 // get list of counsellors
 router.get("/", CounsellorController.getAllCounsellorsReduced);
 
+
 // update counsellor
 router.post(
   "/:counsellorId",
+  AuthenticationMiddleware.isLoggedIn,
   AuthenticationMiddleware.roleCheck({
     role: Role.Counsellor,
     useSpecific: true
@@ -23,6 +25,7 @@ router.post(
 // get all info about a counsellor
 router.get(
   "/full/:counsellorId",
+  AuthenticationMiddleware.isLoggedIn,
   AuthenticationMiddleware.roleCheck({
     role: Role.Counsellor
   }),

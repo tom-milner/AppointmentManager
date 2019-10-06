@@ -1,5 +1,5 @@
-const CounsellorModel = require("../../models/MongooseModels/CounsellorModel");
-const ClientModel = require("../../models/MongooseModels/ClientModel");
+const CounsellorModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
+const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
 const AppointmentTypeModel = require("../../models/MongooseModels/AppointmentTypeModel");
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel")
 const Utils = require("../../utils/Utils");

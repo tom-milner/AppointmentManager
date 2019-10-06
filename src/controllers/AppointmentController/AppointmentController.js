@@ -12,10 +12,9 @@ let MongooseObjectId = require("mongoose").Types.ObjectId;
 async function getAllAppointments(req, res) {
   try {
     // get appointments and sort them
-    let allAppointments = await AppointmentModel.find({})
-      .sort({
-        startTime: "asc"
-      });
+    let allAppointments = await AppointmentModel.find({}).sort({
+      startTime: "asc"
+    });
     // return the appointments
     res.send(allAppointments);
   } catch (error) {
@@ -24,11 +23,8 @@ async function getAllAppointments(req, res) {
   }
 }
 
-function getAppointmentsOfUser({
-  reduced,
-  isCounsellor
-}) {
-  return async function (req, res) {
+function getAppointmentsOfUser({ reduced, isCounsellor }) {
+  return async function(req, res) {
     // dynamically construct mongoose query
     const appointmentQuery = AppointmentModel.find();
 
@@ -141,7 +137,6 @@ async function insertAppointment(req, res) {
     console.log(appointmentInfo);
     let createdAppointments = [];
     if (appointmentType.isRecurring) {
-
       // give the recurring series of appointments an ID so that they can be found together easily.
       let recurringSeriesId = new MongooseObjectId();
       appointmentInfo.recurringSeriesId = recurringSeriesId;
@@ -153,10 +148,11 @@ async function insertAppointment(req, res) {
       let originalStart = appointmentInfo.startTime.clone();
       let originalEnd = appointmentInfo.endTime.clone();
 
-
       // add the recurring appointments
       for (
-        let index = 1; index < appointmentInfo.appointmentType.recurringDuration; index++
+        let index = 1;
+        index < appointmentInfo.appointmentType.recurringDuration;
+        index++
       ) {
         let newStart = originalStart.add(1, "week");
         let newEnd = originalEnd.add(1, "week");
@@ -239,7 +235,8 @@ async function updateAppointment(req, res) {
 
     let updatedAppointment = await AppointmentModel.findByIdAndUpdate(
       appointmentId,
-      newAppointmentProperties, {
+      newAppointmentProperties,
+      {
         // get the newly created appointment
         new: true,
         runValidators: true
@@ -283,7 +280,7 @@ async function deleteAppointment(req, res) {
       console.log("deleting");
       let deletedRecurringSeries = await AppointmentModel.deleteMany({
         recurringSeriesId: deletedAppointment.recurringSeriesId
-      })
+      });
 
       console.log(deletedRecurringSeries);
     }

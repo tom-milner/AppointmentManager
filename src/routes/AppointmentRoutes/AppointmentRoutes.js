@@ -9,11 +9,30 @@ let Role = require("../../models/Role");
 
 // These routes are all under "/appointments"
 
-// Always requires users to be logged in for these routes - appointments contain personal information
-router.use(AuthenticationMiddleware.isLoggedIn);
+
+// Get all  reduced appointments of a counsellor.
+router.get(
+  "/counsellor/:userId",
+  AppointmentController.getAppointmentsOfUser({
+    reduced: true,
+    isCounsellor: true
+  })
+);
+
+// insert a new appointment of a guest
+// router.post(
+//   "/guest/",
+//   AppointmentControllerPolicy.insertAppointment,
+//   AppointmentController.insertAppointment
+// );
 
 // import Appointment Type Routes
 router.use("/type", AppointmentTypeRoutes);
+
+
+
+// Always require users to be logged in for these routes - appointments contain personal information
+router.use(AuthenticationMiddleware.isLoggedIn);
 
 // Get all appointments of a specific user
 router.get(
@@ -28,17 +47,7 @@ router.get(
   })
 );
 
-// Get all  reduced appointments of a counsellor.
-router.get(
-  "/counsellor/:userId",
-  AuthenticationMiddleware.roleCheck({
-    role: Role.Client
-  }),
-  AppointmentController.getAppointmentsOfUser({
-    reduced: true,
-    isCounsellor: true
-  })
-);
+
 
 // get all full appointments of a counsellor
 router.get(
@@ -67,6 +76,8 @@ router.post(
   AppointmentControllerPolicy.insertAppointment,
   AppointmentController.insertAppointment
 );
+
+
 
 // update an existing appointment
 router.post(

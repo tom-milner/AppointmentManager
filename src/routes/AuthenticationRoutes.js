@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const AuthenticationController = require("../controllers/AuthenticationController");
+const AuthenticationController = require("../controllers/AuthenticationController/AuthenticationController");
 const AuthenticationMiddleware = require("../middleware/AuthenticationMiddleware");
 const Role = require("../models/Role");
 
@@ -11,10 +11,21 @@ const AuthenticationControllerPolicy = require("../policies/AuthenticationContro
 // these routes are all under "/auth"
 
 // Creating new Clients
-router.post("/register", AuthenticationControllerPolicy.register, AuthenticationController.registerClient)
+router.post("/register", AuthenticationControllerPolicy.register({
+  isGuest: false
+}), AuthenticationController.registerClient)
 
 // Creating new Counsellors 
-router.post("/register/counsellor", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck(Role.Counsellor), AuthenticationControllerPolicy.register, AuthenticationController.registerCounsellor)
+router.post("/register/counsellor",
+  AuthenticationMiddleware.isLoggedIn,
+  AuthenticationMiddleware.roleCheck(Role.Counsellor), AuthenticationControllerPolicy.register({
+    isGuest: false
+  }), AuthenticationController.registerCounsellor)
+
+// Create new guest
+router.post("/register/guest", AuthenticationControllerPolicy.register({
+  isGuest: true
+}), AuthenticationController.registerGuest);
 
 // universal login
 router.post("/login", AuthenticationController.login);

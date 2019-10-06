@@ -10,6 +10,9 @@ const Role = require("../../models/Role");
 
 // all routes are under "/clients"
 
+// All routes require the user to be logged in.
+router.use(AuthenticationMiddleware.isLoggedIn);
+
 // get list of all clients.
 router.get("/", ClientController.getClients);
 

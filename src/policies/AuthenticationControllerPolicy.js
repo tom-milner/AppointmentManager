@@ -1,50 +1,57 @@
 const Joi = require("joi");
 const ErrorController = require("../controllers/ErrorController");
 
-function register(req, res, next) {
+function register({
+  isGuest
+}) {
 
-  const joiSchema = {
-    username: Joi.string().min(1).max(50).required(),
+
+  let joiSchema = {
     firstname: Joi.string().min(1).max(50).required(),
     lastname: Joi.string().min(1).max(50).required(),
     email: Joi.string().email().required(),
-    password: Joi.string().min(8).max(32).required(),
-    isCounsellor: Joi.bool()
   }
+  if (!isGuest) {
+    joiSchema.password = Joi.string().min(8).max(32).required();
+    joiSchema.username = Joi.string().min(1).max(50).required()
+  }
+  // console.log(joiSchema.password);
+  return function (req, res, next) {
 
-  const {
-    error,
-    value
-  } = Joi.validate(req.body, joiSchema);
+    const {
+      error,
+      value
+    } = Joi.validate(req.body, joiSchema);
 
-  // If the error is more specific these will be overwritten.
-  let errorMessage = "Error registering user.";
-  let errorCode = 500;
+    // If the error is more specific these will be overwritten.
+    let errorMessage = "Error registering user.";
+    let errorCode = 500;
 
-  if (error) {
-    switch (error.details[0].context.key) {
-      case "email":
-        errorCode = 400;
-        errorMessage = "You must provide a valid email address";
-        break;
-      case "password":
-        errorMessage =
-          "Password must be at least 8 characters in length and not greater than 32 characters in length."
-        errorCode = 400;
-        break;
+    if (error) {
+      switch (error.details[0].context.key) {
+        case "email":
+          errorCode = 400;
+          errorMessage = "You must provide a valid email address";
+          break;
+        case "password":
+          errorMessage =
+            "Password must be at least 8 characters in length and not greater than 32 characters in length."
+          errorCode = 400;
+          break;
 
-      default:
-        console.log(error.details)
-        errorMessage = error.details[0].message
-        errorCode = 400;
+        default:
+          console.log(error.details)
+          errorMessage = error.details[0].message
+          errorCode = 400;
+      }
+      // return an error
+      ErrorController.sendError(res, errorMessage, errorCode);
+      return;
+
     }
-    // return an error
-    ErrorController.sendError(res, errorMessage, errorCode);
-    return;
+    next();
 
   }
-  next();
-
 }
 
 function forgotPassword(req, res, next) {
