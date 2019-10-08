@@ -4,7 +4,7 @@ const AppointmentControllerHelpers = require("./AppointmentControllerHelpers");
 const ErrorController = require("../ErrorController");
 const Role = require("../../models/Role");
 const moment = require("moment");
-let MongooseObjectId = require("mongoose").Types.ObjectId;
+const Mailer = require("../../config/mailer/Mailer");
 
 // Fetch all appointments regardless
 
@@ -92,7 +92,7 @@ function getAppointmentsOfUser({
 }
 
 // Insert new appointment into db
-async function insertAppointment(req, res) {
+async function createAppointment(req, res) {
   try {
     // load  info from body
     const appointmentTypeId = req.body.typeId;
@@ -108,7 +108,7 @@ async function insertAppointment(req, res) {
       clientNotes = req.body.clientNotes;
     }
 
-    // make sure the appointment type exist
+    // make sure the appointment type exists
     let appointmentType = await AppointmentControllerHelpers.getAppointmentType(
       appointmentTypeId
     );
@@ -136,72 +136,26 @@ async function insertAppointment(req, res) {
       recurringNo: 0
     };
 
-    console.log(appointmentInfo);
+
+
+    // make sure all the appointments are available
+    let readyAppointments = await AppointmentControllerHelpers.createAndCheckAllAppointments(appointmentInfo, appointmentType);
+    // insert ready appointments into database.
     let createdAppointments = [];
-    if (appointmentType.isRecurring) {
-      // give the recurring series of appointments an ID so that they can be found together easily.
-      let recurringSeriesId = new MongooseObjectId();
-      appointmentInfo.recurringSeriesId = recurringSeriesId;
-
-      // create the recurrring appointments
-      let appointments = [];
-      appointments.push(appointmentInfo);
-
-      let originalStart = appointmentInfo.startTime.clone();
-      let originalEnd = appointmentInfo.endTime.clone();
-
-      // add the recurring appointments
-      for (
-        let index = 1; index < appointmentInfo.appointmentType.recurringDuration; index++
-      ) {
-        let newStart = originalStart.add(1, "week");
-        let newEnd = originalEnd.add(1, "week");
-
-        const newAppointment = Object.assign({}, appointmentInfo);
-        newAppointment.startTime = moment(newStart);
-        newAppointment.endTime = moment(newEnd);
-        newAppointment.recurringNo = index;
-        // add appointment
-        appointments[index] = newAppointment;
-      }
-
-      appointments.forEach(appo => {
-        console.log(appo.startTime.format("lll"));
-      });
-
-      // check that the counsellor and client can make all the appointments.
-      for (let appointment of appointments) {
-        let error = await AppointmentControllerHelpers.checkAllAvailability(
-          appointment.startTime,
-          appointment.endTime,
-          appointment.clientId,
-          appointment.counsellorId
-        );
-        if (error)
-          throw {
-            message: error.message,
-            code: error.code
-          };
-      }
-
-      // all appointments are free, so book them;
-      for (let appointment of appointments) {
-        createdAppointments.push(
-          await AppointmentControllerHelpers.createAndSaveAppointmentModel(
-            appointment
-          )
-        );
-      }
-    } else {
-      // create single appointment
-      createdAppointments.push(
-        await AppointmentControllerHelpers.createAndSaveAppointmentModel(
-          appointmentInfo
-        )
-      );
+    for (let appointment of readyAppointments) {
+      let createdAppointment = await AppointmentControllerHelpers.insertAppointment(appointment);
+      createdAppointments.push(createdAppointment);
     }
 
-    // create and save appointment model
+
+    // add full client information to the first appointment of the series.
+    console.log(createdAppointments[0]);
+    await createdAppointments[0].populate("clients").populate("counsellorId").execPopulate();
+    // send clients email confirming appointment.
+    let mailer = new Mailer();
+    for (let client of createdAppointments[0].clients) {
+      mailer.confirmAppointment(createdAppointments, client, createdAppointments[0].counsellorId).send();
+    }
 
     // Send back new appointment
     res.send({
@@ -213,7 +167,9 @@ async function insertAppointment(req, res) {
   } catch (error) {
     let errorMessage = error.message || "Error creating appointment.";
     let errorCode = error.code || 500;
-    ErrorController.sendError(res, errorMessage, errorCode);
+    ErrorController.sendError(res, errorMessage, errorCode, {
+      clashInfo: error.clashInfo,
+    });
   }
 }
 
@@ -299,7 +255,7 @@ async function deleteAppointment(req, res) {
 
 // expose functions
 module.exports = {
-  insertAppointment,
+  createAppointment,
   getAllAppointments,
   getAppointmentsOfUser,
   updateAppointment,

@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const moment = require("moment");
 const Config = require("../../config/Config");
-const Mailer = require("../../config/Mailer");
+const Mailer = require("../../config/mailer/Mailer");
 const CounsellorModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
 const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
 const GuestModel = require("../../models/MongooseModels/UserModels/GuestModel")
@@ -236,23 +236,15 @@ async function forgotPassword(req, res) {
       userId: foundUser._id
     });
     passwordReset.save(); // we don't need the passwordResetModel any more, so we don't need to await this.
+
     // send email
-    const msg = {
-      to: email,
-      from: Config.mailer.email,
-      subject: 'Forgotten Password',
-      html: `<p>Hi ${foundUser.firstname}.</p>
-            <p>We see you've forgotten your password.</p> 
-            <p>Please follow this link to reset your password:</p>
-            <a href="${Config.url}auth/reset-password?token=${token}">Reset Password</a> 
-            <p>Ip: ${requestIp}</p>
-            `
-    };
-    await Mailer.send(msg)
+    let mailer = new Mailer();
+    mailer.forgotPassword(foundUser, token, requestIp).send();
+
     // let the user know the email was sent.
     res.status(200).send({
       success: true,
-      message: "Email sent sucessfully"
+      message: "Email sent sucessfully. If you can't find it, check your spam folder!"
     });
   } catch (error) {
     console.log(error);

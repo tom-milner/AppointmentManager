@@ -5,7 +5,7 @@ const Utils = require("../utils/Utils");
 const ErrorController = require("../controllers/ErrorController");
 const moment = require("moment");
 
-function insertAppointment(req, res, next) {
+function createAppointment(req, res, next) {
 
   // first check presence
   const joiSchema = {
@@ -210,7 +210,7 @@ function deleteAppointment(req, res, next) {
 }
 
 module.exports = {
-  insertAppointment,
+  createAppointment,
   updateAppointment,
   deleteAppointment
 };

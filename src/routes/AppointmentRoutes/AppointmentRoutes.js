@@ -22,8 +22,8 @@ router.get(
 // insert a new appointment of a guest
 // router.post(
 //   "/guest/",
-//   AppointmentControllerPolicy.insertAppointment,
-//   AppointmentController.insertAppointment
+//   AppointmentControllerPolicy.createAppointment,
+//   AppointmentController.createAppointment
 // );
 
 // import Appointment Type Routes
@@ -73,8 +73,8 @@ router.get(
 // Insert new appointment
 router.post(
   "/",
-  AppointmentControllerPolicy.insertAppointment,
-  AppointmentController.insertAppointment
+  AppointmentControllerPolicy.createAppointment,
+  AppointmentController.createAppointment
 );
 
 
