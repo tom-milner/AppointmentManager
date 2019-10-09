@@ -1,22 +1,44 @@
 // const nodemailer = require("nodemailer");
 const Config = require("../Config");
 const moment = require("moment");
+const nodemailer = require("nodemailer");
 
-// setup mailer 
-const sgMail = require('@sendgrid/mail');
+// setup mailer
+const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(Config.mailer.apiKey);
 
 // trying out javascript classes (new ES6 feature);
+
 class Mailer {
-
+  // create singleton
   constructor() {
-    this.email = {};
-    this.email.from = Config.mailer.email;
+    // setup nodemailer
+    if (!!Mailer.instance) {
+      return Mailer.instance;
+    }
+    Mailer.instance = this;
+    return this;
+  }
 
-    // this.email.toEmail = toEmail;
+  // this creates a test account to send the email from, As i currently don't have my client SMTP server creds.
+  async init() {
+    let testAccount = await nodemailer.createTestAccount();
+
+    // configure nodemailer
+    this.transporter = nodemailer.createTransport({
+      host: "smtp.ethereal.email",
+      port: 587,
+      secure: false,
+      auth: {
+        user: testAccount.user,
+        pass: textAccount.pass
+      }
+    })
+
   }
 
   forgotPassword(user, token, requestIp) {
+
     let email = this.email;
     email.to = user.email;
     email.subject = "Forgotten Password";
@@ -53,11 +75,11 @@ class Mailer {
                       <p>Counsellor: ${counsellor.firstname} ${counsellor.lastname}</p>
                       <p>Appointment Type: ${appointment.appointmentType.name}</p>
                     </li>`;
-
     }
 
-    return this;
+    email.html += `<p>View on appointment_manager.com for more info</p>`;
 
+    return this;
   }
 
   send() {
