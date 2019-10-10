@@ -53,7 +53,7 @@ const mailer = new Mailer();
   await googleAuth.init();
 
   // Initialise the mailer
-  // await mailer.init();
+  await mailer.init();
 
   // initialize database
   const database = require("./config/Database");

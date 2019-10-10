@@ -24,6 +24,24 @@ class GoogleAuth {
     return this;
   }
 
+
+  // get the client Id
+  get clientId() {
+    return this.oauth2Client._clientId;
+  }
+
+  get clientSecret() {
+    return this.oauth2Client._clientSecret
+  }
+
+  get refreshToken() {
+    return this.oauth2Client.credentials.refresh_token
+  }
+
+  get accessToken() {
+    return this.oauth2Client.credentials.access_token
+  }
+
   async init() {
 
     console.log("- Setting up google APIs...")
@@ -45,7 +63,6 @@ class GoogleAuth {
     const scope = "http://mail.google.com";
 
     let tokenFilePath = path.resolve(__dirname, "googleTokens.json");
-    let fileExists = fs.existsSync(tokenFilePath);
     let tokens = {};
 
     try {
@@ -74,7 +91,6 @@ class GoogleAuth {
 
     console.log("✓ Google tokens found.")
     this.oauth2Client.credentials = tokens;
-
   }
 
 
@@ -94,22 +110,28 @@ class GoogleAuth {
         try {
           console.log(req.url);
           if (req.url.indexOf("/oauth2") > -1) {
-            const searchParams = new url.URL(req.url, "http://localhost:3000").searchParams;
+            // get code from url
+            const code = new url.URL(req.url, "http://localhost:3000").searchParams.get("code");
+            // send success message to webpage
             res.end("Authentication Successfull.")
+            // destroy the temporary server.
             tempServer.destroy();
+
+            // generate new tokens.
             const {
               tokens
-            } = await this.oauth2Client.getToken(searchParams.get("code"));
+            } = await this.oauth2Client.getToken(code);
+
             resolve(tokens);
           }
         } catch (error) {
-          console.log("Google Initialization unsuccessfull. Aborting.")
+          console.log("✗ Google Initialization unsuccessfull. Aborting.")
           reject(error);
         }
       });
       tempServer.listen(3030, () => {
-        console.log("\nPaste this URL into your browser and follow the instructions to fix: \n")
-        console.log(authUrl);
+        console.log("\nPaste this URL into your browser and follow the instructions to fix:")
+        console.log("\n", authUrl);
       });
       // destroy server so that it won't interfere with the application server.
       destroyer(tempServer);

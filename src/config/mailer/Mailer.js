@@ -26,25 +26,23 @@ class Mailer {
   // this creates a test account to send the email from, As i currently don't have my client SMTP server creds.
   async init() {
 
+    let googleAuth = new GoogleAuth();
 
     // configure nodemailer
     let auth = {
       type: 'oauth2',
       user: 'denisemilnercounselling@gmail.com',
-      clientId: clientId,
-      clientSecret: clientSecret,
-      refreshToken: refreshToken,
+      clientId: googleAuth.clientId,
+      clientSecret: googleAuth.clientSecret,
+      refreshToken: googleAuth.refreshToken,
+      accessToken: googleAuth.accessToken
     };
-
 
     this.transporter = nodemailer.createTransport({
       service: "gmail",
-      auth: auth,
-      tls: {
-        rejectUnauthorized: false
-      }
+      auth: auth
     })
-    console.log("- Mailer initialized.")
+    console.log("✓ Mailer initialized.")
 
 
 
