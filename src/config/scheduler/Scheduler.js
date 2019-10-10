@@ -15,11 +15,23 @@ function start() {
     let deletedResets = await PasswordResetModel.deleteMany({
       timestamp: {
         $lt: expiryTime
-      }
+      },
+      isGuest: false
     });
     console.log(`Removed ${deletedResets.deletedCount}/${deletedResets.n} password resets.`);
   });
 
+  // remove client password resets (these are allowed to stay for longer as they are used to activate client accounts.)
+  cron.schedule("0 0 * * 1", async () => {
+    let expiryTime = moment().subtract(1, "month");
+    let deletedResets = await PasswordResetModel.deleteMany({
+      timestamp: {
+        $lt: expiryTime
+      },
+      isGuest: true
+    });
+    console.log(`Removed ${deletedResets.deletedCount}/${deletedResets.n} client password resets.`)
+  })
 
 }
 

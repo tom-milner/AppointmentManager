@@ -2,6 +2,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
 const Config = require("../../config/Config");
+const PasswordResetModel = require("../../models/MongooseModels/PasswordResetModel");
+const Role = require("../../models/Role");
 
 // #############################
 //      HELPER FUNCTIONS
@@ -70,10 +72,32 @@ function generateRandomPassword() {
   })
 }
 
+// create password reset 
+async function createPasswordReset(user) {
+  // create random token
+  let token = await generatePasswordResetToken();
+
+  // create a hash of the token to store in a database.
+  let tokenHash = generateTokenHash(token);
+
+  // store hash and timestamp in the database.
+  let passwordReset = new PasswordResetModel({
+    hash: tokenHash,
+    timestamp: Date.now(),
+    userId: user._id,
+    isGuest: user.role == Role.Guest
+  });
+  let savedPasswordReset = passwordReset.save();
+  return {
+    token,
+    savedPasswordReset
+  };
+}
+
 module.exports = {
   generateTokenHash,
-  generatePasswordResetToken,
   hashPassword,
   jwtSignUser,
+  createPasswordReset,
   generateRandomPassword
 }

@@ -15,6 +15,10 @@ const passwordResetSchema = new mongoose.Schema({
     ref: "UserModel",
     required: true
   },
+  isGuest: {
+    type: Boolean,
+    required: false
+  }
 });
 
 
