@@ -2,6 +2,8 @@
 const Config = require("../Config");
 const moment = require("moment");
 const nodemailer = require("nodemailer");
+const GoogleAuth = require("../googleauth/GoogleAuth");
+
 
 // setup mailer
 const sgMail = require("@sendgrid/mail");
@@ -17,23 +19,34 @@ class Mailer {
       return Mailer.instance;
     }
     Mailer.instance = this;
+    this.email = {};
     return this;
   }
 
   // this creates a test account to send the email from, As i currently don't have my client SMTP server creds.
   async init() {
-    let testAccount = await nodemailer.createTestAccount();
+
 
     // configure nodemailer
+    let auth = {
+      type: 'oauth2',
+      user: 'denisemilnercounselling@gmail.com',
+      clientId: clientId,
+      clientSecret: clientSecret,
+      refreshToken: refreshToken,
+    };
+
+
     this.transporter = nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false,
-      auth: {
-        user: testAccount.user,
-        pass: textAccount.pass
+      service: "gmail",
+      auth: auth,
+      tls: {
+        rejectUnauthorized: false
       }
     })
+    console.log("- Mailer initialized.")
+
+
 
   }
 
@@ -83,8 +96,10 @@ class Mailer {
   }
 
   send() {
-    console.log(this.email);
-    sgMail.send(this.email);
+    this.email.from = Config.mailer.email;
+    return this.transporter.sendMail(this.email);
+
+    // sgMail.send(this.email);
   }
 }
 
