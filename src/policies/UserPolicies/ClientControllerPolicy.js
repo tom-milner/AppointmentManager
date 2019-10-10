@@ -1,5 +1,5 @@
 const ErrorController = require("../../controllers/ErrorController")
-const ClientModel = require("../../models/MongooseModels/ClientModel");
+const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
 const Utils = require("../../utils/Utils");
 const Role = require("../../models/Role");
 

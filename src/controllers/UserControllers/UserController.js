@@ -1,4 +1,4 @@
-const UserModel = require("../../models/MongooseModels/UserModel");
+const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 
 
 // takes array of user Ids an returns simple user object.

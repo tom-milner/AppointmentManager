@@ -5,11 +5,16 @@ module.exports = {
   jwtSecret: "mkcslc;vjnv;rajkrvn;rkj",
   mailer: {
     email: process.env.MAILER_EMAIL,
-    apiKey: process.env.SENDGRID_API_KEY
+    pass: process.env.EMAIL_PASS,
   },
   db: {
     url: process.env.DB_URL || "localhost:27017/appointment_manager",
     user: process.env.DB_USER,
     pass: process.env.DB_PASS
+  },
+  googleAuth: {
+    clientId: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    redirectUri: process.env.GOOGLE_REDIRECT_URL
   }
 }

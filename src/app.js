@@ -37,14 +37,35 @@ app.use(routes);
 const Scheduler = require("./config/scheduler/Scheduler");
 Scheduler.start();
 
+// setup google api
+const GoogleAuth = require("./config/googleauth/GoogleAuth");
+const googleAuth = new GoogleAuth();
+
+// setup mailer
+const Mailer = require("./config/mailer/Mailer");
+const mailer = new Mailer();
+
+
 // Connect to the database and start the application
 (async () => {
+
+  // get google api keys.
+  await googleAuth.init();
+
+  // Initialise the mailer
+  await mailer.init();
+
+  // initialize database
   const database = require("./config/Database");
   console.log("- Connecting to database...");
+
+
+
+
   if (await database.initialize(Config.db.url)) {
     // Database is required, so only start server if database connection can be established
-    app.listen(Config.port, function() {
-      console.log(`- Started server on port ${Config.port}`);
+    app.listen(Config.port, function () {
+      console.log(`✓ Started server on port ${Config.port}`);
       console.log("\n");
     });
   }

@@ -11,11 +11,22 @@ function sendError(res, errorMessage, errorCode, returnObject) {
     errorCode = 500;
   }
 
-  res.status(errorCode || 500).send({
+  let errorObject = {
     success: false,
     message: errorMessage || "Server error.",
-    returnObject
-  });
+
+  }
+
+  if (returnObject) {
+    // add returnObject to errorObject
+    let keys = Object.keys(returnObject);
+    for (let key of keys) {
+      if (key == "success" || key == "message") break;
+      errorObject[key] = returnObject[key]
+    }
+  }
+
+  res.status(errorCode || 500).send(errorObject);
 }
 
 

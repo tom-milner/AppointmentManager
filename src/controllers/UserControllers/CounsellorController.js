@@ -1,4 +1,4 @@
-const CounsellorModel = require("../../models/MongooseModels/CounsellorModel");
+const CounsellorModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
 const ErrorController = require("../ErrorController");
 
 // get list of all the counsellors
@@ -98,6 +98,8 @@ function getCounsellor({
     }
   };
 }
+
+
 
 module.exports = {
   getAllCounsellorsReduced,

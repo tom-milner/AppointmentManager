@@ -63,6 +63,7 @@ function roleCheck({
   };
 }
 
+
 // expose functions for usage
 module.exports = {
   isLoggedIn,

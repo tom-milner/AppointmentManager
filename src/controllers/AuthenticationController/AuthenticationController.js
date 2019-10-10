@@ -1,14 +1,14 @@
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const crypto = require('crypto');
 const moment = require("moment");
-const Config = require("../config/Config");
-const Mailer = require("../config/Mailer");
-const CounsellorModel = require("../models/MongooseModels/CounsellorModel");
-const ClientModel = require("../models/MongooseModels/ClientModel");
-const UserModel = require("../models/MongooseModels/UserModel");
-const PasswordResetModel = require("../models/MongooseModels/PasswordResetModel");
-const ErrorController = require("../controllers/ErrorController");
+const Config = require("../../config/Config");
+const Mailer = require("../../config/mailer/Mailer");
+const CounsellorModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
+const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
+const GuestModel = require("../../models/MongooseModels/UserModels/GuestModel")
+const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
+const PasswordResetModel = require("../../models/MongooseModels/PasswordResetModel");
+const ErrorController = require("../ErrorController");
+const AuthenticationControllerHelpers = require("./AuthenticationControllerHelpers");
 
 // Register a new counsellor
 async function registerCounsellor(req, res) {
@@ -31,14 +31,15 @@ async function registerCounsellor(req, res) {
     });
 
     // hash password
-    newCounsellor.password = await hashPassword(password);
+    newCounsellor.password = await AuthenticationControllerHelpers.hashPassword(password);
     // save counsellor in database
     const savedCounsellor = await newCounsellor.save();
+    savedCounsellor.password = undefined;
     res.status(200).send({
       success: true,
       message: "Counsellor created successfully.",
-      counsellor: savedCounsellor,
-      token: jwtSignUser(savedCounsellor.toJSON())
+      user: savedCounsellor,
+      token: AuthenticationControllerHelpers.jwtSignUser(savedCounsellor.toJSON())
     });
 
   } catch (err) {
@@ -67,17 +68,19 @@ async function registerClient(req, res) {
     });
 
     // store hashed password in user object.
-    newClient.password = await hashPassword(req.body.password);
+    newClient.password = await AuthenticationControllerHelpers.hashPassword(req.body.password);
 
     // Save client to database
     const savedClient = await newClient.save();
+    savedClient.password = undefined;
+
     // Return newly created client
     res.status(200).send({
       success: true,
       message: "Client added.",
-      client: savedClient,
+      user: savedClient,
       // Sign user with new token
-      token: jwtSignUser(savedClient.toJSON())
+      token: await AuthenticationControllerHelpers.jwtSignUser(savedClient.toJSON())
     });
   } catch (err) {
     let errorMessage = "Error registering client.";
@@ -91,6 +94,50 @@ async function registerClient(req, res) {
     ErrorController.sendError(res, errorMessage, errorStatusCode);
   }
 }
+
+async function registerGuest(req, res) {
+
+  let {
+    firstname,
+    lastname,
+    email
+  } = req.body;
+
+  // generate random password - this is only to prevent people logging into a guest account
+  let password = await AuthenticationControllerHelpers.generateRandomPassword();
+
+  try {
+    let newGuest = new GuestModel({
+      // default username is the user's email
+      username: email,
+      firstname: firstname,
+      lastname: lastname,
+      email: email,
+    });
+
+    // hash password
+    newGuest.password = await AuthenticationControllerHelpers.hashPassword(password);
+
+
+    let createdGuest = await newGuest.save();
+    createdGuest.password = undefined;
+    res.status(200).send({
+      success: true,
+      message: "Guest created successfully",
+      user: createdGuest,
+      token: await AuthenticationControllerHelpers.jwtSignUser(createdGuest)
+    });
+  } catch (error) {
+    let errorMessage = "Error creating guest.";
+    let errorCode = 500;
+    console.log(error);
+    if (error.code == 11000) {
+      errorMessage = "Account already exists";
+    }
+    ErrorController.sendError(res, errorMessage, errorCode);
+  }
+}
+
 
 // Login the client and provide them with an access token
 async function login(req, res) {
@@ -124,7 +171,7 @@ async function login(req, res) {
     matchingUser.password = undefined;
 
     // return user with new access token.
-    const token = await jwtSignUser(matchingUser);
+    const token = await AuthenticationControllerHelpers.jwtSignUser(matchingUser);
     res.status(200).send({
       success: true,
       message: "User logged in",
@@ -144,7 +191,7 @@ async function login(req, res) {
 async function refreshToken(req, res) {
   try {
     // create new token
-    const newToken = jwtSignUser(req.user);
+    const newToken = AuthenticationControllerHelpers.jwtSignUser(req.user);
 
     // return new token and original user
     res.status(200).send({
@@ -177,10 +224,10 @@ async function forgotPassword(req, res) {
     let requestIp = req.header('x-forwarded-for') || req.connection.remoteAddress;
 
     // create random token
-    let token = await generatePasswordResetToken();
+    let token = await AuthenticationControllerHelpers.generatePasswordResetToken();
 
     // create a hash of the token to store in a database.
-    let tokenHash = generateTokenHash(token);
+    let tokenHash = AuthenticationControllerHelpers.generateTokenHash(token);
 
     // store hash and timestamp in the database.
     let passwordReset = new PasswordResetModel({
@@ -189,23 +236,15 @@ async function forgotPassword(req, res) {
       userId: foundUser._id
     });
     passwordReset.save(); // we don't need the passwordResetModel any more, so we don't need to await this.
+
     // send email
-    const msg = {
-      to: email,
-      from: Config.mailer.email,
-      subject: 'Forgotten Password',
-      html: `<p>Hi ${foundUser.firstname}.</p>
-            <p>We see you've forgotten your password.</p> 
-            <p>Please follow this link to reset your password:</p>
-            <a href="${Config.url}auth/reset-password?token=${token}">Reset Password</a> 
-            <p>Ip: ${requestIp}</p>
-            `
-    };
-    await Mailer.send(msg)
+    let mailer = new Mailer();
+    mailer.forgotPassword(foundUser, token, requestIp).send();
+
     // let the user know the email was sent.
     res.status(200).send({
       success: true,
-      message: "Email sent sucessfully"
+      message: "Email sent sucessfully. If you can't find it, check your spam folder!"
     });
   } catch (error) {
     console.log(error);
@@ -219,7 +258,7 @@ async function resetPassword(req, res) {
   let password = req.body.password;
 
   // create token hash
-  let tokenHash = generateTokenHash(token);
+  let tokenHash = AuthenticationControllerHelpers.generateTokenHash(token);
   try {
     // use hash as id to find relevant password reset in db.
     let foundPasswordReset = await PasswordResetModel.findOne({
@@ -244,7 +283,7 @@ async function resetPassword(req, res) {
     }
 
     // Token is valid!! reset the users password.
-    let newPassword = await hashPassword(password);
+    let newPassword = await AuthenticationControllerHelpers.hashPassword(password);
     let updatedUser = await UserModel.findByIdAndUpdate(foundPasswordReset.userId, {
       password: newPassword
     });
@@ -261,61 +300,8 @@ async function resetPassword(req, res) {
   }
 
 }
-// #############################
-//      HELPER FUNCTIONS
-// #############################
 
-// Give client a token for validation in other parts of the API
-async function jwtSignUser(user) {
-  const oneDay = 60 * 60 * 24;
-  const expirationTime = oneDay;
-  // make user a plain object
-  user = {
-    firstname: user.firstname,
-    lastname: user.lastname,
-    username: user.username,
-    role: user.role,
-    _id: user._id
-  };
 
-  // Create token
-  const token = await jwt.sign(user, Config.jwtSecret, {
-    expiresIn: expirationTime
-  });
-  return token;
-}
-
-// return a hashed password
-async function hashPassword(password) {
-  // First, generate salt. saltRounds is the cost factor of hashing algorithm.
-  // For example, a saltRounds of 10 will mean that the bcrypt calculation is performed 2^10 (1024) times.
-  // The higher the saltRounds, the longer the salt takes to generate, but the more secure the hash.
-
-  // I use bcrypt here as it is more secure than crypto (the inbuilt cryptography library).
-  const SALT_ROUNDS = 10;
-  const salt = await bcrypt.genSalt(SALT_ROUNDS);
-  const hash = await bcrypt.hash(password, salt);
-  return hash;
-}
-
-function generateTokenHash(token) {
-  let tokenHash = crypto.createHash("sha256");
-  tokenHash.update(token);
-  return tokenHashDigest = (tokenHash.digest("hex"));
-
-}
-
-// generate a password reset token
-function generatePasswordResetToken() {
-  return new Promise((resolve, reject) => {
-    crypto.randomBytes(64, function (error, buffer) {
-      if (error) reject(error);
-      let token = buffer.toString("hex");
-      console.log(token.length);
-      resolve(token);
-    })
-  })
-}
 
 module.exports = {
   registerClient,
@@ -323,5 +309,6 @@ module.exports = {
   refreshToken,
   registerCounsellor,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  registerGuest
 };

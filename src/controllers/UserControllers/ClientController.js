@@ -1,4 +1,4 @@
-const ClientModel = require("../../models/MongooseModels/ClientModel");
+const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
 const ErrorController = require("../../controllers/ErrorController");
 const Utils = require("../../utils/Utils");
 
