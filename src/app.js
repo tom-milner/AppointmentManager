@@ -33,9 +33,8 @@ app.use(bodyParser.json());
 const routes = require("./routes");
 app.use(routes);
 
-// start cron jobs
 const Scheduler = require("./config/scheduler/Scheduler");
-Scheduler.start();
+const scheduler = new Scheduler();
 
 // setup google api
 const GoogleAuth = require("./config/googleauth/GoogleAuth");
@@ -45,28 +44,34 @@ const googleAuth = new GoogleAuth();
 const Mailer = require("./config/mailer/Mailer");
 const mailer = new Mailer();
 
+const Database = require("./config/Database");
+const database = new Database();
 
 // Connect to the database and start the application
 (async () => {
 
-  // get google api keys.
-  await googleAuth.init();
+  try {
+    // get google api keys.
+    await googleAuth.init();
 
-  // Initialise the mailer
-  await mailer.init();
+    // Initialise the mailer
+    await mailer.init();
 
-  // initialize database
-  const database = require("./config/Database");
-  console.log("- Connecting to database...");
+    // initialize database
+    await database.init(Config.db.url);
+
+    scheduler.start();
 
 
-
-
-  if (await database.initialize(Config.db.url)) {
     // Database is required, so only start server if database connection can be established
     app.listen(Config.port, function () {
       console.log(`✓ Started server on port ${Config.port}`);
       console.log("\n");
     });
+
+  } catch (error) {
+    console.log(`✗ ${error}`)
+    console.log(`✗ Aborting...`)
+    process.exit();
   }
 })();

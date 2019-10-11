@@ -39,8 +39,35 @@ class Mailer {
     })
     console.log("✓ Mailer initialized.")
 
+  }
 
 
+  weeksAppointments(user, appointments) {
+    let email = this.email;
+
+    email.to = user.email;
+    email.subject = "Your Upcoming Appointments";
+    email.html = `<p>Hi ${user.firstname}</p>
+                  <p>Here are your upcoming appointments this week:</p>`;
+
+    for (let appointment of appointments) {
+
+      let firstname = appointment.clients[0].firstname;
+      let lastname = appointment.clients[0].lastname
+
+      let startTime = moment(appointment.startTime).format("LT");
+      let endTime = moment(appointment.endTime).format("LT");
+      let date = moment(appointment.startTime).format("LL");
+
+      email.html += `<li>
+                      <h4>${appointment.title}: ${startTime} - ${endTime} </h4>
+                      <p>Date: ${date}</p>
+                      <p>Client: ${firstname} ${lastname}</p>
+                      <p>Appointment Type: ${appointment.appointmentType.name}</p>
+                      <p>Approved: ${appointment.isApproved}</p>
+                    </li>`;
+    }
+    return this;
   }
 
   newGuest(guest, token) {
@@ -48,11 +75,11 @@ class Mailer {
 
     email.to = guest.email;
     email.subject = "Guest Account Created";
-    email.html = `<p>Hi ${guest.firstname},</p>
-                  <p>Welcome to appointment manager.</p>
-                  <p>You should've received an email containing your appointment info.</p>
-                  <p>To view or edit your appointment details, activate your account using the following link.</p>
-                  <a href="${Config.url}/auth/reset-password?token=${token}">Activate Account</a>`
+    email.html = ` <p> Hi ${guest.firstname}, </p> 
+      <p> Welcome to appointment manager. </p>
+      <p> You should 've received an email containing your appointment info.</p>
+      <p > To view or edit your appointment details, activate your account using the following link. </p> 
+      <a href = "${Config.url}/auth/reset-password?token=${token}" > Activate Account < /a>`
     return this;
   }
 
@@ -72,15 +99,12 @@ class Mailer {
 
   confirmAppointment(appointments, client, counsellor) {
 
-    // if the client is a guest, include a link for them to activate their account.
-    if (client.role == Role.Guest) {
 
-    }
 
     let email = this.email;
 
     // set email to field
-    email.to = client.email;
+    email.to = [client.email, counsellor.email];
 
     // set email subject.
     email.subject = "Appointment Confirmation";
@@ -98,6 +122,7 @@ class Mailer {
                       <h4>${appointment.title}: ${startTime} - ${endTime} </h4>
                       <p>Date: ${date}</p>
                       <p>Counsellor: ${counsellor.firstname} ${counsellor.lastname}</p>
+                      <p>Client: ${client.firstname} ${client.lastname}</p>
                       <p>Appointment Type: ${appointment.appointmentType.name}</p>
                     </li>`;
     }
