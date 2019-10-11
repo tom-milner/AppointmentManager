@@ -39,7 +39,7 @@
     </div>
 
     <!-- Modal -->
-    <Modal v-on:close-modal="showViewClient=false" v-if="showViewClient">
+    <Modal canPrint v-on:close-modal="showViewClient=false" v-if="showViewClient">
       <div class="modal-content">
         <UserDetails :client="chosenClient" />
       </div>

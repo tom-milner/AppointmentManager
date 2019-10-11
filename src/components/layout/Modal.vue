@@ -1,21 +1,16 @@
 <template>
   <div class="modal" id="modal" :class="{fullscreenModal: isFullscreen}">
     <transition appear name="slide">
-      <div class="modal-content">
+      <div class="modal-content" v-on-clickaway="close">
         <div class="icons">
           <div class="icon-box">
             <Icon class="icon" name="maximize" v-on:click.native="toggleFullscreen()"></Icon>
           </div>
-          <div class="icon-box">
+          <div class="icon-box" v-if="canPrint">
             <Icon class="icon" name="printer" v-on:click.native="printModal()"></Icon>
           </div>
         </div>
-        <div
-          class="modal__content"
-          id="printContents"
-          :class="{fullscreenModal: isFullscreen}"
-          v-on-clickaway="close"
-        >
+        <div id="printContents">
           <slot class="slot"></slot>
         </div>
       </div>
@@ -33,6 +28,10 @@ export default {
     Icon
   },
 
+  props: {
+    canPrint: Boolean
+  },
+
   data() {
     return {
       isFullscreen: false,
@@ -48,12 +47,6 @@ export default {
       this.isFullscreen = !this.isFullscreen;
     },
     printModal() {
-      // hide any buttons
-      // let buttons = document.querySelectorAll("button");
-      // buttons.forEach(btn => {
-      //   btn.style.display = "none";
-      // });
-
       // Get HTML to print from element
       const prtHtml = document.getElementById("printContents").innerHTML;
 
@@ -172,8 +165,8 @@ export default {
 
   &-content {
     height: auto;
-    max-height: 95%;
-    width: 95%;
+    width: 95rem;
+    height: 95rem;
     border-radius: 10px;
   }
 }

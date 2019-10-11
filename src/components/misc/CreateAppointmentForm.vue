@@ -88,7 +88,7 @@
 
     <!-- Calendar Modal -->
     <Modal v-on:close-modal="toggleAppointmentCalendarModal()" v-if="appointmentCalendarDisplayed">
-      <div class="modal-content">
+      <div class="calendar">
         <AppointmentCalendar
           userCanAddEvents
           v-on:close-modal="toggleAppointmentCalendarModal()"
@@ -243,10 +243,18 @@ export default {
         console.log(error.response.data);
         if (error.response.data.clashInfo) {
           let clashInfo = error.response.data.clashInfo;
-          let formattedStart = this.moment(clashInfo[0].startTime).format("LT");
-          let formattedEnd = this.moment(clashInfo[0].endTime).format("LT");
-          let day = this.moment(clashInfo[0].startTime).format("dddd");
-          this.errorMessage = `Appointment Clash:\n${day}, ${formattedStart} - ${formattedEnd} is booked for the next ${clashInfo[0].noFutureAppointments} weeks.`;
+
+          let startTime = this.moment(clashInfo[0].startTime);
+          let endTime = this.moment(clashInfo[0].endTime);
+          let endDay = startTime
+            .clone()
+            .add(clashInfo[0].noFutureAppointments, "days");
+
+          this.errorMessage = `Appointment Clash:\n${startTime.format(
+            "LT"
+          )} - ${endTime.format("LT")} is booked from ${startTime.format(
+            "dddd Do"
+          )} to ${endDay.format("dddd Do")}`;
           return;
         }
         this.errorMessage = error.response.data.message;
@@ -406,7 +414,11 @@ export default {
 .error {
   white-space: pre;
 }
-.modal-content {
+.calendar {
   width: 110rem;
+}
+
+.calendar {
+  margin-top: 2rem;
 }
 </style>

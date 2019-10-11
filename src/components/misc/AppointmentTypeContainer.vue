@@ -1,5 +1,5 @@
 <template>
-  <div class="appointment-type-wrapper">
+  <div @click="showFullAppointmentType" class="appointment-type-wrapper">
     <div class="row">
       <!-- If the user is not currently editing  -->
       <div class="inline" v-if="!isEditable">
@@ -34,7 +34,7 @@
 
       <div class="right">
         <!-- Dropdown Icon -->
-        <div @click="showFullAppointmentType" class="icon-box">
+        <div v-if="!forceOpen" class="icon-box">
           <Icon v-if="!showFullType" class="edit" name="chevron-down"></Icon>
           <Icon v-else class="edit" name="chevron-up"></Icon>
         </div>
@@ -301,7 +301,8 @@ export default {
   },
   props: {
     type: {},
-    userCanEdit: Boolean
+    userCanEdit: Boolean,
+    forceOpen: Boolean
   },
   computed: {
     getRecurringButtonClass() {
@@ -320,6 +321,8 @@ export default {
     if (!this.appointmentType._id) {
       this.isEditable = true;
     }
+
+    this.showFullType = this.forceOpen;
   },
 
   methods: {
