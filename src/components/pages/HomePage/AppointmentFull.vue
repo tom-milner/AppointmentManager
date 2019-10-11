@@ -58,7 +58,7 @@
       <li class="section notes">
         <h4 class="heading-4">Client Notes (for counsellor to see) :</h4>
         <textarea :disabled="isCounsellor" class="form-input" v-model="appointment.clientNotes"></textarea>
-        <button @click="saveNotes(false)" v-if="!isCounsellor" class="btn btn-secondary">Save</button>
+        <button @click="saveNotes(false)" v-if="!isCounsellor" class="save btn btn-secondary">Save</button>
       </li>
 
       <!-- Counsellor Notes -->
@@ -95,7 +95,7 @@
       </li>
 
       <!-- Delete Button -->
-      <li class="section delete">
+      <li v-if="isCounsellor" class="section delete">
         <button @click="showDeleteDialogue = true" class="btn btn-disapproved">Delete Appointment</button>
       </li>
     </ul>

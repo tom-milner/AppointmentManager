@@ -10,6 +10,7 @@ import ManageClientsPage from "@/components/pages/CounsellorPages/ManageClientsP
 import AppointmentSettingsPage from "@/components/pages/CounsellorPages/AppointmentSettingsPage/AppointmentSettingsPage";
 import ForgotPasswordPage from "@/components/pages/AuthPages/ForgotPasswordPage/ForgotPasswordPage";
 import ResetPasswordPage from "@/components/pages/AuthPages/ResetPasswordPage/ResetPasswordPage";
+import GuestPage from "@/components/pages/AuthPages/GuestPage/GuestPage"
 import Role from "@/models/Role";
 // Sets up the different frontend routes 
 // e.g. /login will lead to the login page
@@ -75,6 +76,15 @@ let router = new Router({
       meta: {
         hideNavigation: true
       },
+    },
+    {
+      path: "/auth/guest/:counsellorId",
+      name: "GuestPage",
+      component: GuestPage,
+      meta: {
+        hideNavigation: true
+      }
+
     },
     // forgot password route
     {

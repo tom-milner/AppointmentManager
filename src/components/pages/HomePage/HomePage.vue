@@ -47,13 +47,13 @@
       <h3 class="heading-3">Your Calendar</h3>
       <appointment-calendar
         v-on:display-appointment="toggleModal"
-        :events="events"
+        :events="getEvents"
         class="calendar"
       ></appointment-calendar>
     </div>
 
     <!-- Modal -->
-    <Modal v-on:close-modal="toggleModal()" v-if="modalDisplayed">
+    <Modal canPrint v-on:close-modal="toggleModal()" v-if="modalDisplayed">
       <div class="modal-content">
         <AppointmentFull
           :isCounsellor="isUserCounsellor"
@@ -91,6 +91,9 @@ export default {
   },
 
   computed: {
+    getEvents() {
+      return this.events;
+    },
     isUserCounsellor() {
       return this.user.role >= Role.Counsellor;
     },
@@ -124,15 +127,15 @@ export default {
         isCounsellor: userIsCounsellor,
         params: {
           fromTime: twoMonthsAgo,
-          limit: 10
+          limit: 75
         }
       });
 
       this.appointments = response.data.appointments;
     },
-    toggleModal: function(chosenAppointment) {
+    toggleModal: async function(chosenAppointment) {
       //reload appointments
-      this.getUserAppointments();
+      await this.getUserAppointments();
       if (chosenAppointment) {
         this.selectedAppointment = this.appointments.find(appointment => {
           return chosenAppointment._id == appointment._id;

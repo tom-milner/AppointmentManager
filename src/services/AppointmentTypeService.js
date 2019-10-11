@@ -13,10 +13,7 @@
     },
 
     createAppointmentType(typeOptions) {
-      return Api.post("/appointments/type", {
-        duration: typeOptions.duration,
-        name: typeOptions.name
-      })
+      return Api.post("/appointments/type", typeOptions)
     },
 
     deleteAppointmentType(appointmentTypeId) {
