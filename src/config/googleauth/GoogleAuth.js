@@ -15,6 +15,7 @@ class GoogleAuth {
 
   // create singleton
   constructor() {
+
     // setup nodemailer
     if (!!GoogleAuth.instance) {
       return GoogleAuth.instance;
@@ -125,7 +126,6 @@ class GoogleAuth {
             resolve(tokens);
           }
         } catch (error) {
-          console.log("✗ Google Initialization unsuccessfull. Aborting.")
           reject(error);
         }
       });

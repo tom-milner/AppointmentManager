@@ -1,6 +1,5 @@
 const bcrypt = require("bcrypt");
 const moment = require("moment");
-const Config = require("../../config/Config");
 const Mailer = require("../../config/mailer/Mailer");
 const CounsellorModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
 const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
@@ -9,6 +8,7 @@ const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 const PasswordResetModel = require("../../models/MongooseModels/PasswordResetModel");
 const ErrorController = require("../ErrorController");
 const AuthenticationControllerHelpers = require("./AuthenticationControllerHelpers");
+const Role = require("../../models/Role");
 
 // Register a new counsellor
 async function registerCounsellor(req, res) {
@@ -118,8 +118,21 @@ async function registerGuest(req, res) {
     // hash password
     newGuest.password = await AuthenticationControllerHelpers.hashPassword(password);
 
-
+    // save guest in database
     let createdGuest = await newGuest.save();
+
+
+    // create a password reset for the guest for when they want to activate their account.
+    let {
+      token
+    } = await AuthenticationControllerHelpers.createPasswordReset(createdGuest);
+
+    // send guest an email containing a link to activate their account.
+    let mailer = new Mailer();
+    mailer.newGuest(createdGuest, token).send();
+
+
+    // send back newly created guest
     createdGuest.password = undefined;
     res.status(200).send({
       success: true,
@@ -127,6 +140,8 @@ async function registerGuest(req, res) {
       user: createdGuest,
       token: await AuthenticationControllerHelpers.jwtSignUser(createdGuest)
     });
+
+
   } catch (error) {
     let errorMessage = "Error creating guest.";
     let errorCode = 500;
@@ -223,19 +238,10 @@ async function forgotPassword(req, res) {
     // get ip address of request.
     let requestIp = req.header('x-forwarded-for') || req.connection.remoteAddress;
 
-    // create random token
-    let token = await AuthenticationControllerHelpers.generatePasswordResetToken();
-
-    // create a hash of the token to store in a database.
-    let tokenHash = AuthenticationControllerHelpers.generateTokenHash(token);
-
-    // store hash and timestamp in the database.
-    let passwordReset = new PasswordResetModel({
-      hash: tokenHash,
-      timestamp: Date.now(),
-      userId: foundUser._id
-    });
-    passwordReset.save(); // we don't need the passwordResetModel any more, so we don't need to await this.
+    let {
+      token,
+      passwordReset
+    } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
 
     // send email
     let mailer = new Mailer();
@@ -287,8 +293,34 @@ async function resetPassword(req, res) {
     let updatedUser = await UserModel.findByIdAndUpdate(foundPasswordReset.userId, {
       password: newPassword
     });
-    // remove the password reset from the db - we don't need to await this.
+
+    // if the user was previously a guest turn them into a client.
+    if (updatedUser.role == Role.Guest) {
+
+
+      console.log(updatedUser.password == newPassword);
+      // create new client model
+      let newClient = new ClientModel({
+        _id: updatedUser._id,
+        email: updatedUser.email,
+        username: updatedUser.username,
+        firstname: updatedUser.firstname,
+        lastname: updatedUser.lastname,
+        password: newPassword
+      });
+
+      // delete guest account
+      await GuestModel.findByIdAndDelete(updatedUser._id);
+
+      // save new client
+      updatedUser = await newClient.save();
+    }
+    updatedUser.password = undefined;
+
+    // remove the password reset from the db so that it can't be reused.
     await PasswordResetModel.findByIdAndDelete(foundPasswordReset._id);
+
+    // send back the updated user.
     res.status(200).send({
       success: true,
       message: "Password updated successfully",

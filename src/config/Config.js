@@ -1,7 +1,7 @@
 module.exports = {
 
   port: process.env.PORT || 8081,
-  url: process.env.URL || "http://localhost:8080/",
+  url: process.env.URL || "http://localhost:8080",
   jwtSecret: "mkcslc;vjnv;rajkrvn;rkj",
   mailer: {
     email: process.env.MAILER_EMAIL,
