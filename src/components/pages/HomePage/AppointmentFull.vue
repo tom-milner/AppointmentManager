@@ -258,6 +258,7 @@ export default {
 .wrapper {
   padding: 1rem;
   text-align: center;
+  min-width: 80rem;
 }
 
 .appointment-details {

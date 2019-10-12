@@ -1,5 +1,8 @@
 <template>
-  <div @click="showFullAppointmentType" class="appointment-type-wrapper">
+  <div
+    @click=" !isEditable ? toggleShowFullAppointmentType() : null "
+    class="appointment-type-wrapper"
+  >
     <div class="row">
       <!-- If the user is not currently editing  -->
       <div class="inline" v-if="!isEditable">
@@ -34,7 +37,7 @@
 
       <div class="right">
         <!-- Dropdown Icon -->
-        <div v-if="!forceOpen" class="icon-box">
+        <div v-if="!forceOpen" @click="toggleShowFullAppointmentType" class="icon-box">
           <Icon v-if="!showFullType" class="edit" name="chevron-down"></Icon>
           <Icon v-else class="edit" name="chevron-up"></Icon>
         </div>
@@ -339,7 +342,7 @@ export default {
     toggleIsRecurring() {
       this.appointmentType.isRecurring = !this.appointmentType.isRecurring;
     },
-    showFullAppointmentType() {
+    toggleShowFullAppointmentType() {
       this.showFullType = !this.showFullType;
     },
 

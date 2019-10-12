@@ -145,7 +145,6 @@ export default {
 
   &-content {
     background-color: $color-white;
-    width: auto;
     height: 95%;
     margin-right: 2rem;
     z-index: 10000;
@@ -163,11 +162,15 @@ export default {
   transition: all 0.2s;
   justify-content: center;
 
-  &-content {
+  .modal-content {
     height: auto;
-    width: 95rem;
-    height: 95rem;
+    width: 90vw !important;
+    height: 95vh !important;
     border-radius: 10px;
   }
+}
+
+#printContents {
+  width: 100%;
 }
 </style>

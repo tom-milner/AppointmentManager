@@ -54,13 +54,11 @@
 
     <!-- Modal -->
     <Modal canPrint v-on:close-modal="toggleModal()" v-if="modalDisplayed">
-      <div class="modal-content">
-        <AppointmentFull
-          :isCounsellor="isUserCounsellor"
-          :appointment="selectedAppointment"
-          v-on:appointment-deleted="toggleModal()"
-        ></AppointmentFull>
-      </div>
+      <AppointmentFull
+        :isCounsellor="isUserCounsellor"
+        :appointment="selectedAppointment"
+        v-on:appointment-deleted="toggleModal()"
+      ></AppointmentFull>
     </Modal>
   </div>
 </template>
@@ -189,9 +187,5 @@ export default {
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
-}
-
-.modal-content {
-  width: 80rem;
 }
 </style>

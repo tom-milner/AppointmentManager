@@ -74,7 +74,7 @@ export default {
 
 <style lang="scss" scoped>
 .wrapper {
-  width: 100%;
+  min-width: 75rem;
   text-align: center;
   padding: 1rem;
 
@@ -101,8 +101,9 @@ export default {
     margin-top: 2rem;
 
     .clinical-notes {
-      height: 30rem;
-      resize: none;
+      min-height: 30rem;
+      resize: vertical;
+      width: 100%;
     }
   }
 }

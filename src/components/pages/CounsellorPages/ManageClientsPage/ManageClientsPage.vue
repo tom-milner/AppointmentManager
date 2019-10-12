@@ -131,6 +131,7 @@ export default {
 
 .client-list {
   list-style: none;
+  width: 60rem;
 
   .client-item {
     &:not(:last-child) {
@@ -144,10 +145,10 @@ export default {
     border-left: 4px solid $color-primary;
     position: relative;
     transition: all 0.2s;
-    display: block;
-    width: 50rem;
+
     .client-content {
       margin-left: 0.5rem;
+      min-width: 50rem;
 
       h4 {
         display: inline-block;
@@ -181,9 +182,5 @@ export default {
   select {
     width: 30rem;
   }
-}
-
-.modal-content {
-  width: 75rem;
 }
 </style>
