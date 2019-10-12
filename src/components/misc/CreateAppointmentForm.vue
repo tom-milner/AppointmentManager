@@ -117,8 +117,8 @@ export default {
   },
 
   computed: {
-    userIsCounsellor() {
-      return this.user.role >= Role.Counsellor;
+    userIsCounsellor: function() {
+      return this.$store.getters["authentication/isCounsellor"];
     },
     // whether the user can open the calendar or not
     canDisplayOpenCalendarButton() {

@@ -4,6 +4,7 @@ import Router from 'vue-router'
 import LandingPage from '@/components/pages/LandingPage/LandingPage.vue'
 import HomePage from "@/components/pages/HomePage/HomePage.vue";
 import CreateAppointmentPage from "@/components/pages/CreateAppointmentPage/CreateAppointmentPage";
+import ProfilePage from "@/components/pages/ProfilePage/ProfilePage"
 import Role from "@/models/Role";
 
 // import other routes 
@@ -22,7 +23,6 @@ let router = new Router({
 
     ...CounsellorRoutes,
     ...AuthRoutes,
-
 
     // Landing Page
     {
@@ -46,6 +46,15 @@ let router = new Router({
       path: "/create",
       name: "CreateAppointmentPage",
       component: CreateAppointmentPage,
+      meta: {
+        minimumAuthRole: Role.Client
+      }
+    },
+    // Profile Page
+    {
+      path: "/profile",
+      name: "ProfilePage",
+      component: ProfilePage,
       meta: {
         minimumAuthRole: Role.Client
       }
