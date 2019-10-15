@@ -37,7 +37,7 @@
 
       <div class="right">
         <!-- Dropdown Icon -->
-        <div v-if="!forceOpen" @click="toggleShowFullAppointmentType" class="icon-box">
+        <div v-if="!forceOpen" class="icon-box">
           <Icon v-if="!showFullType" class="edit" name="chevron-down"></Icon>
           <Icon v-else class="edit" name="chevron-up"></Icon>
         </div>

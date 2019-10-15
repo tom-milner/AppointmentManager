@@ -26,7 +26,7 @@
         <div v-if="userIsCounsellor ">
           <li>
             <router-link to="/counsellor/calendar" class="nav-item">
-              <icon name="calendar" class="icon-nav-item" />
+              <icon name="clock" class="icon-nav-item" />
             </router-link>
           </li>
           <li>
@@ -51,7 +51,6 @@
 <script>
 import UserService from "@/services/UserService";
 import Icon from "vue-icon/lib/vue-feather.esm";
-import Role from "@/models/Role";
 
 export default {
   components: {
@@ -72,8 +71,8 @@ export default {
   },
 
   computed: {
-    userIsCounsellor() {
-      return this.user.role >= Role.Counsellor;
+    userIsCounsellor: function() {
+      return this.$store.getters["authentication/isCounsellor"];
     }
   },
 

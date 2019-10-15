@@ -60,6 +60,26 @@ export default {
 
   isString(value) {
     return Object.prototype.toString.call(value) == "[object String]";
+  },
+
+
+  // copy a string to the clipboard
+  copyToClipboard(value, document) {
+    const input = document.createElement("input");
+    input.value = value;
+    // just in case 
+    input.style.opacity = 0;
+    input.style.height = "1rem";
+    input.style.width = "1rem";
+
+
+    document.body.appendChild(input);
+    input.focus();
+    input.select();
+    let success = document.execCommand("copy");
+    console.log(success)
+    document.body.removeChild(input);
+    return success;
   }
 
 

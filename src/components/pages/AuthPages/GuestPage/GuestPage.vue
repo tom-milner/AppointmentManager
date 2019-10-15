@@ -113,7 +113,7 @@ export default {
     }
   },
   async beforeCreate() {
-    const counsellorId = this.$route.params.counsellorId;
+    const counsellorId = window.atob(this.$route.params.counsellorId);
     console.log(counsellorId);
     try {
       let response = await UserService.getReducedCounsellor(counsellorId);
