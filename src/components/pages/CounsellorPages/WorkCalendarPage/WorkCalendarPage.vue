@@ -23,7 +23,13 @@
         <div v-bind:key="day.name" v-for="day in availableWorkDays" class="day">
           <h4 class="heading-4">{{day.name}}</h4>
           <input step="3600" type="time" v-model="day.startTime" class="form-input time-select" />
-          <input step="3600" type="time" v-model="day.endTime" class="form-input time-select" />
+          <input
+            step="3600"
+            type="time"
+            :min="day.startTime"
+            v-model="day.endTime"
+            class="form-input time-select"
+          />
         </div>
       </div>
     </div>

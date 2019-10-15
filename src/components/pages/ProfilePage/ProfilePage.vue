@@ -11,7 +11,7 @@
       <h4 @click="copyToClipboard" class="heading-4 booking-link">{{generateBookingLink()}}</h4>
       <h4 class="heading-4 success copy-message">Link Copied!</h4>
       <p
-        class="paragraph booking-link-info"
+        class="paragraph info"
       >Send this link to anyone that needs to book an appointment but doesn't have an account. It will create a guest account for them, which they can activate (turn into a real account) later.</p>
     </div>
 
@@ -52,6 +52,14 @@
         <button v-if="userCanEdit" class="btn btn-secondary save-button">Save</button>
       </form>
     </div>
+
+    <!-- Send Forgot Password Email -->
+    <div class="container reset-password">
+      <button @click="sendResetPasswordEmail" class="btn btn-primary">{{buttonContent}}</button>
+      <p
+        class="paragraph info"
+      >Pressing this button will send an email to your account containing a link to reset your password. If you ignore the email, your password will remain unchanged.</p>
+    </div>
   </div>
 </template>
 
@@ -59,6 +67,7 @@
 import Utils from "@/utils";
 import UserService from "@/services/UserService";
 import Icon from "vue-icon/lib/vue-feather.esm";
+import AuthenticationService from "@/services/AuthenticationService";
 
 export default {
   components: {
@@ -69,7 +78,9 @@ export default {
       user: {},
       message: "",
       userCanEdit: false,
-      requestOk: false
+      requestOk: false,
+      buttonContent: "Send Reset Password Email",
+      emailsLeft: 3
     };
   },
 
@@ -84,6 +95,14 @@ export default {
   mounted() {
     if (this.userIsCounsellor)
       document.querySelector(".copy-message").style.animation = "none";
+
+    // reset number of emails left every 3 minutes
+    setTimeout(
+      function() {
+        this.emailsLeft = 3;
+      }.bind(this),
+      60000
+    );
   },
   computed: {
     userIsCounsellor: function() {
@@ -91,6 +110,24 @@ export default {
     }
   },
   methods: {
+    async sendResetPasswordEmail() {
+      try {
+        if (this.emailsLeft < 1) {
+          this.buttonContent = "You can only send 3 emails per minute.";
+          return;
+        }
+        let response = await AuthenticationService.forgotPassword(
+          this.user.email
+        );
+        console.log(response);
+        this.buttonContent = response.data.message;
+        this.emailsLeft--;
+      } catch (error) {
+        if (Utils.isString(error)) this.buttonContent = error;
+        else this.buttonContent = error.response.data.message;
+      }
+    },
+
     toggleUserCanEdit() {
       this.userCanEdit = !this.userCanEdit;
       if (this.userCanEdit) {
@@ -184,12 +221,11 @@ export default {
     &:hover {
       background-color: darken($color-canvas, 10%);
     }
-
-    &-info {
-      margin-top: 1rem;
-      display: block;
-      width: 55rem;
-    }
+  }
+  .info {
+    margin-top: 1rem;
+    display: block;
+    width: 55rem;
   }
 
   &.personal-info {
@@ -228,6 +264,7 @@ export default {
 
         :first-child {
           width: 10rem;
+          font-weight: 500;
         }
         h4 {
           margin-top: 0.5rem;
@@ -241,6 +278,15 @@ export default {
           font-weight: 300;
         }
       }
+    }
+  }
+
+  &.reset-password {
+    width: 100%;
+
+    button {
+      margin-top: 1rem;
+      width: 55rem;
     }
   }
 }

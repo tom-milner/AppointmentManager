@@ -5,7 +5,7 @@
       <!-- Appointment Title -->
       <div class="form-field">
         <h4 class="form-heading">Appointment Title</h4>
-        <input v-model="chosenTitle" class="form-input short-input" />
+        <input type="text" max="200" v-model="chosenTitle" class="form-input short-input" />
       </div>
 
       <!-- Counsellor Selection Dropdown -->

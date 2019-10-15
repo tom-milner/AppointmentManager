@@ -30,11 +30,6 @@
         />
       </div>
 
-      <!-- Error Message -->
-      <div v-if="errorMessage.length > 0">
-        <h4 class="heading-4 error">{{errorMessage}}</h4>
-      </div>
-
       <div class="right">
         <!-- Dropdown Icon -->
         <div v-if="!forceOpen" class="icon-box">
@@ -49,6 +44,10 @@
 
         <!-- Save Button -->
         <button @click="saveAppointmentType" v-if="isEditable" class="btn btn-primary">Save</button>
+      </div>
+      <!-- Error Message -->
+      <div v-if="errorMessage.length > 0">
+        <h4 class="heading-4 error">{{errorMessage}}</h4>
       </div>
     </div>
     <!-- The extended appointment type -->
@@ -80,6 +79,8 @@
             v-model="appointmentType.recurringDuration"
             type="number"
             class="form-input number-input"
+            max="10"
+            min="2"
           />
 
           <p class="paragraph">
@@ -126,7 +127,7 @@
   border-left: 4px solid $color-primary;
   position: relative;
   transition: all 0.2s;
-  width: 50rem;
+  width: 60rem;
   min-height: 6rem;
   display: inline-block;
 
@@ -377,6 +378,7 @@ export default {
     toggleIsEditable() {
       if (this.userCanEdit) {
         this.isEditable = !this.isEditable;
+        if (this.isEditable) this.showFullType = true;
       }
     },
 
@@ -390,41 +392,32 @@ export default {
       newProperties.description = this.appointmentType.description;
 
       // send a request to the api to update the appointment type.
-      try {
-        // send request
-        let response = await AppointmentTypeService.updateAppointmentType(
-          this.appointmentType._id,
-          newProperties
-        );
-        // check for server error.
-        if (!response.data.success) {
-          throw { response };
-        }
-        // reset variables
-        this.isEditable = false;
-      } catch (error) {
-        this.errorMessage = error.response.data.message;
-        this.isEditable = true;
+
+      // send request
+      let response = await AppointmentTypeService.updateAppointmentType(
+        this.appointmentType._id,
+        newProperties
+      );
+      // check for server error.
+      if (!response.data.success) {
+        throw { response };
       }
+      // reset variables
+      this.isEditable = false;
     },
 
     async createAppointmentType() {
-      try {
-        let response = await AppointmentTypeService.createAppointmentType(
-          this.appointmentType
-        );
-        if (!response.data.success) {
-          throw {
-            response
-          };
-        }
-        this.$emit("refresh-appointments");
-        // reset variables
-        this.isEditable = false;
-      } catch (error) {
-        this.errorMessage = error.response.data.message;
-        this.isEditable = true;
+      let response = await AppointmentTypeService.createAppointmentType(
+        this.appointmentType
+      );
+      if (!response.data.success) {
+        throw {
+          response
+        };
       }
+      this.$emit("refresh-appointments");
+      // reset variables
+      this.isEditable = false;
     },
 
     // save the appointment
@@ -435,13 +428,18 @@ export default {
         this.isEditable = true;
         return;
       }
-
-      // check to see if the appointment is new.
-      if (!this.appointmentType._id) {
-        this.createAppointmentType();
-      } else {
-        // update appointment type
-        this.updateAppointmentType();
+      try {
+        // check to see if the appointment is new.
+        if (!this.appointmentType._id) {
+          await this.createAppointmentType();
+        } else {
+          // update appointment type
+          await this.updateAppointmentType();
+        }
+        this.errorMessage = "";
+      } catch (error) {
+        this.errorMessage = error.response.data.message;
+        this.isEditable = true;
       }
     }
   }

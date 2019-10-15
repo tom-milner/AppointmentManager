@@ -1,8 +1,9 @@
 // COLOURS 
-$color-primary: #2ab7ca;
-$color-primary-light: rgb(129, 186, 199);
-$color-primary-dark: #25373b;
-$color-primary-very-dark: #192629;
+// #3398d3
+// #65ca35
+$color-primary: #b135ca;
+$color-primary-light: lighten($color-primary, 25%);
+$color-primary-dark: darken($color-primary, 25%);
 
 $color-error: rgb(196, 72, 72);
 $color-approved:#3dd189;
