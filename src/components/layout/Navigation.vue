@@ -26,7 +26,7 @@
         <div v-if="userIsCounsellor ">
           <li>
             <router-link to="/counsellor/calendar" class="nav-item">
-              <icon name="calendar" class="icon-nav-item" />
+              <icon name="clock" class="icon-nav-item" />
             </router-link>
           </li>
           <li>
