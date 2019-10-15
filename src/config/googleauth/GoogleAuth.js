@@ -102,7 +102,7 @@ class GoogleAuth {
       // The url will lead to a google sign in page, requiring the user to authentication the application with their chosen email account.
       const authUrl = this.oauth2Client.generateAuthUrl({
         access_type: 'offline',
-        scope: "http://mail.google.com"
+        scope: scope
       });
 
       // create a temporary webserver that the user will be directed to once they have authenticated the app.

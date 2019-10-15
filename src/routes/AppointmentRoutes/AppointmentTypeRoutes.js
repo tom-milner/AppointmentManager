@@ -19,13 +19,17 @@ router.use(AuthenticationMiddleware.isLoggedIn);
 // Create a new appointment type
 router.post("/", AuthenticationMiddleware.roleCheck({
   role: Role.Counsellor
-}), AppointmentTypeControllerPolicy.createAppointmentType, AppointmentTypeController.createAppointmentType);
+}), AppointmentTypeControllerPolicy.updateAppointmentType({
+  isNew: true
+}), AppointmentTypeController.createAppointmentType);
 
 
 // Update an appointment type
 router.post("/:appointmentTypeId", AuthenticationMiddleware.roleCheck({
   role: Role.Counsellor
-}), AppointmentTypeControllerPolicy.updateAppointmentType, AppointmentTypeController.updateAppointmentType)
+}), AppointmentTypeControllerPolicy.updateAppointmentType({
+  isNew: false
+}), AppointmentTypeController.updateAppointmentType)
 
 // delete an appointment route
 router.post("/delete/:appointmentTypeId", AuthenticationMiddleware.roleCheck({

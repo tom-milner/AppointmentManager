@@ -10,7 +10,7 @@ function createAppointment(req, res, next) {
   // first check presence
   const joiSchema = {
     startTime: Joi.date().required(),
-    title: Joi.string().required(),
+    title: Joi.string().required().max(200),
     typeId: Joi.string().required(),
     counsellorId: Joi.string().required(),
     clientNotes: Joi.string().allow(""),
