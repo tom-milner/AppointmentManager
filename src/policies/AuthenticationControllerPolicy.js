@@ -1,33 +1,48 @@
 const Joi = require("joi");
 const ErrorController = require("../controllers/ErrorController");
 
-function register({
-  isGuest
+function updateUser({
+  isGuest,
+  isNew
 }) {
 
-
-  let joiSchema = {
-    firstname: Joi.string().min(1).max(50).required(),
-    lastname: Joi.string().min(1).max(50).required(),
-    email: Joi.string().email().required(),
-  }
-  if (!isGuest) {
-    joiSchema.password = Joi.string().min(8).max(32).required();
-    joiSchema.username = Joi.string().min(1).max(50).required()
-  }
-  // console.log(joiSchema.password);
   return function (req, res, next) {
 
+
+    let joiSchema = {
+      firstname: Joi.string().min(1).max(50).required(),
+      lastname: Joi.string().min(1).max(50).required(),
+      email: Joi.string().email().required(),
+    }
+    if (!isGuest) {
+      if (isNew) {
+        joiSchema.password = Joi.string().min(8).max(32).required();
+      }
+      joiSchema.username = Joi.string().min(1).max(50).required()
+    }
+
+
+
+    // Some parts of the web app use this middleware, but provide the data inside either counsellor or client objects. 
+    let data = req.body;
+    if (req.body.counsellorInfo) {
+      data = req.body.counsellorInfo
+    } else if (req.body.clientInfo) {
+      data = req.body.clientInfo
+    }
     const {
       error,
       value
-    } = Joi.validate(req.body, joiSchema);
+    } = Joi.validate(data, joiSchema, {
+      stripUnknown: true
+    });
 
     // If the error is more specific these will be overwritten.
     let errorMessage = "Error registering user.";
     let errorCode = 500;
 
     if (error) {
+      console.log(error);
       switch (error.details[0].context.key) {
         case "email":
           errorCode = 400;
@@ -120,7 +135,7 @@ function resetPassword(req, res, next) {
 
 
 module.exports = {
-  register,
+  updateUser,
   forgotPassword,
   resetPassword
 }

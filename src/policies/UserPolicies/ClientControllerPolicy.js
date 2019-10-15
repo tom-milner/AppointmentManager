@@ -27,7 +27,7 @@ function updateClient(req, res, next) {
     let allowedProperties = [];
     switch (req.user.role) {
       case Role.Client:
-        //TODO
+        allowedProperties.push("firstname", "lastname", "username", "email")
         break;
       case Role.Counsellor:
       case Role.Admin:
@@ -42,13 +42,14 @@ function updateClient(req, res, next) {
     }
 
     // TODO: turn this into middleware
-    const disallowedProperties = requestedClientProperties.filter(property => {
-      return allowedProperties.indexOf(property) == -1;
+    console.log(requestedClientProperties);
+    const foundProperties = requestedClientProperties.filter(property => {
+      return allowedProperties.indexOf(property) == 1;
     });
-
-    if (disallowedProperties.length > 0) {
+    console.log(foundProperties);
+    if (foundProperties.length < 1) {
       throw ({
-        message: "You don't have access to these properties",
+        message: "You can't change these details",
         code: 403,
         disallowedProperties: disallowedProperties
       })

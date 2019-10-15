@@ -42,8 +42,8 @@ class Scheduler {
 
 async function sendWeeklyAppointmentsEmail(mailer) {
   // send an email to the user with the weeks appointments.
-  let startOfWeek = moment().startOf("week");
-  let endOfWeek = moment().endOf("week");
+  let startOfWeek = moment().startOf("isoWeek");
+  let endOfWeek = moment().endOf("isoWeek");
 
   // get all counsellors
   let allUsers = await UserModel.find({});
@@ -69,7 +69,6 @@ async function sendWeeklyAppointmentsEmail(mailer) {
     // send the email containing the users appointments.
     mailer.weeksAppointments(user, weeksAppointments).send();
   }
-
 
 }
 

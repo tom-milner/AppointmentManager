@@ -6,6 +6,7 @@ const ClientControllerPolicy = require("../../policies/UserPolicies/ClientContro
 
 const ClientController = require("../../controllers/UserControllers/ClientController");
 const AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
+const AuthenticationControllerPolicy = require("../../policies/AuthenticationControllerPolicy");
 const Role = require("../../models/Role");
 
 // all routes are under "/clients"
@@ -18,7 +19,8 @@ router.get("/", ClientController.getClients);
 
 // get info about client
 router.get("/full/:clientId", AuthenticationMiddleware.roleCheck({
-  role: Role.Counsellor,
+  role: Role.Client,
+  userSpecific: true
 }), ClientController.getClient({
   reduced: false
 }));
@@ -26,8 +28,12 @@ router.get("/full/:clientId", AuthenticationMiddleware.roleCheck({
 
 // update client details
 router.post("/:clientId", AuthenticationMiddleware.roleCheck({
-  role: Role.Client,
-  userSpecific: true,
-}), ClientControllerPolicy.updateClient, ClientController.updateClient);
+    role: Role.Client,
+    userSpecific: true,
+  }),
+  AuthenticationControllerPolicy.updateUser({
+    isGuest: false,
+    isNew: false
+  }), ClientControllerPolicy.updateClient, ClientController.updateClient);
 
 module.exports = router;

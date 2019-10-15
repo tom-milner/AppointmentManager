@@ -52,8 +52,8 @@ function roleCheck({
         next();
         return;
       }
-
-      if (req.user._id == req.params.userId) {
+      let requestedId = req.params.userId || req.params.counsellorId || req.params.clientId;
+      if (req.user._id == requestedId) {
         next();
         return;
       }

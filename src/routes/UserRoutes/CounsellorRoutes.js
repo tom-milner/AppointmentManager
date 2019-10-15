@@ -5,6 +5,7 @@ const CounsellorController = require("../../controllers/UserControllers/Counsell
 const AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
 const Role = require("../../models/Role");
 const CounsellorControllerPolicy = require("../../policies/UserPolicies/CounsellorControllerPolicy");
+const AuthenticationControllerPolicy = require("../../policies/AuthenticationControllerPolicy");
 
 // get list of counsellors
 router.get("/", CounsellorController.getAllCounsellorsReduced);
@@ -17,6 +18,10 @@ router.post(
   AuthenticationMiddleware.roleCheck({
     role: Role.Counsellor,
     useSpecific: true
+  }),
+  AuthenticationControllerPolicy.updateUser({
+    isGuest: false,
+    isNew: false
   }),
   CounsellorControllerPolicy.updateCounsellor,
   CounsellorController.updateCounsellor

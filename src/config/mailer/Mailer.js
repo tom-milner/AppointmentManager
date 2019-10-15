@@ -25,7 +25,7 @@ class Mailer {
     // configure nodemailer
     let auth = {
       type: 'oauth2',
-      user: 'denisemilnercounselling@gmail.com',
+      user: Config.mailer.email,
       clientId: googleAuth.clientId,
       clientSecret: googleAuth.clientSecret,
       refreshToken: googleAuth.refreshToken,

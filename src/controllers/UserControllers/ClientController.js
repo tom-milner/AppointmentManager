@@ -79,7 +79,7 @@ async function updateClient(req, res) {
     })
 
   } catch (error) {
-    ErrorController.send(res, error.message || "Error updating client", error.code || 400);
+    ErrorController.sendError(res, error.message || "Error updating client", error.code || 400);
   }
 }
 

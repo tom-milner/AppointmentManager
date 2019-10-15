@@ -4,8 +4,7 @@ module.exports = {
   url: process.env.URL || "http://localhost:8080",
   jwtSecret: "mkcslc;vjnv;rajkrvn;rkj",
   mailer: {
-    email: process.env.MAILER_EMAIL,
-    pass: process.env.EMAIL_PASS,
+    email: process.env.GOOGLE_MAIL_ACCOUNT,
   },
   db: {
     url: process.env.DB_URL || "localhost:27017/appointment_manager",

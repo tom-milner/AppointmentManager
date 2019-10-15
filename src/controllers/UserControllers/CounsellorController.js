@@ -62,8 +62,17 @@ async function updateCounsellor(req, res) {
     });
   } catch (error) {
     // send an appropriate error message.
-    let errorMessage = error.message || 400;
-    let errorCode = error.code || "Error updating counsellor settings";
+    let errorMessage = error.message || "Error updating counsellor settings";
+    let errorCode = error.code || 400;
+    if (errorCode == 11000) {
+      let isEmail = errorMessage.includes("email");
+      let isUsername = errorMessage.includes("username");
+      console.log(isEmail);
+      errorMessage = " already exists."
+      if (isEmail) errorMessage = "Email" + errorMessage
+      if (isUsername) errorMessage = "Username" + errorMessage;
+
+    }
     ErrorController.sendError(res, errorMessage, errorCode);
   }
 }
