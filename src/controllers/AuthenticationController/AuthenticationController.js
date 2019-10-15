@@ -9,6 +9,7 @@ const PasswordResetModel = require("../../models/MongooseModels/PasswordResetMod
 const ErrorController = require("../ErrorController");
 const AuthenticationControllerHelpers = require("./AuthenticationControllerHelpers");
 const Role = require("../../models/Role");
+const Utils = require("../../utils/Utils");
 
 // Register a new counsellor
 async function registerCounsellor(req, res) {
@@ -46,7 +47,7 @@ async function registerCounsellor(req, res) {
     let errorMessage = "Error registering counsellor.";
     let errorStatusCode = 500;
     if (err.code == 11000) {
-      errorMessage = "Counsellor already exists.";
+      errorMessage = Utils.getDuplicateMongoEntryKey(err.message) + " already exists.";
       errorStatusCode = 409;
     }
     console.log(err.message);
@@ -86,7 +87,7 @@ async function registerClient(req, res) {
     let errorMessage = "Error registering client.";
     let errorStatusCode = 500;
     if (err.code == 11000) {
-      errorMessage = "Client already exists.";
+      errorMessage = Utils.getDuplicateMongoEntryKey(err.message) + " already exists.";
       errorStatusCode = 409;
     }
     console.log(err.message);
@@ -147,7 +148,7 @@ async function registerGuest(req, res) {
     let errorCode = 500;
     console.log(error);
     if (error.code == 11000) {
-      errorMessage = "Account already exists";
+      errorMessage = Utils.getDuplicateMongoEntryKey(error.message) + " already exists";
     }
     ErrorController.sendError(res, errorMessage, errorCode);
   }

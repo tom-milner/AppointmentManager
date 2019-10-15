@@ -1,6 +1,7 @@
 // Import required models
 const AppointmentTypeModel = require("../models/MongooseModels/AppointmentTypeModel");
 const ErrorController = require("../controllers/ErrorController");
+const Utils = require("../utils/Utils");
 
 // create a new appointment type
 async function createAppointmentType(req, res) {
@@ -35,7 +36,8 @@ async function createAppointmentType(req, res) {
     let responseCode = error.code || 500;
     let errorMessage = error.message || "Error creating appointment type.";
     if (error.code === 11000) {
-      errorMessage = "Appointment Type name already exists.";
+      errorMessage = Utils.getDuplicateMongoEntryKey(errorMessage) +
+        " already exists.";
       responseCode = 200;
     }
 
@@ -92,7 +94,7 @@ async function updateAppointmentType(req, res) {
     let errorMessage = error.message || "Error updating appointment type.";
     let errorCode = error.code || 400;
     if (errorCode == 11000) {
-      errorMessage = "Appointment Type name already exists.";
+      errorMessage = Utils.getDuplicateMongoEntryKey(errorMessage) + "Appointment Type name already exists.";
       errorCode = 200;
     }
     ErrorController.sendError(res, errorMessage, errorCode);

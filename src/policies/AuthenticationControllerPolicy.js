@@ -8,20 +8,25 @@ function updateUser({
 
   return function (req, res, next) {
 
-
     let joiSchema = {
-      firstname: Joi.string().min(1).max(50).required(),
-      lastname: Joi.string().min(1).max(50).required(),
-      email: Joi.string().email().required(),
+      firstname: Joi.string().min(1).max(50),
+      lastname: Joi.string().min(1).max(50),
+      email: Joi.string().email(),
     }
     if (!isGuest) {
       if (isNew) {
-        joiSchema.password = Joi.string().min(8).max(32).required();
+        joiSchema.password = Joi.string().min(8).max(32);
       }
-      joiSchema.username = Joi.string().min(1).max(50).required()
+      joiSchema.username = Joi.string().min(1).max(50)
     }
 
 
+    // if this is new user, make everything required.
+    if (isNew) {
+      for (let key of Object.keys(joiSchema)) {
+        joiSchema[key] = joiSchema[key].required();
+      }
+    }
 
     // Some parts of the web app use this middleware, but provide the data inside either counsellor or client objects. 
     let data = req.body;
@@ -31,8 +36,7 @@ function updateUser({
       data = req.body.clientInfo
     }
     const {
-      error,
-      value
+      error
     } = Joi.validate(data, joiSchema, {
       stripUnknown: true
     });

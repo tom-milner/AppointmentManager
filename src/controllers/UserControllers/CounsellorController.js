@@ -1,5 +1,6 @@
 const CounsellorModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
 const ErrorController = require("../ErrorController");
+const Utils = require("../../utils/Utils");
 
 // get list of all the counsellors
 async function getAllCounsellorsReduced(req, res) {
@@ -65,13 +66,8 @@ async function updateCounsellor(req, res) {
     let errorMessage = error.message || "Error updating counsellor settings";
     let errorCode = error.code || 400;
     if (errorCode == 11000) {
-      let isEmail = errorMessage.includes("email");
-      let isUsername = errorMessage.includes("username");
-      console.log(isEmail);
-      errorMessage = " already exists."
-      if (isEmail) errorMessage = "Email" + errorMessage
-      if (isUsername) errorMessage = "Username" + errorMessage;
-
+      errorMessage = Utils.getDuplicateMongoEntryKey(error.message) +
+        " already exists."
     }
     ErrorController.sendError(res, errorMessage, errorCode);
   }
