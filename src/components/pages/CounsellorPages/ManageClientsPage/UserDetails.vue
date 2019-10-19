@@ -21,7 +21,7 @@
 
         <!-- Clinical Notes -->
         <li class="section clinical-notes">
-          <h4 class="heading-4">Clinical Notes</h4>
+          <h3 class="heading-3">Clinical Notes</h3>
           <textarea class="form-input notes-edit" v-model="fullClient.clinicalNotes"></textarea>
           <button @click="saveClinicalNotes" class="btn btn-primary save-button">Save Clinical Notes</button>
         </li>
@@ -31,6 +31,17 @@
           <h4 class="heading-4 error" :class="{success: messageStatus }">{{message}}</h4>
         </li>
       </ul>
+
+      <!-- Calendar -->
+      <div class="section calendar">
+        <h3 class="heading-3">{{fullClient.firstname}}'s Calendar</h3>
+        <appointment-calendar :clientAppointments="clientAppointments"></appointment-calendar>
+      </div>
+    </div>
+
+    <!-- Delete Button -->
+    <div class="delete-account">
+      <button @click="showDeleteDialogue = true" class="btn btn-disapproved">Delete User</button>
     </div>
 
     <!-- Delete Dialogue -->
@@ -43,11 +54,6 @@
         </div>
       </div>
     </Dialogue>
-
-    <!-- Delete Button -->
-    <div class="delete-account">
-      <button @click="showDeleteDialogue = true" class="btn btn-disapproved">Delete User</button>
-    </div>
   </div>
 </template>
 
@@ -56,28 +62,44 @@ import UserService from "@/services/UserService";
 import Utils from "@/utils";
 import Dialogue from "@/components/layout/DialogueBox";
 import AppointmentService from "@/services/AppointmentService";
+import AppointmentCalendar from "@/components/misc/Calendar/AppointmentCalendar";
 
 export default {
-  props: {
-    client: {}
-  },
+  props: {},
   data() {
     return {
       fullClient: {},
       message: "",
       messageStatus: false,
-      showDeleteDialogue: false
+      showDeleteDialogue: false,
+      clientEvents: {},
+      clientAppointments: [],
+      selectedAppointment: {},
+      modalDisplayed: false
     };
   },
   components: {
-    Dialogue
+    Dialogue,
+    AppointmentCalendar
   },
-  async mounted() {
-    let response = await UserService.getClient(this.client._id);
+  async created() {
+    let response = await UserService.getClient(this.$route.params.clientId);
     this.fullClient = response.data.client;
+
+    await this.getUserAppointments();
   },
+
   methods: {
-    async getUserAppointments() {},
+    async getUserAppointments() {
+      try {
+        let response = await AppointmentService.getAppointmentsOfUser({
+          userId: this.fullClient._id
+        });
+        this.clientAppointments = response.data.appointments;
+      } catch (error) {
+        console.log(error);
+      }
+    },
 
     async deleteUser() {
       try {
@@ -113,32 +135,27 @@ export default {
 @import "src/scss/global";
 
 .wrapper {
-  min-height: 100%;
   position: relative;
-  z-index: 2;
-  padding: 1rem;
-  min-width: 75rem;
-  text-align: center;
+  overflow: scroll;
+  height: 100%;
 
   .delete-account {
     width: 100%;
     position: absolute;
     bottom: 0;
-    left: 0;
+    left: 1rem;
     padding: 0 1rem;
     margin-top: 10rem;
     margin-bottom: 1rem;
     button {
-      width: 100%;
+      width: 25%;
     }
   }
 }
 
 .content {
-  margin-bottom: 10rem;
   .user-details {
     list-style: none;
-    text-align: left;
     margin-top: 2rem;
 
     &-row {
@@ -156,11 +173,16 @@ export default {
   }
 
   .section {
-    margin-top: 2rem;
+    margin-top: 4rem;
+
+    &.calendar {
+      margin-bottom: 5rem;
+      // width: 90%;
+    }
 
     &.clinical-notes {
       min-height: 30rem;
-      width: 100%;
+      width: 75rem;
       position: relative;
 
       textarea {

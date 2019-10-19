@@ -93,7 +93,8 @@
           userCanAddEvents
           v-on:close-modal="toggleAppointmentCalendarModal()"
           v-on:date-chosen="dateChosen"
-          :events="{ counsellorEvents: counsellorDates, clientEvents:clientDates}"
+          :clientAppointments="clientAppointments"
+          :counsellorAppointments="counsellorAppointments"
           :businessHours="businessHours"
         />
       </div>
@@ -106,7 +107,6 @@ import UserService from "@/services/UserService";
 import AppointmentCalendar from "@/components/misc/Calendar/AppointmentCalendar";
 import Modal from "@/components/layout/Modal";
 import Utils from "@/utils";
-import Role from "@/models/Role";
 import AppointmentTypeContainer from "@/components/misc/AppointmentTypeContainer";
 
 export default {
@@ -152,7 +152,10 @@ export default {
       clientNotes: "", // any notes the client (current user) has about the appointment.
       counsellorNotes: "",
       appointmentCalendarDisplayed: false,
-      errorMessage: "" // if there is an error message it is stored here.
+      errorMessage: "", // if there is an error message it is stored here.
+
+      clientAppointments: [],
+      counsellorAppointments: []
     };
   },
   props: {
@@ -298,16 +301,6 @@ export default {
       return result;
     },
 
-    // This function turns an array of appointments into an array of simple object, consisting of {start, end, title}
-    mapAppointmentsToDates(appointments) {
-      // turn appointments into date ranges
-      return appointments.map(appointment => ({
-        title: appointment.title,
-        start: appointment.startTime,
-        end: appointment.endTime
-      }));
-    },
-
     // open and close appointment calendar
     toggleAppointmentCalendarModal() {
       this.appointmentCalendarDisplayed = !this.appointmentCalendarDisplayed;
@@ -340,10 +333,7 @@ export default {
       this.createBusinessHours();
 
       // get counsellor appointments.
-      let counsellorAppointments = await this.getAppointmentsOfCounsellor();
-      this.counsellorDates = this.mapAppointmentsToDates(
-        counsellorAppointments
-      );
+      this.counsellorAppointments = await this.getAppointmentsOfCounsellor();
     },
     chosenClient: async function() {
       if (!this.chosenClient._id) return;
@@ -351,10 +341,8 @@ export default {
       this.chosenStartTime = undefined;
 
       // get client appointments
-      if (this.chosenClient.role >= Role.Client) {
-        let clientAppointments = await this.getAppointmentsOfClient();
-        this.clientDates = this.mapAppointmentsToDates(clientAppointments);
-      }
+      this.clientAppointments = await this.getAppointmentsOfClient();
+      console.log(this.clientAppointments);
     }
   },
 

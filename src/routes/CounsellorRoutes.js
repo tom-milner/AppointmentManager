@@ -1,6 +1,7 @@
 import WorkCalendarPage from '@/components/pages/CounsellorPages/WorkCalendarPage/WorkCalendarPage.vue'
 import ManageClientsPage from "@/components/pages/CounsellorPages/ManageClientsPage/ManageClientsPage";
 import AppointmentSettingsPage from "@/components/pages/CounsellorPages/AppointmentSettingsPage/AppointmentSettingsPage";
+import UserDetailsPage from "@/components/pages/CounsellorPages/ManageClientsPage/UserDetails"
 import Role from "@/models/Role";
 // Counsellor Routes
 
@@ -30,5 +31,14 @@ export default [
       minimumAuthRole: Role.Counsellor
     }
   },
+  {
+    path: "/counsellor/clients/:clientId",
+    name: "UserDetailsPage",
+    component: UserDetailsPage,
+    meta: {
+      minimumAuthRole: Role.Counsellor
+    }
+  },
+
 
 ]
