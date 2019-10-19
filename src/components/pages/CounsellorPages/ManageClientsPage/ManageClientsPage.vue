@@ -20,7 +20,6 @@
 
     <!-- List of clients -->
     <div class="container">
-      <h3 class="heading-3">Clients:</h3>
       <ul class="client-list">
         <li
           @click="viewClient(client)"

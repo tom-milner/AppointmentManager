@@ -124,7 +124,7 @@ $icon-height: $icon-width;
 
     text-decoration: none;
     transition: all 0.2s;
-    color: $color-black;
+    color: $color-grey-dark;
 
     &:before {
       content: "";
@@ -139,7 +139,7 @@ $icon-height: $icon-width;
       // margin-left: -0.5rem;
       transition: width 0.2s ease-in-out;
 
-      box-shadow: 1px 2px 2px rgba($color-primary, 0.5);
+      box-shadow: 2px 2px 2px rgba($color-primary, 0.5);
     }
 
     &:hover {
@@ -180,7 +180,7 @@ $icon-height: $icon-width;
       &.nav-item {
         &:before {
           width: 100%;
-          box-shadow: 1px 2px 2px rgba($color-error, 0.5);
+          box-shadow: 2px 2px 2px rgba($color-error, 0.5);
         }
       }
     }

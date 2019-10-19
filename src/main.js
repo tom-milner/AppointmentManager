@@ -14,6 +14,8 @@ Vue.prototype.moment = moment;
 AuthenticationService.initializeNavigationGuard();
 
 
+
+
 Vue.config.productionTip = false;
 
 new Vue({

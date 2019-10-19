@@ -2,7 +2,7 @@
   <!-- All displays are rendered within the app div -->
   <div class="app">
     <Navigation class="app-navigation" v-if="!$route.meta.hideNavigation"></Navigation>
-    <router-view class="app-main"></router-view>
+    <router-view class="app-main" :style="getNoNavbarStyle"></router-view>
   </div>
 </template>
 
@@ -34,7 +34,7 @@
   height: 100vh;
   overflow-x: hidden;
   border-radius: 25px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  box-shadow: -2px 1px 1px rgba($color-grey, 0.2);
 
   background-color: $color-white;
 }
@@ -46,7 +46,16 @@ export default {
   components: {
     Navigation
   },
-  mounted: function() {
+  computed: {
+    getNoNavbarStyle() {
+      if (this.$route.meta.hideNavigation) {
+        return { "border-radius": "0", margin: "0" };
+      } else {
+        return {};
+      }
+    }
+  },
+  created() {
     this.hideNavigation = this.$route.meta.hideNavigation;
   },
   data() {

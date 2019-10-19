@@ -1,10 +1,10 @@
 <template>
   <div class="wrapper">
     <!-- Work Day Settings -->
-    <h2 class="heading-2">Appointment Settings</h2>
+    <h2 class="heading-2">Appointment Types</h2>
     <!-- Current Appointment Types -->
     <div class="container">
-      <h3 class="heading-3">Appointment Types</h3>
+      <h3 class="heading-3">Current Appointment Types</h3>
       <p class="paragraph note">
         <span>Note:</span> a 10 minute buffer period is automatically added between appointments.
       </p>
