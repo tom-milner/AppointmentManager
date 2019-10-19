@@ -45,37 +45,30 @@
     <!-- Calendar -->
     <div class="container">
       <h3 class="heading-3">Your Calendar</h3>
-      <appointment-calendar
-        v-on:display-appointment="toggleModal"
-        :events="getEvents"
-        class="calendar"
-      ></appointment-calendar>
+      <appointment-calendar :clientAppointments="appointments" class="calendar"></appointment-calendar>
     </div>
 
     <!-- Modal -->
-    <Modal canPrint v-on:close-modal="toggleModal()" v-if="modalDisplayed">
-      <AppointmentFull
-        :isCounsellor="isUserCounsellor"
-        :appointment="selectedAppointment"
-        v-on:appointment-deleted="toggleModal()"
-      ></AppointmentFull>
-    </Modal>
+    <ViewAppointment
+      :appointment="selectedAppointment"
+      :isUserCounsellor="isUserCounsellor"
+      v-if="modalDisplayed"
+      v-on:close-modal="modalDisplayed = false"
+    ></ViewAppointment>
   </div>
 </template>
 
 <script>
 import AppointmentCard from "@/components/pages/HomePage/AppointmentCard.vue";
-import AppointmentFull from "@/components/pages/HomePage/AppointmentFull.vue";
-import Modal from "@/components/layout/Modal";
 import AppointmentService from "@/services/AppointmentService";
 import AppointmentCalendar from "@/components/misc/Calendar/AppointmentCalendar";
 import Role from "@/models/Role";
+import ViewAppointment from "@/components/misc/ViewAppointment";
 
 export default {
   components: {
     AppointmentCard,
-    Modal,
-    AppointmentFull,
+    ViewAppointment,
     AppointmentCalendar
   },
 
@@ -89,9 +82,6 @@ export default {
   },
 
   computed: {
-    getEvents() {
-      return this.events;
-    },
     isUserCounsellor() {
       return this.user.role >= Role.Counsellor;
     },
@@ -134,14 +124,16 @@ export default {
     toggleModal: async function(chosenAppointment) {
       //reload appointments
       await this.getUserAppointments();
+      console.log(chosenAppointment);
       if (chosenAppointment) {
         this.selectedAppointment = this.appointments.find(appointment => {
           return chosenAppointment._id == appointment._id;
         });
+        this.modalDisplayed = true;
       } else {
         this.selectedAppointment = {};
+        this.modalDisplayed = false;
       }
-      this.modalDisplayed = !this.modalDisplayed;
     }
   },
   data() {
@@ -150,25 +142,15 @@ export default {
       appointmentsFromNow: [],
       user: {},
       modalDisplayed: false,
-      selectedAppointment: {},
-      events: { clientEvents: {} }
+      selectedAppointment: {}
     };
   },
   mounted: async function() {
     this.user = this.$store.state.authentication.user;
     await this.getUserAppointments();
-
     // set timer for refreshing data
     //TODO: replace with a socket
     // this.timer = setInterval(this.getUserAppointments, 3000);
-
-    // TODO: remove duplication
-    this.events.clientEvents = this.appointments.map(appointment => ({
-      title: appointment.title,
-      end: appointment.endTime,
-      start: appointment.startTime,
-      id: appointment._id
-    }));
   }
 };
 </script>

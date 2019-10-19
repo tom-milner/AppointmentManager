@@ -50,13 +50,12 @@
     </CalendarPopup>
 
     <!-- Modal -->
-    <Modal canPrint v-on:close-modal="toggleModal()" v-if="modalDisplayed">
-      <AppointmentFull
-        :isCounsellor="isUserCounsellor"
-        :appointment="selectedAppointment"
-        v-on:appointment-deleted="toggleModal()"
-      ></AppointmentFull>
-    </Modal>
+    <ViewAppointment
+      :appointment="selectedAppointment"
+      isUserCounsellor
+      v-if="viewAppointmentModalDisplayed"
+      v-on:close-modal="viewAppointmentModalDisplayed = false"
+    ></ViewAppointment>
   </div>
 </template>
 
@@ -70,8 +69,8 @@ import interactionPlugin from "@fullcalendar/interaction";
 import AddEvent from "./AddEvent.vue";
 import ViewEvent from "./ViewEvent.vue";
 import CalendarPopup from "./CalendarPopup";
-import AppointmentFull from "@/components/pages/HomePage/AppointmentFull.vue";
-import Modal from "@/components/layout/Modal";
+
+import ViewAppointment from "@/components/misc/ViewAppointment";
 
 export default {
   data() {
@@ -80,12 +79,20 @@ export default {
       showAddEventPopup: false,
       showViewEventPopup: false,
       screenToAvoid: {},
-      chosenDay: {}
+      chosenDay: {},
+
+      viewAppointmentModalDisplayed: false,
+
+      // events to display in the calendar.
+      events: {
+        clientEvents: [],
+        counsellorEvents: []
+      }
     };
   },
   props: {
-    // events to display in the calendar.
-    events: {},
+    clientAppointments: Array,
+    counsellorAppointments: Array,
 
     businessHours: {},
     // whether the user can add events or not.
@@ -98,8 +105,7 @@ export default {
     AddEvent,
     ViewEvent,
     CalendarPopup,
-    Modal,
-    AppointmentFull
+    ViewAppointment
   },
 
   computed: {
@@ -140,6 +146,19 @@ export default {
 
   // TODO: add temporary event to show user (color it green or something to show its temporary)
   methods: {
+    mapAppointmentsToEvents(appointments) {
+      // TODO: remove duplication
+      if (appointments) {
+        return appointments.map(appointment => ({
+          title: appointment.title,
+          end: appointment.endTime,
+          start: appointment.startTime,
+          id: appointment._id
+        }));
+      }
+      return [];
+    },
+
     // function to run when a user selects a day.
     dateChosen({ appointmentStartTime, appointmentType }) {
       // add date to appointment start time
@@ -152,13 +171,10 @@ export default {
 
     // triggered when an event is clicked
     handleEventClick(event) {
-      // set the rectangle of screen that the event resides in.
-      this.screenToAvoid = event.el.getBoundingClientRect();
-      // toggle the event popup
-      // this.toggleViewEventPopup();
-      this.$emit("display-appointment", {
-        _id: event.event.id
-      });
+      this.viewAppointmentModalDisplayed = true;
+      this.selectedAppointment = this.clientAppointments.find(
+        appointment => event.event.id == appointment._id
+      );
     },
 
     // triggered when user clicks on a day
@@ -210,10 +226,39 @@ export default {
         // save the filtered counsellorEvents
         this.events.counsellorEvents = counsellorEvents;
       }
+    },
+
+    setClientEvents() {
+      if (this.clientAppointments) {
+        this.events.clientEvents = this.mapAppointmentsToEvents(
+          this.clientAppointments
+        );
+      }
+    },
+
+    setCounsellorEvents() {
+      if (this.counsellorAppointments) {
+        this.events.counsellorEvents = this.mapAppointmentsToEvents(
+          this.counsellorAppointments
+        );
+      }
     }
   },
 
-  beforeMount() {
+  watch: {
+    clientAppointments() {
+      this.setClientEvents();
+    },
+
+    counsellorAppointments() {
+      this.setCounsellorEvents();
+    }
+  },
+
+  mounted() {
+    this.setClientEvents();
+    this.setCounsellorEvents();
+
     this.removeDuplicateEvents();
   }
 };

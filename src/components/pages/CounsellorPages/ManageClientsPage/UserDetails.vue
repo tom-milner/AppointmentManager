@@ -35,10 +35,7 @@
       <!-- Calendar -->
       <div class="section calendar">
         <h3 class="heading-3">{{fullClient.firstname}}'s Calendar</h3>
-        <appointment-calendar
-          :events="{clientEvents: clientEvents}"
-          v-on:display-appointment="toggleModal"
-        ></appointment-calendar>
+        <appointment-calendar :clientAppointments="clientAppointments"></appointment-calendar>
       </div>
     </div>
 
@@ -57,15 +54,6 @@
         </div>
       </div>
     </Dialogue>
-
-    <!-- Modal -->
-    <Modal canPrint v-on:close-modal="toggleModal()" v-if="modalDisplayed">
-      <AppointmentFull
-        isCounsellor
-        :appointment="selectedAppointment"
-        v-on:appointment-deleted="toggleModal()"
-      ></AppointmentFull>
-    </Modal>
   </div>
 </template>
 
@@ -75,8 +63,6 @@ import Utils from "@/utils";
 import Dialogue from "@/components/layout/DialogueBox";
 import AppointmentService from "@/services/AppointmentService";
 import AppointmentCalendar from "@/components/misc/Calendar/AppointmentCalendar";
-import Modal from "@/components/layout/Modal";
-import AppointmentFull from "@/components/pages/HomePage/AppointmentFull";
 
 export default {
   props: {},
@@ -87,55 +73,34 @@ export default {
       messageStatus: false,
       showDeleteDialogue: false,
       clientEvents: {},
-      clientAppointments: {},
+      clientAppointments: [],
       selectedAppointment: {},
       modalDisplayed: false
     };
   },
   components: {
     Dialogue,
-    AppointmentCalendar,
-    Modal,
-    AppointmentFull
+    AppointmentCalendar
   },
-  async mounted() {
+  async created() {
     let response = await UserService.getClient(this.$route.params.clientId);
     this.fullClient = response.data.client;
 
     await this.getUserAppointments();
   },
+
   methods: {
-    async toggleModal(chosenAppointment) {
-      await this.getUserAppointments();
-      if (chosenAppointment) {
-        this.selectedAppointment = this.clientAppointments.find(
-          appointment => chosenAppointment._id == appointment._id
-        );
-        console.log(this.selectedAppointment);
-        this.modalDisplayed = true;
-      } else {
-        this.selectedAppointment = {};
-        this.modalDisplayed = false;
-      }
-    },
     async getUserAppointments() {
       try {
         let response = await AppointmentService.getAppointmentsOfUser({
           userId: this.fullClient._id
         });
         this.clientAppointments = response.data.appointments;
-        this.clientEvents = this.clientAppointments.map(appointment => ({
-          start: appointment.startTime,
-          end: appointment.endTime,
-          title: appointment.title,
-          id: appointment._id
-        }));
-
-        console.log(this.clientEvents);
       } catch (error) {
         console.log(error);
       }
     },
+
     async deleteUser() {
       try {
         let response = await UserService.deleteUser(this.client);
