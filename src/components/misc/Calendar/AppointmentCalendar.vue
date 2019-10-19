@@ -48,6 +48,15 @@
       <!-- View Event Component -->
       <ViewEvent />
     </CalendarPopup>
+
+    <!-- Modal -->
+    <Modal canPrint v-on:close-modal="toggleModal()" v-if="modalDisplayed">
+      <AppointmentFull
+        :isCounsellor="isUserCounsellor"
+        :appointment="selectedAppointment"
+        v-on:appointment-deleted="toggleModal()"
+      ></AppointmentFull>
+    </Modal>
   </div>
 </template>
 
@@ -61,6 +70,8 @@ import interactionPlugin from "@fullcalendar/interaction";
 import AddEvent from "./AddEvent.vue";
 import ViewEvent from "./ViewEvent.vue";
 import CalendarPopup from "./CalendarPopup";
+import AppointmentFull from "@/components/pages/HomePage/AppointmentFull.vue";
+import Modal from "@/components/layout/Modal";
 
 export default {
   data() {
@@ -75,16 +86,20 @@ export default {
   props: {
     // events to display in the calendar.
     events: {},
+
     businessHours: {},
     // whether the user can add events or not.
-    userCanAddEvents: Boolean
+    userCanAddEvents: Boolean,
+    allowViewEvents: Boolean
   },
 
   components: {
     FullCalendar,
     AddEvent,
     ViewEvent,
-    CalendarPopup
+    CalendarPopup,
+    Modal,
+    AppointmentFull
   },
 
   computed: {

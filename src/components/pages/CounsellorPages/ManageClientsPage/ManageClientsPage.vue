@@ -21,33 +21,26 @@
     <!-- List of clients -->
     <div class="container">
       <ul class="client-list">
-        <li
+        <router-link
           @click="viewClient(client)"
-          class="client-item"
           v-for="client in getFilteredClients"
           :key="client._id"
+          :to="getClientUrl(client)"
         >
-          <div class="client">
+          <li class="client-item">
             <div class="client-content">
               <h4 class="heading-4 fullname">{{client.firstname}} {{client.lastname}}</h4>
               <p class="username">{{client.username}}</p>
             </div>
-          </div>
-        </li>
+          </li>
+        </router-link>
       </ul>
     </div>
-
-    <!-- Modal -->
-    <Modal canPrint v-on:close-modal="showViewClient=false" v-if="showViewClient">
-      <UserDetails :client="chosenClient" />
-    </Modal>
   </div>
 </template>
 
 <script>
 import UserService from "@/services/UserService";
-import Modal from "@/components/layout/Modal";
-import UserDetails from "./UserDetails";
 export default {
   data() {
     return {
@@ -58,10 +51,7 @@ export default {
       showViewClient: false
     };
   },
-  components: {
-    Modal,
-    UserDetails
-  },
+  components: {},
   mounted() {
     this.getAllClients();
   },
@@ -91,10 +81,10 @@ export default {
     }
   },
   methods: {
-    viewClient(client) {
-      this.chosenClient = client;
-      this.showViewClient = true;
+    getClientUrl(client) {
+      return `clients/${client._id}`;
     },
+
     async getAllClients() {
       try {
         let response = await UserService.getAllClients();
@@ -131,9 +121,6 @@ export default {
   width: 60rem;
 
   .client-item {
-    &:not(:last-child) {
-      margin-bottom: 1rem;
-    }
     border-radius: 2px;
     padding: 1rem 2rem;
     background-color: $color-canvas;
@@ -142,6 +129,9 @@ export default {
     border-left: 4px solid $color-primary;
     position: relative;
     transition: all 0.2s;
+
+    margin-bottom: 1rem;
+    color: $color-black;
 
     .client-content {
       margin-left: 0.5rem;

@@ -162,7 +162,7 @@ export default {
     //TODO: replace with a socket
     // this.timer = setInterval(this.getUserAppointments, 3000);
 
-    // TODO: remove duplication duplication
+    // TODO: remove duplication
     this.events.clientEvents = this.appointments.map(appointment => ({
       title: appointment.title,
       end: appointment.endTime,

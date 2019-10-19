@@ -123,6 +123,7 @@ function getAllClients() {
   return Api.get("/user/clients")
 }
 
+
 function getClient(clientId) {
   return Api.get(`/user/clients/full/${clientId}`);
 }

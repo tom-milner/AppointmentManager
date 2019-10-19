@@ -68,6 +68,7 @@
         <p class="paragraph info">This will remove all of your appointment from the system.</p>
       </div>
     </div>
+
     <!-- Delete Dialogue -->
     <Dialogue @close-dialogue="showDeleteDialogue = false" v-if="showDeleteDialogue">
       <div class="dialogue-content">
