@@ -13,7 +13,7 @@
         <router-link to="/create">
           <li class="nav-item">
             <icon name="plus-square" class="nav-icon" />
-            <h4 class="nav-heading">Request Appointment</h4>
+            <h4 class="nav-heading">Book Appointment</h4>
           </li>
         </router-link>
 
@@ -27,7 +27,7 @@
           <router-link to="/counsellor/appointment-settings">
             <li class="nav-item">
               <icon name="settings" class="nav-icon" />
-              <h4 class="nav-heading">Appointment Settings</h4>
+              <h4 class="nav-heading">Appointment Types</h4>
             </li>
           </router-link>
           <router-link to="/counsellor/clients">
@@ -120,7 +120,7 @@ $icon-height: $icon-width;
     padding: 1rem;
     margin-bottom: 0.5rem;
     margin-left: 0.5rem;
-    width: 95%;
+    width: 100%;
 
     text-decoration: none;
     transition: all 0.2s;
@@ -179,7 +179,7 @@ $icon-height: $icon-width;
       color: $color-white;
       &.nav-item {
         &:before {
-          width: 95%;
+          width: 100%;
           box-shadow: 1px 2px 2px rgba($color-error, 0.5);
         }
       }
