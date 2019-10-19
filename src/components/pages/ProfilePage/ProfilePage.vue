@@ -1,65 +1,83 @@
 <template>
   <div class="wrapper">
-    <h2 class="heading-2">Your Profile</h2>
-    <!-- For Counsellors Only -->
-    <!-- Booking Link -->
-    <div v-if="userIsCounsellor" class="container">
-      <h3 class="heading-3">Your Booking Link</h3>
-      <p class="paragraph">
-        <span>Note:</span> Click to copy.
-      </p>
-      <h4 @click="copyToClipboard" class="heading-4 booking-link">{{generateBookingLink()}}</h4>
-      <h4 class="heading-4 success copy-message">Link Copied!</h4>
-      <p
-        class="paragraph info"
-      >Send this link to anyone that needs to book an appointment but doesn't have an account. It will create a guest account for them, which they can activate (turn into a real account) later.</p>
-    </div>
-
-    <!-- Their personal information -->
-    <div class="container personal-info">
-      <h3 class="heading-3">Personal Information</h3>
-      <div class="icon-box" @click="toggleUserCanEdit">
-        <icon name="edit" class="edit-icon"></icon>
+    <div>
+      <h2 class="heading-2">Your Profile</h2>
+      <!-- For Counsellors Only -->
+      <!-- Booking Link -->
+      <div v-if="userIsCounsellor" class="container">
+        <h3 class="heading-3">Your Booking Link</h3>
+        <p class="paragraph">
+          <span>Note:</span> Click to copy.
+        </p>
+        <h4 @click="copyToClipboard" class="heading-4 booking-link">{{generateBookingLink()}}</h4>
+        <h4 class="heading-4 success copy-message">Link Copied!</h4>
+        <p
+          class="paragraph info"
+        >Send this link to anyone that needs to book an appointment but doesn't have an account. It will create a guest account for them, which they can activate (turn into a real account) later.</p>
       </div>
-      <form v-on:submit.prevent="updateUserDetails">
-        <ul class="details">
-          <li>
-            <h4 class="heading-4">Firstname:</h4>
-            <input type="text" class="form-input" v-if="userCanEdit" v-model="user.firstname" />
-            <h4 class="heading-4" v-else>{{user.firstname}}</h4>
-          </li>
-          <li>
-            <h4 class="heading-4">Lastname:</h4>
-            <input type="text" class="form-input" v-if="userCanEdit" v-model="user.lastname" />
-            <h4 class="heading-4" v-else>{{user.lastname}}</h4>
-          </li>
-          <li>
-            <h4 class="heading-4">Username:</h4>
-            <input type="text" class="form-input" v-if="userCanEdit" v-model="user.username" />
-            <h4 class="heading-4" v-else>{{user.username}}</h4>
-          </li>
-          <li>
-            <h4 class="heading-4">Email:</h4>
-            <input type="text" class="form-input" v-if="userCanEdit" v-model="user.email" />
-            <h4 class="heading-4" v-else>{{user.email}}</h4>
-          </li>
-        </ul>
-        <!--  Message -->
-        <div class="response-message" v-if="message.length > 0">
-          <h4 class="heading-4" :class="requestOk ? 'success' : 'error'">{{message}}</h4>
+
+      <!-- Their personal information -->
+      <div class="container personal-info">
+        <h3 class="heading-3">Personal Information</h3>
+        <div class="icon-box" @click="toggleUserCanEdit">
+          <icon name="edit" class="edit-icon"></icon>
         </div>
+        <form v-on:submit.prevent="updateUserDetails">
+          <ul class="details">
+            <li>
+              <h4 class="heading-4">Firstname:</h4>
+              <input type="text" class="form-input" v-if="userCanEdit" v-model="user.firstname" />
+              <h4 class="heading-4" v-else>{{user.firstname}}</h4>
+            </li>
+            <li>
+              <h4 class="heading-4">Lastname:</h4>
+              <input type="text" class="form-input" v-if="userCanEdit" v-model="user.lastname" />
+              <h4 class="heading-4" v-else>{{user.lastname}}</h4>
+            </li>
+            <li>
+              <h4 class="heading-4">Username:</h4>
+              <input type="text" class="form-input" v-if="userCanEdit" v-model="user.username" />
+              <h4 class="heading-4" v-else>{{user.username}}</h4>
+            </li>
+            <li>
+              <h4 class="heading-4">Email:</h4>
+              <input type="text" class="form-input" v-if="userCanEdit" v-model="user.email" />
+              <h4 class="heading-4" v-else>{{user.email}}</h4>
+            </li>
+          </ul>
+          <!--  Message -->
+          <div class="response-message" v-if="message.length > 0">
+            <h4 class="heading-4" :class="requestOk ? 'success' : 'error'">{{message}}</h4>
+          </div>
 
-        <button v-if="userCanEdit" class="btn btn-secondary save-button">Save</button>
-      </form>
-    </div>
+          <button v-if="userCanEdit" class="btn btn-secondary save-button">Save</button>
+        </form>
+      </div>
 
-    <!-- Send Forgot Password Email -->
-    <div class="container reset-password">
-      <button @click="sendResetPasswordEmail" class="btn btn-primary">{{buttonContent}}</button>
-      <p
-        class="paragraph info"
-      >Pressing this button will send an email to your account containing a link to reset your password. If you ignore the email, your password will remain unchanged.</p>
+      <!-- Send Forgot Password Email -->
+      <div class="container reset-password">
+        <button @click="sendResetPasswordEmail" class="btn btn-primary">{{buttonContent}}</button>
+        <p
+          class="paragraph info"
+        >Pressing this button will send an email to your account containing a link to reset your password. If you ignore the email, your password will remain unchanged.</p>
+      </div>
+
+      <!-- Delete Button -->
+      <div class="container delete-account">
+        <button @click="showDeleteDialogue = true" class="btn btn-disapproved">Delete your account</button>
+        <p class="paragraph info">This will remove all of your appointment from the system.</p>
+      </div>
     </div>
+    <!-- Delete Dialogue -->
+    <Dialogue @close-dialogue="showDeleteDialogue = false" v-if="showDeleteDialogue">
+      <div class="dialogue-content">
+        <h4 class="heading-4">Are you sure you want to delete this account?</h4>
+        <div class="dialogue-row">
+          <button @click="deleteUser" class="btn btn-disapproved">Yes</button>
+          <button @click="showDeleteDialogue = false" class="btn btn-approved">No</button>
+        </div>
+      </div>
+    </Dialogue>
   </div>
 </template>
 
@@ -68,10 +86,12 @@ import Utils from "@/utils";
 import UserService from "@/services/UserService";
 import Icon from "vue-icon/lib/vue-feather.esm";
 import AuthenticationService from "@/services/AuthenticationService";
+import Dialogue from "@/components/layout/DialogueBox";
 
 export default {
   components: {
-    Icon
+    Icon,
+    Dialogue
   },
   data() {
     return {
@@ -80,7 +100,8 @@ export default {
       userCanEdit: false,
       requestOk: false,
       buttonContent: "Send Reset Password Email",
-      emailsLeft: 3
+      emailsLeft: 3,
+      showDeleteDialogue: false
     };
   },
 
@@ -110,6 +131,18 @@ export default {
     }
   },
   methods: {
+    async deleteUser() {
+      try {
+        let response = await UserService.deleteUser(this.user);
+        if (response.data.success) {
+          UserService.logoutUser();
+          this.$router.push("/");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     async sendResetPasswordEmail() {
       try {
         if (this.emailsLeft < 1) {
@@ -287,6 +320,40 @@ export default {
     button {
       margin-top: 1rem;
       width: 55rem;
+    }
+  }
+
+  &.delete-account {
+    width: 100%;
+    button {
+      width: 55rem;
+    }
+  }
+}
+
+.dialogue-content {
+  height: 100%;
+  width: 30rem;
+  text-align: center;
+
+  h4 {
+    span {
+      color: $color-error;
+    }
+    &:not(:first-child) {
+      margin-top: 0.5rem;
+      font-size: 1.5rem;
+      font-style: italic;
+      color: $color-grey;
+    }
+  }
+  .dialogue-row {
+    margin-top: 3rem;
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    button {
+      width: 45%;
     }
   }
 }

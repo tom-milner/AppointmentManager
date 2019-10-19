@@ -56,7 +56,13 @@
   // ##########################################
   &-approved {
 
-    &:hover,
+
+    &:hover {
+      color: $color-white;
+      border: 1px solid darken($color-approved, 10%) !important;
+      background-color: darken($color-approved, 10%) !important;
+    }
+
     &.checked {
       color: $color-white;
       border: 1px solid $color-approved;
@@ -69,11 +75,17 @@
   // ##########################################
   &-disapproved {
 
-    &:hover,
+
     &.checked {
       color: $color-white;
       border: 1px solid $color-error;
       background-color: $color-error;
+    }
+
+    &:hover {
+      color: $color-white;
+      border: 1px solid darken($color-error, 10%) !important;
+      background-color: darken($color-error, 10%) !important;
     }
 
   }

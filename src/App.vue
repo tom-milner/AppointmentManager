@@ -16,11 +16,11 @@
   align-items: flex-start;
   width: 100%;
   height: 100%;
+  background-color: $color-canvas;
 }
 .app-navigation {
   order: 0;
   width: $nav-width;
-  max-width: 10rem;
 }
 
 // TODO: flash messages
@@ -29,9 +29,14 @@
   order: 1;
   flex-grow: 1;
   padding: 2.5rem;
+  margin-left: 3.5rem;
   width: 100%;
   height: 100vh;
   overflow-x: hidden;
+  border-radius: 25px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+
+  background-color: $color-white;
 }
 </style>
 

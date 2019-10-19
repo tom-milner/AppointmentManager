@@ -128,6 +128,7 @@
   position: relative;
   transition: all 0.2s;
   width: 60rem;
+  max-width: 100%;
   min-height: 6rem;
   display: inline-block;
 

@@ -27,6 +27,7 @@
             step="3600"
             type="time"
             :min="day.startTime"
+            max="23:00"
             v-model="day.endTime"
             class="form-input time-select"
           />
@@ -123,6 +124,8 @@ export default {
 </script>
 
 <style  lang="scss" scoped>
+@import "src/scss/global";
+
 .container {
   margin-top: 5rem;
   .working-days-buttons {

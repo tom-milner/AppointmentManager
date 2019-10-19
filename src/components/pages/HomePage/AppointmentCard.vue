@@ -38,7 +38,7 @@ $card-width: 15.3rem;
 .wrapper {
   height: $card-width;
   width: $card-width;
-  background-color: $color-primary-light;
+  background-color: $color-primary;
   flex: 0 0 auto;
   flex-direction: column;
   margin: 1rem 0;

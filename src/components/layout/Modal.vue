@@ -100,17 +100,20 @@ export default {
   margin-left: 2rem;
   left: 0;
   position: absolute;
+  z-index: 30000;
 }
 
 .icon-box {
-  display: inline;
+  display: inline-block;
+  height: 2rem;
+  width: 2rem;
   &:not(:last-child) {
     margin-right: 1rem;
   }
   .icon {
     height: 2rem;
     width: 2rem;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.2s;
   }
 
   &:hover .icon {
@@ -163,14 +166,17 @@ export default {
   justify-content: center;
 
   .modal-content {
-    height: auto;
-    width: 90vw !important;
-    height: 95vh !important;
-    border-radius: 10px;
+    width: 90%;
+    margin-right: 0;
   }
 }
 
 #printContents {
   width: 100%;
+  height: 100%;
+}
+
+.slot {
+  padding: 1rem;
 }
 </style>

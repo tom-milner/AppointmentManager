@@ -2,47 +2,45 @@
   <div>
     <div class="sidebar-wrapper">
       <ul class="navigation">
-        <li>
-          <router-link to="/profile" class="nav-item">
-            <div
-              v-bind:style="{ backgroundImage: 'url(' + /*profileImage*/ 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png' + ')' }"
-              class="profile-image"
-            ></div>
-          </router-link>
-        </li>
-        <li>
-          <!-- TODO: create list of icons in js, then render them. -->
-          <router-link to="/home" class="nav-item">
-            <icon name="home" class="icon-nav-item" />
-          </router-link>
-        </li>
+        <!-- TODO: create list of icons in js, then render them. -->
+        <router-link to="/home">
+          <li class="nav-item">
+            <icon name="home" class="nav-icon" />
+            <h4 class="nav-heading">Home</h4>
+          </li>
+        </router-link>
 
-        <li>
-          <router-link to="/create" class="nav-item">
-            <icon name="plus-square" class="icon-nav-item" />
-          </router-link>
-        </li>
+        <router-link to="/create">
+          <li class="nav-item">
+            <icon name="plus-square" class="nav-icon" />
+            <h4 class="nav-heading">Request Appointment</h4>
+          </li>
+        </router-link>
 
         <div v-if="userIsCounsellor ">
-          <li>
-            <router-link to="/counsellor/calendar" class="nav-item">
-              <icon name="clock" class="icon-nav-item" />
-            </router-link>
-          </li>
-          <li>
-            <router-link to="/counsellor/appointment-settings" class="nav-item">
-              <icon name="settings" class="icon-nav-item" />
-            </router-link>
-          </li>
-          <li>
-            <router-link to="/counsellor/clients" class="nav-item">
-              <icon name="users" class="icon-nav-item" />
-            </router-link>
-          </li>
+          <router-link to="/counsellor/calendar">
+            <li class="nav-item">
+              <icon name="clock" class="nav-icon" />
+              <h4 class="nav-heading">Work Times</h4>
+            </li>
+          </router-link>
+          <router-link to="/counsellor/appointment-settings">
+            <li class="nav-item">
+              <icon name="settings" class="nav-icon" />
+              <h4 class="nav-heading">Appointment Settings</h4>
+            </li>
+          </router-link>
+          <router-link to="/counsellor/clients">
+            <li class="nav-item">
+              <icon name="users" class="nav-icon" />
+              <h4 class="nav-heading">Clients</h4>
+            </li>
+          </router-link>
         </div>
       </ul>
-      <div class="logout-button-box" @click="logout">
-        <icon name="log-out" class="logout-button"></icon>
+      <div class="nav-item logout-button-box" @click="logout">
+        <icon name="log-out" class="nav-icon"></icon>
+        <h4 class="nav-heading">Logout</h4>
       </div>
     </div>
   </div>
@@ -86,92 +84,105 @@ export default {
 <style lang="scss" scoped>
 @import "../../scss/global.scss";
 
-$icon-width: 2.5rem;
+$icon-width: 2rem;
 $icon-height: $icon-width;
 
 .sidebar-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
   position: fixed;
   // text-align: center;
   top: 0;
   left: 0;
   bottom: 0;
   height: 100%;
-  z-index: 1;
+  // z-index: 1;
   width: $nav-width;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  background-color: $color-grey-light;
+  // box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  background-color: $color-canvas;
 
   .navigation {
-    .profile-image {
-      display: inline-block;
-      height: 50px;
-      width: 50px;
-      background-size: 130%;
-      background-position: top;
-      border-radius: 100%;
-    }
+    margin-top: 1rem;
+    list-style: none;
 
-    li {
-      display: block;
-      text-align: center;
-      margin: 20px 0;
-
+    .router-link-active {
       .nav-item {
-        position: relative;
-        display: block;
-        padding: 1rem 0;
-
-        & .icon-nav-item {
-          color: $color-inactive;
-          transition: all 0.2s ease-in-out;
-          height: $icon-height;
-          width: $icon-width;
+        &,
+        &:hover {
+          color: $color-white;
         }
-
-        &:hover .icon-nav-item,
-        &:active,
-        &.router-link-active .icon-nav-item {
-          color: $color-primary;
-        }
-
-        &::before {
-          content: "";
-          display: block;
-
-          position: absolute;
-          top: 0;
-          border-top-right-radius: 100px;
-          border-bottom-right-radius: 100px;
-
-          background-color: $color-primary;
-          height: 100%;
-          width: 0px;
-
-          transition: all 0.2s;
-        }
-
-        &.router-link-active::before {
-          width: 4px;
+        &:before {
+          width: 100%;
         }
       }
     }
   }
-  .logout-button-box {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 2rem;
-    &:hover .logout-button {
-      color: $color-error;
+  .nav-item {
+    position: relative;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    margin-left: 0.5rem;
+    width: 95%;
+
+    text-decoration: none;
+    transition: all 0.2s;
+    color: $color-black;
+
+    &:before {
+      content: "";
+      position: absolute;
+      border-radius: 7.5px;
+      top: 0;
+      left: 0;
+      background-color: $color-primary;
+      width: 0;
+      z-index: -1;
+      height: 100%;
+      // margin-left: -0.5rem;
+      transition: width 0.2s ease-in-out;
+
+      box-shadow: 1px 2px 2px rgba($color-primary, 0.5);
     }
 
-    .logout-button {
-      transition: all 0.2s ease-in-out;
-      color: $color-inactive;
-      height: $icon-height * 1.2;
-      width: $icon-width * 1.2;
+    &:hover {
+      color: $color-primary;
+    }
+
+    .nav-icon {
+      height: $icon-height;
+      width: $icon-height;
+      display: inline-block;
+      margin-right: 1rem;
+      vertical-align: middle;
+    }
+
+    .nav-heading {
+      display: inline-block;
+      font-size: 1.4rem;
+      font-weight: 300;
+      vertical-align: middle;
+    }
+  }
+
+  .logout-button-box {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    color: $color-black;
+
+    &.nav-item {
+      &:before {
+        background-color: $color-error;
+      }
+    }
+
+    &:hover {
+      color: $color-white;
+      &.nav-item {
+        &:before {
+          width: 95%;
+          box-shadow: 1px 2px 2px rgba($color-error, 0.5);
+        }
+      }
     }
   }
 }

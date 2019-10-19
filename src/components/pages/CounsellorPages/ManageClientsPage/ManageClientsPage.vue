@@ -40,9 +40,7 @@
 
     <!-- Modal -->
     <Modal canPrint v-on:close-modal="showViewClient=false" v-if="showViewClient">
-      <div class="modal-content">
-        <UserDetails :client="chosenClient" />
-      </div>
+      <UserDetails :client="chosenClient" />
     </Modal>
   </div>
 </template>
