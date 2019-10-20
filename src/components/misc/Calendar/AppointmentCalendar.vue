@@ -34,6 +34,7 @@
           :day="chosenDay"
           :dayEvents="getEventsOfChosenDay"
           :businessHours="getBusinessHoursOfDay"
+          :appointmentBufferTime="appointmentBufferTime"
           v-on:date-chosen="dateChosen"
         ></AddEvent>
       </CalendarPopup>
@@ -93,7 +94,7 @@ export default {
   props: {
     clientAppointments: Array,
     counsellorAppointments: Array,
-
+    appointmentBufferTime: Number,
     businessHours: {},
     // whether the user can add events or not.
     userCanAddEvents: Boolean,

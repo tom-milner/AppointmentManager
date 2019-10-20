@@ -2,14 +2,9 @@
   <div class="wrapper">
     <div class="content">
       <!-- Heading-->
-      <h2 class="heading-2">User Details</h2>
+      <h2 class="heading-2">{{fullClient.firstname}} {{fullClient.lastname}}</h2>
 
       <ul class="user-details">
-        <!-- Client name -->
-        <li class="user-details-row">
-          <h4 class="heading-4 header">Name:</h4>
-          <h4 class="heading-4">{{fullClient.firstname}} {{fullClient.lastname}}</h4>
-        </li>
         <li class="user-details-row">
           <h4 class="heading-4 header">Username:</h4>
           <h4 class="heading-4">{{fullClient.username}}</h4>

@@ -88,15 +88,17 @@ export default {
     // returns a list of all the approved appointments
     approvedAppointments() {
       return this.appointmentsFromNow
-        ? this.appointmentsFromNow.filter(appointment => appointment.isApproved)
+        ? this.appointmentsFromNow
+            .slice(0, 10)
+            .filter(appointment => appointment.isApproved)
         : [];
     },
     // returns a list of all the non-approved (pending) appointments
     pendingAppointments() {
       return this.appointmentsFromNow
-        ? this.appointmentsFromNow.filter(
-            appointment => !appointment.isApproved
-          )
+        ? this.appointmentsFromNow
+            .slice(0, 10)
+            .filter(appointment => !appointment.isApproved)
         : [];
     }
   },

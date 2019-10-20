@@ -320,14 +320,30 @@ export default {
 
     button {
       margin-top: 1rem;
-      width: 55rem;
+      width: 25rem;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    p {
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 2rem;
     }
   }
 
   &.delete-account {
     width: 100%;
     button {
-      width: 55rem;
+      width: 25rem;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    p {
+      display: inline;
+      vertical-align: middle;
+      margin-left: 2rem;
     }
   }
 }

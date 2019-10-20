@@ -107,7 +107,6 @@ export default {
       chosenTime: {},
       timeSlots: [],
       // appointment buffer time
-      appointmentBufferTime: 10,
       appointmentTypes: {},
       chosenAppointmentType: {}
     };
@@ -115,7 +114,8 @@ export default {
   props: {
     day: {},
     dayEvents: {},
-    businessHours: {}
+    businessHours: {},
+    appointmentBufferTime: Number
   },
   computed: {
     getFormattedDate() {
@@ -208,6 +208,7 @@ export default {
     filterTimeSlots(timeSlots) {
       // create moment objects
       let bufferTime = this.appointmentBufferTime;
+      console.log(bufferTime);
       let disabledTimes = this.dayEvents.map(event => ({
         startTime: this.moment(event.start).subtract(bufferTime, "minutes"),
         endTime: this.moment(event.end).add(bufferTime, "minutes")

@@ -3,6 +3,13 @@
     <div class="sidebar-wrapper">
       <ul class="navigation">
         <!-- TODO: create list of icons in js, then render them. -->
+        <router-link to="/profile">
+          <li class="nav-item">
+            <icon name="user" class="nav-icon" />
+            <h4 class="nav-heading">Profile</h4>
+          </li>
+        </router-link>
+
         <router-link to="/home">
           <li class="nav-item">
             <icon name="home" class="nav-icon" />

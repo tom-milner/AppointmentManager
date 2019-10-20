@@ -96,6 +96,7 @@
           :clientAppointments="clientAppointments"
           :counsellorAppointments="counsellorAppointments"
           :businessHours="businessHours"
+          :appointmentBufferTime="chosenCounsellor.appointmentBufferTime"
         />
       </div>
     </Modal>

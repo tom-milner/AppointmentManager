@@ -1,10 +1,12 @@
 <template>
   <div class="wrapper">
     <div class="heading-box">
-      <h3 class="heading-3">{{appointmentDate}}</h3>
+      <h3 class="heading-3">{{appointment.title}}</h3>
     </div>
     <div class="info-box">
-      <p class="date">{{appointmentTime}}</p>
+      <p class="date">{{appointment.appointmentType.name}}</p>
+      <p class="date">{{formattedTime}}</p>
+      <p class="date">{{formattedDate}}</p>
     </div>
   </div>
 </template>
@@ -14,21 +16,19 @@ export default {
   props: {
     appointment: Object
   },
+  computed: {
+    formattedDate() {
+      return this.moment(this.appointment.startTime).format("dddd Do MMMM");
+    },
+    formattedTime() {
+      return this.moment(this.appointment.startTime).format("LT");
+    }
+  },
   data() {
-    return {
-      appointmentDate: "",
-      appointmentTime: ""
-    };
+    return {};
   },
 
-  mounted() {
-    let appointmentStartTime = this.moment(this.appointment.startTime);
-    this.appointmentDate = appointmentStartTime.format("dddd Do MMMM");
-    this.appointmentTime = appointmentStartTime.format("LT");
-    // this.appointmentTime = parts[1]
-    // .replace(/\u200E/g, "")
-    // .replace(/^([^\d]*\d{1,2}:\d{1,2}):\d{1,2}([^\d]*)$/, "$1$2"); // regex to remove seconds. if seconds column isn't found, nothing is changed.
-  }
+  mounted() {}
 };
 </script>
 
@@ -37,7 +37,7 @@ export default {
 $card-width: 15.3rem;
 .wrapper {
   height: $card-width;
-  width: $card-width;
+  min-width: $card-width;
   background-color: $color-primary;
   flex: 0 0 auto;
   flex-direction: column;
@@ -55,6 +55,7 @@ $card-width: 15.3rem;
   .heading-box {
     text-align: center;
     margin-top: 2rem;
+    h4,
     h3 {
       word-break: break-word;
       color: $color-white;
@@ -62,7 +63,9 @@ $card-width: 15.3rem;
   }
   .info-box {
     text-align: center;
-    width: 80%;
+    // width: 80%;
+    margin-bottom: 1rem;
+
     .date {
       font-size: 1.5rem;
       word-break: break-word;

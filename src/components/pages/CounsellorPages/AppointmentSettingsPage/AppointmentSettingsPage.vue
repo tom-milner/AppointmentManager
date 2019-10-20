@@ -1,12 +1,12 @@
 <template>
   <div class="wrapper">
     <!-- Work Day Settings -->
-    <h2 class="heading-2">Appointment Types</h2>
+    <h2 class="heading-2">Appointment Settings</h2>
     <!-- Current Appointment Types -->
     <div class="container">
       <h3 class="heading-3">Current Appointment Types</h3>
       <p class="paragraph note">
-        <span>Note:</span> a 10 minute buffer period is automatically added between appointments.
+        <span>Note:</span> the buffer time (specified below) is automatically added between appointments.
       </p>
       <ul class="appointment-type-list">
         <li class="list-item" v-for="type in appointmentTypes" :key="type._id">
@@ -21,6 +21,23 @@
         </li>
       </ul>
     </div>
+
+    <div class="container buffer-time">
+      <h3 class="heading-3">Appointment Buffer Time</h3>
+      <p class="paragraph note">This is the minimum time inbetween appointments.</p>
+      <form v-on:submit.prevent="updateBufferTime">
+        <h4 class="heading-4">Buffer Time:</h4>
+        <input
+          type="number"
+          v-model="counsellor.appointmentBufferTime"
+          class="form-input"
+          max="30"
+          min="0"
+        />
+        <h4 class="heading-4">mins</h4>
+        <button class="btn btn-primary">Save</button>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -28,6 +45,7 @@
 <script>
 import AppointmentTypeService from "@/services/AppointmentTypeService";
 import AppointmentTypeContainer from "../../../misc/AppointmentTypeContainer";
+import UserService from "@/services/UserService";
 
 export default {
   components: {
@@ -35,10 +53,21 @@ export default {
   },
   data() {
     return {
-      appointmentTypes: []
+      appointmentTypes: [],
+      counsellor: {}
     };
   },
   methods: {
+    async updateBufferTime() {
+      try {
+        let response = await UserService.updateCounsellor(this.counsellor._id, {
+          appointmentBufferTime: this.counsellor.appointmentBufferTime
+        });
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    },
     addNewAppointmentType() {
       this.appointmentTypes.push({
         name: "",
@@ -55,7 +84,11 @@ export default {
       }
     }
   },
-  mounted() {
+  async mounted() {
+    let response = await UserService.getCounsellor(
+      this.$store.state.authentication.user._id
+    );
+    this.counsellor = response.data.counsellor;
     this.getAppointmentTypes();
   }
 };
@@ -75,6 +108,19 @@ export default {
       button {
         width: 10%;
       }
+    }
+  }
+
+  &.buffer-time {
+    input {
+      margin-top: 1rem;
+      width: 6rem;
+      font-size: 2rem;
+      font-weight: 300;
+    }
+    h4 {
+      display: inline-block;
+      margin-right: 2rem;
     }
   }
 }
