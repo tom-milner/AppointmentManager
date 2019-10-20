@@ -17,7 +17,10 @@ function updateClient(req, res, next) {
         code: 400
       };
     }
-
+    if (!req.body.clientInfo) throw ({
+      message: "Please specify info to edit.",
+      code: 400
+    })
     // validate client properties
     let requestedClientProperties = Object.keys(req.body.clientInfo);
 
@@ -51,7 +54,6 @@ function updateClient(req, res, next) {
       throw ({
         message: "You can't change these details",
         code: 403,
-        disallowedProperties: disallowedProperties
       })
     }
 

@@ -60,6 +60,9 @@ const database = new Database();
     // initialize database
     await database.init(Config.db.url);
 
+    // Check that the backup location exists.
+    await database.checkBackupLocation(Config.db.backupLocation);
+
     scheduler.start();
 
 

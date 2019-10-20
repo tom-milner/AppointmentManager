@@ -3,9 +3,11 @@ const cron = require('node-cron');
 const PasswordResetModel = require("../../models/MongooseModels/PasswordResetModel");
 const moment = require("moment");
 const GuestModel = require("../../models/MongooseModels/UserModels/GuestModel");
+const Database = require("../Database");
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel");
 const Mailer = require("../mailer/Mailer");
 const UserModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
+const Config = require("../Config");
 
 class Scheduler {
 
@@ -33,12 +35,15 @@ class Scheduler {
 
     // Every Week
     // 0 0 * * 0
-
-    cron.schedule("0 0 * * 0", () => sendWeeklyAppointmentsEmail(this.mailer));
+    cron.schedule("0 0 * * 0", () => {
+      sendWeeklyAppointmentsEmail(this.mailer);
+      Database.backupDatabase(Config.db.url, Config.db.backupLocation, Config.db.backupPassword);
+    });
 
     // NOTE: I intentionally don't await the above functions, as it doesn't matter what order they run in.
   }
 }
+
 
 async function sendWeeklyAppointmentsEmail(mailer) {
   // send an email to the user with the weeks appointments.

@@ -13,6 +13,10 @@ const counsellorSchema = new mongoose.Schema({
     type: Number,
     default: Role.Counsellor
   },
+  appointmentBufferTime: {
+    type: Number,
+    default: 10
+  },
   workingDays: {
     type: [{
       name: {

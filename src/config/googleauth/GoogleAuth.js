@@ -95,7 +95,7 @@ class GoogleAuth {
   }
 
 
-  async authenticate(scope) {
+  authenticate(scope) {
     return new Promise((resolve, reject) => {
 
       // generate a url that will produce a code that can be used to generate refresh and access tokens.

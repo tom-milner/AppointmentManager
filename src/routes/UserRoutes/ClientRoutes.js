@@ -14,8 +14,9 @@ const Role = require("../../models/Role");
 // All routes require the user to be logged in.
 router.use(AuthenticationMiddleware.isLoggedIn);
 
-// get list of all clients.
+// get all clients.
 router.get("/", ClientController.getClients);
+
 
 // get info about client
 router.get("/full/:clientId", AuthenticationMiddleware.roleCheck({

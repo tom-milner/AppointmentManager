@@ -130,7 +130,7 @@ async function registerGuest(req, res) {
 
     // send guest an email containing a link to activate their account.
     let mailer = new Mailer();
-    mailer.newGuest(createdGuest, token).send();
+    mailer.confirmNewUser(createdGuest, token).send();
 
 
     // send back newly created guest
@@ -158,6 +158,11 @@ async function registerGuest(req, res) {
 // Login the client and provide them with an access token
 async function login(req, res) {
   try {
+    if (!req.body.password) throw ({
+      message: "Invalid password.",
+      code: 401
+    });
+
 
     // Find matching users in database
     const userMatches = await UserModel.find({
@@ -171,7 +176,10 @@ async function login(req, res) {
     // Check user exists
     if (!matchingUser) {
       // user doesn't exist - send error
-      ErrorController.sendError(res, "Incorrect login information", 401);
+      throw ({
+        message: "Incorrect login information.",
+        code: 401
+      });
       return;
     }
 
@@ -180,8 +188,10 @@ async function login(req, res) {
 
     if (!isPasswordValid) {
       // Invalid password - send error.
-      ErrorController.sendError(res, "Incorrect password.", 401);
-      return;
+      throw ({
+        message: "Incorrect password.",
+        code: 401
+      });
     }
 
     matchingUser.password = undefined;
@@ -199,8 +209,12 @@ async function login(req, res) {
 
   } catch (err) {
     console.log(err);
+    let errorMessage = err.message || "An error has occured";
+    let errorCode = err.code || 500;
+
+
     // Generic error message so as to not reveal too much about the login process.
-    ErrorController.sendError(res, "An error has occured", 500);
+    ErrorController.sendError(res, errorMessage, errorCode);
   }
 }
 

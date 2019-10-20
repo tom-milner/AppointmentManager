@@ -43,6 +43,8 @@ async function updateCounsellor(req, res) {
   let counsellorId = req.params.counsellorId;
   let newCounsellorInfo = req.body.counsellorInfo;
   try {
+
+    console.log(newCounsellorInfo);
     let updatedcounsellorInfo = await CounsellorModel.findByIdAndUpdate(
       counsellorId,
       newCounsellorInfo, {
@@ -89,7 +91,8 @@ function getCounsellor({
           firstname: counsellor.firstname,
           lastname: counsellor.lastname,
           _id: counsellor._id,
-          workingDays: counsellor.workingDays
+          workingDays: counsellor.workingDays,
+          appointmentBufferTime: counsellor.appointmentBufferTime
         };
 
       res.status(200).send({

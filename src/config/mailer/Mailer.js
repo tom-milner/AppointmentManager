@@ -3,6 +3,7 @@ const Config = require("../Config");
 const moment = require("moment");
 const nodemailer = require("nodemailer");
 const GoogleAuth = require("../googleauth/GoogleAuth");
+const Role = require("../../models/Role");
 
 // trying out javascript classes (new ES6 feature);
 
@@ -69,16 +70,27 @@ class Mailer {
     return this;
   }
 
-  newGuest(guest, token) {
-    let email = this.email;
 
-    email.to = guest.email;
-    email.subject = "Guest Account Created";
-    email.html = ` <p> Hi ${guest.firstname}, </p> 
+
+  confirmNewUser(user, token) {
+    let email = this.email;
+    email.to = user.email;
+
+    email.subject = "Account Created."
+
+    if (user.role == Role.Guest) {
+      email.html = ` <p> Hi ${user.firstname}, </p> 
       <p> Welcome to appointment manager. </p>
       <p> You should 've received an email containing your appointment info.</p>
       <p > To view or edit your appointment details, activate your account using the following link. </p> 
       <a href = "${Config.url}/auth/reset-password?token=${token}">Activate Account</a>`
+    } else {
+      email.html = ` <p> Hi ${user.firstname}, </p> 
+      <p> Welcome to appointment manager. </p>
+      <p> Access your appointments using the following link: </p>
+      <a href = "${Config.url}/home">Access Appointments</a>`
+    }
+
     return this;
   }
 
@@ -133,6 +145,7 @@ class Mailer {
 
   send() {
     this.email.from = Config.mailer.email;
+    console.log("sending email")
     return this.transporter.sendMail(this.email);
   }
 }

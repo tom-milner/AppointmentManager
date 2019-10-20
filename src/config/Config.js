@@ -7,9 +7,11 @@ module.exports = {
     email: process.env.GOOGLE_MAIL_ACCOUNT,
   },
   db: {
-    url: process.env.DB_URL || "localhost:27017/appointment_manager",
+    url: process.env.DB_URL || "mongodb://127.0.0.1:27017/appointment_manager",
     user: process.env.DB_USER,
-    pass: process.env.DB_PASS
+    pass: process.env.DB_PASS,
+    backupLocation: process.env.DB_BACKUP_LOCATION,
+    backupPassword: process.env.DB_BACKUP_PASSWORD
   },
   googleAuth: {
     clientId: process.env.GOOGLE_CLIENT_ID,
