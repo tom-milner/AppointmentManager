@@ -27,7 +27,14 @@ let appointmentTypeSchema = new Schema({
   description: {
     type: String,
     maxlength: 200
+  },
+  color: {
+    type: String,
+    // #xxxxxx  
+    min: 7,
+    max: 7,
+    default: "#3398d3"
   }
-})
+});
 
 module.exports = mongoose.model("AppointmentTypeModel", appointmentTypeSchema);

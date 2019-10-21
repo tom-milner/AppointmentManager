@@ -61,6 +61,7 @@ async function getAllAppointmentTypes(req, res) {
 
 // function called by counsellor to change appointment type details.
 async function updateAppointmentType(req, res) {
+  let response = new AppResponse(res);
   try {
     const newAppointmentTypeProperties = req.body.appointmentTypeProperties;
     const appointmentTypeId = req.params.appointmentTypeId;
@@ -81,7 +82,7 @@ async function updateAppointmentType(req, res) {
     }
 
     // appointment type updated successfully
-    return reponse.success("Appointment type updated successfully", {
+    return response.success("Appointment type updated successfully", {
       updatedAppointmentType: updatedAppointmentType
     });
 
@@ -101,8 +102,8 @@ async function deleteAppointmentType(req, res) {
   let appointmentTypeId = req.params.appointmentTypeId;
 
   try {
-    let response = await AppointmentTypeModel.findByIdAndRemove(appointmentTypeId);
-    console.log(response);
+    let model = await AppointmentTypeModel.findByIdAndRemove(appointmentTypeId);
+    console.log(model);
 
     return response.success("Appointment Type deleted successfully.");
   } catch (error) {
