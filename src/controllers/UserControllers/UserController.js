@@ -1,8 +1,10 @@
 const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
-
+const AppResponse = require("../../struct/AppResponse");
 
 // takes array of user Ids an returns simple user object.
 async function getReducedUsers(req, res) {
+
+  const response = new AppResponse(res);
   // userIds is a string with comma seperated values
   try {
     let userIds = req.query.userIds.split(",").filter(Boolean);
@@ -15,20 +17,18 @@ async function getReducedUsers(req, res) {
       );
       if (user) users.push(user);
     }
-    res.status(200).send({
-      success: true,
-      message: "Users returned successfully",
+    return response.success("Users returned successfully", {
       users: users
     });
+
   } catch (error) {
-
-    ErrorController.sendError(res, "Error getting usernames.", 400);
-
+    return response.failure("Error getting usernames.", 400);
   }
 }
 
 // delete a user account
 async function deleteUser(req, res) {
+  const repsonse = new AppResponse(res);
   try {
     let userId = req.params.userId;
 
@@ -39,9 +39,7 @@ async function deleteUser(req, res) {
       code: 400
     });
 
-    res.status(200).send({
-      message: "User deleted successfully",
-      success: true,
+    return response.success("User deleted successfully", {
       user: deletedUser
     })
 
@@ -49,7 +47,7 @@ async function deleteUser(req, res) {
   } catch (error) {
     let errorMessage = error.message || "Error deleting user.";
     let errorCode = error.code || 400
-    ErrorController.sendError(res, errorMessage, errorCode)
+    return response.failure(errorMessage, errorCode)
   }
 }
 

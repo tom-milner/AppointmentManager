@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
-const Config = require("../../config/Config");
+const Config = require("../../struct/Config");
 const PasswordResetModel = require("../../models/MongooseModels/PasswordResetModel");
 const Role = require("../../models/Role");
 

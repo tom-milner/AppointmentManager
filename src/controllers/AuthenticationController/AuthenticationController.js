@@ -1,18 +1,20 @@
 const bcrypt = require("bcrypt");
 const moment = require("moment");
-const Mailer = require("../../config/mailer/Mailer");
+const Mailer = require("../../struct/mailer/Mailer");
 const CounsellorModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
 const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
 const GuestModel = require("../../models/MongooseModels/UserModels/GuestModel")
 const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 const PasswordResetModel = require("../../models/MongooseModels/PasswordResetModel");
-const ErrorController = require("../ErrorController");
 const AuthenticationControllerHelpers = require("./AuthenticationControllerHelpers");
 const Role = require("../../models/Role");
 const Utils = require("../../utils/Utils");
+const AppResponse = require("../../struct/AppResponse");
 
 // Register a new counsellor
 async function registerCounsellor(req, res) {
+
+  const response = new AppResponse(res);
 
   try {
 
@@ -36,12 +38,12 @@ async function registerCounsellor(req, res) {
     // save counsellor in database
     const savedCounsellor = await newCounsellor.save();
     savedCounsellor.password = undefined;
-    res.status(200).send({
-      success: true,
-      message: "Counsellor created successfully.",
+
+    return response.success("Counsellor created successfully.", {
       user: savedCounsellor,
       token: AuthenticationControllerHelpers.jwtSignUser(savedCounsellor.toJSON())
     });
+
 
   } catch (err) {
     let errorMessage = "Error registering counsellor.";
@@ -52,13 +54,14 @@ async function registerCounsellor(req, res) {
     }
     console.log(err.message);
 
-    ErrorController.sendError(res, errorMessage, errorStatusCode);
+    return response.failure(errorMessage, errorStatusCode);
 
   }
 }
 
 // register a new client
 async function registerClient(req, res) {
+  const response = new AppResponse(res);
   try {
     // create client model
     let newClient = new ClientModel({
@@ -76,13 +79,12 @@ async function registerClient(req, res) {
     savedClient.password = undefined;
 
     // Return newly created client
-    res.status(200).send({
-      success: true,
-      message: "Client added.",
+    return response.success("Client added.", {
       user: savedClient,
       // Sign user with new token
       token: await AuthenticationControllerHelpers.jwtSignUser(savedClient.toJSON())
     });
+
   } catch (err) {
     let errorMessage = "Error registering client.";
     let errorStatusCode = 500;
@@ -91,12 +93,12 @@ async function registerClient(req, res) {
       errorStatusCode = 409;
     }
     console.log(err.message);
-
-    ErrorController.sendError(res, errorMessage, errorStatusCode);
+    return response.failure(errorMessage, errorStatusCode);
   }
 }
 
 async function registerGuest(req, res) {
+  const response = new AppResponse(res);
 
   let {
     firstname,
@@ -135,13 +137,11 @@ async function registerGuest(req, res) {
 
     // send back newly created guest
     createdGuest.password = undefined;
-    res.status(200).send({
-      success: true,
-      message: "Guest created successfully",
+
+    return response.success("Guest created successfully", {
       user: createdGuest,
       token: await AuthenticationControllerHelpers.jwtSignUser(createdGuest)
     });
-
 
   } catch (error) {
     let errorMessage = "Error creating guest.";
@@ -150,13 +150,14 @@ async function registerGuest(req, res) {
     if (error.code == 11000) {
       errorMessage = Utils.getDuplicateMongoEntryKey(error.message) + " already exists";
     }
-    ErrorController.sendError(res, errorMessage, errorCode);
+    return response.failure(errorMessage, errorCode)
   }
 }
 
 
 // Login the client and provide them with an access token
 async function login(req, res) {
+  const response = new AppResponse(res);
   try {
     if (!req.body.password) throw ({
       message: "Invalid password.",
@@ -198,9 +199,8 @@ async function login(req, res) {
 
     // return user with new access token.
     const token = await AuthenticationControllerHelpers.jwtSignUser(matchingUser);
-    res.status(200).send({
-      success: true,
-      message: "User logged in",
+
+    return response.success("User logged in", {
       user: matchingUser,
       token: token
     });
@@ -214,30 +214,29 @@ async function login(req, res) {
 
 
     // Generic error message so as to not reveal too much about the login process.
-    ErrorController.sendError(res, errorMessage, errorCode);
+    return response.failure(errorMessage, errorCode)
   }
 }
 
 async function refreshToken(req, res) {
+  const response = new AppResponse(res);
   try {
     // create new token
     const newToken = AuthenticationControllerHelpers.jwtSignUser(req.user);
 
     // return new token and original user
-    res.status(200).send({
+    return response.success("Token refreshed successfully.", {
       token: newToken,
       user: req.user,
-      message: "Token refreshed successfully.",
-      success: true
     })
   } catch (err) {
-    ErrorController.sendError(res, "An error occured refreshing the token", 500);
+    return response.failure("An error occured refreshing the token", 500);
   }
 }
 
 
 async function forgotPassword(req, res) {
-
+  const response = new AppResponse(res);
   // get the email from the request body and search for the user associated with it.
   let email = req.body.email;
   try {
@@ -263,13 +262,10 @@ async function forgotPassword(req, res) {
     mailer.forgotPassword(foundUser, token, requestIp).send();
 
     // let the user know the email was sent.
-    res.status(200).send({
-      success: true,
-      message: "Email sent sucessfully. If you can't find it, check your spam folder!"
-    });
+    return response.success("Email sent sucessfully. If you can't find it, check your spam folder!");
   } catch (error) {
     console.log(error);
-    ErrorController.sendError(res, error.message || "Error finding user associated with that email", error.code || 400);
+    return response.failure(error.message || "Error finding user associated with that email", error.code || 400);
   }
 
 }
@@ -278,6 +274,7 @@ async function resetPassword(req, res) {
   let token = req.body.token;
   let password = req.body.password;
 
+  const response = new AppResponse(res);
   // create token hash
   let tokenHash = AuthenticationControllerHelpers.generateTokenHash(token);
   try {
@@ -336,14 +333,12 @@ async function resetPassword(req, res) {
     await PasswordResetModel.findByIdAndDelete(foundPasswordReset._id);
 
     // send back the updated user.
-    res.status(200).send({
-      success: true,
-      message: "Password updated successfully",
+    return response.success("Password updated successfully", {
       updatedUser: updatedUser
     });
 
   } catch (error) {
-    ErrorController.sendError(res, error.message || "Error resetting password", error.code || 500);
+    return response.failure(error.message || "Error resetting password", error.code || 500);
   }
 
 }

@@ -1,9 +1,9 @@
 const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
-const ErrorController = require("../../controllers/ErrorController");
-const Utils = require("../../utils/Utils");
+const AppResponse = require("../../struct/AppResponse");
 
 // get all the clients
 async function getClients(req, res) {
+  const response = new AppResponse(res);
   // return all the clients.
   // TODO: implement limits
   const limit = parseInt(req.query.limit);
@@ -15,13 +15,11 @@ async function getClients(req, res) {
 
   try {
     let allClients = await clientQuery.exec();
-    res.status(200).send({
-      success: true,
-      message: "Clients returned successfully.",
+    return response.success("Clients returned successfully.", {
       clients: allClients
     })
   } catch (error) {
-    ErrorController.sendError(res, "Error finding clients.", 500);
+    return response.failure("Error finding clients.", 500);
   }
 }
 
@@ -31,6 +29,8 @@ function getClient({
 }) {
 
   return async function (req, res) {
+
+    const response = new AppResponse(res);
     let clientId = req.params.clientId;
 
     try {
@@ -43,14 +43,12 @@ function getClient({
         _id: client._id,
       }
 
-      res.status(200).send({
-        success: true,
-        message: "Client returned successfully",
+      return response.success("Client returned successfully", {
         client: client,
       });
 
     } catch (error) {
-      ErrorController.sendError(res, "Client couldn't be found.", 404);
+      return response.failure("Client couldn't be found.", 404);
     }
   }
 
@@ -58,6 +56,9 @@ function getClient({
 
 // update an existing client
 async function updateClient(req, res) {
+
+  const response = new AppResponse(res);
+
   let clientId = req.params.clientId;
   let newClientInfo = req.body.clientInfo;
 
@@ -72,14 +73,12 @@ async function updateClient(req, res) {
       message: "Client doesn't exist",
       code: 404
     }
-    res.status(200).send({
-      success: true,
-      message: "Client updated",
+    return response.success("Client updated", {
       updatedClient: updatedClient
     })
 
   } catch (error) {
-    ErrorController.sendError(res, error.message || "Error updating client", error.code || 400);
+    return response.failure(error.message || "Error updating client", error.code || 400);
   }
 }
 

@@ -1,25 +1,26 @@
 // Import required models
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel");
 const AppointmentControllerHelpers = require("./AppointmentControllerHelpers");
-const ErrorController = require("../ErrorController");
+const AppResponse = require("../../struct/AppResponse");
 const Role = require("../../models/Role");
 const moment = require("moment");
-const Mailer = require("../../config/mailer/Mailer");
+const Mailer = require("../../struct/mailer/Mailer");
 
 // Fetch all appointments regardless
 
 // This is never used in the app, it is only here for testing purposes.
 async function getAllAppointments(req, res) {
+  const response = new AppResponse(res);
   try {
     // get appointments and sort them
     let allAppointments = await AppointmentModel.find({}).sort({
       startTime: "asc"
     });
     // return the appointments
-    res.send(allAppointments);
+    return response.success("Successfully returned appointments", allAppointments);
   } catch (error) {
     console.error(error);
-    ErrorController.sendError(res, "An error has occured sending appointments");
+    return response.failure("An error has occured sending appointments");
   }
 }
 
@@ -28,6 +29,8 @@ function getAppointmentsOfUser({
   isCounsellor
 }) {
   return async function (req, res) {
+
+    const response = new AppResponse(res);
     // dynamically construct mongoose query
     const appointmentQuery = AppointmentModel.find();
 
@@ -78,21 +81,22 @@ function getAppointmentsOfUser({
         }));
       }
 
-      res.status(200).send({
-        success: true,
-        message: "Appointments returned successfully",
+      return response.success("Appointments returned successfully", {
         appointments: appointments
       });
+
     } catch (error) {
       console.log(error);
       // return an error message
-      ErrorController.sendError(res, "Error returning appointments.", 400);
+      return response.failure("Error returning appointments.", 400);
     }
   };
 }
 
 // Insert new appointment into db
 async function createAppointment(req, res) {
+  const response = new AppResponse(res);
+
   try {
     // load  info from body
     const appointmentTypeId = req.body.typeId;
@@ -158,22 +162,22 @@ async function createAppointment(req, res) {
     }
 
     // Send back new appointment
-    res.send({
-      success: true,
-      message: "Appointment created successfully",
+    return response.success("Appointment created successfully", {
       appointments: createdAppointments
     });
     // Catch any errors and respond appropriately
   } catch (error) {
     let errorMessage = error.message || "Error creating appointment.";
     let errorCode = error.code || 500;
-    ErrorController.sendError(res, errorMessage, errorCode, {
+    return response.failure(errorMessage, errorCode, {
       clashInfo: error.clashInfo,
     });
   }
 }
 
 async function updateAppointment(req, res) {
+  const response = new AppResponse(res);
+
   let newAppointmentProperties = req.body.appointmentProperties;
   let appointmentId = req.params.appointmentId;
 
@@ -205,19 +209,19 @@ async function updateAppointment(req, res) {
       };
     }
 
-    res.status(200).send({
-      success: true,
-      message: "Appointment updated successfully",
+    return response.success("Appointment updated successfully", {
       updatedAppointment: updatedAppointment
     });
   } catch (error) {
     let errorMessage = error.message || "Error updating appointment.";
     let errorCode = error.code || 400;
-    ErrorController.sendError(res, errorMessage, errorCode);
+    return response.failure(errorMessage, errorCode);
   }
 }
 
 async function deleteAppointment(req, res) {
+  const response = new AppResponse(res);
+
   let appointmentId = req.params.appointmentId;
   let deleteRecurring = req.body.deleteRecurring;
 
@@ -240,16 +244,9 @@ async function deleteAppointment(req, res) {
       console.log(deletedRecurringSeries);
     }
 
-    res.status(200).send({
-      success: true,
-      message: "Appointments deleted successfully."
-    });
+    return response.success("Appointments deleted successfully.");
   } catch (error) {
-    ErrorController.sendError(
-      res,
-      error.message || "Error deleting appointment",
-      400
-    );
+    return response.failure(error.message || "Error deleting appointment", 400);
   }
 }
 

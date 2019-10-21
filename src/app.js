@@ -10,7 +10,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 // load config file. This maps the environment variables to javascript objects.
-const Config = require("./config/Config");
+const Config = require("./struct/Config");
 
 // Automatic CORS-policy handling
 const cors = require("cors");
@@ -33,18 +33,18 @@ app.use(bodyParser.json());
 const routes = require("./routes");
 app.use(routes);
 
-const Scheduler = require("./config/scheduler/Scheduler");
+const Scheduler = require("./struct/scheduler/Scheduler");
 const scheduler = new Scheduler();
 
 // setup google api
-const GoogleAuth = require("./config/googleauth/GoogleAuth");
+const GoogleAuth = require("./struct/googleauth/GoogleAuth");
 const googleAuth = new GoogleAuth();
 
 // setup mailer
-const Mailer = require("./config/mailer/Mailer");
+const Mailer = require("./struct/mailer/Mailer");
 const mailer = new Mailer();
 
-const Database = require("./config/Database");
+const Database = require("./struct/Database");
 const database = new Database();
 
 // Connect to the database and start the application
