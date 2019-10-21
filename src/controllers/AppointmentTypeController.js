@@ -1,10 +1,11 @@
 // Import required models
 const AppointmentTypeModel = require("../models/MongooseModels/AppointmentTypeModel");
-const ErrorController = require("../controllers/ErrorController");
+const AppResponse = require("../struct/AppResponse");
 const Utils = require("../utils/Utils");
 
 // create a new appointment type
 async function createAppointmentType(req, res) {
+  const response = new AppResponse(res);
   try {
     let name = req.body.name;
     let duration = req.body.duration;
@@ -26,10 +27,8 @@ async function createAppointmentType(req, res) {
     let createdAppointmentType = await newAppointmentType.save();
 
     // appointment type created successfully - return it 
-    res.status(200).send({
+    return response.success("Appointment type created successfully.", {
       appointmentType: createdAppointmentType,
-      success: true,
-      message: "Appointment type created successfully."
     });
 
   } catch (error) {
@@ -40,25 +39,23 @@ async function createAppointmentType(req, res) {
         " already exists.";
       responseCode = 200;
     }
-
-    ErrorController.sendError(res, errorMessage, responseCode);
+    return response.failure(errorMessage, responseCode);
 
   }
 }
 
 // get all the different types of appointment
 async function getAllAppointmentTypes(req, res) {
+  const response = new AppResponse(res);
   try {
     let appointmentTypes = await AppointmentTypeModel.find({});
-    res.status(200).send({
-      success: true,
-      message: "Appointment types returned successfully",
+    return response.success("Appointment types returned successfully", {
       appointmentTypes: appointmentTypes
     })
   } catch (error) {
     console.log(error);
     let errorMessage = error.message || "Error getting appointment types.";
-    ErrorController.sendError(res, errorMessage, 500);
+    return response.failure(errorMessage, 500);
   }
 }
 
@@ -84,9 +81,7 @@ async function updateAppointmentType(req, res) {
     }
 
     // appointment type updated successfully
-    res.status(200).send({
-      success: true,
-      message: "Appointment type updated successfully",
+    return reponse.success("Appointment type updated successfully", {
       updatedAppointmentType: updatedAppointmentType
     });
 
@@ -97,25 +92,23 @@ async function updateAppointmentType(req, res) {
       errorMessage = Utils.getDuplicateMongoEntryKey(errorMessage) + "Appointment Type name already exists.";
       errorCode = 200;
     }
-    ErrorController.sendError(res, errorMessage, errorCode);
+    return response.failure(errorMessage, errorCode);
   }
 }
 
 async function deleteAppointmentType(req, res) {
+  const response = new AppResponse(res);
   let appointmentTypeId = req.params.appointmentTypeId;
 
   try {
     let response = await AppointmentTypeModel.findByIdAndRemove(appointmentTypeId);
     console.log(response);
 
-    res.status(200).send({
-      success: true,
-      message: "Appointment Type deleted successfully."
-    })
+    return response.success("Appointment Type deleted successfully.");
   } catch (error) {
     let errorMessage = error.message || "Error deleting appointment type.";
     let errorCode = error.code || 500;
-    ErrorController.sendError(res, errorMessage, errorCode);
+    return response.failure(errorMessage, errorCode);
 
   }
 }

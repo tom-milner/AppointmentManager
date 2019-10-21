@@ -1,9 +1,12 @@
 const CounsellorModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
-const ErrorController = require("../ErrorController");
+const AppResponse = require("../../struct/AppResponse");
 const Utils = require("../../utils/Utils");
 
 // get list of all the counsellors
 async function getAllCounsellorsReduced(req, res) {
+
+  const response = new AppResponse(res);
+
   try {
     // get all the counsellors but exclude their personal information.
     let counsellorQuery = CounsellorModel.find().select("-email")
@@ -21,24 +24,24 @@ async function getAllCounsellorsReduced(req, res) {
       };
     }
 
-    res.status(200).send({
-      success: true,
-      message: "Counsellors returned successfully",
+    return response.success("Counsellors returned successfully", {
       counsellors: counsellors
     });
+
   } catch (error) {
     console.log(error);
 
     let errorMessage = error.message || "Error returning counsellors.";
     let errorCode = error.code || 500;
 
-    ErrorController.sendError(res, errorMessage, errorCode);
+    return response.failure(errorMessage, errorCode);
   }
 }
 
 // changing counsellor settings
 async function updateCounsellor(req, res) {
-  // TODO: create policy
+
+  const response = new AppResponse(res);
 
   let counsellorId = req.params.counsellorId;
   let newCounsellorInfo = req.body.counsellorInfo;
@@ -59,10 +62,8 @@ async function updateCounsellor(req, res) {
         code: 400
       };
     }
-    res.status(200).send({
-      success: true,
-      message: "Counsellor settings updated."
-    });
+    return response.success("Counsellor settings updated.")
+
   } catch (error) {
     // send an appropriate error message.
     let errorMessage = error.message || "Error updating counsellor settings";
@@ -71,7 +72,7 @@ async function updateCounsellor(req, res) {
       errorMessage = Utils.getDuplicateMongoEntryKey(error.message) +
         " already exists."
     }
-    ErrorController.sendError(res, errorMessage, errorCode);
+    return response.failure(errorMessage, errorCode);
   }
 }
 
@@ -79,6 +80,8 @@ function getCounsellor({
   reduced
 }) {
   return async function (req, res) {
+
+    const response = new AppResponse(res);
     let counsellorId = req.params.counsellorId;
 
     try {
@@ -95,14 +98,13 @@ function getCounsellor({
           appointmentBufferTime: counsellor.appointmentBufferTime
         };
 
-      res.status(200).send({
-        message: "Counsellor returned successfully",
-        success: true,
+      return response.success("Counsellor returned successfully", {
         counsellor: counsellor
       });
+
     } catch (error) {
       console.log(error);
-      ErrorController.sendError(res, "Counsellor couldn't be found", 400);
+      return response.failure("Counsellor couldn't be found", 400);
     }
   };
 }
