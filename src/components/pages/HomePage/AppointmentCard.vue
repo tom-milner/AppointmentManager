@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <div class="wrapper" :style="getColor">
     <div class="heading-box">
       <h3 class="heading-3">{{appointment.title}}</h3>
     </div>
@@ -18,10 +18,21 @@ export default {
   },
   computed: {
     formattedDate() {
-      return this.moment(this.appointment.startTime).format("dddd Do MMMM");
+      return this.moment(this.appointment.startTime).format("dddd Do");
     },
     formattedTime() {
       return this.moment(this.appointment.startTime).format("LT");
+    },
+    getColor() {
+      const color = this.appointment.appointmentType.color;
+      let r = parseInt(color.slice(1, 3), 16);
+      let g = parseInt(color.slice(3, 5), 16);
+      let b = parseInt(color.slice(5, 7), 16);
+
+      return {
+        "box-shadow": `0 2px 7px rgba(${r},${g}, ${b}, .5)`,
+        "border-bottom": `10px solid ${color} `
+      };
     }
   },
   data() {
@@ -36,14 +47,13 @@ export default {
 @import "src/scss/global";
 $card-width: 15.3rem;
 .wrapper {
+  background-color: $color-canvas;
   height: $card-width;
   min-width: $card-width;
-  background-color: $color-primary;
   flex: 0 0 auto;
   flex-direction: column;
   margin: 1rem 0;
   border-radius: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   display: flex;
   justify-content: space-between;
   padding: 0.7rem;
@@ -58,7 +68,7 @@ $card-width: 15.3rem;
     h4,
     h3 {
       word-break: break-word;
-      color: $color-white;
+      color: $color-grey-dark;
     }
   }
   .info-box {
@@ -69,7 +79,7 @@ $card-width: 15.3rem;
     .date {
       font-size: 1.5rem;
       word-break: break-word;
-      color: $color-white;
+      color: $color-grey;
     }
   }
 }

@@ -4,6 +4,7 @@
     <full-calendar
       @select="handleDateClick"
       @eventClick="handleEventClick"
+      :eventRender="setEventColor"
       ref="fullCalendar"
       defaultView="timeGridWeek"
       :weekends="true"
@@ -14,8 +15,8 @@
       }"
       :plugins="calendarPlugins"
       :eventSources="[
-        { events: this.events.clientEvents, className:'userEvent' },
-        { events: this.events.counsellorEvents, className:'counsellorEvent' },
+        { events: getClientEvents, className:'userEvent' },
+        { events: getCounsellorEvents, className:'counsellorEvent' },
       ]"
       :businessHours="businessHours"
       :selectConstraint="businessHours"
@@ -110,6 +111,14 @@ export default {
   },
 
   computed: {
+    // Get client events
+    getClientEvents() {
+      return this.events.clientEvents;
+    },
+    getCounsellorEvents() {
+      return this.events.counsellorEvents;
+    },
+
     // This function returns all the events in an event source that are on a day.
     getEventsOfChosenDay() {
       // merge both the counsellor and user events into a single array.
@@ -147,14 +156,23 @@ export default {
 
   // TODO: add temporary event to show user (color it green or something to show its temporary)
   methods: {
-    mapAppointmentsToEvents(appointments) {
+    // change the color of the event to match the appointment type
+    setEventColor(event) {
+      console.log(event);
+    },
+
+    mapAppointmentsToEvents(appointments, counsellorAppointments) {
       // TODO: remove duplication
       if (appointments) {
+        console.log(appointments[0]);
         return appointments.map(appointment => ({
           title: appointment.title,
           end: appointment.endTime,
           start: appointment.startTime,
-          id: appointment._id
+          id: appointment._id,
+          backgroundColor: counsellorAppointments
+            ? appointment.appointmentType.color
+            : undefined
         }));
       }
       return [];
@@ -232,7 +250,8 @@ export default {
     setClientEvents() {
       if (this.clientAppointments) {
         this.events.clientEvents = this.mapAppointmentsToEvents(
-          this.clientAppointments
+          this.clientAppointments,
+          true
         );
       }
     },
@@ -240,7 +259,8 @@ export default {
     setCounsellorEvents() {
       if (this.counsellorAppointments) {
         this.events.counsellorEvents = this.mapAppointmentsToEvents(
-          this.counsellorAppointments
+          this.counsellorAppointments,
+          false
         );
       }
     }
@@ -279,7 +299,7 @@ export default {
 
 // Event from user
 .userEvent {
-  background-color: $color-primary !important;
+  // background-color: $color-primary !important;
   outline: none;
   border: none;
   padding: 0.2rem;

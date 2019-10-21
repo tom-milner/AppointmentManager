@@ -2,6 +2,7 @@
   <div
     @click=" !isEditable ? toggleShowFullAppointmentType() : null "
     class="appointment-type-wrapper"
+    :style="getBorder"
   >
     <div class="row">
       <!-- If the user is not currently editing  -->
@@ -95,6 +96,14 @@
         class="btn btn-disapproved delete-button"
         v-if="isEditable"
       >Delete</button>
+
+      <div class="color-picker" v-if="isEditable">
+        <h4 class="form-heading dropdown-heading">Color:</h4>
+        <ColorPicker
+          v-model="appointmentType.color"
+          :colors="['#3398d3', '#65ca35', '#2300ED', '#f44336', '#fcba03','#E91E63','#2196F3','#607D8B']"
+        ></ColorPicker>
+      </div>
     </div>
 
     <!-- Delete Dialogue -->
@@ -113,6 +122,177 @@
     </Dialogue>
   </div>
 </template>
+
+
+
+
+
+
+<script>
+import Icon from "vue-icon/lib/vue-feather.esm";
+import AppointmentTypeService from "@/services/AppointmentTypeService";
+import Dialogue from "@/components/layout/DialogueBox";
+import ColorPicker from "@/components/misc/ColorPicker";
+
+export default {
+  data() {
+    return {
+      isEditable: false,
+      errorMessage: "",
+      maxNameLength: 20,
+      maxDescriptionLength: 200,
+      maxDuration: 120,
+      minDuration: 5,
+      showFullType: false,
+      showDeleteDialogue: false,
+      appointmentType: {}
+    };
+  },
+  components: {
+    Icon,
+    ColorPicker,
+    Dialogue
+  },
+  props: {
+    type: {},
+    userCanEdit: Boolean,
+    forceOpen: Boolean
+  },
+  computed: {
+    getBorder() {
+      return {
+        "border-left": `5px solid ${this.appointmentType.color} !important`
+      };
+    },
+
+    getRecurringButtonClass() {
+      return {
+        "btn-approved ": this.appointmentType.isRecurring,
+        "btn-disapproved ": !this.appointmentType.isRecurring
+      };
+    },
+    isRecurringText() {
+      return this.appointmentType.isRecurring ? "Yes" : "No";
+    }
+  },
+  beforeMount() {
+    // assign to data to avoid mutating props
+    this.appointmentType = this.type;
+    if (!this.appointmentType._id) {
+      this.isEditable = true;
+    }
+
+    this.showFullType = this.forceOpen;
+  },
+
+  methods: {
+    // sends request to delete appointment
+    async deleteAppointmentType() {
+      // send delete request
+      await AppointmentTypeService.deleteAppointmentType(
+        this.appointmentType._id
+      );
+      // refresh appointments
+      this.$emit("refresh-appointments");
+    },
+
+    toggleIsRecurring() {
+      this.appointmentType.isRecurring = !this.appointmentType.isRecurring;
+    },
+    toggleShowFullAppointmentType() {
+      this.showFullType = !this.showFullType;
+    },
+
+    // Convert minutes to hours.
+    minsToHours(mins) {
+      return Math.round((mins / 60) * 10) / 10;
+    },
+
+    // validate all user input
+    validateData() {
+      let name = this.appointmentType.name;
+      let duration = this.appointmentType.duration;
+
+      // check name
+      if (name.length > this.maxNameLength) {
+        this.errorMessage = `Name must be below ${this.maxNameLength} characters.`;
+        return false;
+      }
+
+      // check duration
+      if (duration < this.minDuration || duration > this.maxDuration) {
+        this.errorMessage = `Max duration is ${
+          this.maxDuration
+        } minutes (${this.minsToHours(this.maxDuration)} hours)`;
+        return false;
+      }
+
+      return true;
+    },
+
+    // change whether the user can edit the appointment type.
+    toggleIsEditable() {
+      if (this.userCanEdit) {
+        this.isEditable = !this.isEditable;
+        if (this.isEditable) this.showFullType = true;
+      }
+    },
+
+    async updateAppointmentType() {
+      // send a request to the api to update the appointment type.
+
+      // send request
+      let response = await AppointmentTypeService.updateAppointmentType(
+        this.appointmentType._id,
+        this.appointmentType
+      );
+      // check for server error.
+      if (!response.data.success) {
+        throw { response };
+      }
+      // reset variables
+      this.isEditable = false;
+    },
+
+    async createAppointmentType() {
+      let response = await AppointmentTypeService.createAppointmentType(
+        this.appointmentType
+      );
+      if (!response.data.success) {
+        throw {
+          response
+        };
+      }
+      this.$emit("refresh-appointments");
+      // reset variables
+      this.isEditable = false;
+    },
+
+    // save the appointment
+    async saveAppointmentType() {
+      // validate the user entered data.
+      let isValid = this.validateData();
+      if (!isValid) {
+        this.isEditable = true;
+        return;
+      }
+      try {
+        // check to see if the appointment is new.
+        if (!this.appointmentType._id) {
+          await this.createAppointmentType();
+        } else {
+          // update appointment type
+          await this.updateAppointmentType();
+        }
+        this.errorMessage = "";
+      } catch (error) {
+        this.errorMessage = error.response.data.message;
+        this.isEditable = true;
+      }
+    }
+  }
+};
+</script>
 
 
 
@@ -207,9 +387,8 @@ textarea {
 }
 
 .delete-button {
-  position: absolute;
-  bottom: 2rem;
-  right: 2rem;
+  float: right;
+  margin-top: 2rem;
 }
 
 .dialogue-content {
@@ -251,6 +430,7 @@ textarea {
 
 .recurring {
   vertical-align: center;
+  display: inline-block;
 
   button {
     display: inline-block;
@@ -277,172 +457,8 @@ textarea {
     }
   }
 }
+
+.color-picker {
+  margin-top: 2rem;
+}
 </style>
-
-
-
-<script>
-import Icon from "vue-icon/lib/vue-feather.esm";
-import AppointmentTypeService from "@/services/AppointmentTypeService";
-import Dialogue from "@/components/layout/DialogueBox";
-
-export default {
-  data() {
-    return {
-      isEditable: false,
-      errorMessage: "",
-      maxNameLength: 20,
-      maxDescriptionLength: 200,
-      maxDuration: 120,
-      minDuration: 5,
-      showFullType: false,
-      showDeleteDialogue: false,
-      appointmentType: {}
-    };
-  },
-  components: {
-    Icon,
-    Dialogue
-  },
-  props: {
-    type: {},
-    userCanEdit: Boolean,
-    forceOpen: Boolean
-  },
-  computed: {
-    getRecurringButtonClass() {
-      return {
-        "btn-approved ": this.appointmentType.isRecurring,
-        "btn-disapproved ": !this.appointmentType.isRecurring
-      };
-    },
-    isRecurringText() {
-      return this.appointmentType.isRecurring ? "Yes" : "No";
-    }
-  },
-  beforeMount() {
-    // assign to data to avoid mutating props
-    this.appointmentType = this.type;
-    if (!this.appointmentType._id) {
-      this.isEditable = true;
-    }
-
-    this.showFullType = this.forceOpen;
-  },
-
-  methods: {
-    // sends request to delete appointment
-    async deleteAppointmentType() {
-      // send delete request
-      await AppointmentTypeService.deleteAppointmentType(
-        this.appointmentType._id
-      );
-      // refresh appointments
-      this.$emit("refresh-appointments");
-    },
-
-    toggleIsRecurring() {
-      this.appointmentType.isRecurring = !this.appointmentType.isRecurring;
-    },
-    toggleShowFullAppointmentType() {
-      this.showFullType = !this.showFullType;
-    },
-
-    // Convert minutes to hours.
-    minsToHours(mins) {
-      return Math.round((mins / 60) * 10) / 10;
-    },
-
-    // validate all user input
-    validateData() {
-      let name = this.appointmentType.name;
-      let duration = this.appointmentType.duration;
-
-      // check name
-      if (name.length > this.maxNameLength) {
-        this.errorMessage = `Name must be below ${this.maxNameLength} characters.`;
-        return false;
-      }
-
-      // check duration
-      if (duration < this.minDuration || duration > this.maxDuration) {
-        this.errorMessage = `Max duration is ${
-          this.maxDuration
-        } minutes (${this.minsToHours(this.maxDuration)} hours)`;
-        return false;
-      }
-
-      return true;
-    },
-
-    // change whether the user can edit the appointment type.
-    toggleIsEditable() {
-      if (this.userCanEdit) {
-        this.isEditable = !this.isEditable;
-        if (this.isEditable) this.showFullType = true;
-      }
-    },
-
-    async updateAppointmentType() {
-      // load relevant properties into new object.
-      let newProperties = {};
-      newProperties.name = this.appointmentType.name;
-      newProperties.duration = this.appointmentType.duration;
-      newProperties.isRecurring = this.appointmentType.isRecurring;
-      newProperties.recurringDuration = this.appointmentType.recurringDuration;
-      newProperties.description = this.appointmentType.description;
-
-      // send a request to the api to update the appointment type.
-
-      // send request
-      let response = await AppointmentTypeService.updateAppointmentType(
-        this.appointmentType._id,
-        newProperties
-      );
-      // check for server error.
-      if (!response.data.success) {
-        throw { response };
-      }
-      // reset variables
-      this.isEditable = false;
-    },
-
-    async createAppointmentType() {
-      let response = await AppointmentTypeService.createAppointmentType(
-        this.appointmentType
-      );
-      if (!response.data.success) {
-        throw {
-          response
-        };
-      }
-      this.$emit("refresh-appointments");
-      // reset variables
-      this.isEditable = false;
-    },
-
-    // save the appointment
-    async saveAppointmentType() {
-      // validate the user entered data.
-      let isValid = this.validateData();
-      if (!isValid) {
-        this.isEditable = true;
-        return;
-      }
-      try {
-        // check to see if the appointment is new.
-        if (!this.appointmentType._id) {
-          await this.createAppointmentType();
-        } else {
-          // update appointment type
-          await this.updateAppointmentType();
-        }
-        this.errorMessage = "";
-      } catch (error) {
-        this.errorMessage = error.response.data.message;
-        this.isEditable = true;
-      }
-    }
-  }
-};
-</script>

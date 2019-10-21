@@ -125,7 +125,6 @@ export default {
     },
     toggleModal: async function(chosenAppointment) {
       //reload appointments
-      await this.getUserAppointments();
       console.log(chosenAppointment);
       if (chosenAppointment) {
         this.selectedAppointment = this.appointments.find(appointment => {
@@ -136,6 +135,7 @@ export default {
         this.selectedAppointment = {};
         this.modalDisplayed = false;
       }
+      await this.getUserAppointments();
     }
   },
   data() {
@@ -168,6 +168,7 @@ export default {
 }
 
 .scrolling-appointments {
+  padding-left: 1rem;
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
