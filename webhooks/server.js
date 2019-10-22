@@ -43,6 +43,7 @@ function pullLatest(req, res) {
     req.on("data", chunk => {
         body += chunk.toString();
     })
+
     req.on("end", async () => {
 
         const signature = req.headers["x-hub-signature"];
