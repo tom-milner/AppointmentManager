@@ -23,9 +23,9 @@ app.use(morgan("dev"));
 // Handle POST requests
 const bodyParser = require("body-parser");
 app.use(
-  bodyParser.urlencoded({
-    extended: false
-  })
+    bodyParser.urlencoded({
+        extended: false
+    })
 );
 app.use(bodyParser.json());
 
@@ -50,31 +50,31 @@ const database = new Database();
 // Connect to the database and start the application
 (async () => {
 
-  try {
-    // get google api keys.
-    await googleAuth.init();
+    try {
+        // get google api keys.
+        await googleAuth.init();
 
-    // Initialise the mailer
-    await mailer.init();
+        // Initialise the mailer
+        await mailer.init();
 
-    // initialize database
-    await database.init(Config.db.url);
+        // initialize database
+        await database.init(Config.db.url);
 
-    // Check that the backup location exists.
-    await database.checkBackupLocation(Config.db.backupLocation);
+        // Check that the backup location exists.
+        await database.checkBackupLocation(Config.db.backupLocation);
 
-    scheduler.start();
+        scheduler.start();
 
 
-    // Database is required, so only start server if database connection can be established
-    app.listen(Config.port, function () {
-      console.log(`✓ Started server on port ${Config.port}`);
-      console.log("\n");
-    });
+        // Database is required, so only start server if database connection can be established
+        app.listen(Config.port, function () {
+            console.log(`✓ Started server on port ${Config.port}`);
+            console.log("\n");
+        });
 
-  } catch (error) {
-    console.log(`✗ ${error}`)
-    console.log(`✗ Aborting...`)
-    process.exit();
-  }
+    } catch (error) {
+        console.log(`✗ ${error}`)
+        console.log(`✗ Aborting...`)
+        process.exit();
+    }
 })();
