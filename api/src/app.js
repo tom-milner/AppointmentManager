@@ -5,10 +5,6 @@ console.log("\n");
 const express = require("express");
 const app = express();
 
-// Load in environment variables
-const dotenv = require("dotenv");
-dotenv.config();
-
 // load config file. This maps the environment variables to javascript objects.
 const Config = require("./struct/Config");
 
@@ -19,7 +15,6 @@ app.use(cors());
 // Logging
 const morgan = require("morgan");
 app.use(morgan("dev"));
-
 // Handle POST requests
 const bodyParser = require("body-parser");
 app.use(

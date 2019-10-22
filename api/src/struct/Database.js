@@ -63,7 +63,7 @@ class Database {
         return new Promise((resolve, reject) => {
             // Check that the backup location exists
             try {
-                console.log(location);
+                if (!location) throw ("No backup location specified.")
                 console.log(fs.existsSync(location));
                 if (fs.existsSync(location)) {
                     //file exists
