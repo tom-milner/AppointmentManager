@@ -69,6 +69,7 @@ function pullLatest(req, res) {
             // reload pm2 instances
             await exec(`pm2 reload all`);
 
+
             console.log("Deployed successfully.");
         }
         res.end("Done");
