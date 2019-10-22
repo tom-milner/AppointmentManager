@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const http = require('http');
 const crypto = require('crypto');
 const util = require('util');
