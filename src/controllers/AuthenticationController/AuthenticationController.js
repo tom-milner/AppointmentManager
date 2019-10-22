@@ -3,7 +3,7 @@ const moment = require("moment");
 const Mailer = require("../../struct/mailer/Mailer");
 const CounsellorModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
 const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
-const GuestModel = require("../../models/MongooseModels/UserModels/GuestModel")
+const GuestModel = require("../../models/MongooseModels/UserModels/GuestModel");
 const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 const PasswordResetModel = require("../../models/MongooseModels/PasswordResetModel");
 const AuthenticationControllerHelpers = require("./AuthenticationControllerHelpers");
@@ -13,49 +13,41 @@ const AppResponse = require("../../struct/AppResponse");
 
 // Register a new counsellor
 async function registerCounsellor(req, res) {
-
   const response = new AppResponse(res);
 
   try {
-
-    let {
-      email,
-      username,
-      firstname,
-      lastname,
-      password
-    } = req.body;
+    let { email, username, firstname, lastname, password } = req.body;
 
     let newCounsellor = new CounsellorModel({
       email: email,
       username: username,
       firstname: firstname,
-      lastname: lastname,
+      lastname: lastname
     });
 
     // hash password
-    newCounsellor.password = await AuthenticationControllerHelpers.hashPassword(password);
+    newCounsellor.password = await AuthenticationControllerHelpers.hashPassword(
+      password
+    );
     // save counsellor in database
     const savedCounsellor = await newCounsellor.save();
     savedCounsellor.password = undefined;
 
     return response.success("Counsellor created successfully.", {
       user: savedCounsellor,
-      token: AuthenticationControllerHelpers.jwtSignUser(savedCounsellor.toJSON())
+      token: AuthenticationControllerHelpers.jwtSignUser(
+        savedCounsellor.toJSON()
+      )
     });
-
-
   } catch (err) {
     let errorMessage = "Error registering counsellor.";
     let errorStatusCode = 500;
     if (err.code == 11000) {
-      errorMessage = Utils.getDuplicateMongoEntryKey(err.message) + " already exists.";
+      errorMessage =
+        Utils.getDuplicateMongoEntryKey(err.message) + " already exists.";
       errorStatusCode = 409;
     }
-    console.log(err.message);
-
     return response.failure(errorMessage, errorStatusCode);
-
   }
 }
 
@@ -68,11 +60,13 @@ async function registerClient(req, res) {
       email: req.body.email,
       username: req.body.username,
       firstname: req.body.firstname,
-      lastname: req.body.lastname,
+      lastname: req.body.lastname
     });
 
     // store hashed password in user object.
-    newClient.password = await AuthenticationControllerHelpers.hashPassword(req.body.password);
+    newClient.password = await AuthenticationControllerHelpers.hashPassword(
+      req.body.password
+    );
 
     // Save client to database
     const savedClient = await newClient.save();
@@ -82,17 +76,18 @@ async function registerClient(req, res) {
     return response.success("Client added.", {
       user: savedClient,
       // Sign user with new token
-      token: await AuthenticationControllerHelpers.jwtSignUser(savedClient.toJSON())
+      token: await AuthenticationControllerHelpers.jwtSignUser(
+        savedClient.toJSON()
+      )
     });
-
   } catch (err) {
     let errorMessage = "Error registering client.";
     let errorStatusCode = 500;
     if (err.code == 11000) {
-      errorMessage = Utils.getDuplicateMongoEntryKey(err.message) + " already exists.";
+      errorMessage =
+        Utils.getDuplicateMongoEntryKey(err.message) + " already exists.";
       errorStatusCode = 409;
     }
-    console.log(err.message);
     return response.failure(errorMessage, errorStatusCode);
   }
 }
@@ -100,11 +95,7 @@ async function registerClient(req, res) {
 async function registerGuest(req, res) {
   const response = new AppResponse(res);
 
-  let {
-    firstname,
-    lastname,
-    email
-  } = req.body;
+  let { firstname, lastname, email } = req.body;
 
   // generate random password - this is only to prevent people logging into a guest account
   let password = await AuthenticationControllerHelpers.generateRandomPassword();
@@ -115,25 +106,25 @@ async function registerGuest(req, res) {
       username: email,
       firstname: firstname,
       lastname: lastname,
-      email: email,
+      email: email
     });
 
     // hash password
-    newGuest.password = await AuthenticationControllerHelpers.hashPassword(password);
+    newGuest.password = await AuthenticationControllerHelpers.hashPassword(
+      password
+    );
 
     // save guest in database
     let createdGuest = await newGuest.save();
 
-
     // create a password reset for the guest for when they want to activate their account.
-    let {
-      token
-    } = await AuthenticationControllerHelpers.createPasswordReset(createdGuest);
+    let { token } = await AuthenticationControllerHelpers.createPasswordReset(
+      createdGuest
+    );
 
     // send guest an email containing a link to activate their account.
     let mailer = new Mailer();
     mailer.confirmNewUser(createdGuest, token).send();
-
 
     // send back newly created guest
     createdGuest.password = undefined;
@@ -142,63 +133,65 @@ async function registerGuest(req, res) {
       user: createdGuest,
       token: await AuthenticationControllerHelpers.jwtSignUser(createdGuest)
     });
-
   } catch (error) {
     let errorMessage = "Error creating guest.";
     let errorCode = 500;
-    console.log(error);
+
     if (error.code == 11000) {
-      errorMessage = Utils.getDuplicateMongoEntryKey(error.message) + " already exists";
+      errorMessage =
+        Utils.getDuplicateMongoEntryKey(error.message) + " already exists";
     }
-    return response.failure(errorMessage, errorCode)
+    return response.failure(errorMessage, errorCode);
   }
 }
-
 
 // Login the client and provide them with an access token
 async function login(req, res) {
   const response = new AppResponse(res);
   try {
-    if (!req.body.password) throw ({
-      message: "Invalid password.",
-      code: 401
-    });
-
+    if (!req.body.password)
+      throw {
+        message: "Invalid password.",
+        code: 401
+      };
 
     // Find matching users in database
     const userMatches = await UserModel.find({
       username: req.body.username
     }).select("+password");
 
-    console.log(userMatches);
-
     // Only 1 user should be found - use 0th term just in case
     const matchingUser = userMatches[0];
     // Check user exists
     if (!matchingUser) {
       // user doesn't exist - send error
-      throw ({
+      throw {
         message: "Incorrect login information.",
         code: 401
-      });
+      };
       return;
     }
 
     // Hash password and check against hash in database
-    const isPasswordValid = await bcrypt.compare(req.body.password, matchingUser.password);
+    const isPasswordValid = await bcrypt.compare(
+      req.body.password,
+      matchingUser.password
+    );
 
     if (!isPasswordValid) {
       // Invalid password - send error.
-      throw ({
+      throw {
         message: "Incorrect password.",
         code: 401
-      });
+      };
     }
 
     matchingUser.password = undefined;
 
     // return user with new access token.
-    const token = await AuthenticationControllerHelpers.jwtSignUser(matchingUser);
+    const token = await AuthenticationControllerHelpers.jwtSignUser(
+      matchingUser
+    );
 
     return response.success("User logged in", {
       user: matchingUser,
@@ -206,15 +199,12 @@ async function login(req, res) {
     });
 
     return;
-
   } catch (err) {
-    console.log(err);
     let errorMessage = err.message || "An error has occured";
     let errorCode = err.code || 500;
 
-
     // Generic error message so as to not reveal too much about the login process.
-    return response.failure(errorMessage, errorCode)
+    return response.failure(errorMessage, errorCode);
   }
 }
 
@@ -227,13 +217,12 @@ async function refreshToken(req, res) {
     // return new token and original user
     return response.success("Token refreshed successfully.", {
       token: newToken,
-      user: req.user,
-    })
+      user: req.user
+    });
   } catch (err) {
     return response.failure("An error occured refreshing the token", 500);
   }
 }
-
 
 async function forgotPassword(req, res) {
   const response = new AppResponse(res);
@@ -244,13 +233,15 @@ async function forgotPassword(req, res) {
       email: email
     });
 
-    if (!foundUser) throw {
-      message: "There is no user with that email",
-      code: 200
-    }
+    if (!foundUser)
+      throw {
+        message: "There is no user with that email",
+        code: 200
+      };
 
     // get ip address of request.
-    let requestIp = req.header('x-forwarded-for') || req.connection.remoteAddress;
+    let requestIp =
+      req.header("x-forwarded-for") || req.connection.remoteAddress;
 
     let {
       token,
@@ -262,12 +253,15 @@ async function forgotPassword(req, res) {
     mailer.forgotPassword(foundUser, token, requestIp).send();
 
     // let the user know the email was sent.
-    return response.success("Email sent sucessfully. If you can't find it, check your spam folder!");
+    return response.success(
+      "Email sent sucessfully. If you can't find it, check your spam folder!"
+    );
   } catch (error) {
-    console.log(error);
-    return response.failure(error.message || "Error finding user associated with that email", error.code || 400);
+    return response.failure(
+      error.message || "Error finding user associated with that email",
+      error.code || 400
+    );
   }
-
 }
 
 async function resetPassword(req, res) {
@@ -282,13 +276,17 @@ async function resetPassword(req, res) {
     let foundPasswordReset = await PasswordResetModel.findOne({
       hash: tokenHash
     });
-    if (!foundPasswordReset) throw {
-      message: "Invalid token",
-      code: 400
-    }
+    if (!foundPasswordReset)
+      throw {
+        message: "Invalid token",
+        code: 400
+      };
     // users only have 30 mins to reset password.
     let tokenExpiryTime = 30;
-    let tokenExpires = moment(foundPasswordReset.timestamp).add(tokenExpiryTime, "minutes");
+    let tokenExpires = moment(foundPasswordReset.timestamp).add(
+      tokenExpiryTime,
+      "minutes"
+    );
 
     // check if the token has expired.
     if (moment().isAfter(tokenExpires)) {
@@ -297,20 +295,22 @@ async function resetPassword(req, res) {
       throw {
         message: "Token has expired.",
         code: 410
-      }
+      };
     }
 
     // Token is valid!! reset the users password.
-    let newPassword = await AuthenticationControllerHelpers.hashPassword(password);
-    let updatedUser = await UserModel.findByIdAndUpdate(foundPasswordReset.userId, {
-      password: newPassword
-    });
+    let newPassword = await AuthenticationControllerHelpers.hashPassword(
+      password
+    );
+    let updatedUser = await UserModel.findByIdAndUpdate(
+      foundPasswordReset.userId,
+      {
+        password: newPassword
+      }
+    );
 
     // if the user was previously a guest turn them into a client.
     if (updatedUser.role == Role.Guest) {
-
-
-      console.log(updatedUser.password == newPassword);
       // create new client model
       let newClient = new ClientModel({
         _id: updatedUser._id,
@@ -336,14 +336,13 @@ async function resetPassword(req, res) {
     return response.success("Password updated successfully", {
       updatedUser: updatedUser
     });
-
   } catch (error) {
-    return response.failure(error.message || "Error resetting password", error.code || 500);
+    return response.failure(
+      error.message || "Error resetting password",
+      error.code || 500
+    );
   }
-
 }
-
-
 
 module.exports = {
   registerClient,

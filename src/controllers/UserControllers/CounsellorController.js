@@ -29,7 +29,6 @@ async function getAllCounsellorsReduced(req, res) {
     });
 
   } catch (error) {
-    console.log(error);
 
     let errorMessage = error.message || "Error returning counsellors.";
     let errorCode = error.code || 500;
@@ -46,8 +45,6 @@ async function updateCounsellor(req, res) {
   let counsellorId = req.params.counsellorId;
   let newCounsellorInfo = req.body.counsellorInfo;
   try {
-
-    console.log(newCounsellorInfo);
     let updatedcounsellorInfo = await CounsellorModel.findByIdAndUpdate(
       counsellorId,
       newCounsellorInfo, {
@@ -103,7 +100,6 @@ function getCounsellor({
       });
 
     } catch (error) {
-      console.log(error);
       return response.failure("Counsellor couldn't be found", 400);
     }
   };

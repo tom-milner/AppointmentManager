@@ -86,7 +86,6 @@ function getAppointmentsOfUser({
       });
 
     } catch (error) {
-      console.log(error);
       // return an error message
       return response.failure("Error returning appointments.", 400);
     }
@@ -153,7 +152,6 @@ async function createAppointment(req, res) {
 
 
     // add full client information to the first appointment of the series.
-    console.log(createdAppointments[0]);
     await createdAppointments[0].populate("clients").populate("counsellorId").execPopulate();
     // send clients email confirming appointment.
     let mailer = new Mailer();
@@ -236,12 +234,9 @@ async function deleteAppointment(req, res) {
 
     if (deleteRecurring) {
       // delete all recurring appointments
-      console.log("deleting");
       let deletedRecurringSeries = await AppointmentModel.deleteMany({
         recurringSeriesId: deletedAppointment.recurringSeriesId
       });
-
-      console.log(deletedRecurringSeries);
     }
 
     return response.success("Appointments deleted successfully.");

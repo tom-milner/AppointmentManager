@@ -51,8 +51,6 @@ async function createAndCheckAllAppointments(appointmentInfo, appointmentType) {
         appointment.counsellorId
       );
       if (error) {
-        console.log(error.clashInfo);
-
         throw {
           message: error.message,
           code: error.code,
