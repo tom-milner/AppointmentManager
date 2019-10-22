@@ -67,7 +67,9 @@ function pullLatest(req, res) {
             response = await exec(`cd ${repo}/client; npm run build;`);
 
             // reload pm2 instances
-            await exec(`HOME=\"${repo}\"; pm2 reload all`);
+            await exec(`pm2 reload all`);
+
+            console.log("Deployed successfully.");
         }
         res.end("Done");
     })
