@@ -1,0 +1,38 @@
+// COLOURS 
+// #3398d3
+// #65ca35
+$color-primary: #3398d3;
+$color-primary-light: lighten($color-primary, 25%);
+$color-primary-dark: darken($color-primary, 25%);
+
+$color-secondary: #65ca35;
+$color-secondary-light: lighten($color-secondary, 25%);
+$color-secondary-dark: darken($color-secondary, 25%);
+
+$color-error: rgb(196, 72, 72);
+$color-approved:#3dd189;
+
+$color-white: #fff;
+$color-black: #000;
+
+$color-grey-dark: rgb(53, 53, 53);
+$color-grey: rgb(138, 138, 138);
+$color-grey-light: #efefef;
+$color-grey-very-light: #ffffff;
+
+
+$color-inactive: #C4C7CF;
+
+
+$color-canvas: #f3f3f3;
+
+// FONT
+$font-default: 1.9rem;
+$font-small: 1.6rem;
+$font-family: "Muli";
+
+// STYLING VARIABLES
+$border-radius: 5px;
+
+// Navigation menu width
+$nav-width: 17.5rem;

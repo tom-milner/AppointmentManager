@@ -1,0 +1,79 @@
+.heading-1 {
+  text-align: center;
+  width: 100%;
+  font-size: 5rem;
+  font-weight: 200;
+}
+
+.heading-2 {
+  font-size: 3rem;
+  font-weight: 300;
+}
+
+.heading-3 {
+  font-size: 2.5rem;
+  font-weight: 300;
+}
+
+.heading-4 {
+  font-size: 1.8rem;
+  font-weight: 300;
+}
+
+.form-heading {
+  font-size: 1.6rem;
+  font-weight: 300;
+  margin-bottom: 0.3rem;
+}
+
+
+// Input styles
+.form-input {
+  width: 100%;
+  border-radius: $border-radius;
+  text-decoration: none;
+  outline: none;
+  border: 1px solid $color-grey-light;
+  padding: 0.5rem 0.75rem;
+  background-color: $color-white;
+  color: $color-black;
+  height: 3rem;
+  font-family: $font-family;
+  transition: all 0.2s;
+  font-size: 1.2rem;
+  margin-bottom: .2rem;
+
+  &:focus {
+    border: 1px solid $color-primary;
+  }
+}
+
+.error {
+  color: $color-error;
+}
+
+.success {
+  color: $color-approved;
+}
+
+.select {
+  font-size: 1.5rem;
+  height: auto;
+}
+
+.paragraph {
+
+  &,
+  .note {
+    span {
+      font-size: 1.4rem;
+      font-weight: 400;
+    }
+  }
+
+  margin-top: .3rem;
+  font-size: 1.3rem;
+  // margin: 1rem 0;
+  font-weight: 300;
+
+}

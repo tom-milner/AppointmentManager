@@ -1,0 +1,93 @@
+// default button
+.btn {
+  text-align: center;
+  padding: .75rem 1rem;
+  border-radius: $border-radius;
+  transition: 0.15s;
+  text-decoration: none;
+  background-color: transparent;
+
+  color: $color-black;
+  font-family: $font-family;
+  font-weight: 400;
+  font-size: 1.5rem;
+  border: 1px solid $color-grey-dark;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  // ##########################################
+  //            Primary Button
+  // ##########################################
+  &-primary {
+    border: 1px solid $color-primary;
+    color: $color-primary;
+
+    &:hover,
+    &.checked {
+      color: $color-white;
+      background-color: $color-primary;
+    }
+  }
+
+  // ##########################################
+  //            Secondary Button
+  // ##########################################
+  &-secondary {
+    border: 1px solid $color-primary-dark;
+    padding: .55rem .8rem;
+
+    &:hover,
+    &.checked {
+      color: $color-white;
+      background-color: $color-primary-dark;
+    }
+
+  }
+
+
+  // ##########################################
+  //            Approved Button
+  // ##########################################
+  &-approved {
+
+
+    &:hover {
+      color: $color-white;
+      border: 1px solid darken($color-approved, 10%) !important;
+      background-color: darken($color-approved, 10%) !important;
+    }
+
+    &.checked {
+      color: $color-white;
+      border: 1px solid $color-approved;
+      background-color: $color-approved;
+    }
+  }
+
+  // ##########################################
+  //            Disapproved Button
+  // ##########################################
+  &-disapproved {
+
+
+    &.checked {
+      color: $color-white;
+      border: 1px solid $color-error;
+      background-color: $color-error;
+    }
+
+    &:hover {
+      color: $color-white;
+      border: 1px solid darken($color-error, 10%) !important;
+      background-color: darken($color-error, 10%) !important;
+    }
+
+  }
+
+}
