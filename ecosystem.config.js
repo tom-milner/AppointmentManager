@@ -1,6 +1,6 @@
 module.exports = {
     apps: [{
-        name: "api",
+        name: "AppointmentManagerAPI",
         cwd: "/home/ubuntu/Projects/AppointmentManager/api/src",
         script: "app.js",
         env: {
