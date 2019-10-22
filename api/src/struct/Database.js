@@ -64,7 +64,6 @@ class Database {
             // Check that the backup location exists
             try {
                 if (!location) throw ("No backup location specified.")
-                console.log(fs.existsSync(location));
                 if (fs.existsSync(location)) {
                     //file exists
                     console.log("✓ Database backup location found.");

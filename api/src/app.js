@@ -2,6 +2,13 @@
 
 console.log("\n");
 
+// Load in environment variables
+const dotenv = require("dotenv");
+const path = require('path');
+dotenv.config({
+    path: path.join(__dirname, '.env')
+});
+
 const express = require("express");
 const app = express();
 
