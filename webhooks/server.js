@@ -21,12 +21,12 @@ server.listen(port, (err) => {
 
 function handler(req, res) {
     switch (req.url) {
-        // https://webhooks.apm.tomfmilner.com/pullLatest
+        // https://webhooks.tomfmilner.com/pullLatest
         case "/pullLatest":
             pullLatest(req, res);
             break;
         default:
-            res.end("Invalid webhook")
+            res.end("Invalid webhook.")
     }
 
 }
