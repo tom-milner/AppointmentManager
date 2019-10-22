@@ -61,7 +61,7 @@ const database = new Database();
         await mailer.init();
 
         // initialize database
-        await database.init(Config.db.url);
+        await database.init(Config.db.url, Config.db);
 
         // Check that the backup location exists.
         await database.checkBackupLocation(Config.db.backupLocation);

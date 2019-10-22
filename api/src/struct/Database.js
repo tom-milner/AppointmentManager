@@ -8,7 +8,7 @@ const {
 class Database {
 
 
-    init(url) {
+    init(url, user) {
         console.log("- Initializing database...")
         // make sure url is given
         if (url == null) {
@@ -18,7 +18,9 @@ class Database {
         // connect to database
         mongoose.set('useCreateIndex', true)
         return mongoose.connect(url, {
-            useNewUrlParser: true
+            useNewUrlParser: true,
+            "user": user.user,
+            "pass": user.pass
         }).then(function (result) {
             console.log("✓ Database Connection.")
         }).catch(function (err) {
