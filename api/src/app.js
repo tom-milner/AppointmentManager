@@ -46,6 +46,7 @@ const database = new Database();
 (async () => {
 
     try {
+
         // get google api keys.
         await googleAuth.init();
 
