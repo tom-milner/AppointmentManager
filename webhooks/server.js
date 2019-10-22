@@ -18,6 +18,7 @@ server.listen(port, (err) => {
 
 
 function handler(req, res) {
+    console.log("connection received");
     switch (req.url) {
         // https://webhooks.apm.tomfmilner.com/pullLatest
         case "/pullLatest":
