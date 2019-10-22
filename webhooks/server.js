@@ -18,7 +18,6 @@ server.listen(port, (err) => {
 
 
 function handler(req, res) {
-    console.log("connection received");
     switch (req.url) {
         // https://webhooks.apm.tomfmilner.com/pullLatest
         case "/pullLatest":
@@ -62,14 +61,12 @@ function pullLatest(req, res) {
             let response = "";
 
             response = await exec(pullCommand);
-            console.log(response);
 
             // rebuild client
             response = await exec(`cd ${repo}/client; npm run build;`);
-            console.log(response);
 
             // reload pm2 instances
-            await exec(`HOME=\"${repo}\" pm2 reload all`);
+            await exec(`HOME=\"${repo}\"; pm2 reload all`);
         }
         res.end("Done");
     })
