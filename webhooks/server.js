@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const http = require('http');
 const crypto = require('crypto');
 const util = require('util');
@@ -19,12 +21,12 @@ server.listen(port, (err) => {
 
 function handler(req, res) {
     switch (req.url) {
-        // https://webhooks.apm.tomfmilner.com/pullLatest
+        // https://webhooks.tomfmilner.com/pullLatest
         case "/pullLatest":
             pullLatest(req, res);
             break;
         default:
-            res.end("Invalid webhook")
+            res.end("Invalid webhook.")
     }
 
 }
@@ -43,6 +45,7 @@ function pullLatest(req, res) {
     req.on("data", chunk => {
         body += chunk.toString();
     })
+
     req.on("end", async () => {
 
         const signature = req.headers["x-hub-signature"];
@@ -54,19 +57,27 @@ function pullLatest(req, res) {
         const data = JSON.parse(body.replace("undefined", ""));
 
         if (data.repository.name == "AppointmentManager") {
+
             const pullCommand =
-                `cd ${repo}; git pull https://tom-milner:${token}@github.com/tom-milner/AppointmentManager.git;`;
+                `cd ${repo}; git fetch https://tom-milner:${token}@github.com/tom-milner/AppointmentManager.git;  git reset --hard origin/master`;
+
 
             // pull latest
-            let response = "";
+            try {
+                let response = "";
+                response = await exec(pullCommand);
+                console.log("Pulled successfully");
+                // rebuild client
+                response = await exec(`cd ${repo}/client; npm run build;`);
+                console.log("Client built successfully.")
+                // reload pm2 instances
+                await exec(`pm2 reload all`);
+                console.log("API restarted");
 
-            response = await exec(pullCommand);
-
-            // rebuild client
-            response = await exec(`cd ${repo}/client; npm run build;`);
-
-            // reload pm2 instances
-            await exec(`HOME=\"${repo}\"; pm2 reload all`);
+                console.log("Deployed successfully.");
+            } catch (err) {
+                console.log(err);
+            }
         }
         res.end("Done");
     })
