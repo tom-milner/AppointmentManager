@@ -14,6 +14,7 @@ server.listen(port, (err) => {
     if (err) {
         console.log("✗ Aborting.")
         console.log(err);
+        process.exit();
     }
     console.log(`Listening on ${port}`);
 });
