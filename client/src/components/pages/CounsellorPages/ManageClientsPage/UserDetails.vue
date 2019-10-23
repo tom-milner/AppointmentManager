@@ -98,7 +98,8 @@ export default {
 
     async deleteUser() {
       try {
-        let response = await UserService.deleteUser(this.client);
+        let response = await UserService.deleteUser(this.fullClient._id);
+        console.log(response);
         this.messageStatus = true;
         this.showDeleteDialogue = false;
         this.message = response.data.message;

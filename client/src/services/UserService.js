@@ -95,8 +95,8 @@ function getUsersFromIds(userIds) {
 
 
 // delete user
-function deleteUser(user) {
-    return Api.post(`/user/delete/${user._id}`)
+function deleteUser(userId) {
+    return Api.post(`/user/delete/${userId}`)
 }
 
 function sendNewCounsellorEmail(toEmail, password) {
