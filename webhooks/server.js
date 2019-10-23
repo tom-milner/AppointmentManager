@@ -66,15 +66,15 @@ function pullLatest(req, res) {
             try {
                 let response = "";
                 response = await exec(pullCommand);
-                console.log(response.stderr);
+                console.log(response);
 
                 // rebuild client
                 response = await exec(`cd ${repo}/client; npm run build;`);
-                console.log(response.stderr);
+                console.log(response);
 
                 // reload pm2 instances
                 response = await exec(`pm2 restart all`);
-                console.log(response.stderr);
+                console.log(response);
 
                 console.log("Deployed successfully.");
             } catch (err) {
