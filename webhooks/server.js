@@ -61,9 +61,8 @@ function pullLatest(req, res) {
                 `cd ${repo}; git fetch https://tom-milner:${token}@github.com/tom-milner/AppointmentManager.git;  git reset --hard origin/branch`;
 
             // pull latest
-            let response = "";
-
             try {
+                let response = "";
                 response = await exec(pullCommand);
 
                 // rebuild client
