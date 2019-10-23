@@ -29,7 +29,6 @@ function handler(req, res) {
         default:
             res.end("Invalid webhook.")
     }
-
 }
 
 
