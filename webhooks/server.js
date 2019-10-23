@@ -48,33 +48,33 @@ function pullLatest(req, res) {
 
     req.on("end", async () => {
 
-                    const signature = req.headers["x-hub-signature"];
-                    if (!signature) res.end("No signature.")
+        const signature = req.headers["x-hub-signature"];
+        if (!signature) res.end("No signature.")
 
-                    const computedSignature = `sha1=${crypto.createHmac("sha1", secret).update(body).digest("hex")}`
-                    if (computedSignature != signature) res.end("Bad signature.")
+        const computedSignature = `sha1=${crypto.createHmac("sha1", secret).update(body).digest("hex")}`
+        if (computedSignature != signature) res.end("Bad signature.")
 
-                    const data = JSON.parse(body.replace("undefined", ""));
+        const data = JSON.parse(body.replace("undefined", ""));
 
-                    if (data.repository.name == "AppointmentManager") {
+        if (data.repository.name == "AppointmentManager") {
 
-                        const pullCommand =
-                            `cd ${repo}; git fetch https://tom-milner:${token}@github.com/tom-milner/AppointmentManager.git;  git reset --hard origin/master`;
+            const pullCommand =
+                `cd ${repo}; git fetch https://tom-milner:${token}@github.com/tom-milner/AppointmentManager.git;  git reset --hard origin/master`;
 
 
-                        // pull latest
-                        try {
-                            let response = "";
-                            response = await exec(pullCommand);
-                            console.log("Pulled successfully");
-                            // rebuild client
-                            response = await exec(`cd ${repo}/client; npm run build;`);
-                            console.log("Client built successfully.")
-                            // reload pm2 instances
-                            await exec(`pm2 reload all`);
-                            console.log("API restarted");
+            // pull latest
+            try {
+                let response = "";
+                response = await exec(pullCommand);
+                console.log("Pulled successfully");
+                // rebuild client
+                response = await exec(`cd ${repo}/client; npm run build;`);
+                console.log("Client built successfully.")
+                // reload pm2 instances
+                await exec(`pm2 reload all`);
+                console.log("API restarted");
 
-                            console.log(`Deployed successfully. );
+                console.log("Deployed successfully.");
             } catch (err) {
                 console.log(err);
             }
