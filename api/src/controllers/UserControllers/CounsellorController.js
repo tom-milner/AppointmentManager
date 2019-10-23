@@ -4,6 +4,7 @@ const AuthenticationControllerHelpers = require("../AuthenticationController/Aut
 const AppResponse = require("../../struct/AppResponse");
 const Utils = require("../../utils/Utils");
 const Mailer = require("../../struct/mailer/Mailer");
+const bcrypt = require("bcrypt");
 
 // get list of all the counsellors
 async function getAllCounsellorsReduced(req, res) {
@@ -110,8 +111,22 @@ function getCounsellor({
 
 async function sendNewCounsellorEmail(req, res) {
     const response = new AppResponse(res);
-    const email = req.body.email;
-    if (!email) return respone.failure("No email provided", 400);
+    const {
+        email,
+        counsellorPassword
+    } = req.body;
+
+    if (!email) return response.failure("No email provided", 400);
+    if (!counsellorPassword) return response.failure("No password provided.", 400);
+
+    // check against password against hash in database
+    const passwordHash = (await CounsellorModel.findById(req.user._id).select("password")).password;
+    const isPasswordValid = await bcrypt.compare(
+        counsellorPassword,
+        passwordHash
+    );
+
+    if (!isPasswordValid) return response.failure("Invalid password", 403);
 
     // create a temporary token
     const token = await AuthenticationControllerHelpers.generateRandomToken();

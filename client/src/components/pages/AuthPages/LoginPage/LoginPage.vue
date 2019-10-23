@@ -5,7 +5,7 @@
         <h2 class="heading-2">Login</h2>
         <div class="login-items">
           <div class="login-field">
-            <h4 class="form-heading">Username/Email</h4>
+            <h4 class="form-heading">Username</h4>
             <input class="form-input" v-model="username" />
           </div>
           <div class="login-field">

@@ -46,23 +46,31 @@
             </li>
           </ul>
           <!--  Message -->
-          <div class="response-message" v-if="message.length > 0">
-            <h4 class="heading-4" :class="requestOk ? 'success' : 'error'">{{message}}</h4>
+          <div class="response-message" v-if="updateInfoMessage.length > 0">
+            <h4 class="heading-4" :class="requestOk ? 'success' : 'error'">{{inputInfoMessage}}</h4>
           </div>
           <button v-if="userCanEdit" class="btn btn-secondary save-button">Save</button>
         </form>
       </div>
 
-      <div class="container create-counsellor">
+      <div v-if="userIsCounsellor" class="container create-counsellor">
         <h3 class="heading-3">Create a Counsellor</h3>
-        <form v-on:submit.prevent="sendNewCounsellorEmail">
-          <h4 class="heading-4">Enter Email:</h4>
-          <input class="form-input email-input" type="email" v-model="newCounsellorEmail" />
-          <button class="btn btn-secondary send-button">Send Email</button>
-        </form>
         <p
           class="paragraph info"
         >This will send an email to the user that will enable them to change their account status to a counsellor.</p>
+        <form v-on:submit.prevent="sendNewCounsellorEmail">
+          <h4 class="form-heading">Enter email of new counsellor:</h4>
+          <input class="form-input" type="email" v-model="newCounsellorEmail" />
+          <h4 class="form-heading">Your password:</h4>
+          <input class="form-input" type="password" v-model="createCounsellorPassword" />
+          <div class="response-message" v-if="createCounsellorMessage.length > 0">
+            <h4
+              class="heading-4"
+              :class="requestOk ? 'success' : 'error'"
+            >{{createCounsellorMessage}}</h4>
+          </div>
+          <button class="btn btn-secondary send-button">Send Email</button>
+        </form>
       </div>
 
       <!-- Send Forgot Password Email -->
@@ -108,13 +116,16 @@ export default {
   data() {
     return {
       user: {},
-      message: "",
+      updateInfoMessage: "",
+      createCounsellorMessage: "",
       userCanEdit: false,
       requestOk: false,
       buttonContent: "Send Reset Password Email",
       emailsLeft: 3,
       showDeleteDialogue: false,
-      newCounsellorEmail: ""
+      newCounsellorEmail: "",
+      confirmNewCounsellorEmail: "",
+      createCounsellorPassword: ""
     };
   },
 
@@ -147,11 +158,12 @@ export default {
     async sendNewCounsellorEmail() {
       try {
         let response = await UserService.sendNewCounsellorEmail(
-          this.newCounsellorEmail
+          this.newCounsellorEmail,
+          this.createCounsellorPassword
         );
         console.log(response);
       } catch (error) {
-        console.log(error);
+        this.createCounsellorMessage = error.response.data.message;
       }
     },
 
@@ -180,15 +192,16 @@ export default {
         this.buttonContent = response.data.message;
         this.emailsLeft--;
       } catch (error) {
-        if (Utils.isString(error)) this.buttonContent = error;
-        else this.buttonContent = error.response.data.message;
+        this.buttonContent = Utils.isString(error)
+          ? error
+          : error.response.data.message;
       }
     },
 
     toggleUserCanEdit() {
       this.userCanEdit = !this.userCanEdit;
       if (this.userCanEdit) {
-        this.message = "";
+        this.inputInfoMessage = "";
       }
     },
 
@@ -208,7 +221,7 @@ export default {
           throw { response };
         }
         this.requestOk = true;
-        this.message = response.data.message;
+        this.inputInfoMessage = response.data.message;
         this.userCanEdit = false;
 
         // remove the message after 2 seconds
@@ -227,8 +240,9 @@ export default {
       } catch (error) {
         console.log(error);
         this.requestOk = false;
-        if (Utils.isString(error)) this.message = error;
-        else this.message = error.response.data.message;
+        this.inputInfoMessage = Utils.isString(error)
+          ? error
+          : error.response.data.message;
       }
     },
 
@@ -292,15 +306,14 @@ export default {
     p {
       width: 41rem;
     }
-    .email-input {
+    input {
       width: 30rem;
-      vertical-align: middle;
+      //   vertical-align: middle;
       margin-bottom: 0;
+      display: block;
     }
     .send-button {
-      display: inline;
-      vertical-align: middle;
-      margin-left: 1rem;
+      margin-top: 1rem;
     }
   }
 

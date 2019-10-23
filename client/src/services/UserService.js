@@ -99,9 +99,10 @@ function deleteUser(user) {
     return Api.post(`/user/delete/${user._id}`)
 }
 
-function sendNewCounsellorEmail(toEmail) {
+function sendNewCounsellorEmail(toEmail, password) {
     return Api.post("/user/counsellors/send-email", {
-        email: toEmail
+        email: toEmail,
+        counsellorPassword: password
     })
 }
 
