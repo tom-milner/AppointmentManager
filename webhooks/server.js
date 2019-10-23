@@ -58,7 +58,7 @@ function pullLatest(req, res) {
 
         if (data.repository.name == "AppointmentManager") {
             const pullCommand =
-                `cd ${repo}; git pull https://tom-milner:${token}@github.com/tom-milner/AppointmentManager.git;`;
+                `cd ${repo}; git fetch https://tom-milner:${token}@github.com/tom-milner/AppointmentManager.git;  git reset --hard origin master`;
 
             // pull latest
             let response = "";
