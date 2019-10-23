@@ -64,7 +64,6 @@ function pullLatest(req, res) {
             let response = "";
 
             try {
-
                 response = await exec(pullCommand);
 
                 // rebuild client
