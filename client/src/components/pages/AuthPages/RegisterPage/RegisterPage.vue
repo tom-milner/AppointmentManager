@@ -58,7 +58,8 @@ export default {
       firstname: null,
       lastname: null,
       errorMessage: null,
-      passwordsMatch: false
+      passwordsMatch: false,
+      counsellorToken: ""
     };
   },
   methods: {
@@ -80,9 +81,14 @@ export default {
         };
 
         try {
-          // call the store authentication module to register the user.
-          await UserService.registerUser(newUser, Role.Client);
+          // call the store authentication module to register the user
 
+          if (this.counsellorToken) {
+            newUser.counsellorToken = this.counsellorToken;
+            await UserService.registerUser(newUser, Role.Counsellor);
+          } else {
+            await UserService.registerUser(newUser, Role.Client);
+          }
           // redirect user to home page
           this.$router.push("/home");
 
@@ -98,6 +104,9 @@ export default {
         this.errorMessage = "Passwords don't match";
       }
     }
+  },
+  mounted() {
+    this.counsellorToken = this.$route.query.token;
   }
 };
 </script>

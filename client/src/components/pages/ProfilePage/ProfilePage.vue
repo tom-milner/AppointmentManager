@@ -49,9 +49,20 @@
           <div class="response-message" v-if="message.length > 0">
             <h4 class="heading-4" :class="requestOk ? 'success' : 'error'">{{message}}</h4>
           </div>
-
           <button v-if="userCanEdit" class="btn btn-secondary save-button">Save</button>
         </form>
+      </div>
+
+      <div class="container create-counsellor">
+        <h3 class="heading-3">Create a Counsellor</h3>
+        <form v-on:submit.prevent="sendNewCounsellorEmail">
+          <h4 class="heading-4">Enter Email:</h4>
+          <input class="form-input email-input" type="email" v-model="newCounsellorEmail" />
+          <button class="btn btn-secondary send-button">Send Email</button>
+        </form>
+        <p
+          class="paragraph info"
+        >This will send an email to the user that will enable them to change their account status to a counsellor.</p>
       </div>
 
       <!-- Send Forgot Password Email -->
@@ -102,7 +113,8 @@ export default {
       requestOk: false,
       buttonContent: "Send Reset Password Email",
       emailsLeft: 3,
-      showDeleteDialogue: false
+      showDeleteDialogue: false,
+      newCounsellorEmail: ""
     };
   },
 
@@ -132,6 +144,17 @@ export default {
     }
   },
   methods: {
+    async sendNewCounsellorEmail() {
+      try {
+        let response = await UserService.sendNewCounsellorEmail(
+          this.newCounsellorEmail
+        );
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     async deleteUser() {
       try {
         let response = await UserService.deleteUser(this.user);
@@ -260,6 +283,25 @@ export default {
     margin-top: 1rem;
     display: block;
     width: 55rem;
+  }
+
+  &.create-counsellor {
+    h4 {
+      margin-top: 0.5rem;
+    }
+    p {
+      width: 41rem;
+    }
+    .email-input {
+      width: 30rem;
+      vertical-align: middle;
+      margin-bottom: 0;
+    }
+    .send-button {
+      display: inline;
+      vertical-align: middle;
+      margin-left: 1rem;
+    }
   }
 
   &.personal-info {

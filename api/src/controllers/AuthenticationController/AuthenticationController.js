@@ -7,6 +7,7 @@ const GuestModel = require("../../models/MongooseModels/UserModels/GuestModel");
 const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 const PasswordResetModel = require("../../models/MongooseModels/PasswordResetModel");
 const AuthenticationControllerHelpers = require("./AuthenticationControllerHelpers");
+const CounsellorRegistrationModel = require("../../models/MongooseModels/CounsellorRegistrationModel");
 const Role = require("../../models/Role");
 const Utils = require("../../utils/Utils");
 const AppResponse = require("../../struct/AppResponse");
@@ -15,28 +16,45 @@ const AppResponse = require("../../struct/AppResponse");
 async function registerCounsellor(req, res) {
     const response = new AppResponse(res);
 
-    try {
-        let {
-            email,
-            username,
-            firstname,
-            lastname,
-            password
-        } = req.body;
+    let {
+        email,
+        username,
+        firstname,
+        lastname,
+        password,
+        counsellorToken
+    } = req.body;
 
-        let newCounsellor = new CounsellorModel({
+    // assert there is permission to create token
+    let tokenHash = await AuthenticationControllerHelpers.generateTokenHash(counsellorToken);
+
+    try {
+        let foundReg = CounsellorRegistrationModel.find({
+            hash: tokenHash
+        });
+
+        if (!foundReg) return response.failure("Invalid token.", 400);
+
+        // check it's for input email.
+        if (!foundReg.email == email) return response.failure("Invalid email for token.", 400);
+
+        // delete counsellor registration
+        await CounsellorRegistrationModel.findByIdAndDelete(foundReg._id);
+
+        // hash password
+        let passwordHash = await AuthenticationControllerHelpers.hashPassword(
+            password
+        );
+
+        // save counsellor in database
+        const savedCounsellor = await CounsellorModel.create({
             email: email,
             username: username,
             firstname: firstname,
-            lastname: lastname
-        });
-
-        // hash password
-        newCounsellor.password = await AuthenticationControllerHelpers.hashPassword(
-            password
-        );
-        // save counsellor in database
-        const savedCounsellor = await newCounsellor.save();
+            lastname: lastname,
+            password: passwordHash
+        })
+        console.log(savedCounsellor);
         savedCounsellor.password = undefined;
 
         return response.success("Counsellor created successfully.", {
@@ -46,6 +64,7 @@ async function registerCounsellor(req, res) {
             )
         });
     } catch (err) {
+        console.log(err);
         let errorMessage = "Error registering counsellor.";
         let errorStatusCode = 500;
         if (err.code == 11000) {
@@ -111,23 +130,23 @@ async function registerGuest(req, res) {
     let password = await AuthenticationControllerHelpers.generateRandomPassword();
 
     try {
-        let newGuest = new GuestModel({
-            // default username is the user's email
-            username: email,
-            firstname: firstname,
-            lastname: lastname,
-            email: email
-        });
 
         // hash password
-        newGuest.password = await AuthenticationControllerHelpers.hashPassword(
+        let passwordHash = await AuthenticationControllerHelpers.hashPassword(
             password
         );
 
         // save guest in database
-        let createdGuest = await newGuest.save();
+        let createdGuest = GuestModel.create({
+            // default username is the user's email
+            username: email,
+            firstname: firstname,
+            lastname: lastname,
+            email: email,
+            password: passwordHash
+        });
 
-        // create a password reset for the guest for when they want to activate their account.
+        // create a password reset for the guest for when they want to fully activate their account.
         let {
             token
         } = await AuthenticationControllerHelpers.createPasswordReset(
@@ -146,14 +165,16 @@ async function registerGuest(req, res) {
             token: await AuthenticationControllerHelpers.jwtSignUser(createdGuest)
         });
     } catch (error) {
-        let errorMessage = "Error creating guest.";
-        let errorCode = 500;
 
         if (error.code == 11000) {
-            errorMessage =
-                Utils.getDuplicateMongoEntryKey(error.message) + " already exists";
+            let fieldKey = Utils.getDuplicateMongoEntryKey();
+            if (fieldKey == userId) return response.failure(
+                "This user has already been sent a registration email.", 400);
+
+            return response.failure(`${fieldKey} is already registered.`)
         }
-        return response.failure(errorMessage, errorCode);
+
+        return response.failure("Error creating guest.", 500);
     }
 }
 
@@ -240,29 +261,39 @@ async function forgotPassword(req, res) {
     const response = new AppResponse(res);
     // get the email from the request body and search for the user associated with it.
     let email = req.body.email;
-    let foundUser = await UserModel.findOne({
-        email: email
-    });
 
-    if (!foundUser)
-        return response.failure("Error finding user associated with that email", 400);
+    try {
+        let foundUser = await UserModel.findOne({
+            email: email
+        });
 
-    // get ip address of request.
-    let requestIp =
-        req.header("x-forwarded-for") || req.connection.remoteAddress;
+        if (!foundUser)
+            return response.failure("Error finding user associated with that email", 400);
 
-    let {
-        token
-    } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
+        // get ip address of request.
+        let requestIp =
+            req.header("x-forwarded-for") || req.connection.remoteAddress;
 
-    // send email
-    let mailer = new Mailer();
-    mailer.forgotPassword(foundUser, token, requestIp).send();
+        let {
+            token
+        } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
 
-    // let the user know the email was sent.
-    return response.success(
-        "Email sent sucessfully. If you can't find it, check your spam folder!"
-    );
+        // send email
+        let mailer = new Mailer();
+        mailer.forgotPassword(foundUser, token, requestIp).send();
+
+        // let the user know the email was sent.
+        return response.success(
+            "Email sent sucessfully. If you can't find it, check your spam folder!"
+        );
+
+    } catch (error) {
+        if (error.code == 11000) {
+            return response.failure("This user has already been sent a password reset email.", 400);
+        }
+
+        return response.failure("Error sending forgot password email", 400);
+    }
 
 }
 

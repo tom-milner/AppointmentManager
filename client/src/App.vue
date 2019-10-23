@@ -33,7 +33,7 @@
   width: 100%;
   height: 100vh;
   overflow-x: hidden;
-  border-radius: 25px;
+  border-radius: 25px 0 0 25px;
   box-shadow: -2px 1px 1px rgba($color-grey, 0.2);
 
   background-color: $color-white;

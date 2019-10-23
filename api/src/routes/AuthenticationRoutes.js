@@ -12,22 +12,21 @@ const AuthenticationControllerPolicy = require("../policies/AuthenticationContro
 
 // Creating new Clients
 router.post("/register/client", AuthenticationControllerPolicy.updateUser({
-  isGuest: false,
-  isNew: true
+    isGuest: false,
+    isNew: true
 }), AuthenticationController.registerClient)
 
 // Creating new Counsellors 
 router.post("/register/counsellor",
-  AuthenticationMiddleware.isLoggedIn,
-  AuthenticationMiddleware.roleCheck(Role.Counsellor), AuthenticationControllerPolicy.updateUser({
-    isGuest: false,
-    isNew: true
-  }), AuthenticationController.registerCounsellor)
+    AuthenticationControllerPolicy.updateUser({
+        isGuest: false,
+        isNew: true
+    }), AuthenticationController.registerCounsellor)
 
 // Create new guest
 router.post("/register/guest", AuthenticationControllerPolicy.updateUser({
-  isGuest: true,
-  isNew: true
+    isGuest: true,
+    isNew: true
 }), AuthenticationController.registerGuest);
 
 // universal login
