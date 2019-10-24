@@ -1,7 +1,12 @@
+const port = process.env.PORT || 8081;
+const url = process.env.URL || "http://localhost"
+
 module.exports = {
 
-    port: process.env.PORT || 8081,
-    url: process.env.URL || "http://localhost:8080",
+    port: port,
+    url: url,
+    apiUrl: process.env.URL ? `${url}/api` : `${url}:${port}`,
+    clientUrl: process.env.URL ? `${url}/client` : `${ url }:8080`,
     jwtSecret: "mkcslc;vjnv;rajkrvn;rkj",
     mailer: {
         email: process.env.GOOGLE_MAIL_ACCOUNT,

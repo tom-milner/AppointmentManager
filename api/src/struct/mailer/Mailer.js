@@ -83,12 +83,12 @@ class Mailer {
       <p> Welcome to appointment manager. </p>
       <p> You should 've received an email containing your appointment info.</p>
       <p > To view or edit your appointment details, activate your account using the following link. </p> 
-      <a href = "${Config.url}/auth/reset-password?token=${token}">Activate Account</a>`
+      <a href = "${Config.clientUrl}/auth/reset-password?token=${token}">Activate Account</a>`
         } else {
             email.html = ` <p> Hi ${user.firstname}, </p> 
       <p> Welcome to appointment manager. </p>
       <p> Access your appointments using the following link: </p>
-      <a href = "${Config.url}/home">Access Appointments</a>`
+      <a href = "${Config.clientUrl}/home">Access Appointments</a>`
         }
 
         return this;
@@ -105,7 +105,7 @@ class Mailer {
       <p> Welcome to appointment manager. </p>
       <p> ${referringCounsellor.firstname} ${referringCounsellor.lastname} has given you authentication to create a counsellor's account.</p>
       <p > To create your new account, follow this link:</p> 
-      <a href = "${Config.url}/auth/register?token=${token}">Activate Account</a>`
+      <a href = "${Config.clientUrl}/auth/register?token=${token}">Activate Account</a>`
 
         return this;
     }
@@ -118,7 +118,7 @@ class Mailer {
         email.html = `<p>Hi ${user.firstname}.</p>
                   <p>We see you've forgotten your password.</p>
                   <p>Please follow this link to reset your password:</p>
-                  <a href="${Config.url}/auth/reset-password?token=${token}">Reset Password</a>
+                  <a href="${Config.clientUrl}/auth/reset-password?token=${token}">Reset Password</a>
                   <p>Ip: ${requestIp}</p>
                   `;
         return this;
@@ -155,7 +155,7 @@ class Mailer {
         }
 
         email.html +=
-            `<p>To edit your appointment details, follow <a href="${Config.url}/auth/login" >This Link</a> </p>`;
+            `<p>To edit your appointment details, follow <a href="${Config.clientUrl}/auth/login" >This Link</a> </p>`;
 
         return this;
     }

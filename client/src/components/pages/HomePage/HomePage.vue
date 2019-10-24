@@ -2,16 +2,22 @@
   <div>
     <h2 class="heading-2">Welcome, {{user.firstname}}</h2>
 
+    <!-- Sort bar -->
+    <div class="container search">
+      <h3 class="heading-3">Search Appointments:</h3>
+      <input type="text" v-model="searchQuery" class="form-input search-box" />
+    </div>
+
     <!-- Upcoming Appointments -->
     <div class="container">
       <h3 class="heading-3">Upcoming Approved Appointments</h3>
 
       <div
-        v-if=" approvedAppointments!=undefined && approvedAppointments.length > 0"
+        v-if=" filterAppointments(approvedAppointments)!=undefined && filterAppointments(approvedAppointments).length > 0"
         class="scrolling-appointments"
       >
         <AppointmentCard
-          v-for="appointment in approvedAppointments"
+          v-for="appointment in filterAppointments(approvedAppointments)"
           v-bind:key="appointment.startTime"
           :appointment="appointment"
           @click.native="toggleModal(appointment)"
@@ -27,11 +33,11 @@
       <h3 class="heading-3">Upcoming Pending Appointments</h3>
 
       <div
-        v-if=" pendingAppointments!=undefined && pendingAppointments.length > 0"
+        v-if=" filterAppointments(pendingAppointments)!=undefined && filterAppointments(pendingAppointments).length > 0"
         class="scrolling-appointments"
       >
         <AppointmentCard
-          v-for="appointment in pendingAppointments"
+          v-for="appointment in filterAppointments(pendingAppointments)"
           v-bind:key="appointment.startTime"
           :appointment="appointment"
           @click.native="toggleModal(appointment)"
@@ -104,6 +110,17 @@ export default {
   },
 
   methods: {
+    filterAppointments(appointments) {
+      return appointments.filter(appointment => {
+        if (!this.searchQuery) return true;
+        const searchQuery = this.searchQuery.toLowerCase();
+        return (
+          appointment.title.toLowerCase().includes(searchQuery) ||
+          appointment.appointmentType.name.toLowerCase().includes(searchQuery)
+        );
+      });
+    },
+
     getUserAppointments: async function() {
       // get user appointments from API
       // check to see if user is a client or counsellor
@@ -144,7 +161,8 @@ export default {
       appointmentsFromNow: [],
       user: {},
       modalDisplayed: false,
-      selectedAppointment: {}
+      selectedAppointment: {},
+      searchQuery: ""
     };
   },
   mounted: async function() {
@@ -161,9 +179,35 @@ export default {
 .container {
   margin-top: 5rem;
   overflow: hidden;
+  width: 100%;
+  position: relative;
 
   .no-appointments-box {
-    padding: 4rem 0 0 4rem;
+    height: 18rem;
+
+    h4 {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, 50%);
+      display: block;
+    }
+  }
+
+  &.search {
+    // width: 30rem;
+
+    h3 {
+      display: inline;
+      vertical-align: middle;
+    }
+
+    .search-box {
+      display: inline-block;
+      width: 30rem;
+      margin-left: 1rem;
+      vertical-align: middle;
+    }
   }
 }
 
@@ -172,5 +216,6 @@ export default {
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
+  min-height: 18rem;
 }
 </style>
