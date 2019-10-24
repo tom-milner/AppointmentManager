@@ -64,6 +64,8 @@ function pullLatest(req, res) {
                 console.log(response);
 
                 response = exec(`cd ${repo}; git reset --hard FETCH_HEAD `);
+                console.log(response);
+
 
                 // rebuild client
                 response = await exec(`cd ${repo}/client; npm run build;`);
