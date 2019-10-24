@@ -59,11 +59,11 @@ function pullLatest(req, res) {
             try {
                 let response = "";
                 response = await exec(
-                    `cd ${repo}; git fetch https://tom-milner:${token}@github.com/tom-milner/AppointmentManager.git/master;`
+                    `cd ${repo}; git fetch https://tom-milner:${token}@github.com/tom-milner/AppointmentManager.git;`
                 );
                 console.log(response);
 
-                response = exec(`cd ${repo}; git reset--hard FETCH_HEAD `);
+                response = exec(`cd ${repo}; git reset --hard FETCH_HEAD `);
 
                 // rebuild client
                 response = await exec(`cd ${repo}/client; npm run build;`);
