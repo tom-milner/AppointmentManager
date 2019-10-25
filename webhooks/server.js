@@ -65,11 +65,19 @@ function pullLatest(req, res) {
                 );
                 console.log(response);
 
+                response = await exec(
+                    `cd ${repo}/api; npm i --save;`
+                );
+
                 response = await exec(`cd ${repo}; git reset --hard FETCH_HEAD `);
                 console.log(response);
 
 
                 // rebuild client
+                response = await exec(
+                    `cd ${repo}/client; npm i --save;`
+                );
+
                 response = await exec(`cd ${repo}/client; npm run build;`);
                 console.log(response);
 
