@@ -29,13 +29,13 @@ const logger = createLogger({
     transports: [
         // write errors to error.log
         new transports.File({
-            filename: "error.log",
+            filename: "../error.log",
             level: "error",
         }),
 
         // write everything to general log file
         new transports.File({
-            filename: "general.log",
+            filename: "../general.log",
         })
     ]
 });
