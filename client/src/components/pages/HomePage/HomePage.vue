@@ -196,7 +196,6 @@ export default {
 
   &.search {
     // width: 30rem;
-
     h3 {
       display: inline;
       vertical-align: middle;
