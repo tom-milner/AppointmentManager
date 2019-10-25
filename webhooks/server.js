@@ -7,6 +7,7 @@ const crypto = require("crypto");
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const path = require("path");
+const fs = require("fs");
 const port = 3360;
 
 // create server to listen to github:
@@ -26,17 +27,11 @@ function handler(req, res) {
         case "/pullLatest":
             pullLatest(req, res);
             break;
-        case "/getLogs":
-            getLogs(req, res);
-            break;
         default:
             res.end("Invalid webhook.");
     }
 }
 
-function getLogs(req, res) {
-    res.send(path.join(__dirname, "../api/general.log"));
-}
 
 function pullLatest(req, res) {
     const secret = "9c583a3a81446e06fb410e44f08a5f949536bbd1869a26797059";
