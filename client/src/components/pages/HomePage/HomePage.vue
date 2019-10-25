@@ -127,7 +127,6 @@ export default {
       let twoMonthsAgo = this.moment()
         .subtract(2, "month")
         .toString();
-
       let userIsCounsellor = this.user.role >= Role.Counsellor;
       let response = await AppointmentService.getAppointmentsOfUser({
         userId: this.user._id,
@@ -142,7 +141,6 @@ export default {
     },
     toggleModal: async function(chosenAppointment) {
       //reload appointments
-      console.log(chosenAppointment);
       if (chosenAppointment) {
         this.selectedAppointment = this.appointments.find(appointment => {
           return chosenAppointment._id == appointment._id;

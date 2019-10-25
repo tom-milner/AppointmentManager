@@ -6,7 +6,7 @@ module.exports = {
     port: port,
     url: url,
     apiUrl: process.env.URL ? `${url}/api` : `${url}:${port}`,
-    clientUrl: process.env.URL ? `${url}/client` : `${ url }:8080`,
+    clientUrl: process.env.URL ? `${url}` : `${ url }:8080`,
     jwtSecret: "mkcslc;vjnv;rajkrvn;rkj",
     mailer: {
         email: process.env.GOOGLE_MAIL_ACCOUNT,
