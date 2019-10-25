@@ -66,7 +66,7 @@ function pullLatest(req, res) {
                 console.log(response);
 
                 response = await exec(
-                    `cd ${repo}/api; npm i --save;`
+                    `cd ${repo}/api; npm i --save; npm audit fix`
                 );
 
                 response = await exec(`cd ${repo}; git reset --hard FETCH_HEAD `);
@@ -75,7 +75,7 @@ function pullLatest(req, res) {
 
                 // rebuild client
                 response = await exec(
-                    `cd ${repo}/client; npm i --save;`
+                    `cd ${repo}/client; npm i --save; npm audit fix `
                 );
 
                 response = await exec(`cd ${repo}/client; npm run build;`);
