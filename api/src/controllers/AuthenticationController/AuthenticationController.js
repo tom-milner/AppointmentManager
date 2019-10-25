@@ -54,7 +54,6 @@ async function registerCounsellor(req, res) {
             lastname: lastname,
             password: passwordHash
         })
-        console.log(savedCounsellor);
         savedCounsellor.password = undefined;
 
         return response.success("Counsellor created successfully.", {
@@ -64,7 +63,6 @@ async function registerCounsellor(req, res) {
             )
         });
     } catch (err) {
-        console.log(err);
         let errorMessage = "Error registering counsellor.";
         let errorStatusCode = 500;
         if (err.code == 11000) {

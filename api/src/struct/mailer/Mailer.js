@@ -4,13 +4,14 @@ const moment = require("moment");
 const nodemailer = require("nodemailer");
 const GoogleAuth = require("../googleauth/GoogleAuth");
 const Role = require("../../models/Role");
+const Logger = require("../Logger")(module);
+
 
 // trying out javascript classes (new ES6 feature);
 
 class Mailer {
     // create singleton
     constructor() {
-        // setup nodemailer
         if (!!Mailer.instance) {
             return Mailer.instance;
         }
@@ -37,7 +38,7 @@ class Mailer {
             service: "gmail",
             auth: auth
         })
-        console.log("✓ Mailer initialized.")
+        Logger.info("Mailer initialized.")
 
     }
 
