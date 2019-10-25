@@ -36,7 +36,7 @@ async function registerCounsellor(req, res) {
         if (!foundReg) return response.failure("Invalid token.", 400);
 
         // check it's for input email.
-        if (!foundReg.email == email) return response.failure("Invalid email for token.", 400);
+        if (!foundReg.email == email) return response.failure("Invalid email for given token.", 400);
 
         // delete counsellor registration
         await CounsellorRegistrationModel.findByIdAndDelete(foundReg._id);

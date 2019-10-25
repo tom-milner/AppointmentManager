@@ -182,7 +182,6 @@ function deleteAppointment(req, res, next) {
 
     let appointmentId = req.params.appointmentId;
     let deleteRecurring = req.body.deleteRecurring;
-    console.log(req.body);
     if (deleteRecurring && typeof deleteRecurring !== "boolean") {
         return response.failure("deleteRecurring must be a boolean", 400);
 
@@ -192,7 +191,6 @@ function deleteAppointment(req, res, next) {
     if (!validId) {
         return response.failure("Invalid Id", 400);
     }
-    console.log(validId);
     next();
 }
 

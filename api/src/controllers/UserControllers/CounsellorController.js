@@ -20,13 +20,13 @@ async function getAllCounsellorsReduced(req, res) {
         if (limit) counsellorQuery.limit(limit);
 
         const counsellors = await counsellorQuery.exec();
+
         // make sure counsellors could be found
-        if (counsellors.length === 0) {
-            throw {
-                message: "No counsellors could be found.",
-                code: 400
-            };
-        }
+        if (counsellors.length === 0) return response.failure(
+            "No counsellors could be found.",
+
+        );
+
 
         return response.success("Counsellors returned successfully", {
             counsellors: counsellors
@@ -57,12 +57,11 @@ async function updateCounsellor(req, res) {
             }
         );
 
-        if (!updatedcounsellorInfo) {
-            throw {
-                message: "Counsellor doesn't exist",
-                code: 400
-            };
-        }
+        if (!updatedcounsellorInfo) return response.failure(
+            "Counsellor doesn't exist",
+            400
+        );
+
         return response.success("Counsellor settings updated.")
 
     } catch (error) {
@@ -127,6 +126,15 @@ async function sendNewCounsellorEmail(req, res) {
     );
 
     if (!isPasswordValid) return response.failure("Invalid password", 403);
+
+    // check user isn't already a counsellor.
+    let existingCounsellor = await CounsellorModel.find({
+        email: email
+    }, {
+        email: 1
+    }).limit(1)[0];
+
+    if (existingCounsellor) return response.failure("Counsellor already exists", 400);
 
     // create a temporary token
     const token = await AuthenticationControllerHelpers.generateRandomToken();

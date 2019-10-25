@@ -32,8 +32,8 @@ async function createAppointmentType(req, res) {
         });
 
     } catch (error) {
-        let responseCode = error.code || 500;
-        let errorMessage = error.message || "Error creating appointment type.";
+        let responseCode = 500;
+        let errorMessage = "Error creating appointment type.";
         if (error.code === 11000) {
             errorMessage = Utils.getDuplicateMongoEntryKey(errorMessage) +
                 " already exists.";
@@ -64,7 +64,6 @@ async function updateAppointmentType(req, res) {
     try {
         const newAppointmentTypeProperties = req.body.appointmentTypeProperties;
         const appointmentTypeId = req.params.appointmentTypeId;
-        console.log(req.body);
         let updatedAppointmentType = await AppointmentTypeModel.findByIdAndUpdate(
             appointmentTypeId,
             newAppointmentTypeProperties, {
@@ -74,10 +73,10 @@ async function updateAppointmentType(req, res) {
         );
         // This check is in the controller, not the policy. This is because checking the existence of the appointment type has to involve querying the database for it, and doing that twice would require unnecessary computing.
         if (!updatedAppointmentType) {
-            throw ({
-                message: "Appointment Type doesn't exist",
-                code: 400
-            });
+            return response.failure(
+                "Appointment Type doesn't exist",
+                400
+            );
         }
 
         // appointment type updated successfully
@@ -102,7 +101,6 @@ async function deleteAppointmentType(req, res) {
 
     try {
         let model = await AppointmentTypeModel.findByIdAndRemove(appointmentTypeId);
-        console.log(model);
 
         return response.success("Appointment Type deleted successfully.");
     } catch (error) {

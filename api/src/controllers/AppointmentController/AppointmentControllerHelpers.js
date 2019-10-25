@@ -5,7 +5,6 @@ const AppointmentModel = require("../../models/MongooseModels/AppointmentModel")
 const Utils = require("../../utils/Utils");
 const MongooseObjectId = require("mongoose").Types.ObjectId;
 const moment = require("moment");
-const Logger = require("./../../struct/Logger")
 
 // ########################################################
 // Helper functions - not called directly by route handler

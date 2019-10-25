@@ -34,20 +34,17 @@ async function deleteUser(req, res) {
 
         let deletedUser = await UserModel.findByIdAndDelete(userId);
 
-        if (!deletedUser) throw ({
-            message: "User not found",
-            code: 400
-        });
+        if (!deletedUser) return response.failure(
+            "User not found",
+            400
+        );
 
         return response.success("User deleted successfully", {
             user: deletedUser
         })
 
-
     } catch (error) {
-        let errorMessage = error.message || "Error deleting user.";
-        let errorCode = error.code || 400
-        return response.failure(errorMessage, errorCode)
+        return response.failure("Error deleting user.", 500)
     }
 }
 

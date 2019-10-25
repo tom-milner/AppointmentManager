@@ -47,7 +47,7 @@
           </ul>
           <!--  Message -->
           <div class="response-message" v-if="updateInfoMessage.length > 0">
-            <h4 class="heading-4" :class="requestOk ? 'success' : 'error'">{{inputInfoMessage}}</h4>
+            <h4 class="heading-4" :class="requestOk ? 'success' : 'error'">{{updateInfoMessage}}</h4>
           </div>
           <button v-if="userCanEdit" class="btn btn-secondary save-button">Save</button>
         </form>
@@ -161,9 +161,12 @@ export default {
           this.newCounsellorEmail,
           this.createCounsellorPassword
         );
-        console.log(response);
+        if (!response.success) throw { response };
+        this.requestOk = true;
+        this.createCounsellorMessage = response.data.message;
       } catch (error) {
         this.createCounsellorMessage = error.response.data.message;
+        this.requestOk = false;
       }
     },
 
@@ -201,7 +204,7 @@ export default {
     toggleUserCanEdit() {
       this.userCanEdit = !this.userCanEdit;
       if (this.userCanEdit) {
-        this.inputInfoMessage = "";
+        this.updateInfoMessage = "";
       }
     },
 
@@ -221,7 +224,7 @@ export default {
           throw { response };
         }
         this.requestOk = true;
-        this.inputInfoMessage = response.data.message;
+        this.updateInfoMessage = response.data.message;
         this.userCanEdit = false;
 
         // remove the message after 2 seconds
@@ -240,7 +243,7 @@ export default {
       } catch (error) {
         console.log(error);
         this.requestOk = false;
-        this.inputInfoMessage = Utils.isString(error)
+        this.updateInfoMessage = Utils.isString(error)
           ? error
           : error.response.data.message;
       }

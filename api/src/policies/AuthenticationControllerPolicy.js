@@ -46,7 +46,6 @@ function updateUser({
         let errorCode = 500;
 
         if (error) {
-            console.log(error);
             switch (error.details[0].context.key) {
                 case "email":
                     errorCode = 400;
@@ -59,7 +58,6 @@ function updateUser({
                     break;
 
                 default:
-                    console.log(error.details)
                     errorMessage = error.details[0].message
                     errorCode = 400;
             }
@@ -114,7 +112,6 @@ function resetPassword(req, res, next) {
 
     let errorMessage, errorCode;
     if (error) {
-        console.log(error);
         switch (error.details[0].context.key) {
             case "password":
                 errorMessage = "Password must be between 8 and 32 characters in length";
