@@ -100,4 +100,5 @@ module.exports = {
     createPasswordReset,
     generateRandomPassword,
     generateRandomToken
+
 }

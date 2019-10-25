@@ -182,11 +182,7 @@ async function registerGuest(req, res) {
 async function login(req, res) {
     const response = new AppResponse(res);
     try {
-        if (!req.body.password)
-            throw {
-                message: "Invalid password.",
-                code: 401
-            };
+        if (!req.body.password) return response.failure("Invalid password.", 401);
 
         // Find matching users in database
         const userMatches = await UserModel.find({
@@ -198,11 +194,7 @@ async function login(req, res) {
         // Check user exists
         if (!matchingUser) {
             // user doesn't exist - send error
-            throw {
-                message: "Incorrect login information.",
-                code: 401
-            };
-            return;
+            return response.failure("Incorrect login information.", 401);
         }
 
         // Hash password and check against hash in database
@@ -210,14 +202,8 @@ async function login(req, res) {
             req.body.password,
             matchingUser.password
         );
-
-        if (!isPasswordValid) {
-            // Invalid password - send error.
-            throw {
-                message: "Incorrect password.",
-                code: 401
-            };
-        }
+        // Invalid password - send error.
+        if (!isPasswordValid) return response.failure("Incorrect password.", 401);
 
         matchingUser.password = undefined;
 
@@ -231,13 +217,9 @@ async function login(req, res) {
             token: token
         });
 
-        return;
     } catch (err) {
-        let errorMessage = err.message || "An error has occured";
-        let errorCode = err.code || 500;
-
         // Generic error message so as to not reveal too much about the login process.
-        return response.failure(errorMessage, errorCode);
+        return response.failure("An error has occured logging you in.", 500);
     }
 }
 
@@ -309,11 +291,8 @@ async function resetPassword(req, res) {
         let foundPasswordReset = await PasswordResetModel.findOne({
             hash: tokenHash
         });
-        if (!foundPasswordReset)
-            throw {
-                message: "Invalid token",
-                code: 400
-            };
+        if (!foundPasswordReset) return response.failure("Invalid token.", 400);
+
         // users only have 30 mins to reset password.
         let tokenExpiryTime = 30;
         let tokenExpires = moment(foundPasswordReset.timestamp).add(
@@ -325,10 +304,7 @@ async function resetPassword(req, res) {
         if (moment().isAfter(tokenExpires)) {
             // remove the password reset from the db - we don't need to await this.
             await PasswordResetModel.findByIdAndDelete(foundPasswordReset._id);
-            throw {
-                message: "Token has expired.",
-                code: 410
-            };
+            return response.failure("Token has expired.", 410);
         }
 
         // Token is valid!! reset the users password.
@@ -370,8 +346,8 @@ async function resetPassword(req, res) {
         });
     } catch (error) {
         return response.failure(
-            error.message || "Error resetting password",
-            error.code || 500
+            "Error resetting password.",
+            500
         );
     }
 }
