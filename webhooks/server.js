@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// TOOD: use .env
+
 const http = require("http");
 const crypto = require("crypto");
 const util = require("util");
