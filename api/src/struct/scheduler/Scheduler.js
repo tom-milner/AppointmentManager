@@ -7,6 +7,8 @@ const AppointmentModel = require("../../models/MongooseModels/AppointmentModel")
 const Mailer = require("../mailer/Mailer");
 const UserModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
 const Config = require("../Config");
+const Logger = require("../Logger")(module);
+
 
 class Scheduler {
 
@@ -17,7 +19,7 @@ class Scheduler {
 
 
     start() {
-        console.log("- Starting Scheduler...");
+        Logger.info("Starting Scheduler...")
 
         // Every Day
         cron.schedule("0 0 * * *", () => {
@@ -94,7 +96,7 @@ async function removeExpiredGuests() {
         }
 
     }
-    console.log(`Deleted ${deletedCount}/${totalGuests} guest accounts. `)
+    Logger.info(`Deleted ${deletedCount}/${totalGuests} guest accounts. `)
 }
 
 module.exports = Scheduler;

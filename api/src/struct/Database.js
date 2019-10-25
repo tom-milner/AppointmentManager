@@ -4,12 +4,13 @@ const fs = require("fs");
 const {
     spawn
 } = require("child_process");
+const Logger = require("./Logger")(module);
 
 class Database {
 
 
     init(url, user) {
-        console.log("- Initializing database...")
+        Logger.info("Initializing database...")
         // make sure url is given
         if (url == null) {
             throw ("You have not specified a mongoose connection URL.")
@@ -22,7 +23,7 @@ class Database {
             "user": user.user,
             "pass": user.pass
         }).then(function (result) {
-            console.log("✓ Database Connection.")
+            Logger.info("Database Connected.")
         }).catch(function (err) {
             throw (`Error connecting to MongoDB database at ${url}`);
         });
@@ -44,7 +45,7 @@ class Database {
         backup.stdout.pipe(zip.stdin);
 
         zip.stdout.on("data", (data) => {
-            console.log(data.toString());
+            Logger.info(data.toString());
         });
 
 
@@ -53,10 +54,10 @@ class Database {
         backup.on("close", (code) => {
             zip.stdin.end();
             if (code == 0) {
-                console.log("✓ Backup completed sucessfully.")
+                Logger.info("✓ Backup completed sucessfully.")
 
             } else {
-                console.log(` Backup failed with code: ${code}`)
+                Logger.error(` Backup failed with code: ${code}`)
             }
         })
     }
@@ -68,19 +69,18 @@ class Database {
                 if (!location) throw ("No backup location specified.")
                 if (fs.existsSync(location)) {
                     //file exists
-                    console.log("✓ Database backup location found.");
+                    Logger.info("Database backup location found.");
                     resolve()
                 } else {
-                    console.log(location);
                     throw ("Database backup location not found.")
                 }
             } catch (err) {
+                Logger.error("Error checking backup location.", err)
                 reject(err);
             }
         });
     }
 }
-
 
 
 module.exports = Database;

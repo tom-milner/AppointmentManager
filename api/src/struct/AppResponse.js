@@ -1,3 +1,5 @@
+const Logger = require("./Logger")(module);
+
 class AppResponse {
 
     constructor(res) {
@@ -25,7 +27,7 @@ class AppResponse {
     failure(errorMessage, statusCode, payload) {
 
         if (statusCode < 100 || statusCode > 598) {
-            console.log("Invalid status code!");
+            Logger.error("Invalid status code!", errorMessage);
         }
 
         // create error object

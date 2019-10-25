@@ -1,7 +1,5 @@
 "use strict";
 
-console.log("\n");
-
 // Load in environment variables
 const dotenv = require("dotenv");
 const path = require('path');
@@ -19,9 +17,6 @@ const Config = require("./struct/Config");
 const cors = require("cors");
 app.use(cors());
 
-// Logging
-const morgan = require("morgan");
-app.use(morgan("dev"));
 // Handle POST requests
 const bodyParser = require("body-parser");
 app.use(
@@ -34,6 +29,8 @@ app.use(bodyParser.json());
 // load application routes
 const routes = require("./routes");
 app.use(routes);
+
+const Logger = require("./struct/Logger")(module, "AppointmentManagerAPI");
 
 const Scheduler = require("./struct/scheduler/Scheduler");
 const scheduler = new Scheduler();
@@ -48,6 +45,8 @@ const mailer = new Mailer();
 
 const Database = require("./struct/Database");
 const database = new Database();
+
+
 
 // Connect to the database and start the application
 (async () => {
@@ -66,18 +65,17 @@ const database = new Database();
         // Check that the backup location exists.
         await database.checkBackupLocation(Config.db.backupLocation);
 
+        // start all scheduled tasks.
         scheduler.start();
-
 
         // Database is required, so only start server if database connection can be established
         app.listen(Config.port, function () {
-            console.log(`✓ Started server on port ${Config.port}`);
-            console.log("\n");
+            Logger.info(`Started server on port ${Config.port}`);
         });
 
     } catch (error) {
-        console.log(`✗ ${error}`)
-        console.log(`✗ Aborting...`)
+        Logger.error(`${error}`)
+        Logger.error(`Aborting...`)
         process.exit();
     }
 })();
