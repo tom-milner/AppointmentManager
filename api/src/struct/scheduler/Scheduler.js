@@ -21,6 +21,10 @@ class Scheduler {
     start() {
         Logger.info("Starting Scheduler...")
 
+
+        // for (let i = 0; i < 10; i++) {
+        //     sendWeeklyAppointmentsEmail(this.mailer);
+        // }
         // Every Day
         cron.schedule("0 0 * * *", () => {
             // remove any expired guest accounts.

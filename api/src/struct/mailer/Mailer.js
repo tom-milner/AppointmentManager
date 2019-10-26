@@ -5,7 +5,8 @@ const nodemailer = require("nodemailer");
 const GoogleAuth = require("../googleauth/GoogleAuth");
 const Role = require("../../models/Role");
 const Logger = require("../Logger")(module);
-
+const fs = require("fs");
+const path = require("path");
 
 // trying out javascript classes (new ES6 feature);
 
@@ -15,6 +16,11 @@ class Mailer {
         if (!!Mailer.instance) {
             return Mailer.instance;
         }
+
+        // get email queue (failed emails).
+        const emailQueuePath = path.join(__dirname, "emailQueue.json");
+        this.emailQueue = JSON.parse(JSON.stringify(fs.readFileSync(emailQueuePath)));
+
         Mailer.instance = this;
         this.email = {};
         return this;
@@ -52,7 +58,7 @@ class Mailer {
                   <p>Here are your upcoming appointments this week:</p>`;
 
         for (let appointment of appointments) {
-
+            console.log(appointment);
             let firstname = appointment.clients[0].firstname;
             let lastname = appointment.clients[0].lastname
 
@@ -163,7 +169,24 @@ class Mailer {
 
     send() {
         this.email.from = Config.mailer.email;
-        return this.transporter.sendMail(this.email);
+        try {
+            throw ("oops");
+            return this.transporter.sendMail(this.email);
+        } catch (error) {
+            console.log("here")
+            // this.emailQueue.push(new Email(this.email));
+            // Transmission error - add emails to queue to be sent later
+
+            Logger.error("Error sending email.", error)
+        }
+    }
+}
+
+class Email {
+    constructor(email) {
+        this.email = email;
+        this.timeSent = Date.now()
+        return this;
     }
 }
 

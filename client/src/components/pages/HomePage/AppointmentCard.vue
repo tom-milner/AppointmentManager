@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper" :style="getColor">
+  <div class="appointment-card-wrapper" :style="getColor">
     <div class="heading-box">
       <h3 class="heading-3">{{appointment.title}}</h3>
     </div>
@@ -46,22 +46,24 @@ export default {
 <style lang="scss" scoped>
 @import "src/scss/global";
 $card-width: 15.3rem;
-.wrapper {
+.appointment-card-wrapper {
   background-color: $color-canvas;
   height: $card-width;
   min-width: $card-width;
-  flex: 0 0 auto;
-  flex-direction: column;
+
   margin: 1rem 0;
   border-radius: 1rem;
+  padding: 0.7rem;
+
+  flex-direction: column;
   display: flex;
   justify-content: space-between;
-  padding: 0.7rem;
   align-items: center;
-  &:not(:last-of-type) {
-    margin-right: 1rem;
-  }
+  flex: 0 0 auto;
 
+  &:not(:last-of-type) {
+    margin-right: 1.5rem;
+  }
   .heading-box {
     text-align: center;
     margin-top: 2rem;

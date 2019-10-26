@@ -12,15 +12,13 @@ const moment = require("moment");
 
 async function createAndCheckAllAppointments(appointmentInfo, appointmentType) {
 
-    let readyAppointments = [];
-
+    let appointments = [];
     if (appointmentType.isRecurring) {
         // give the recurring series of appointments an ID so that they can be found together easily.
         let recurringSeriesId = new MongooseObjectId();
         appointmentInfo.recurringSeriesId = recurringSeriesId;
 
         // create the recurrring appointments
-        let appointments = [];
         appointments.push(appointmentInfo);
 
         let originalStart = appointmentInfo.startTime.clone();
@@ -40,36 +38,35 @@ async function createAndCheckAllAppointments(appointmentInfo, appointmentType) {
             // add appointment
             appointments[index] = newAppointment;
         }
-
-
-        // check that the counsellor and client can make all the appointments.
-        for (let appointment of appointments) {
-            let error = await checkAllAvailability(
-                appointment.startTime,
-                appointment.endTime,
-                appointment.clientId,
-                appointment.counsellorId
-            );
-            if (error) {
-                throw {
-                    message: error.message,
-                    code: error.code,
-                    clashInfo: error.clashInfo
-                };
-            }
-        }
-
-        // all appointments are free, so book them;
-        readyAppointments = appointments;
     } else {
         // create single appointment
-        readyAppointments.push(
+        appointments.push(
             appointmentInfo
         );
     }
+    // check that the counsellor and client can make all the appointments.
+    for (let appointment of appointments) {
+        let {
+            startTime,
+            endTime,
+            counsellorId,
+            clientId
+        } = appointment;
+        let error;
+        error = await checkClientAvailability(startTime, endTime, clientId)
+        if (error) return ({
+            error
+        })
+        error = await checkCounsellorAvailability(startTime, endTime, counsellorId);
+        if (error) return ({
+            error
+        })
+    }
 
-    // return ready appointments.
-    return readyAppointments;
+    // all appointments are free, so book them;
+    return {
+        appointments
+    };
 }
 
 async function insertAppointment(appointmentInfo) {
@@ -102,28 +99,6 @@ async function getAppointmentType(typeId) {
     return foundType;
 }
 
-async function checkAllAvailability(
-    desiredStartTime,
-    desiredEndTime,
-    clientId,
-    counsellorId
-) {
-    // check client
-    let clientError = await checkClientAvailability(
-        desiredStartTime,
-        desiredEndTime,
-        clientId
-    );
-    if (clientError) return clientError;
-
-    // check counsellor
-    let counsellorError = await checkCounsellorAvailablity(
-        desiredStartTime,
-        desiredEndTime,
-        counsellorId
-    );
-    if (counsellorError) return counsellorError;
-}
 
 async function checkClientAvailability(
     desiredStartTime,
@@ -133,9 +108,9 @@ async function checkClientAvailability(
     // first make sure the client exists
     let validClient = await UserModel.findById(clientId);
     if (!validClient) {
-        return {
+        throw {
             message: "Client doesn't exist",
-            code: 400
+
         };
     }
 
@@ -177,12 +152,11 @@ async function checkClientAvailability(
         return {
             message: "Client is not available at this time.",
             clashInfo: clashInfo,
-            code: 200,
         };
     }
 }
 
-async function checkCounsellorAvailablity(
+async function checkCounsellorAvailability(
     desiredStartTime,
     desiredEndTime,
     counsellorId
@@ -192,7 +166,6 @@ async function checkCounsellorAvailablity(
     if (!counsellor) {
         return {
             message: "Counsellor doesn't exist",
-            code: 400
         };
     }
 
@@ -209,7 +182,6 @@ async function checkCounsellorAvailablity(
     if (!validDay) {
         return {
             message: `Counsellor is not available on ${requiredDay}.`,
-            code: 200
         };
     }
     // Now check if counsellor is working the required hours.
@@ -232,7 +204,6 @@ async function checkCounsellorAvailablity(
     if (!timeIsValid) {
         return {
             message: "Counsellor is not working at that time",
-            code: 200
         };
     }
 
@@ -275,17 +246,15 @@ async function checkCounsellorAvailablity(
     if (clashingAppointments.length > 0) {
         let clashInfo = createClashInfo(clashingAppointments);
         return {
-            message: "Appointments Clash.",
-            code: 200,
+            message: "This appointment clashes with a preexisting appointment.",
             clashInfo: clashInfo
 
         };
-    }
 
-    // If we make it this far, the requested appointment time is valid!!
+    } // If we make it this far, the requested appointment time is valid!!
     return;
-}
 
+}
 
 function createClashInfo(clashingAppointments) {
     let clashInfo = [];
@@ -294,7 +263,8 @@ function createClashInfo(clashingAppointments) {
             clashInfo.push({
                 startTime: appointment.startTime,
                 endTime: appointment.endTime,
-                noFutureAppointments: appointment.appointmentType.recurringDuration - appointment.recurringNo
+                noFutureAppointments: appointment.appointmentType.recurringDuration - appointment
+                    .recurringNo
             });
         }
     }
@@ -303,7 +273,6 @@ function createClashInfo(clashingAppointments) {
 
 module.exports = {
     getAppointmentType,
-    checkAllAvailability,
     insertAppointment,
     createAndCheckAllAppointments
 };

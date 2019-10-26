@@ -5,6 +5,7 @@ const AppResponse = require("../../struct/AppResponse");
 const Role = require("../../models/Role");
 const moment = require("moment");
 const Mailer = require("../../struct/mailer/Mailer");
+const Logger = require("../../struct/Logger")(module);
 
 // Fetch all appointments regardless
 
@@ -142,11 +143,17 @@ async function createAppointment(req, res) {
 
 
         // make sure all the appointments are available
-        let readyAppointments = await AppointmentControllerHelpers.createAndCheckAllAppointments(appointmentInfo,
+        let {
+            error,
+            appointments
+        } = await AppointmentControllerHelpers.createAndCheckAllAppointments(appointmentInfo,
             appointmentType);
+
+        if (error) return response.failure(error.message, 400);
+
         // insert ready appointments into database.
         let createdAppointments = [];
-        for (let appointment of readyAppointments) {
+        for (let appointment of appointments) {
             let createdAppointment = await AppointmentControllerHelpers.insertAppointment(appointment);
             createdAppointments.push(createdAppointment);
         }
@@ -166,6 +173,8 @@ async function createAppointment(req, res) {
         });
         // Catch any errors and respond appropriately
     } catch (error) {
+
+        Logger.error("Error creating appointment.", error);
         return response.failure("Error creating appointment.", 500);
     }
 }

@@ -1,66 +1,75 @@
 <template>
   <div>
-    <h2 class="heading-2">Welcome, {{user.firstname}}</h2>
+    <div class="wrapper">
+      <h2 class="heading-2">Welcome, {{user.firstname}}</h2>
 
-    <!-- Sort bar -->
-    <div class="container search">
-      <h3 class="heading-3">Search Appointments:</h3>
-      <input type="text" v-model="searchQuery" class="form-input search-box" />
-    </div>
-
-    <!-- Upcoming Appointments -->
-    <div class="container">
-      <h3 class="heading-3">Upcoming Approved Appointments</h3>
-
-      <div
-        v-if=" filterAppointments(approvedAppointments)!=undefined && filterAppointments(approvedAppointments).length > 0"
-        class="scrolling-appointments"
-      >
-        <AppointmentCard
-          v-for="appointment in filterAppointments(approvedAppointments)"
-          v-bind:key="appointment.startTime"
-          :appointment="appointment"
-          @click.native="toggleModal(appointment)"
-        ></AppointmentCard>
+      <!-- Sort bar -->
+      <div class="container search">
+        <h3 class="heading-3">Search Appointments:</h3>
+        <input type="text" v-model="searchQuery" class="form-input search-box" />
       </div>
-      <div class="no-appointments-box" v-else>
-        <h4 class="heading-4 error">No Upcoming Appointments!</h4>
+
+      <!-- The day's appointments -->
+      <div class="stats">
+        <h3 class="heading-3">Today's Appointments</h3>
+        <h4 class="heading-4">Approved: {{getTodaysRemainingAppointments(approvedAppointments)}}</h4>
+        <h4 class="heading-4">Pending: {{getTodaysRemainingAppointments(pendingAppointments)}}</h4>
       </div>
-    </div>
 
-    <!-- Pending Appointments -->
-    <div class="container">
-      <h3 class="heading-3">Upcoming Pending Appointments</h3>
+      <!-- Upcoming Appointments -->
+      <div class="container">
+        <h3 class="heading-3">Upcoming Approved Appointments</h3>
 
-      <div
-        v-if=" filterAppointments(pendingAppointments)!=undefined && filterAppointments(pendingAppointments).length > 0"
-        class="scrolling-appointments"
-      >
-        <AppointmentCard
-          v-for="appointment in filterAppointments(pendingAppointments)"
-          v-bind:key="appointment.startTime"
-          :appointment="appointment"
-          @click.native="toggleModal(appointment)"
-        ></AppointmentCard>
+        <div
+          v-if=" searchAppointments(approvedAppointments)!=undefined && searchAppointments(approvedAppointments).length > 0"
+          class="scrolling-appointments"
+        >
+          <AppointmentCard
+            v-for="appointment in searchAppointments(approvedAppointments)"
+            v-bind:key="appointment.startTime"
+            :appointment="appointment"
+            @click.native="toggleModal(appointment)"
+          ></AppointmentCard>
+        </div>
+        <div class="no-appointments-box" v-else>
+          <h4 class="heading-4 error">No Upcoming Appointments!</h4>
+        </div>
       </div>
-      <div class="no-appointments-box" v-else>
-        <h4 class="heading-4 error">No Pending Appointments!</h4>
+
+      <!-- Pending Appointments -->
+      <div class="container">
+        <h3 class="heading-3">Upcoming Pending Appointments</h3>
+
+        <div
+          v-if=" searchAppointments(pendingAppointments)!=undefined && searchAppointments(pendingAppointments).length > 0"
+          class="scrolling-appointments"
+        >
+          <AppointmentCard
+            v-for="appointment in searchAppointments(pendingAppointments)"
+            v-bind:key="appointment.startTime"
+            :appointment="appointment"
+            @click.native="toggleModal(appointment)"
+          ></AppointmentCard>
+        </div>
+        <div class="no-appointments-box" v-else>
+          <h4 class="heading-4 error">No Pending Appointments!</h4>
+        </div>
       </div>
-    </div>
 
-    <!-- Calendar -->
-    <div class="container">
-      <h3 class="heading-3">Your Calendar</h3>
-      <appointment-calendar :clientAppointments="appointments" class="calendar"></appointment-calendar>
-    </div>
+      <!-- Calendar -->
+      <div class="container">
+        <h3 class="heading-3">Your Calendar</h3>
+        <appointment-calendar :clientAppointments="appointments" class="calendar"></appointment-calendar>
+      </div>
 
-    <!-- Modal -->
-    <ViewAppointment
-      :appointment="selectedAppointment"
-      :isUserCounsellor="isUserCounsellor"
-      v-if="modalDisplayed"
-      v-on:close-modal="modalDisplayed = false"
-    ></ViewAppointment>
+      <!-- Modal -->
+      <ViewAppointment
+        :appointment="selectedAppointment"
+        :isUserCounsellor="isUserCounsellor"
+        v-if="modalDisplayed"
+        v-on:close-modal="modalDisplayed = false"
+      ></ViewAppointment>
+    </div>
   </div>
 </template>
 
@@ -110,7 +119,19 @@ export default {
   },
 
   methods: {
-    filterAppointments(appointments) {
+    getTodaysRemainingAppointments(appointments) {
+      const now = this.moment();
+      const endOfDay = now
+        .clone()
+        .startOf("day")
+        .add(1, "day");
+      console.log(endOfDay.format(" Do HH:mm"));
+      return appointments.filter(appointment =>
+        this.moment(appointment.startTime).isBetween(now, endOfDay)
+      ).length;
+    },
+
+    searchAppointments(appointments) {
       return appointments.filter(appointment => {
         if (!this.searchQuery) return true;
         const searchQuery = this.searchQuery.toLowerCase();
@@ -174,6 +195,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.wrapper {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+.stats {
+  position: absolute;
+  top: 3rem;
+  right: 3rem;
+}
 .container {
   margin-top: 5rem;
   overflow: hidden;

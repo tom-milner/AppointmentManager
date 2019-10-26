@@ -113,7 +113,6 @@ function deleteAppointmentType(req, res, next) {
     if (!idIsValid) {
         return response.failure("Invalid appointment type.", 400);
     }
-    next();
 }
 
 

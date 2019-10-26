@@ -1,5 +1,6 @@
 const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 const AppResponse = require("../../struct/AppResponse");
+const AppointmentModel = require("../../models/MongooseModels/AppointmentModel");
 
 // takes array of user Ids an returns simple user object.
 async function getReducedUsers(req, res) {
@@ -38,6 +39,12 @@ async function deleteUser(req, res) {
             "User not found",
             400
         );
+
+        // delete any future appointments of the user.
+        await AppointmentModel.deleteMany({
+            clients: deleteUser
+        });
+
 
         return response.success("User deleted successfully", {
             user: deletedUser

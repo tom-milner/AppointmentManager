@@ -4,7 +4,6 @@
     <full-calendar
       @select="handleDateClick"
       @eventClick="handleEventClick"
-      :eventRender="setEventColor"
       ref="fullCalendar"
       defaultView="timeGridWeek"
       :weekends="true"
@@ -156,11 +155,6 @@ export default {
 
   // TODO: add temporary event to show user (color it green or something to show its temporary)
   methods: {
-    // change the color of the event to match the appointment type
-    setEventColor(event) {
-      console.log(event);
-    },
-
     mapAppointmentsToEvents(appointments, counsellorAppointments) {
       // TODO: remove duplication
       if (appointments) {
