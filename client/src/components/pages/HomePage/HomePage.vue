@@ -11,11 +11,24 @@
 
       <!-- The day's appointments -->
       <div class="stats">
-        <h3 class="heading-3">Today's Appointments</h3>
-        <h4 class="heading-4">Approved: {{getTodaysRemainingAppointments(approvedAppointments)}}</h4>
-        <h4 class="heading-4">Pending: {{getTodaysRemainingAppointments(pendingAppointments)}}</h4>
+        <div class="day" v-for="(day, index) in dayCards" :key="day">
+          <h3 class="heading-3">{{day}}</h3>
+          <h4 class="heading-4">
+            Total:
+            <span>{{getDaysNoRemainingAppointments(appointmentsFromNow, index)}}</span>
+          </h4>
+          <br />
+          <h4 class="heading-4">
+            Approved:
+            <span>{{getDaysNoRemainingAppointments(approvedAppointments, index )}}</span>
+          </h4>
+          <br />
+          <h4 class="heading-4">
+            Pending:
+            <span>{{getDaysNoRemainingAppointments(pendingAppointments, index)}}</span>
+          </h4>
+        </div>
       </div>
-
       <!-- Upcoming Appointments -->
       <div class="container">
         <h3 class="heading-3">Upcoming Approved Appointments</h3>
@@ -119,13 +132,19 @@ export default {
   },
 
   methods: {
-    getTodaysRemainingAppointments(appointments) {
+    getDaysNoRemainingAppointments(appointments, days) {
       const now = this.moment();
       const endOfDay = now
         .clone()
         .startOf("day")
         .add(1, "day");
       console.log(endOfDay.format(" Do HH:mm"));
+
+      if (days) {
+        now.add(days, "day").startOf("day");
+        endOfDay.add(days, "day");
+      }
+
       return appointments.filter(appointment =>
         this.moment(appointment.startTime).isBetween(now, endOfDay)
       ).length;
@@ -181,7 +200,8 @@ export default {
       user: {},
       modalDisplayed: false,
       selectedAppointment: {},
-      searchQuery: ""
+      searchQuery: "",
+      dayCards: ["Today", "Tomorrow"]
     };
   },
   mounted: async function() {
@@ -195,6 +215,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "src/scss/global";
+
 .wrapper {
   position: relative;
   height: 100%;
@@ -202,8 +224,34 @@ export default {
 }
 .stats {
   position: absolute;
-  top: 3rem;
+
   right: 3rem;
+  top: 3rem;
+
+  .day {
+    &:not(:last-child) {
+      margin-right: 2rem;
+    }
+    min-width: 20rem;
+    display: inline-block;
+    border: 1px solid $color-inactive;
+    padding: 1.5rem;
+    border-radius: 10px;
+    h3 {
+      margin-bottom: 1rem;
+      font-weight: 300;
+      color: $color-primary;
+    }
+    h4 {
+      &:not(:last-child) {
+        margin-bottom: 0.2rem;
+      }
+      display: inline;
+      span {
+        float: right;
+      }
+    }
+  }
 }
 .container {
   margin-top: 5rem;
