@@ -172,7 +172,7 @@ export default {
 
     async deleteUser() {
       try {
-        let response = await UserService.deleteUser(this.user);
+        let response = await UserService.deleteUser(this.user._id);
         if (response.data.success) {
           UserService.logoutUser({ fullyLogout: true });
           this.$router.push("/");
