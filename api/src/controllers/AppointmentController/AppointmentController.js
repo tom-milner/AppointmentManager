@@ -37,12 +37,12 @@ function getAppointmentsOfUser({
         // get info from params + query
         const userId = req.params.userId;
         let fromTime = req.query.fromTime;
+        let limitTime = req.query.limitTime;
 
-        // Check to see if user needs appointments from a certain time.
-        if (fromTime) {
-            // adjust query so that only appointments after fromTime will be selected.
-            appointmentQuery.where("startTime").gte(fromTime);
-        }
+        // adjust query so that only appointments after fromTime will be selected.
+        if (fromTime) appointmentQuery.where("startTime").gte(fromTime);
+
+        if (limitTime) appointmentQuery.where("startTime").lte(limitTime);
 
         // check whether we should seach for counsellor or client
         if (isCounsellor) {

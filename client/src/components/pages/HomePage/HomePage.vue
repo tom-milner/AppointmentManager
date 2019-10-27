@@ -3,12 +3,6 @@
     <div class="wrapper">
       <h2 class="heading-2">Welcome, {{user.firstname}}</h2>
 
-      <!-- Sort bar -->
-      <div class="container search">
-        <h3 class="heading-3">Search Appointments:</h3>
-        <input type="text" v-model="searchQuery" class="form-input search-box" />
-      </div>
-
       <!-- The day's appointments -->
       <div class="stats">
         <div class="day" v-for="(day, index) in dayCards" :key="day">
@@ -29,6 +23,27 @@
           </h4>
         </div>
       </div>
+
+      <!-- Sort bar -->
+      <div class="container options">
+        <div class="search">
+          <Icon class="icon" name="search"></Icon>
+          <h3 class="heading-3">Search:</h3>
+          <input type="text" v-model="searchQuery" class="form-input search-box" />
+        </div>
+        <div class="filter">
+          <Icon name="filter"></Icon>
+          <h3 class="heading-3">Filter:</h3>
+          <select v-model="chosenTimePeriod" class="form-input select">
+            <option
+              v-for="timePeriod in timePeriods"
+              :key="timePeriod"
+              :value="timePeriod"
+            >{{timePeriod}}</option>
+          </select>
+        </div>
+      </div>
+
       <!-- Upcoming Appointments -->
       <div class="container">
         <h3 class="heading-3">Upcoming Approved Appointments</h3>
@@ -92,24 +107,29 @@ import AppointmentService from "@/services/AppointmentService";
 import AppointmentCalendar from "@/components/misc/Calendar/AppointmentCalendar";
 import Role from "@/models/Role";
 import ViewAppointment from "@/components/misc/ViewAppointment";
+import Icon from "vue-icon/lib/vue-feather.esm";
 
 export default {
   components: {
     AppointmentCard,
     ViewAppointment,
-    AppointmentCalendar
+    AppointmentCalendar,
+    Icon
   },
 
   watch: {
-    appointments: function() {
-      let now = this.moment();
-      this.appointmentsFromNow = this.appointments.filter(
-        appointment => this.moment(appointment.startTime) >= now
-      );
+    chosenTimePeriod() {
+      this.getUserAppointments();
     }
   },
 
   computed: {
+    appointmentsFromNow() {
+      let now = this.moment();
+      return this.appointments.filter(
+        appointment => this.moment(appointment.startTime) >= now
+      );
+    },
     isUserCounsellor() {
       return this.user.role >= Role.Counsellor;
     },
@@ -166,18 +186,23 @@ export default {
       let twoMonthsAgo = this.moment()
         .subtract(2, "month")
         .toString();
+      let limitTime = this.moment()
+        .endOf(this.chosenTimePeriod)
+        .toString();
+
       let userIsCounsellor = this.user.role >= Role.Counsellor;
       let response = await AppointmentService.getAppointmentsOfUser({
         userId: this.user._id,
         isCounsellor: userIsCounsellor,
         params: {
           fromTime: twoMonthsAgo,
-          limit: 75
+          limitTime: limitTime
         }
       });
 
       this.appointments = response.data.appointments;
     },
+
     toggleModal: async function(chosenAppointment) {
       //reload appointments
       if (chosenAppointment) {
@@ -195,12 +220,13 @@ export default {
   data() {
     return {
       appointments: [],
-      appointmentsFromNow: [],
       user: {},
       modalDisplayed: false,
       selectedAppointment: {},
       searchQuery: "",
-      dayCards: ["Today", "Tomorrow"]
+      dayCards: ["Today", "Tomorrow"],
+      timePeriods: ["Day", "Week", "Month", "Year"],
+      chosenTimePeriod: "Week"
     };
   },
   mounted: async function() {
@@ -270,18 +296,36 @@ export default {
     }
   }
 
-  &.search {
-    // width: 30rem;
+  &.options {
+    width: 60rem;
+
     h3 {
-      display: inline;
+      width: 10rem;
+      display: inline-block;
       vertical-align: middle;
     }
 
-    .search-box {
+    .icon {
+      width: 2rem;
+      height: 2rem;
       display: inline-block;
-      width: 30rem;
-      margin-left: 1rem;
       vertical-align: middle;
+      color: $color-primary;
+      margin-right: 1rem;
+    }
+    .filter {
+      select {
+        width: 25rem;
+      }
+    }
+
+    .search {
+      margin-bottom: 0.5rem;
+      .search-box {
+        display: inline-block;
+        width: 25rem;
+        vertical-align: middle;
+      }
     }
   }
 }
