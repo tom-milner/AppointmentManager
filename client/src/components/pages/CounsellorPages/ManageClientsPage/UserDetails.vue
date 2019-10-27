@@ -88,8 +88,7 @@ export default {
     async getUserAppointments() {
       try {
         let response = await AppointmentService.getAppointmentsOfUser({
-          userId: this.fullClient._id,
-          reduced: true
+          userId: this.fullClient._id
         });
         this.clientAppointments = response.data.appointments;
       } catch (error) {
