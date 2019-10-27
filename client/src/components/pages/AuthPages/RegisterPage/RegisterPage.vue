@@ -58,55 +58,47 @@ export default {
       firstname: null,
       lastname: null,
       errorMessage: null,
-      passwordsMatch: false,
-      counsellorToken: ""
+      passwordsMatch: false
     };
   },
   methods: {
     checkConfirmPassword: async function() {
       // ternary operator to reduce code
-      this.passwordsMatch =
-        this.password == this.confirmPassword ? true : false;
-      console.log(this.passwordsMatch);
+      this.passwordsMatch = this.password == this.confirmPassword;
     },
+
     register: async function() {
-      if (this.passwordsMatch) {
-        // create user object to send
-        const newUser = {
-          username: this.username,
-          email: this.email,
-          password: this.password,
-          firstname: this.firstname,
-          lastname: this.lastname
-        };
+      if (!this.passwordsMatch) {
+        this.errorMessage = "Passwords don't match.";
+        return;
+      }
 
-        try {
-          // call the store authentication module to register the user
+      // create user object to send
+      const newUser = {
+        username: this.username,
+        email: this.email,
+        password: this.password,
+        firstname: this.firstname,
+        lastname: this.lastname,
+        counsellorToken: this.$route.query.token || ""
+      };
 
-          if (this.counsellorToken) {
-            newUser.counsellorToken = this.counsellorToken;
-            await UserService.registerUser(newUser, Role.Counsellor);
-          } else {
-            await UserService.registerUser(newUser, Role.Client);
-          }
-          // redirect user to home page
-          this.$router.push("/home");
-
-          // catch and display errors
-        } catch (err) {
-          console.log(err.response);
-          if (err.response.data.message) {
-            this.errorMessage = "Error registering user";
-          }
-          this.errorMessage = err.response.data.message;
+      try {
+        // If the user has been sent here by an email telling them to register a counsellor, there will be a registration token as part of the url.
+        // This is required to register a new counsellor.
+        if (newUser.counsellorToken) {
+          await UserService.registerUser(newUser, Role.Counsellor);
+        } else {
+          await UserService.registerUser(newUser, Role.Client);
         }
-      } else {
-        this.errorMessage = "Passwords don't match";
+
+        // redirect user to the login page, so they can aquire tokens for their new account.
+        this.$router.push("/login");
+      } catch (err) {
+        this.errorMessage =
+          err.response.data.message || "Error registering user.";
       }
     }
-  },
-  mounted() {
-    this.counsellorToken = this.$route.query.token;
   }
 };
 </script>

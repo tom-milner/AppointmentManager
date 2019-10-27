@@ -11,6 +11,8 @@ const CounsellorRegistrationModel = require("../../models/MongooseModels/Counsel
 const Role = require("../../models/Role");
 const Utils = require("../../utils/Utils");
 const AppResponse = require("../../struct/AppResponse");
+const RefreshTokenModel = require("../../models/MongooseModels/RefreshTokenModel");
+const Logger = require("../../struct/Logger")(module);
 
 // Register a new counsellor
 async function registerCounsellor(req, res) {
@@ -58,9 +60,6 @@ async function registerCounsellor(req, res) {
 
         return response.success("Counsellor created successfully.", {
             user: savedCounsellor,
-            token: AuthenticationControllerHelpers.jwtSignUser(
-                savedCounsellor.toJSON()
-            )
         });
     } catch (err) {
         let errorMessage = "Error registering counsellor.";
@@ -98,10 +97,6 @@ async function registerClient(req, res) {
         // Return newly created client
         return response.success("Client added.", {
             user: savedClient,
-            // Sign user with new token
-            token: await AuthenticationControllerHelpers.jwtSignUser(
-                savedClient.toJSON()
-            )
         });
     } catch (err) {
         let errorMessage = "Error registering client.";
@@ -160,7 +155,6 @@ async function registerGuest(req, res) {
 
         return response.success("Guest created successfully", {
             user: createdGuest,
-            token: await AuthenticationControllerHelpers.jwtSignUser(createdGuest)
         });
     } catch (error) {
 
@@ -179,17 +173,15 @@ async function registerGuest(req, res) {
 // Login the client and provide them with an access token
 async function login(req, res) {
     const response = new AppResponse(res);
-    try {
-        if (!req.body.password) return response.failure("Invalid password.", 401);
 
+    if (!req.body.password) return response.failure("Please provide a password.", 401);
+
+    try {
         // Find matching users in database
-        const userMatches = await UserModel.find({
+        const matchingUser = await UserModel.findOne({
             username: req.body.username
         }).select("+password");
 
-        // Only 1 user should be found - use 0th term just in case
-        const matchingUser = userMatches[0];
-        // Check user exists
         if (!matchingUser) {
             // user doesn't exist - send error
             return response.failure("Incorrect login information.", 401);
@@ -205,17 +197,28 @@ async function login(req, res) {
 
         matchingUser.password = undefined;
 
-        // return user with new access token.
-        const token = await AuthenticationControllerHelpers.jwtSignUser(
+        // create a refresh token.
+        let refreshToken =
+            AuthenticationControllerHelpers.createRefreshToken(matchingUser);
+        // save refresh token to database
+        await RefreshTokenModel.create({
+            token: refreshToken,
+            user: matchingUser
+        });
+
+        // create new access token.
+        const accessToken = AuthenticationControllerHelpers.createAccessToken(
             matchingUser
         );
 
         return response.success("User logged in", {
             user: matchingUser,
-            token: token
+            accessToken: accessToken,
+            refreshToken: refreshToken
         });
 
     } catch (err) {
+        Logger.error("Error logging user in.", err);
         // Generic error message so as to not reveal too much about the login process.
         return response.failure("An error has occured logging you in.", 500);
     }
@@ -224,15 +227,25 @@ async function login(req, res) {
 async function refreshToken(req, res) {
     const response = new AppResponse(res);
     try {
+        const refreshToken = req.query.refreshToken;
+
+        // check for refresh token in database.
+        const matchingRefreshToken = await RefreshTokenModel.findOne({
+            token: refreshToken
+        }).populate("user");
+
+        if (!matchingRefreshToken) return response.failure("Invalid refresh token", 401);
+
         // create new token
-        const newToken = AuthenticationControllerHelpers.jwtSignUser(req.user);
+        const accessToken = AuthenticationControllerHelpers.createAccessToken(matchingRefreshToken.user);
 
         // return new token and original user
         return response.success("Token refreshed successfully.", {
-            token: newToken,
-            user: req.user
+            accessToken: accessToken,
         });
+
     } catch (err) {
+        Logger.error("Error refreshing token.", err);
         return response.failure("An error occured refreshing the token", 500);
     }
 }

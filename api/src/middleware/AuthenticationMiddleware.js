@@ -27,7 +27,7 @@ function isLoggedIn(req, res, next) {
         });
     } else {
         // no token - return an error
-        return response.failure("No authentication token provided", 403);
+        return response.failure("No authentication token provided", 401);
     }
 }
 

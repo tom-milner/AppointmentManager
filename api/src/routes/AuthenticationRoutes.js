@@ -3,7 +3,6 @@ const router = express.Router();
 
 const AuthenticationController = require("../controllers/AuthenticationController/AuthenticationController");
 const AuthenticationMiddleware = require("../middleware/AuthenticationMiddleware");
-const Role = require("../models/Role");
 
 
 const AuthenticationControllerPolicy = require("../policies/AuthenticationControllerPolicy");
@@ -33,7 +32,7 @@ router.post("/register/guest", AuthenticationControllerPolicy.updateUser({
 router.post("/login", AuthenticationController.login);
 
 // refresh the current token
-router.get("/token", AuthenticationMiddleware.isLoggedIn, AuthenticationController.refreshToken);
+router.get("/token", AuthenticationController.refreshToken);
 
 
 // forgot password
