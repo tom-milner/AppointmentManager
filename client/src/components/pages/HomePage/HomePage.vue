@@ -238,7 +238,12 @@ export default {
     await this.getUserAppointments();
     // set timer for refreshing data
     //TODO: replace with a socket
-    // this.timer = setInterval(this.getUserAppointments, 3000);
+
+    // poll server every minute
+    this.timer = setInterval(this.getUserAppointments, 60000);
+  },
+  destroyed() {
+    clearInterval(this.timer);
   }
 };
 </script>
