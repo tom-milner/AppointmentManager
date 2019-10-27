@@ -87,7 +87,11 @@
       <!-- Calendar -->
       <div class="container">
         <h3 class="heading-3">Your Calendar</h3>
-        <appointment-calendar :clientAppointments="appointments" class="calendar"></appointment-calendar>
+        <appointment-calendar
+          v-on:update-events="getUserAppointments"
+          :clientAppointments="appointments"
+          class="calendar"
+        ></appointment-calendar>
       </div>
 
       <!-- Modal -->
@@ -95,7 +99,7 @@
         :appointment="selectedAppointment"
         :isUserCounsellor="isUserCounsellor"
         v-if="modalDisplayed"
-        v-on:close-modal="modalDisplayed = false"
+        v-on:close-modal="modalDisplayed = false; getUserAppointments()"
       ></ViewAppointment>
     </div>
   </div>

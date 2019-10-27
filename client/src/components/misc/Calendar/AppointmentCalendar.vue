@@ -40,22 +40,12 @@
       </CalendarPopup>
     </div>
 
-    <!-- View Event Popup -->
-    <CalendarPopup
-      v-if="showViewEventPopup"
-      @close-popup="toggleViewEventPopup"
-      :spaceClicked="screenToAvoid"
-    >
-      <!-- View Event Component -->
-      <ViewEvent />
-    </CalendarPopup>
-
     <!-- Modal -->
     <ViewAppointment
       :appointment="selectedAppointment"
       isUserCounsellor
       v-if="viewAppointmentModalDisplayed"
-      v-on:close-modal="viewAppointmentModalDisplayed = false"
+      v-on:close-modal="viewAppointmentModalDisplayed = false; updateEvents()"
     ></ViewAppointment>
   </div>
 </template>
@@ -68,7 +58,6 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 // custom components
 import AddEvent from "./AddEvent.vue";
-import ViewEvent from "./ViewEvent.vue";
 import CalendarPopup from "./CalendarPopup";
 
 import ViewAppointment from "@/components/misc/ViewAppointment";
@@ -104,7 +93,6 @@ export default {
   components: {
     FullCalendar,
     AddEvent,
-    ViewEvent,
     CalendarPopup,
     ViewAppointment
   },
@@ -155,6 +143,9 @@ export default {
 
   // TODO: add temporary event to show user (color it green or something to show its temporary)
   methods: {
+    updateEvents() {
+      this.$emit("update-events");
+    },
     mapAppointmentsToEvents(appointments, counsellorAppointments) {
       // TODO: remove duplication
       if (appointments) {
