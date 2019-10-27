@@ -10,10 +10,10 @@ const Role = require("../../models/Role");
 // #############################
 
 // Give client a token for validation in other parts of the API
-async function jwtSignUser(user) {
+function createAccessToken(user) {
     const oneDay = 60 * 60 * 24;
-    const expirationTime = oneDay;
-    // make user a plain object
+
+    // get basic info to save about user
     user = {
         firstname: user.firstname,
         lastname: user.lastname,
@@ -23,10 +23,24 @@ async function jwtSignUser(user) {
     };
 
     // Create token
-    const token = await jwt.sign(user, Config.jwtSecret, {
-        expiresIn: expirationTime
+    const accessToken = jwt.sign(user, Config.accessTokenSecret, {
+        expiresIn: oneDay
     });
-    return token;
+
+    return accessToken;
+}
+
+
+// Create a refresh token for the user. This has a TTL of 1 week, and can be used to generate new access tokens if the user's current one has expired.
+// It is important to note that these can ONLY be used for creating new access tokens - they can't be used to access resources.
+function createRefreshToken(user) {
+    const oneWeek = 60 * 60 * 24 * 7;
+    const refreshToken = jwt.sign({
+        _id: user._id
+    }, Config.refreshTokenSecret, {
+        expiresIn: oneWeek
+    });
+    return refreshToken;
 }
 
 // return a hashed password
@@ -94,9 +108,10 @@ async function createPasswordReset(user) {
 }
 
 module.exports = {
+    createRefreshToken,
     generateTokenHash,
     hashPassword,
-    jwtSignUser,
+    createAccessToken,
     createPasswordReset,
     generateRandomPassword,
     generateRandomToken

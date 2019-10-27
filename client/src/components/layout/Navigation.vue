@@ -70,7 +70,7 @@ export default {
 
   methods: {
     logout: async function() {
-      UserService.logoutUser();
+      UserService.logoutUser({ fullyLogout: true });
       this.$router.push("/");
     }
   },

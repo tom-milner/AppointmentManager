@@ -5,39 +5,38 @@ import Store from "@/store/store";
 import Role from "@/models/Role"
 
 // Login user
-async function loginUser(username, password) {
+function loginUser(username, password) {
     // Send post request to login route
-    Store.commit("authentication/auth_request");
+    return new Promise((resolve, reject) => {
+        Store.commit("authentication/auth_request");
+        let loginInfo = {
+            username: username,
+            password: password
+        };
 
-    let loginInfo = {
-        username: username,
-        password: password
-    };
+        return Api.post("/auth/login", loginInfo)
+            .then((res) => {
+                const accessToken = res.data.accessToken;
+                const refreshToken = res.data.refreshToken;
+                const user = res.data.user;
 
-    const result = await Api.post("/auth/login", loginInfo);
+                // Store token and basic user info in vuex, so that it can be accessed globally.
+                Store.commit("authentication/auth_success", {
+                    accessToken,
+                    refreshToken,
+                    user
+                });
 
-    console.log(result);
-    if (result.data.success) {
-        const token = result.data.token;
-        const user = result.data.user;
-
-        // store token in store
-        Store.commit("authentication/auth_success", {
-            token,
-            user
-        });
-
-    } else {
-        Store.commit("authentication/auth_error")
-    }
-    return result;
-
+                resolve(res);
+            }).catch((err) => {
+                Store.commit("authentication/auth_error");
+                reject(err);
+            });
+    });
 }
 
-
 // Register User
-async function registerUser(newUser, role) {
-    Store.commit("authentication/auth_request");
+function registerUser(newUser, role) {
 
     let userEndpoint = "";
     switch (role) {
@@ -55,28 +54,16 @@ async function registerUser(newUser, role) {
     }
 
     // Send post request to register route
-    const result = await Api.post(`/auth/register/${userEndpoint}`, newUser);
-    console.log(result.data);
-    if (result.data.success) {
-        const token = result.data.token;
-        const user = result.data.user;
-        console.log(token, user);
-        // store info in store 
-        Store.commit("authentication/auth_success", {
-            token,
-            user
-        });
-
-    } else {
-        Store.commit("authentication/auth_error");
-    }
-    return result;
+    return Api.post(`/auth/register/${userEndpoint}`, newUser);
 }
 
+
 // Logout User
-function logoutUser() {
+function logoutUser({
+    fullyLogout
+}) {
     try {
-        Store.commit("authentication/auth_logout");
+        Store.commit("authentication/auth_logout", fullyLogout);
     } catch (err) {
         Store.commit("authentication/auth_error");
         console.log(err);

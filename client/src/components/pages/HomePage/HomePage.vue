@@ -138,7 +138,6 @@ export default {
         .clone()
         .startOf("day")
         .add(1, "day");
-      console.log(endOfDay.format(" Do HH:mm"));
 
       if (days) {
         now.add(days, "day").startOf("day");
