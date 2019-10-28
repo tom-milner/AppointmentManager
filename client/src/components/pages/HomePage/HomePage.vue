@@ -24,7 +24,6 @@
         </div>
       </div>
 
-      <!-- Sort bar -->
       <div class="container options">
         <div class="search">
           <Icon class="icon" name="search"></Icon>
@@ -308,6 +307,9 @@ export default {
   &.options {
     width: 60rem;
 
+    & .form-input {
+      vertical-align: middle;
+    }
     h3 {
       width: 10rem;
       display: inline-block;
