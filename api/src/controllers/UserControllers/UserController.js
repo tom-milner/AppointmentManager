@@ -1,6 +1,7 @@
 const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 const AppResponse = require("../../struct/AppResponse");
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel");
+const Logger = require("../../struct/Logger")(module);
 
 // takes array of user Ids an returns simple user object.
 async function getReducedUsers(req, res) {
@@ -23,7 +24,8 @@ async function getReducedUsers(req, res) {
         });
 
     } catch (error) {
-        return response.failure("Error getting usernames.", 400);
+        Logger.error("Error getting usernames", err);
+        return response.failure("Error getting usernames.", 500);
     }
 }
 
@@ -42,7 +44,7 @@ async function deleteUser(req, res) {
 
         // delete any future appointments of the user.
         await AppointmentModel.deleteMany({
-            clients: deleteUser
+            clients: deletedUser
         });
 
 
@@ -51,6 +53,7 @@ async function deleteUser(req, res) {
         })
 
     } catch (error) {
+        Logger.error("Error deleting user", error);
         return response.failure("Error deleting user.", 500)
     }
 }
