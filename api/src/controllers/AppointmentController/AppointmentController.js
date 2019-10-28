@@ -58,9 +58,6 @@ function getAppointmentsOfUser({
             startTime: "asc"
         });
 
-        // make appointments contain their appointment type
-        appointmentQuery;
-
         // check limits
         let limit = parseInt(req.query.limit);
         if (limit) appointmentQuery.limit(limit);

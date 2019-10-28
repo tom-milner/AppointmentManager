@@ -99,7 +99,7 @@ async function getAppointmentType(typeId) {
     return foundType;
 }
 
-async function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) {
+function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) {
     // now check to see if the counsellor if available to work at the desired time.
     let availableWorkDays = counsellor.workingDays;
 
@@ -145,22 +145,19 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId, i
 
     // first make sure the client exists
     let validUser = isCounsellor ? await CounsellorModel.findById(userId) : await UserModel.findById(userId);
+
     if (!validUser) {
-        throw {
+        return {
             message: "User doesn't exist",
         };
     }
-
-    if (isCounsellor) {
-        let error = checkCounsellorIsWorking(validUser, desiredStartTime, desiredEndTime);
-        if (error) return error;
-    }
-
 
     // Now we know that the counsellor is working during the requested times, we need to check to see if the desired time clashes with any other appointments.
     let appointmentQuery = AppointmentModel.find();
 
     if (isCounsellor) {
+        let error = checkCounsellorIsWorking(validUser, desiredStartTime, desiredEndTime);
+        if (error) return error;
         appointmentQuery.where({
             counsellorId: userId
         });
