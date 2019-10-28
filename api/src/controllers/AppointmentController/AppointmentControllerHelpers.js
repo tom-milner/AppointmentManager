@@ -53,11 +53,11 @@ async function createAndCheckAllAppointments(appointmentInfo, appointmentType) {
             clientId
         } = appointment;
         let error;
-        error = await checkClientAvailability(startTime, endTime, clientId)
+        error = await checkUserAvailability(startTime, endTime, clientId)
         if (error) return ({
             error
         })
-        error = await checkCounsellorAvailability(startTime, endTime, counsellorId);
+        error = await checkUserAvailability(startTime, endTime, counsellorId, true);
         if (error) return ({
             error
         })
@@ -99,76 +99,7 @@ async function getAppointmentType(typeId) {
     return foundType;
 }
 
-
-async function checkClientAvailability(
-    desiredStartTime,
-    desiredEndTime,
-    clientId
-) {
-    // first make sure the client exists
-    let validClient = await UserModel.findById(clientId);
-    if (!validClient) {
-        throw {
-            message: "Client doesn't exist",
-
-        };
-    }
-
-    // check to see if client has any clashing appointments
-    let clashingAppointments = await AppointmentModel.find({
-        clients: clientId,
-        // check to see if any of the clients have any other appointments have start or end times that occur between the desired start and end times of the new appointment.
-        $or: [{
-                $and: [{
-                        startTime: {
-                            $lte: desiredEndTime
-                        }
-                    },
-                    {
-                        startTime: {
-                            $gte: desiredStartTime
-                        }
-                    }
-                ]
-            },
-            {
-                $and: [{
-                        endTime: {
-                            $gte: desiredStartTime
-                        }
-                    },
-                    {
-                        endTime: {
-                            $lte: desiredEndTime
-                        }
-                    }
-                ]
-            }
-        ]
-    });
-    // if any clashing appointments are found, reject the new appointment
-    if (clashingAppointments.length > 0) {
-        let clashInfo = createClashInfo(clashingAppointments);
-        return {
-            message: "Client is not available at this time.",
-            clashInfo: clashInfo,
-        };
-    }
-}
-
-async function checkCounsellorAvailability(
-    desiredStartTime,
-    desiredEndTime,
-    counsellorId
-) {
-    // First check to see if counsellor exists.
-    const counsellor = await CounsellorModel.findById(counsellorId); // Get the counsellor from the database.
-    if (!counsellor) {
-        return {
-            message: "Counsellor doesn't exist",
-        };
-    }
-
+async function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) {
     // now check to see if the counsellor if available to work at the desired time.
     let availableWorkDays = counsellor.workingDays;
 
@@ -206,13 +137,40 @@ async function checkCounsellorAvailability(
             message: "Counsellor is not working at that time",
         };
     }
+}
+
+
+async function checkUserAvailability(desiredStartTime, desiredEndTime, userId, isCounsellor) {
+
+
+    // first make sure the client exists
+    let validUser = isCounsellor ? await CounsellorModel.findById(userId) : await UserModel.findById(userId);
+    if (!validUser) {
+        throw {
+            message: "User doesn't exist",
+        };
+    }
+
+    if (isCounsellor) {
+        let error = checkCounsellorIsWorking(validUser, desiredStartTime, desiredEndTime);
+        if (error) return error;
+    }
+
 
     // Now we know that the counsellor is working during the requested times, we need to check to see if the desired time clashes with any other appointments.
+    let appointmentQuery = AppointmentModel.find();
 
-    // get all appointments of counsellor where an appointment either starts or ends between the given start or end time.
-    const clashingAppointments = await AppointmentModel.find({
-        counsellorId: counsellorId,
-        // check to see if the counsellor has any other appointments have start or end times that occur between the desired start and end times of the new appointment.
+    if (isCounsellor) {
+        appointmentQuery.where({
+            counsellorId: userId
+        });
+    } else {
+        appointmentQuery.where({
+            clients: userId
+        });
+    }
+
+    appointmentQuery.where({
         $or: [{
                 $and: [{
                         startTime: {
@@ -242,18 +200,17 @@ async function checkCounsellorAvailability(
         ]
     });
 
-    // If there are any clashing appointments, return an error (the counsellor isn't free).
+    let clashingAppointments = await appointmentQuery.exec();
+
+    // if any clashing appointments are found, reject the new appointment
     if (clashingAppointments.length > 0) {
         let clashInfo = createClashInfo(clashingAppointments);
+
         return {
-            message: "This appointment clashes with a preexisting appointment.",
-            clashInfo: clashInfo
-
+            message: `${isCounsellor? "Counsellor" : "Client" } is not available at this time.`,
+            clashInfo: clashInfo,
         };
-
-    } // If we make it this far, the requested appointment time is valid!!
-    return;
-
+    }
 }
 
 function createClashInfo(clashingAppointments) {

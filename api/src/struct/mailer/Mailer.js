@@ -165,7 +165,7 @@ class Mailer {
     async send() {
         this.email.from = Config.mailer.email;
         try {
-            return this.transporter.sendMail(this.email);
+            // return this.transporter.sendMail(this.email);
         } catch (error) {
 
             Logger.error("Error sending email.", error)
