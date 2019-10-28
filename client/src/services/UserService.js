@@ -59,10 +59,15 @@ function registerUser(newUser, role) {
 
 
 // Logout User
-function logoutUser({
+async function logoutUser({
     fullyLogout
 }) {
     try {
+        if (Store.getters["authentication/isLogged"]) {
+            // send request to logout user.
+            await Api.post("/auth/logout", fullyLogout);
+        }
+
         Store.commit("authentication/auth_logout", fullyLogout);
     } catch (err) {
         Store.commit("authentication/auth_error");

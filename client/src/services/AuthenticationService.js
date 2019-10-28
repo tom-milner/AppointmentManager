@@ -21,27 +21,30 @@ function initializeNavigationGuard() {
     // This is a navigation guard. It is called every time the user tries to navigate to a different route.
     // It takes the route the user is going to, the route the user came from, and a function called next.
     // The next function will either allow navigation to the "to" route, or redirect the user.
-    Router.beforeEach((to, from, next) => {
+    Router.beforeEach(async (to, from, next) => {
         const {
             minimumAuthRole
         } = to.meta;
 
-        if (minimumAuthRole) { // If any routes have the "minimumAuthRole" meta property
-            let currentRole = Store.state.authentication.user.role;
-            console.log(minimumAuthRole, currentRole);
+        if (minimumAuthRole) { // If any routes require authentication
             let isLoggedIn = Store.getters["authentication/isLoggedIn"];
             if (isLoggedIn) {
 
                 // Make sure the user exists in store
                 // The store is wiped on refresh, so this makes sure that there is always a user in the store.
                 if (!Store.state.authentication.user._id) { // No user in store.
+                    let accessToken = Store.state.authentication.accessToken;
+
+                    if (!accessToken) {
+                        // refresh access token
+                        await refreshAccessToken();
+                    }
                     let currentAccessToken = Store.state.authentication.accessToken;
                     Store.state.authentication.user = Utils.getTokenPayload(currentAccessToken);
                 }
 
                 // check to see if the user has the required access levels
                 let currentUserRole = Store.state.authentication.user.role;
-                console.log(currentRole);
                 if (currentUserRole >= minimumAuthRole) {
                     // allow the user to continue to their chosen route, as they are logged in 
                     next();
@@ -81,10 +84,8 @@ async function setupTokenRefresher(config) {
         let tokenExpiryTime = decodedPayload.exp * 1000;
         let timeToExpire = tokenExpiryTime - currentTime;
 
-        // If token is set to expire in less than one hour seconds, renew it
-        const oneHour = 3600000;
-        if (timeToExpire <= oneHour) {
-
+        // If token has expired, renew it
+        if (timeToExpire <= 0) {
             await refreshAccessToken();
         }
 

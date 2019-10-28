@@ -11,7 +11,7 @@ const CounsellorRegistrationModel = require("../../models/MongooseModels/Counsel
 const Role = require("../../models/Role");
 const Utils = require("../../utils/Utils");
 const AppResponse = require("../../struct/AppResponse");
-const RefreshTokenModel = require("../../models/MongooseModels/RefreshTokenModel");
+const SessionModel = require("../../models/MongooseModels/SessionModel");
 const Logger = require("../../struct/Logger")(module);
 
 // Register a new counsellor
@@ -200,10 +200,13 @@ async function login(req, res) {
         // create a refresh token.
         let refreshToken =
             AuthenticationControllerHelpers.createRefreshToken(matchingUser);
-        // save refresh token to database
-        await RefreshTokenModel.create({
-            token: refreshToken,
-            user: matchingUser
+
+        // Create a session for the user
+        await SessionModel.create({
+            refreshToken: refreshToken,
+            user: matchingUser,
+            clientIp: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+            userAgent: req.headers['user-agent']
         });
 
         // create new access token.
@@ -230,11 +233,26 @@ async function refreshToken(req, res) {
         const refreshToken = req.query.refreshToken;
 
         // check for refresh token in database.
-        const matchingRefreshToken = await RefreshTokenModel.findOne({
-            token: refreshToken
+        const matchingRefreshToken = await SessionModel.findOne({
+            refreshToken: refreshToken
         }).populate("user");
 
         if (!matchingRefreshToken) return response.failure("Invalid refresh token", 401);
+
+        // assert that the refresh token was issued to the same device that is using it.
+        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        const userAgent = req.headers['user-agent'];
+        const isValid = matchingRefreshToken.clientIp == ip && matchingRefreshToken.userAgent == userAgent;
+
+        // invalidate request and refresh token if above credentials don't match - the token may have been stolen.
+        if (!isValid) {
+            Logger.warn("Possible token fraud", {
+                req,
+                matchingRefreshToken
+            });
+            await SessionModel.findByIdAndDelete(matchingRefreshToken._id);
+            return response.failure("Invalid session.", 403);
+        }
 
         // create new token
         const accessToken = AuthenticationControllerHelpers.createAccessToken(matchingRefreshToken.user);
@@ -363,6 +381,29 @@ async function resetPassword(req, res) {
     }
 }
 
+
+async function logout(req, res) {
+
+    const response = new AppResponse(res);
+    // To log a user out, we have to expire their refresh token.
+    // This means that when their access token expires, they will have to log in to obtain a new token pair (refresh and access).
+
+    // NOTE: This doesn't properly log a user out - they will still be able to access the API using their current access token until it expires.
+    // This function is mainly to prevent the refreshTokens collection from filling up, and not to deny access to the API.
+    try {
+        // If the user find and delete the users refresh token.
+        await SessionModel.deleteMany({
+            clientIp: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+            userAgent: req.headers['user-agent'],
+            user: req.user._id
+        });
+        return response.success("User logged out successfully");
+    } catch (error) {
+        Logger.error("Error logging user out.", error)
+        return response.failure("There was an error logging you out.", 500)
+    }
+}
+
 module.exports = {
     registerClient,
     login,
@@ -370,5 +411,6 @@ module.exports = {
     registerCounsellor,
     forgotPassword,
     resetPassword,
-    registerGuest
+    registerGuest,
+    logout
 };

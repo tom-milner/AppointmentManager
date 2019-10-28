@@ -3,8 +3,6 @@ const router = express.Router();
 
 const AuthenticationController = require("../controllers/AuthenticationController/AuthenticationController");
 const AuthenticationMiddleware = require("../middleware/AuthenticationMiddleware");
-
-
 const AuthenticationControllerPolicy = require("../policies/AuthenticationControllerPolicy");
 
 // these routes are all under "/auth"
@@ -30,6 +28,9 @@ router.post("/register/guest", AuthenticationControllerPolicy.updateUser({
 
 // universal login
 router.post("/login", AuthenticationController.login);
+
+// universal logout
+router.post("/logout", AuthenticationMiddleware.isLoggedIn, AuthenticationController.logout)
 
 // refresh the current token
 router.get("/token", AuthenticationController.refreshToken);

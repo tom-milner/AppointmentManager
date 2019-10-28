@@ -77,8 +77,8 @@ module.exports = function (module, serviceName) {
         error: function (message, error) {
             logger.error(`[${fileName}] ${message}`, error);
         },
-        warn: function (message) {
-            logger.error(`[${fileName}] ${message}`);
+        warn: function (message, error) {
+            logger.error(`[${fileName}] ${message}`, error);
         }
     }
 }
