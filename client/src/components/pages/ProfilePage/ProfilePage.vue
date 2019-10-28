@@ -213,12 +213,13 @@ export default {
         let response;
         // send different requests depending on whether the user is a client or a counsellor.
         if (this.userIsCounsellor) {
-          response = await UserService.updateCounsellor(
+          response = await UserService.updateUser(
             this.user._id,
-            this.user
+            this.user,
+            true
           );
         } else {
-          response = await UserService.updateClient(this.user._id, this.user);
+          response = await UserService.updateUser(this.user._id, this.user);
         }
         if (!response.data.success) {
           throw { response };

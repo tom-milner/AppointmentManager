@@ -60,9 +60,13 @@ export default {
   methods: {
     async updateBufferTime() {
       try {
-        let response = await UserService.updateCounsellor(this.counsellor._id, {
-          appointmentBufferTime: this.counsellor.appointmentBufferTime
-        });
+        let response = await UserService.updateUser(
+          this.counsellor._id,
+          {
+            appointmentBufferTime: this.counsellor.appointmentBufferTime
+          },
+          true
+        );
         console.log(response);
       } catch (error) {
         console.log(error);

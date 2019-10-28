@@ -158,5 +158,6 @@ export default {
     setupAccessDeniedResponseInterceptor,
     setupTokenRefresher,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    refreshAccessToken
 }

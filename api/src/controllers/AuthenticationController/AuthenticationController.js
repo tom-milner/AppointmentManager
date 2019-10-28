@@ -348,8 +348,12 @@ async function resetPassword(req, res) {
 
         // if the user was previously a guest turn them into a client.
         if (updatedUser.role == Role.Guest) {
+
+            // delete guest account
+            await GuestModel.findByIdAndDelete(updatedUser._id);
+
             // create new client model
-            let newClient = new ClientModel({
+            updatedUser = await ClientModel.create({
                 _id: updatedUser._id,
                 email: updatedUser.email,
                 username: updatedUser.username,
@@ -357,14 +361,13 @@ async function resetPassword(req, res) {
                 lastname: updatedUser.lastname,
                 password: newPassword
             });
-
-            // delete guest account
-            await GuestModel.findByIdAndDelete(updatedUser._id);
-
-            // save new client
-            updatedUser = await newClient.save();
         }
         updatedUser.password = undefined;
+
+        // expire any refresh tokens given to this user - they will need to reauthenticate themselves with their new password.
+        await SessionModel.deleteMany({
+            user: updatedUser._id
+        })
 
         // remove the password reset from the db so that it can't be reused.
         await PasswordResetModel.findByIdAndDelete(foundPasswordReset._id);
@@ -388,8 +391,6 @@ async function logout(req, res) {
     // To log a user out, we have to expire their refresh token.
     // This means that when their access token expires, they will have to log in to obtain a new token pair (refresh and access).
 
-    // NOTE: This doesn't properly log a user out - they will still be able to access the API using their current access token until it expires.
-    // This function is mainly to prevent the refreshTokens collection from filling up, and not to deny access to the API.
     try {
         // If the user find and delete the users refresh token.
         await SessionModel.deleteMany({

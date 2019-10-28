@@ -112,7 +112,7 @@ export default {
 
     async saveClinicalNotes() {
       try {
-        let response = await UserService.updateClient(this.fullClient._id, {
+        let response = await UserService.updateUser(this.fullClient._id, {
           clinicalNotes: this.fullClient.clinicalNotes
         });
         this.messageStatus = response.data.success;

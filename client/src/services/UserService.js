@@ -4,6 +4,8 @@ import Api from "@/services/Api.js";
 import Store from "@/store/store";
 import Role from "@/models/Role"
 
+import AuthenticationService from "@/services/AuthenticationService";
+
 // Login user
 function loginUser(username, password) {
     // Send post request to login route
@@ -103,10 +105,38 @@ function getAllCounsellors() {
     return Api.get("/user/counsellors");
 }
 
-// update counsellor's settings
-function updateCounsellor(counsellorId, counsellorInfo) {
-    return Api.post(`/user/counsellors/${counsellorId}`, {
-        counsellorInfo: counsellorInfo
+
+function updateUser(userId, userInfo, isCounsellor) {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            let response;
+            if (isCounsellor) {
+                response = await Api.post(`/user/counsellors/${userId}`, {
+                    counsellorInfo: userInfo
+                });
+            } else {
+                response = await Api.post(`/user/clients/${userId}`, {
+                    clientInfo: userInfo
+                });
+            }
+            // If the change will affect the current access token, refresh it.
+            let tokenKeys = [
+                "firstname",
+                "lastname",
+                "username",
+                "role"
+            ];
+
+            // If userInfo contains any of the token keys. 
+            if ((Object.keys(userInfo)).some((key) => tokenKeys.find((info) => key == info))) {
+                await AuthenticationService.refreshAccessToken();
+            }
+
+            resolve(response);
+        } catch (error) {
+            reject(error);
+        }
     });
 }
 
@@ -127,11 +157,7 @@ function getClient(clientId) {
     return Api.get(`/user/clients/full/${clientId}`);
 }
 
-function updateClient(clientId, clientInfo) {
-    return Api.post(`/user/clients/${clientId}`, {
-        clientInfo: clientInfo
-    });
-}
+
 
 export default {
     loginUser,
@@ -140,11 +166,10 @@ export default {
     deleteUser,
     getUsersFromIds,
     getAllCounsellors,
-    updateCounsellor,
     getReducedCounsellor,
     getCounsellor,
     getAllClients,
-    updateClient,
+    updateUser,
     getClient,
     sendNewCounsellorEmail
 }
