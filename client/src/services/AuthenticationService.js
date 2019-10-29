@@ -70,7 +70,8 @@ async function setupTokenRefresher(config) {
 
     // ignore requests to register or signup routes - these are already getting new tokens.
     // also only allow refresh if token exists, and if the token isn't currently being updated
-    if ((config.url).includes("auth") || !accessToken || Store.state.authentication
+    if (((config.url).includes("auth") && !config.url.includes("logout")) || !accessToken || Store.state
+        .authentication
         .status == "loading" || Store.state.authentication.status == "error") {
         return config;
     }
@@ -97,7 +98,6 @@ async function setupTokenRefresher(config) {
         UserService.logoutUser({
             fullyLogout: true
         });
-        Router.push("/");
     }
     return config;
 }

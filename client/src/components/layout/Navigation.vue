@@ -71,7 +71,6 @@ export default {
   methods: {
     logout: async function() {
       UserService.logoutUser({ fullyLogout: true });
-      this.$router.push("/");
     }
   },
 

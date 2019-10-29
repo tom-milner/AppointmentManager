@@ -1,14 +1,16 @@
 const mongoose = require("mongoose");
-const Logger = require("../../struct/Logger")(module);
-
 
 const refreshTokenSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "UserModel"
+        ref: "User"
     },
     refreshToken: {
         type: String,
+        required: true
+    },
+    salt: {
+        type: Buffer,
         required: true
     },
     clientIp: {
@@ -19,23 +21,11 @@ const refreshTokenSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    expires: {
+    createdAt: {
         type: Date,
-        // get expiry date from token.
-        default: function () {
-            let payload = this.refreshToken.split(".")[1];
-            let buff = Buffer.from(payload, "base64");
-            let decodedPayload = JSON.parse(buff.toString("ascii"));
-            return decodedPayload.exp * 1000;
-        }
-    },
+        expires: "1w", // Expire the token in 1 week.
+        default: Date.now()
+    }
 });
 
-// set an index to expire the refresh token.
-refreshTokenSchema.index({
-    expires: 1
-}, {
-    expireAfterSeconds: 0
-});
-
-module.exports = mongoose.model("SessionModel", refreshTokenSchema);
+module.exports = mongoose.model("Session", refreshTokenSchema);

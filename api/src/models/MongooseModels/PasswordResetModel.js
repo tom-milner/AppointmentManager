@@ -17,7 +17,7 @@ const passwordResetSchema = new mongoose.Schema({
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "UserModel",
+        ref: "User",
         required: true,
         unique: true
     },
@@ -33,4 +33,4 @@ passwordResetSchema.index({
     expireAfterSeconds: 0
 });
 
-module.exports = mongoose.model("PasswordResetModel", passwordResetSchema);
+module.exports = mongoose.model("PasswordReset", passwordResetSchema);

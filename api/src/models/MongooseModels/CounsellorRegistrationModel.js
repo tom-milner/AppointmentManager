@@ -21,4 +21,4 @@ const counsellorRegistrationModel = new mongoose.Schema({
 });
 
 
-module.exports = mongoose.model("CounsellorRegistrationModel", counsellorRegistrationModel);
+module.exports = mongoose.model("CounsellorRegistration", counsellorRegistrationModel);

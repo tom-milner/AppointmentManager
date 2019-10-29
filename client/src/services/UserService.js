@@ -2,7 +2,8 @@
 
 import Api from "@/services/Api.js";
 import Store from "@/store/store";
-import Role from "@/models/Role"
+import Role from "@/models/Role";
+import Router from "@/routes";
 
 import AuthenticationService from "@/services/AuthenticationService";
 
@@ -65,12 +66,13 @@ async function logoutUser({
     fullyLogout
 }) {
     try {
-        if (Store.getters["authentication/isLogged"]) {
+        if (Store.getters["authentication/isLoggedIn"]) {
             // send request to logout user.
             await Api.post("/auth/logout", fullyLogout);
         }
 
         Store.commit("authentication/auth_logout", fullyLogout);
+        Router.push("/");
     } catch (err) {
         Store.commit("authentication/auth_error");
         console.log(err);

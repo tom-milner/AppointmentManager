@@ -175,7 +175,6 @@ export default {
         let response = await UserService.deleteUser(this.user._id);
         if (response.data.success) {
           UserService.logoutUser({ fullyLogout: true });
-          this.$router.push("/");
         }
       } catch (error) {
         console.log(error);

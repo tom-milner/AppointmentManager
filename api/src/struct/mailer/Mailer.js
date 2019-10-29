@@ -53,7 +53,6 @@ class Mailer {
                   <p>Here are your upcoming appointments this week:</p>`;
 
         for (let appointment of appointments) {
-            console.log(appointment);
             let firstname = appointment.clients[0].firstname;
             let lastname = appointment.clients[0].lastname
 

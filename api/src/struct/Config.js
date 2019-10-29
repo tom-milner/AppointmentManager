@@ -23,5 +23,8 @@ module.exports = {
         clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         redirectUri: process.env.GOOGLE_REDIRECT_URL
+    },
+    location: {
+        ipStackApiKey: "4bb65d91e492c4afc8da85c61c8ac32b"
     }
 }

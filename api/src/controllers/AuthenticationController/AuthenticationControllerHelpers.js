@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const Config = require("../../struct/Config");
 const PasswordResetModel = require("../../models/MongooseModels/PasswordResetModel");
 const Role = require("../../models/Role");
+const axios = require("axios");
 
 // #############################
 //      HELPER FUNCTIONS
@@ -21,7 +22,7 @@ function createAccessToken(user) {
         _id: user._id
     };
 
-    // Create token
+    // Create JWT token.
     const accessToken = jwt.sign(user, Config.accessTokenSecret, {
         expiresIn: "30m"
     });
@@ -32,13 +33,17 @@ function createAccessToken(user) {
 
 // Create a refresh token for the user. This has a TTL of 1 week, and can be used to generate new access tokens if the user's current one has expired.
 // It is important to note that these can ONLY be used for creating new access tokens - they can't be used to access resources.
-function createRefreshToken(user) {
-    const refreshToken = jwt.sign({
-        _id: user._id
-    }, Config.refreshTokenSecret, {
-        expiresIn: "1w"
-    });
-    return refreshToken;
+function createRefreshToken(user, req, salt) {
+
+    // create a HMAC hash containing the user's user agent, their user Id and their password.
+    const userAgent = req.headers['user-agent'];
+
+    const refreshToken = crypto.createHmac("sha256", Config.refreshTokenSecret);
+    const payload = userAgent + user._id + user.password;
+    refreshToken.update(payload);
+    // salt payload to prevent attacker being able to compare two tokens to see if they are the same.
+    refreshToken.update(salt);
+    return refreshToken.digest("hex");
 }
 
 // return a hashed password
@@ -105,6 +110,32 @@ async function createPasswordReset(user) {
     };
 }
 
+
+
+async function calculateIpDistance(ip1, ip2) {
+    console.log(Config.location.ipStackApiKey);
+    // get rough location of ips
+    const ipStack = axios.create({
+        baseURL: "http://api.ipstack.com/",
+    });
+    ipStack.interceptors.request.use((config) => {
+        config.params = {
+            access_key: Config.location.ipStackApiKey
+        }
+        return config;
+    });
+
+    let loc1 = await ipStack.get(ip1);
+    let loc2 = await ipStack.get(ip2);
+    console.log(loc1.latitude, loc1.longitude);
+    console.log(loc2.latitude, loc2.longitude);
+
+    // calculate distance using Haversine formula
+    // const diff
+
+
+}
+
 module.exports = {
     createRefreshToken,
     generateTokenHash,
@@ -112,6 +143,7 @@ module.exports = {
     createAccessToken,
     createPasswordReset,
     generateRandomPassword,
-    generateRandomToken
+    generateRandomToken,
+    calculateIpDistance
 
 }

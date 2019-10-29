@@ -71,7 +71,7 @@ async function createAndCheckAllAppointments(appointmentInfo, appointmentType) {
 
 async function insertAppointment(appointmentInfo) {
     // Create new appointment model
-    let appointment = new AppointmentModel({
+    let createdAppointment = AppointmentModel.create({
         title: appointmentInfo.title,
         startTime: appointmentInfo.startTime,
         // TODO: add buffer to end time
@@ -86,11 +86,7 @@ async function insertAppointment(appointmentInfo) {
         recurringSeriesId: appointmentInfo.recurringSeriesId,
         recurringNo: appointmentInfo.recurringNo
     });
-
-    // Save the model to the database
-    let createdAppointment = await appointment.save();
     return createdAppointment;
-
 }
 
 async function getAppointmentType(typeId) {

@@ -7,18 +7,18 @@ const Role = require("../../Role");
 
 // Guest Schema
 const guestSchema = new mongoose.Schema({
-  role: {
-    type: Number,
-    default: Role.Guest
-  },
-  timeCreated: {
-    type: Date,
-    default: Date.now()
-  }
+    role: {
+        type: Number,
+        default: Role.Guest
+    },
+    timeCreated: {
+        type: Date,
+        default: Date.now()
+    }
 });
 
 // GuestModel extends UserModel
-UserModel.discriminator("GuestModel", guestSchema);
+UserModel.discriminator("Guest", guestSchema);
 
 // export guest.
-module.exports = mongoose.model("GuestModel", guestSchema);
+module.exports = mongoose.model("Guest", guestSchema);

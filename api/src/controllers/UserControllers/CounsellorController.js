@@ -5,6 +5,7 @@ const AppResponse = require("../../struct/AppResponse");
 const Utils = require("../../utils/Utils");
 const Mailer = require("../../struct/mailer/Mailer");
 const bcrypt = require("bcrypt");
+const Logger = require("../../struct/Logger")(module);
 
 // get list of all the counsellors
 async function getAllCounsellorsReduced(req, res) {
@@ -23,8 +24,7 @@ async function getAllCounsellorsReduced(req, res) {
 
         // make sure counsellors could be found
         if (counsellors.length === 0) return response.failure(
-            "No counsellors could be found.",
-
+            "No counsellors could be found.", 200
         );
 
 
@@ -34,10 +34,8 @@ async function getAllCounsellorsReduced(req, res) {
 
     } catch (error) {
 
-        let errorMessage = error.message || "Error returning counsellors.";
-        let errorCode = error.code || 500;
-
-        return response.failure(errorMessage, errorCode);
+        Logger.error("Error getting Counsellors.", error)
+        return response.failure("Error returning counsellors.", 500);
     }
 }
 

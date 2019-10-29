@@ -13,6 +13,7 @@ const Utils = require("../../utils/Utils");
 const AppResponse = require("../../struct/AppResponse");
 const SessionModel = require("../../models/MongooseModels/SessionModel");
 const Logger = require("../../struct/Logger")(module);
+const crypto = require("crypto");
 
 // Register a new counsellor
 async function registerCounsellor(req, res) {
@@ -195,16 +196,18 @@ async function login(req, res) {
         // Invalid password - send error.
         if (!isPasswordValid) return response.failure("Incorrect password.", 401);
 
-        matchingUser.password = undefined;
+
 
         // create a refresh token.
+        const salt = crypto.randomBytes(128);
         let refreshToken =
-            AuthenticationControllerHelpers.createRefreshToken(matchingUser);
+            AuthenticationControllerHelpers.createRefreshToken(matchingUser, req, salt);
 
         // Create a session for the user
         await SessionModel.create({
             refreshToken: refreshToken,
             user: matchingUser,
+            salt: salt,
             clientIp: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
             userAgent: req.headers['user-agent']
         });
@@ -214,6 +217,7 @@ async function login(req, res) {
             matchingUser
         );
 
+        matchingUser.password = undefined;
         return response.success("User logged in", {
             user: matchingUser,
             accessToken: accessToken,
@@ -233,29 +237,41 @@ async function refreshToken(req, res) {
         const refreshToken = req.query.refreshToken;
 
         // check for refresh token in database.
-        const matchingRefreshToken = await SessionModel.findOne({
+        const foundSession = await SessionModel.findOne({
             refreshToken: refreshToken
-        }).populate("user");
-
-        if (!matchingRefreshToken) return response.failure("Invalid refresh token", 401);
+        }).populate({
+            path: "user",
+            select: "_id password"
+        });
+        if (!foundSession) return response.failure("Invalid refresh token", 401);
 
         // assert that the refresh token was issued to the same device that is using it.
-        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        const userAgent = req.headers['user-agent'];
-        const isValid = matchingRefreshToken.clientIp == ip && matchingRefreshToken.userAgent == userAgent;
+        // create hash using info of device that made the request.
+        let computedRefreshToken = AuthenticationControllerHelpers.createRefreshToken(foundSession.user,
+            req, foundSession.salt);
+
+        // compare hashes. This will equate to false if the device has a different user-agent, or if the user has recently changed their password. 
+        const isValid = computedRefreshToken == foundSession.refreshToken;
 
         // invalidate request and refresh token if above credentials don't match - the token may have been stolen.
         if (!isValid) {
             Logger.warn("Possible token fraud", {
                 req,
-                matchingRefreshToken
+                foundSession
             });
-            await SessionModel.findByIdAndDelete(matchingRefreshToken._id);
+            await SessionModel.findByIdAndDelete(foundSession._id);
             return response.failure("Invalid session.", 403);
         }
 
+
+        const requestIp =
+            req.header("x-forwarded-for") || req.connection.remoteAddress;
+        const sessionIp = foundSession.clientIp;
+        AuthenticationControllerHelpers.calculateIpDistance(requestIp, sessionIp);
+
+
         // create new token
-        const accessToken = AuthenticationControllerHelpers.createAccessToken(matchingRefreshToken.user);
+        const accessToken = AuthenticationControllerHelpers.createAccessToken(foundSession.user);
 
         // return new token and original user
         return response.success("Token refreshed successfully.", {
@@ -364,7 +380,9 @@ async function resetPassword(req, res) {
         }
         updatedUser.password = undefined;
 
-        // expire any refresh tokens given to this user - they will need to reauthenticate themselves with their new password.
+        // Expire any refresh tokens given to this user.
+        // NOTE: the sessions created with the old password will now be automatically invalidated, as the refreshToken is created as a product of the users password, which has now changed, causing the computed hash to change.
+        // However, I remove the old sessions from the database anyway (just do it doesn't fill up).
         await SessionModel.deleteMany({
             user: updatedUser._id
         })
@@ -394,7 +412,6 @@ async function logout(req, res) {
     try {
         // If the user find and delete the users refresh token.
         await SessionModel.deleteMany({
-            clientIp: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
             userAgent: req.headers['user-agent'],
             user: req.user._id
         });
