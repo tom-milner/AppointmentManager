@@ -263,12 +263,33 @@ async function refreshToken(req, res) {
             return response.failure("Invalid session.", 403);
         }
 
+        // Location check:
+        // Make sure user is no more than 100km from where they originally acquired the refresh token.#
 
-        const requestIp =
-            req.header("x-forwarded-for") || req.connection.remoteAddress;
-        const sessionIp = foundSession.clientIp;
-        AuthenticationControllerHelpers.calculateIpDistance(requestIp, sessionIp);
+        // DISABLE THIS IN TESTING (NO IP ADDRESS!!)
 
+        if (process.env.NODE_ENV == "production") {
+            const requestIp =
+                req.headers["x-forwarded-for"].split(",")[0] || req.connection.remoteAddress;
+            const sessionIp = foundSession.clientIp;
+            const {
+                error,
+                distance
+            } = await AuthenticationControllerHelpers.calculateGeoIpDistance(requestIp, sessionIp);
+            if (error) {
+                Logger.error("Error calculating distance", error);
+                return response.failure("Error refreshing token", 500);
+            }
+
+            if (distance > 100000) {
+                Logger.warn("Possible token fraud", {
+                    req,
+                    foundSession,
+                    distance
+                });
+                return response.failure("Invalid session.", 403);
+            }
+        }
 
         // create new token
         const accessToken = AuthenticationControllerHelpers.createAccessToken(foundSession.user);

@@ -5,6 +5,8 @@ const Config = require("../../struct/Config");
 const PasswordResetModel = require("../../models/MongooseModels/PasswordResetModel");
 const Role = require("../../models/Role");
 const axios = require("axios");
+const Math = require("mathjs");
+
 
 // #############################
 //      HELPER FUNCTIONS
@@ -112,8 +114,7 @@ async function createPasswordReset(user) {
 
 
 
-async function calculateIpDistance(ip1, ip2) {
-    console.log(Config.location.ipStackApiKey);
+async function calculateGeoIpDistance(ip1, ip2) {
     // get rough location of ips
     const ipStack = axios.create({
         baseURL: "http://api.ipstack.com/",
@@ -125,15 +126,59 @@ async function calculateIpDistance(ip1, ip2) {
         return config;
     });
 
-    let loc1 = await ipStack.get(ip1);
-    let loc2 = await ipStack.get(ip2);
-    console.log(loc1.latitude, loc1.longitude);
-    console.log(loc2.latitude, loc2.longitude);
+    // These would preferably be a single request, but IpStack don't allow querying multiple Ips at once on their free plan.
+    let loc1, loc2;
+    try {
+        loc1 = (await ipStack.get(ip1)).data;
+        loc2 = (await ipStack.get(ip2)).data;
+    } catch (error) {
+        return {
+            error
+        };
+    }
+
+
+    let lon1 = loc1.longitude;
+    let lat1 = loc1.latitude;
+
+    let lon2 = loc2.longitude;
+    let lat2 = loc2.latitude;
+
+    // TODO: log approximate login location.
 
     // calculate distance using Haversine formula
-    // const diff
+    // haversine(θ) = sin²(θ / 2)
+    // a = sin²(φB - φA / 2) + cos φA * cos φB * sin²(λB - λA / 2)
+    // c = 2 * atan2(√a, √(1− a))
+    // d = R⋅ c
+
+    // Radius of the Earth (in meters)
+    const R = 6371e3;
 
 
+    // convert degrees into radians.
+    const phi1 = degToRadians(lat1);
+    const phi2 = degToRadians(lat2);
+
+    // change difference between longitudes and  latitudes (and turn to radians)
+    const delta_phi = degToRadians(lat2 - lat1);
+    const delta_lambda = degToRadians(lon2 - lon1);
+
+    const a = Math.pow(Math.sin(delta_phi / 2), 2) +
+        (Math.cos(phi1) * Math.cos(phi2)) *
+        Math.pow(Math.sin(delta_lambda / 2), 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    const distance = (R * c); // Resulting distance in meters.
+    console.log(distance);
+    return {
+        distance
+    };
+}
+
+function degToRadians(num) {
+    return ((Math.pi * num) / 180);
 }
 
 module.exports = {
@@ -144,6 +189,6 @@ module.exports = {
     createPasswordReset,
     generateRandomPassword,
     generateRandomToken,
-    calculateIpDistance
+    calculateGeoIpDistance
 
 }
