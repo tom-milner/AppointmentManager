@@ -19,7 +19,14 @@ const crypto = require("crypto");
 async function registerCounsellor(req, res) {
     const response = new AppResponse(res);
 
-    let { email, username, firstname, lastname, password, counsellorToken } = req.body;
+    let {
+        email,
+        username,
+        firstname,
+        lastname,
+        password,
+        counsellorToken
+    } = req.body;
 
     // assert there is permission to create token
     let tokenHash = await AuthenticationControllerHelpers.generateTokenHash(counsellorToken);
@@ -54,13 +61,11 @@ async function registerCounsellor(req, res) {
             user: savedCounsellor
         });
     } catch (err) {
-        let errorMessage = "Error registering counsellor.";
-        let errorStatusCode = 500;
+
         if (err.code == 11000) {
-            errorMessage = Utils.getDuplicateMongoEntryKey(err.message) + " already exists.";
-            errorStatusCode = 409;
+            return response.failure(Utils.getDuplicateMongoEntryKey(err.message) + " already exists.", 409);
         }
-        return response.failure(errorMessage, errorStatusCode);
+        return response.failure("Error registering counsellor.", 500);
     }
 }
 
@@ -88,20 +93,21 @@ async function registerClient(req, res) {
             user: savedClient
         });
     } catch (err) {
-        let errorMessage = "Error registering client.";
-        let errorStatusCode = 500;
         if (err.code == 11000) {
-            errorMessage = Utils.getDuplicateMongoEntryKey(err.message) + " already exists.";
-            errorStatusCode = 409;
+            return response.failure(Utils.getDuplicateMongoEntryKey(err.message) + " already exists.", 409);
         }
-        return response.failure(errorMessage, errorStatusCode);
+        return response.failure("Error registering client.", 500);
     }
 }
 
 async function registerGuest(req, res) {
     const response = new AppResponse(res);
 
-    let { firstname, lastname, email } = req.body;
+    let {
+        firstname,
+        lastname,
+        email
+    } = req.body;
 
     // generate random password - this is only to prevent people logging into a guest account
     let password = await AuthenticationControllerHelpers.generateRandomPassword();
@@ -121,7 +127,9 @@ async function registerGuest(req, res) {
         });
 
         // create a password reset for the guest for when they want to fully activate their account.
-        let { token } = await AuthenticationControllerHelpers.createPasswordReset(createdGuest);
+        let {
+            token
+        } = await AuthenticationControllerHelpers.createPasswordReset(createdGuest);
 
         // send guest an email containing a link to activate their account.
         let mailer = new Mailer();
@@ -141,7 +149,7 @@ async function registerGuest(req, res) {
 
             return response.failure(`${fieldKey} is already registered.`);
         }
-
+        Logger.error("error creating guest", error);
         return response.failure("Error creating guest.", 500);
     }
 }
@@ -239,7 +247,10 @@ async function refreshToken(req, res) {
         if (process.env.NODE_ENV == "production") {
             const requestIp = req.headers["x-forwarded-for"].split(",")[0] || req.connection.remoteAddress;
             const sessionIp = foundSession.clientIp;
-            const { error, distance } = await AuthenticationControllerHelpers.calculateGeoIpDistance(
+            const {
+                error,
+                distance
+            } = await AuthenticationControllerHelpers.calculateGeoIpDistance(
                 requestIp,
                 sessionIp
             );
@@ -287,7 +298,9 @@ async function forgotPassword(req, res) {
         // get ip address of request.
         let requestIp = req.header("x-forwarded-for") || req.connection.remoteAddress;
 
-        let { token } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
+        let {
+            token
+        } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
 
         // send email
         let mailer = new Mailer();
@@ -299,8 +312,8 @@ async function forgotPassword(req, res) {
         if (error.code == 11000) {
             return response.failure("This user has already been sent a password reset email.", 400);
         }
-
-        return response.failure("Error sending forgot password email", 400);
+        Logger.error("Error sending forgot password email", error);
+        return response.failure("Error sending forgot password email", 500);
     }
 }
 
@@ -367,6 +380,7 @@ async function resetPassword(req, res) {
             updatedUser: updatedUser
         });
     } catch (error) {
+        Logger.error("Error resetting password", error);
         return response.failure("Error resetting password.", 500);
     }
 }
