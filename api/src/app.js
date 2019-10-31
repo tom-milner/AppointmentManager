@@ -13,6 +13,15 @@ const app = express();
 // load config file. This maps the environment variables to javascript objects.
 const Config = require("./struct/Config");
 
+// Error monitoring
+const Sentry = require('@sentry/node');
+Sentry.init({
+    dsn: 'https://9bffd9e390ff4804b85b30eb5d8ab9b1@sentry.io/1803636'
+});
+
+// The request handler must be the first middleware on the app
+app.use(Sentry.Handlers.requestHandler());
+
 // Automatic CORS-policy handling
 const cors = require("cors");
 app.use(cors());
@@ -29,6 +38,11 @@ app.use(bodyParser.json());
 // load application routes
 const routes = require("./routes");
 app.use(routes);
+
+
+// Error monitoring
+app.use(Sentry.Handlers.errorHandler());
+
 
 const Logger = require("./struct/Logger")(module, "AppointmentManagerAPI");
 
