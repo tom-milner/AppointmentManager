@@ -19,14 +19,7 @@ const crypto = require("crypto");
 async function registerCounsellor(req, res) {
     const response = new AppResponse(res);
 
-    let {
-        email,
-        username,
-        firstname,
-        lastname,
-        password,
-        counsellorToken
-    } = req.body;
+    let { email, username, firstname, lastname, password, counsellorToken } = req.body;
 
     // assert there is permission to create token
     let tokenHash = await AuthenticationControllerHelpers.generateTokenHash(counsellorToken);
@@ -45,9 +38,7 @@ async function registerCounsellor(req, res) {
         await CounsellorRegistrationModel.findByIdAndDelete(foundReg._id);
 
         // hash password
-        let passwordHash = await AuthenticationControllerHelpers.hashPassword(
-            password
-        );
+        let passwordHash = await AuthenticationControllerHelpers.hashPassword(password);
 
         // save counsellor in database
         const savedCounsellor = await CounsellorModel.create({
@@ -56,18 +47,17 @@ async function registerCounsellor(req, res) {
             firstname: firstname,
             lastname: lastname,
             password: passwordHash
-        })
+        });
         savedCounsellor.password = undefined;
 
         return response.success("Counsellor created successfully.", {
-            user: savedCounsellor,
+            user: savedCounsellor
         });
     } catch (err) {
         let errorMessage = "Error registering counsellor.";
         let errorStatusCode = 500;
         if (err.code == 11000) {
-            errorMessage =
-                Utils.getDuplicateMongoEntryKey(err.message) + " already exists.";
+            errorMessage = Utils.getDuplicateMongoEntryKey(err.message) + " already exists.";
             errorStatusCode = 409;
         }
         return response.failure(errorMessage, errorStatusCode);
@@ -87,9 +77,7 @@ async function registerClient(req, res) {
         });
 
         // store hashed password in user object.
-        newClient.password = await AuthenticationControllerHelpers.hashPassword(
-            req.body.password
-        );
+        newClient.password = await AuthenticationControllerHelpers.hashPassword(req.body.password);
 
         // Save client to database
         const savedClient = await newClient.save();
@@ -97,14 +85,13 @@ async function registerClient(req, res) {
 
         // Return newly created client
         return response.success("Client added.", {
-            user: savedClient,
+            user: savedClient
         });
     } catch (err) {
         let errorMessage = "Error registering client.";
         let errorStatusCode = 500;
         if (err.code == 11000) {
-            errorMessage =
-                Utils.getDuplicateMongoEntryKey(err.message) + " already exists.";
+            errorMessage = Utils.getDuplicateMongoEntryKey(err.message) + " already exists.";
             errorStatusCode = 409;
         }
         return response.failure(errorMessage, errorStatusCode);
@@ -114,21 +101,14 @@ async function registerClient(req, res) {
 async function registerGuest(req, res) {
     const response = new AppResponse(res);
 
-    let {
-        firstname,
-        lastname,
-        email
-    } = req.body;
+    let { firstname, lastname, email } = req.body;
 
     // generate random password - this is only to prevent people logging into a guest account
     let password = await AuthenticationControllerHelpers.generateRandomPassword();
 
     try {
-
         // hash password
-        let passwordHash = await AuthenticationControllerHelpers.hashPassword(
-            password
-        );
+        let passwordHash = await AuthenticationControllerHelpers.hashPassword(password);
 
         // save guest in database
         let createdGuest = GuestModel.create({
@@ -141,11 +121,7 @@ async function registerGuest(req, res) {
         });
 
         // create a password reset for the guest for when they want to fully activate their account.
-        let {
-            token
-        } = await AuthenticationControllerHelpers.createPasswordReset(
-            createdGuest
-        );
+        let { token } = await AuthenticationControllerHelpers.createPasswordReset(createdGuest);
 
         // send guest an email containing a link to activate their account.
         let mailer = new Mailer();
@@ -155,16 +131,15 @@ async function registerGuest(req, res) {
         createdGuest.password = undefined;
 
         return response.success("Guest created successfully", {
-            user: createdGuest,
+            user: createdGuest
         });
     } catch (error) {
-
         if (error.code == 11000) {
             let fieldKey = Utils.getDuplicateMongoEntryKey();
-            if (fieldKey == userId) return response.failure(
-                "This user has already been sent a registration email.", 400);
+            if (fieldKey == userId)
+                return response.failure("This user has already been sent a registration email.", 400);
 
-            return response.failure(`${fieldKey} is already registered.`)
+            return response.failure(`${fieldKey} is already registered.`);
         }
 
         return response.failure("Error creating guest.", 500);
@@ -189,33 +164,25 @@ async function login(req, res) {
         }
 
         // Hash password and check against hash in database
-        const isPasswordValid = await bcrypt.compare(
-            req.body.password,
-            matchingUser.password
-        );
+        const isPasswordValid = await bcrypt.compare(req.body.password, matchingUser.password);
         // Invalid password - send error.
         if (!isPasswordValid) return response.failure("Incorrect password.", 401);
 
-
-
         // create a refresh token.
         const salt = crypto.randomBytes(128);
-        let refreshToken =
-            AuthenticationControllerHelpers.createRefreshToken(matchingUser, req, salt);
+        let refreshToken = AuthenticationControllerHelpers.createRefreshToken(matchingUser, req, salt);
 
         // Create a session for the user
         await SessionModel.create({
             refreshToken: refreshToken,
             user: matchingUser,
             salt: salt,
-            clientIp: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
-            userAgent: req.headers['user-agent']
+            clientIp: req.headers["x-forwarded-for"] || req.connection.remoteAddress,
+            userAgent: req.headers["user-agent"]
         });
 
         // create new access token.
-        const accessToken = AuthenticationControllerHelpers.createAccessToken(
-            matchingUser
-        );
+        const accessToken = AuthenticationControllerHelpers.createAccessToken(matchingUser);
 
         matchingUser.password = undefined;
         return response.success("User logged in", {
@@ -223,7 +190,6 @@ async function login(req, res) {
             accessToken: accessToken,
             refreshToken: refreshToken
         });
-
     } catch (err) {
         Logger.error("Error logging user in.", err);
         // Generic error message so as to not reveal too much about the login process.
@@ -247,10 +213,13 @@ async function refreshToken(req, res) {
 
         // assert that the refresh token was issued to the same device that is using it.
         // create hash using info of device that made the request.
-        let computedRefreshToken = AuthenticationControllerHelpers.createRefreshToken(foundSession.user,
-            req, foundSession.salt);
+        let computedRefreshToken = AuthenticationControllerHelpers.createRefreshToken(
+            foundSession.user,
+            req,
+            foundSession.salt
+        );
 
-        // compare hashes. This will equate to false if the device has a different user-agent, or if the user has recently changed their password. 
+        // compare hashes. This will equate to false if the device has a different user-agent, or if the user has recently changed their password.
         const isValid = computedRefreshToken == foundSession.refreshToken;
 
         // invalidate request and refresh token if above credentials don't match - the token may have been stolen.
@@ -267,23 +236,22 @@ async function refreshToken(req, res) {
         // Make sure user is no more than 100km from where they originally acquired the refresh token.#
 
         // DISABLE THIS IN TESTING (NO IP ADDRESS!!)
-
         if (process.env.NODE_ENV == "production") {
-            const requestIp =
-                req.headers["x-forwarded-for"].split(",")[0] || req.connection.remoteAddress;
+            const requestIp = req.headers["x-forwarded-for"].split(",")[0] || req.connection.remoteAddress;
             const sessionIp = foundSession.clientIp;
-            const {
-                error,
-                distance
-            } = await AuthenticationControllerHelpers.calculateGeoIpDistance(requestIp, sessionIp);
+            const { error, distance } = await AuthenticationControllerHelpers.calculateGeoIpDistance(
+                requestIp,
+                sessionIp
+            );
             if (error) {
                 Logger.error("Error calculating distance", error);
                 return response.failure("Error refreshing token", 500);
             }
 
             if (distance > 100000) {
+                // 100km
                 Logger.warn("Possible token fraud", {
-                    req,
+                    requestIp,
                     foundSession,
                     distance
                 });
@@ -296,9 +264,8 @@ async function refreshToken(req, res) {
 
         // return new token and original user
         return response.success("Token refreshed successfully.", {
-            accessToken: accessToken,
+            accessToken: accessToken
         });
-
     } catch (err) {
         Logger.error("Error refreshing token.", err);
         return response.failure("An error occured refreshing the token", 500);
@@ -315,26 +282,19 @@ async function forgotPassword(req, res) {
             email: email
         });
 
-        if (!foundUser)
-            return response.failure("Error finding user associated with that email", 400);
+        if (!foundUser) return response.failure("Error finding user associated with that email", 400);
 
         // get ip address of request.
-        let requestIp =
-            req.header("x-forwarded-for") || req.connection.remoteAddress;
+        let requestIp = req.header("x-forwarded-for") || req.connection.remoteAddress;
 
-        let {
-            token
-        } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
+        let { token } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
 
         // send email
         let mailer = new Mailer();
         mailer.forgotPassword(foundUser, token, requestIp).send();
 
         // let the user know the email was sent.
-        return response.success(
-            "Email sent sucessfully. If you can't find it, check your spam folder!"
-        );
-
+        return response.success("Email sent sucessfully. If you can't find it, check your spam folder!");
     } catch (error) {
         if (error.code == 11000) {
             return response.failure("This user has already been sent a password reset email.", 400);
@@ -342,7 +302,6 @@ async function forgotPassword(req, res) {
 
         return response.failure("Error sending forgot password email", 400);
     }
-
 }
 
 async function resetPassword(req, res) {
@@ -361,10 +320,7 @@ async function resetPassword(req, res) {
 
         // users only have 30 mins to reset password.
         let tokenExpiryTime = 30;
-        let tokenExpires = moment(foundPasswordReset.timestamp).add(
-            tokenExpiryTime,
-            "minutes"
-        );
+        let tokenExpires = moment(foundPasswordReset.timestamp).add(tokenExpiryTime, "minutes");
 
         // check if the token has expired.
         if (moment().isAfter(tokenExpires)) {
@@ -374,18 +330,13 @@ async function resetPassword(req, res) {
         }
 
         // Token is valid!! reset the users password.
-        let newPassword = await AuthenticationControllerHelpers.hashPassword(
-            password
-        );
-        let updatedUser = await UserModel.findByIdAndUpdate(
-            foundPasswordReset.userId, {
-                password: newPassword
-            }
-        );
+        let newPassword = await AuthenticationControllerHelpers.hashPassword(password);
+        let updatedUser = await UserModel.findByIdAndUpdate(foundPasswordReset.userId, {
+            password: newPassword
+        });
 
         // if the user was previously a guest turn them into a client.
         if (updatedUser.role == Role.Guest) {
-
             // delete guest account
             await GuestModel.findByIdAndDelete(updatedUser._id);
 
@@ -406,7 +357,7 @@ async function resetPassword(req, res) {
         // However, I remove the old sessions from the database anyway (just do it doesn't fill up).
         await SessionModel.deleteMany({
             user: updatedUser._id
-        })
+        });
 
         // remove the password reset from the db so that it can't be reused.
         await PasswordResetModel.findByIdAndDelete(foundPasswordReset._id);
@@ -416,16 +367,11 @@ async function resetPassword(req, res) {
             updatedUser: updatedUser
         });
     } catch (error) {
-        return response.failure(
-            "Error resetting password.",
-            500
-        );
+        return response.failure("Error resetting password.", 500);
     }
 }
 
-
 async function logout(req, res) {
-
     const response = new AppResponse(res);
     // To log a user out, we have to expire their refresh token.
     // This means that when their access token expires, they will have to log in to obtain a new token pair (refresh and access).
@@ -433,13 +379,13 @@ async function logout(req, res) {
     try {
         // If the user find and delete the users refresh token.
         await SessionModel.deleteMany({
-            userAgent: req.headers['user-agent'],
+            userAgent: req.headers["user-agent"],
             user: req.user._id
         });
         return response.success("User logged out successfully");
     } catch (error) {
-        Logger.error("Error logging user out.", error)
-        return response.failure("There was an error logging you out.", 500)
+        Logger.error("Error logging user out.", error);
+        return response.failure("There was an error logging you out.", 500);
     }
 }
 
