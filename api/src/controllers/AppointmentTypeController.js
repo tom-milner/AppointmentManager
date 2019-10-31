@@ -2,6 +2,7 @@
 const AppointmentTypeModel = require("../models/MongooseModels/AppointmentTypeModel");
 const AppResponse = require("../struct/AppResponse");
 const Utils = require("../utils/Utils");
+const Logger = require("..//struct/Logger")(module);
 
 // create a new appointment type
 async function createAppointmentType(req, res) {
@@ -32,14 +33,12 @@ async function createAppointmentType(req, res) {
         });
 
     } catch (error) {
-        let responseCode = 500;
-        let errorMessage = "Error creating appointment type.";
         if (error.code === 11000) {
-            errorMessage = Utils.getDuplicateMongoEntryKey(errorMessage) +
-                " already exists.";
-            responseCode = 200;
+            return response.failure(Utils.getDuplicateMongoEntryKey(error.message) +
+                " already exists.", 409);
         }
-        return response.failure(errorMessage, responseCode);
+        Logger.error("Error creating appointment type.", error);
+        return response.failure("Error creating appointment type.", 500);
 
     }
 }

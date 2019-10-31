@@ -143,11 +143,11 @@ async function registerGuest(req, res) {
         });
     } catch (error) {
         if (error.code == 11000) {
-            let fieldKey = Utils.getDuplicateMongoEntryKey();
-            if (fieldKey == userId)
+            let fieldKey = Utils.getDuplicateMongoEntryKey(error.message);
+            if (fieldKey == "userId")
                 return response.failure("This user has already been sent a registration email.", 400);
 
-            return response.failure(`${fieldKey} is already registered.`);
+            return response.failure(`${fieldKey} is already registered.`, 409);
         }
         Logger.error("error creating guest", error);
         return response.failure("Error creating guest.", 500);

@@ -70,8 +70,9 @@ async function createAndCheckAllAppointments(appointmentInfo, appointmentType) {
 }
 
 async function insertAppointment(appointmentInfo) {
+
     // Create new appointment model
-    let createdAppointment = AppointmentModel.create({
+    let createdAppointment = await AppointmentModel.create({
         title: appointmentInfo.title,
         startTime: appointmentInfo.startTime,
         // TODO: add buffer to end time
