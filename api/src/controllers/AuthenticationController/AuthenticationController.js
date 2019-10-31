@@ -117,7 +117,7 @@ async function registerGuest(req, res) {
         let passwordHash = await AuthenticationControllerHelpers.hashPassword(password);
 
         // save guest in database
-        let createdGuest = GuestModel.create({
+        let createdGuest = await GuestModel.create({
             // default username is the user's email
             username: email,
             firstname: firstname,
