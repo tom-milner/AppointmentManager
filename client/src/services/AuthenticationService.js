@@ -26,79 +26,85 @@ function initializeNavigationGuard() {
             minimumAuthRole
         } = to.meta;
 
-        if (minimumAuthRole) { // If any routes require authentication
-            let isLoggedIn = Store.getters["authentication/isLoggedIn"];
-            if (isLoggedIn) {
+        let isLoggedIn = Store.getters["authentication/isLoggedIn"];
 
-                // Make sure the user exists in store
-                // The store is wiped on refresh, so this makes sure that there is always a user in the store.
-                if (!Store.state.authentication.user._id) { // No user in store.
-                    let accessToken = Store.state.authentication.accessToken;
+        // Users can't login if they are already in a session.
+        if (to.path.includes("auth") && isLoggedIn) return next(from.path);
 
-                    if (!accessToken) {
-                        // refresh access token
-                        await refreshAccessToken();
-                    }
-                    let currentAccessToken = Store.state.authentication.accessToken;
-                    Store.state.authentication.user = Utils.getTokenPayload(currentAccessToken);
-                }
+        // If path doesn't require authentication, let the user through.
+        if (!minimumAuthRole) return next();
 
-                // check to see if the user has the required access levels
-                let currentUserRole = Store.state.authentication.user.role;
-                if (currentUserRole >= minimumAuthRole) {
-                    // allow the user to continue to their chosen route, as they are logged in 
-                    next();
+        // If the user isn't logged in, send them to the login page.
+        if (!isLoggedIn) return next("/auth/login");
 
-                } else {
-                    next("/home");
-                }
-            } else {
-                // make the user login first.
-                next("/auth/login");
+
+        // Make sure there is a valid access token.
+        let accessToken = Store.state.authentication.accessToken;
+        if (!accessToken) {
+            // If there's no current access token, get a new one.
+            try {
+                // refresh access token
+                accessToken = await refreshAccessToken();
+            } catch (error) {
+                console.log("Error refreshing token");
             }
-        } else {
-            // route does not require user to be logged in - let them through
+        }
+
+
+        // Make sure the user exists in store
+        // The store is wiped on refresh, so this makes sure that there is always a user in the store.
+        let currentUser = Store.state.authentication.user;
+        if (!currentUser) { // No user in store.
+            currentUser = Utils.getTokenPayload(accessToken);
+            Store.commit("authentication/auth_success", {
+                user: currentUser
+            });
+        }
+
+        // check to see if the user has the required access levels
+        if (currentUser.role >= minimumAuthRole) {
+            // allow the user to continue to their chosen route, as they are logged in 
             next();
+
+        } else {
+            // The user doesn't have access to this page - send them to the home page.
+            next("/home");
         }
     });
 }
 
 // intercept requests and check if token is still valid.
 async function setupTokenRefresher(config) {
+    // This function is run before every axios request.
+    // It makes sure that the request about to be sent has a valid access token attached.
 
     let accessToken = Store.state.authentication.accessToken;
 
-    // ignore requests to register or signup routes - these are already getting new tokens.
+    // ignore requests to all authentication routes except "logout" - these are already getting new tokens.
     // also only allow refresh if token exists, and if the token isn't currently being updated
-    if (((config.url).includes("auth") && !config.url.includes("logout")) || !accessToken || Store.state
+    if ((config.url.includes("auth") && !config.url.includes("logout")) || !accessToken || Store.state
         .authentication
         .status == "loading" || Store.state.authentication.status == "error") {
         return config;
     }
 
-    // try and decode token
-    try {
-        // check how long token is valid for.
-        let decodedPayload = Utils.getTokenPayload(accessToken);
+    // check how long token is valid for.
+    let decodedPayload = Utils.getTokenPayload(accessToken);
+    let currentTime = Date.now();
+    let tokenExpiryTime = decodedPayload.exp * 1000;
+    let timeToExpire = tokenExpiryTime - currentTime;
 
-        let currentTime = Date.now();
-        let tokenExpiryTime = decodedPayload.exp * 1000;
-        let timeToExpire = tokenExpiryTime - currentTime;
-
-        // If token has expired, renew it
-        if (timeToExpire <= 0) {
+    // If token has expired, renew it
+    if (timeToExpire <= 0) {
+        try {
             await refreshAccessToken();
+        } catch (error) {
+            // If the token refresh fails, 
         }
-
-        config.headers.Authorization = "Bearer " + Store.state.authentication.accessToken;
-
-    } catch (err) {
-        console.log(err);
-        // Refresh token is invalid
-        UserService.logoutUser({
-            fullyLogout: true
-        });
     }
+
+    config.headers.Authorization = "Bearer " + Store.state.authentication.accessToken;
+
     return config;
 }
 
@@ -107,13 +113,12 @@ async function setupAccessDeniedResponseInterceptor(err) {
     // check to see if the error from the server is a 401 error
     if ((err.response.status == 401 && err.config && !err.config.__isRetryRequest && !err.config.url.includes(
             "/auth"))) {
-        // token must be expired - clear token in store
+        // If we are receiving a 401 error, the access token must be expired. Therefore, try and refresh it.
         try {
             await refreshAccessToken();
         } catch (err) {
-            UserService.logoutUser({
-                fullyLogout: true
-            });
+            console.log(err);
+            console.log("Invalid token.")
         }
     }
     // return the error 
@@ -124,7 +129,7 @@ async function setupAccessDeniedResponseInterceptor(err) {
 function refreshAccessToken() {
     // let other services know token is changing 
     return new Promise(async (resolve, reject) => {
-        console.log("refreshing access token...")
+        console.log("Refreshing access token...")
         try {
             Store.commit("authentication/auth_request");
 
@@ -136,16 +141,15 @@ function refreshAccessToken() {
             });
 
             const accessToken = response.data.accessToken;
-
             Store.commit("authentication/auth_success", {
                 accessToken,
             });
 
             resolve(accessToken);
         } catch (error) {
-
+            // If there is an error refreshing a token, flush the tokens (As the refresh token is likely invalid).
             console.log(error);
-            Store.commit("authentication/auth_error");
+            Store.commit("authentication/auth_logout", true);
             reject(error);
         }
     });

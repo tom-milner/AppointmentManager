@@ -215,7 +215,7 @@ async function refreshToken(req, res) {
             refreshToken: refreshToken
         }).populate({
             path: "user",
-            select: "_id password"
+            select: "+password"
         });
         if (!foundSession) return response.failure("Invalid refresh token", 401);
 
