@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const AppointmentTypeModelSchema = require("./AppointmentTypeModel").schema;
+const AppointmentTypeSchema = require("./AppointmentTypeModel").schema;
 
 // define schema
 let appointmentSchema = new Schema({
@@ -13,7 +13,7 @@ let appointmentSchema = new Schema({
     },
 
     // save the appointment type directly in the schema so that if appointment types are updated, the appointment specific info will be left unchanged.
-    appointmentType: AppointmentTypeModelSchema,
+    appointmentType: AppointmentTypeSchema,
 
     counsellorId: {
         type: Schema.Types.ObjectId,
