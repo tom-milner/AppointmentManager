@@ -1,33 +1,48 @@
 "use strict";
 
-// Load in environment variables
+// Setup PM2 monitoring (only on prod server)
+if (process.env.NODE_ENV == "production") {
+    const io = require("@pm2/io");
+    io.init({
+        metrics: {
+            network: {
+                ports: true
+            }
+        }
+    })
+}
+
+
+// Import external libraries
 const dotenv = require("dotenv");
 const path = require('path');
+const express = require("express");
+const app = express();
+const Sentry = require('@sentry/node');
+const cors = require("cors");
+const bodyParser = require("body-parser");
+
+
+
+// Load in custom environment variables
 dotenv.config({
     path: path.join(__dirname, '../.env')
 });
 
-const express = require("express");
-const app = express();
-
 // load config file. This maps the environment variables to javascript objects.
 const Config = require("./struct/Config");
 
-// Error monitoring
-const Sentry = require('@sentry/node');
+
+// Connect to sentry error tracking.
 Sentry.init({
     dsn: 'https://9bffd9e390ff4804b85b30eb5d8ab9b1@sentry.io/1803636'
 });
-
-// The request handler must be the first middleware on the app
-app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.requestHandler()); // This request handler must be the first middleware on the app
 
 // Automatic CORS-policy handling
-const cors = require("cors");
 app.use(cors());
 
 // Handle POST requests
-const bodyParser = require("body-parser");
 app.use(
     bodyParser.urlencoded({
         extended: false
@@ -39,27 +54,21 @@ app.use(bodyParser.json());
 const routes = require("./routes");
 app.use(routes);
 
-
-// Error monitoring
+// User sentry error handler.
 app.use(Sentry.Handlers.errorHandler());
 
 
-const Logger = require("./struct/Logger")(module, "AppointmentManagerAPI");
-
-const Scheduler = require("./struct/scheduler/Scheduler");
-const scheduler = new Scheduler();
-
-// setup google api
+// Import internal libraries
 const GoogleAuth = require("./struct/googleauth/GoogleAuth");
-const googleAuth = new GoogleAuth();
-
-// setup mailer
 const Mailer = require("./struct/mailer/Mailer");
-const mailer = new Mailer();
-
 const Database = require("./struct/Database");
-const database = new Database();
+const Logger = require("./struct/Logger")(module, "AppointmentManagerAPI");
+const Scheduler = require("./struct/scheduler/Scheduler");
 
+const scheduler = new Scheduler();
+const googleAuth = new GoogleAuth();
+const mailer = new Mailer();
+const database = new Database();
 
 
 // Connect to the database and start the application
@@ -67,7 +76,7 @@ const database = new Database();
 
     try {
 
-        // get google api keys.
+        // Setup google APIs.
         await googleAuth.init();
 
         // Initialise the mailer
