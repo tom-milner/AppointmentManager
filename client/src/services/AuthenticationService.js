@@ -1,7 +1,6 @@
 import Store from "@/store/store";
 import Router from "@/routes";
 import Api from "@/services/Api";
-import UserService from "@/services/UserService";
 import Utils from "@/utils";
 
 function forgotPassword(email) {
