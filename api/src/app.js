@@ -9,33 +9,29 @@ if (process.env.NODE_ENV == "production") {
                 ports: true
             }
         }
-    })
+    });
 }
-
 
 // Import external libraries
 const dotenv = require("dotenv");
-const path = require('path');
+const path = require("path");
 const express = require("express");
 const app = express();
-const Sentry = require('@sentry/node');
+const Sentry = require("@sentry/node");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
-
-
 // Load in custom environment variables
 dotenv.config({
-    path: path.join(__dirname, '../.env')
+    path: path.join(__dirname, "../.env")
 });
 
 // load config file. This maps the environment variables to javascript objects.
 const Config = require("./struct/Config");
 
-
 // Connect to sentry error tracking.
 Sentry.init({
-    dsn: 'https://9bffd9e390ff4804b85b30eb5d8ab9b1@sentry.io/1803636'
+    dsn: "https://9bffd9e390ff4804b85b30eb5d8ab9b1@sentry.io/1803636"
 });
 app.use(Sentry.Handlers.requestHandler()); // This request handler must be the first middleware on the app
 
@@ -57,7 +53,6 @@ app.use(routes);
 // User sentry error handler.
 app.use(Sentry.Handlers.errorHandler());
 
-
 // Import internal libraries
 const GoogleAuth = require("./struct/googleauth/GoogleAuth");
 const Mailer = require("./struct/mailer/Mailer");
@@ -70,12 +65,9 @@ const googleAuth = new GoogleAuth();
 const mailer = new Mailer();
 const database = new Database();
 
-
 // Connect to the database and start the application
 (async () => {
-
     try {
-
         // Setup google APIs.
         await googleAuth.init();
 
@@ -92,13 +84,11 @@ const database = new Database();
         scheduler.start();
 
         // Database is required, so only start server if database connection can be established
-        app.listen(Config.port, function () {
+        app.listen(Config.port, function() {
             Logger.info(`Started server on port ${Config.port}`);
         });
-
     } catch (error) {
-        Logger.error(`${error}`)
-        Logger.error(`Aborting...`)
+        Logger.error("Startup error", error);
         process.exit();
     }
 })();

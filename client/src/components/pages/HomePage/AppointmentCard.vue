@@ -1,5 +1,6 @@
 <template>
   <div class="appointment-card-wrapper" :style="getColor">
+    <div class="client-status" :class="{'can-attend' : appointment.clientCanAttend} "></div>
     <div class="heading-box">
       <h3 class="heading-3">{{appointment.title}}</h3>
     </div>
@@ -46,6 +47,7 @@ export default {
 <style lang="scss" scoped>
 @import "src/scss/global";
 $card-width: 15.3rem;
+
 .appointment-card-wrapper {
   background-color: $color-canvas;
   height: $card-width;
@@ -54,12 +56,28 @@ $card-width: 15.3rem;
   margin: 1rem 0;
   border-radius: 1rem;
   padding: 0.7rem;
-
+  position: relative;
   flex-direction: column;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex: 0 0 auto;
+
+  .client-status {
+    background-color: $color-error;
+    content: "";
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    shape-outside: circle();
+    clip-path: circle();
+
+    &.can-attend {
+      background-color: $color-approved;
+    }
+  }
 
   &:not(:last-of-type) {
     margin-right: 1.5rem;

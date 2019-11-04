@@ -25,6 +25,7 @@ class Database {
         }).then(function (result) {
             Logger.info("Database Connected.")
         }).catch(function (err) {
+            Logger.error("MongoDB connection error", err);
             throw (`Error connecting to MongoDB database at ${url}`);
         });
 
