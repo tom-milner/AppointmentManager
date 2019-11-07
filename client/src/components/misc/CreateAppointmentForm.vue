@@ -47,11 +47,11 @@
           class="form-input short-input"
           disabled
         />
-        <div
+        <button
           v-if="canDisplayOpenCalendarButton"
           class="btn btn-secondary short-input"
           @click="toggleAppointmentCalendarModal"
-        >Choose from calendar</div>
+        >Choose from calendar</button>
       </div>
 
       <!-- Displays the chosen appointment type (if present) -->
@@ -75,15 +75,15 @@
         <textarea v-model="clientNotes" class="form-input"></textarea>
       </div>
 
-      <!-- Error Message -->
-      <div v-if="errorMessage" class="form-field error">
-        <h4 class="heading-4 error">{{this.errorMessage}}</h4>
-      </div>
-
       <!-- Submit form button-->
       <div class="form-field">
         <button @click="requestAppointment" class="btn btn-primary">Request Appointment</button>
       </div>
+    </div>
+
+    <!-- Error Message -->
+    <div v-if="errorMessage" class="form-field error">
+      <h4 class="heading-4 error">{{this.errorMessage}}</h4>
     </div>
 
     <!-- Calendar Modal -->
@@ -109,6 +109,7 @@ import AppointmentCalendar from "@/components/misc/Calendar/AppointmentCalendar"
 import Modal from "@/components/layout/Modal";
 import Utils from "@/utils";
 import AppointmentTypeContainer from "@/components/misc/AppointmentTypeContainer";
+import Role from "@/models/Role";
 
 export default {
   components: {
@@ -139,7 +140,6 @@ export default {
   },
   data() {
     return {
-      user: {},
       clientDates: [], // the dates where the user is busy
       counsellorDates: [], // the dates where the counsellor is busy
       businessHours: [], // dates that the counsellor isn't available
@@ -236,8 +236,8 @@ export default {
           throw { response };
         }
 
-        // request was a success (appointment has been made) - redirect user
-        this.$router.push("/home");
+        // request was a success (appointment has been made)
+        this.$emit("appointment-created");
       } catch (error) {
         console.log(error);
         if (Utils.isString(error)) {
@@ -341,8 +341,10 @@ export default {
       // reset the chosen start time.
       this.chosenStartTime = undefined;
 
-      // get client appointments
-      this.clientAppointments = await this.getAppointmentsOfClient();
+      // get client appointments (if they are a registered client)
+      if (this.chosenClient.role > Role.Guest)
+        this.clientAppointments = await this.getAppointmentsOfClient();
+
       console.log(this.clientAppointments);
     }
   },
@@ -350,7 +352,6 @@ export default {
   async mounted() {
     // store user in local variable
     this.user = this.$store.state.authentication.user;
-    console.log(this.user);
     if (this.userIsCounsellor) {
       this.clients = (await UserService.getAllClients()).data.clients;
     } else {

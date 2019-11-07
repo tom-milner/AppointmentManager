@@ -66,8 +66,8 @@ function initializeNavigationGuard() {
             next();
 
         } else {
-            // The user doesn't have access to this page - send them to the home page.
-            next("/home");
+            // The user doesn't have access to this page - send them to the landing page.
+            next("/");
         }
     });
 }

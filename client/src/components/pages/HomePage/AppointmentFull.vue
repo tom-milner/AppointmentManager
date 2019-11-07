@@ -104,10 +104,14 @@
     <Dialogue @close-dialogue="showDeleteDialogue = false" v-if="showDeleteDialogue">
       <div class="dialogue-content">
         <h4 class="heading-4">Do you want to delete this appointment?</h4>
-        <h4
-          class="heading-4"
-          v-if="appointment.appointmentType.isRecurring"
-        >(You can also delete all the recurring appointments)</h4>
+        <h4 class="heading-4">
+          To reschedule the appointment, you must book a new one.
+          <span
+            v-if="appointment.appointmentType.isRecurring"
+          >
+            <br />You can either delete just this appointment or all it's recurring appointments.
+          </span>
+        </h4>
         <div class="dialogue-buttons">
           <button
             class="btn btn-disapproved"

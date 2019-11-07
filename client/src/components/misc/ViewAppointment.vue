@@ -4,7 +4,7 @@
     <AppointmentFull
       :isCounsellor="isUserCounsellor"
       :appointment="appointment"
-      v-on:appointment-deleted="toggleModal()"
+      v-on:appointment-deleted="emitClose()"
     ></AppointmentFull>
   </Modal>
 </template>

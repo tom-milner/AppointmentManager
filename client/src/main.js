@@ -5,15 +5,15 @@ import store from "./store/store";
 import AuthenticationService from "@/services/AuthenticationService";
 
 // Setup error monitoring
-import * as Sentry from '@sentry/browser';
-import * as Integrations from '@sentry/integrations';
-Sentry.init({
-    dsn: 'https://56454897973441c8a6a4d93b7286e72f@sentry.io/1804724',
-    integrations: [new Integrations.Vue({
-        Vue,
-        attachProps: true
-    })]
-});
+// import * as Sentry from '@sentry/browser';
+// import * as Integrations from '@sentry/integrations';
+// Sentry.init({
+//     dsn: 'https://56454897973441c8a6a4d93b7286e72f@sentry.io/1804724',
+//     integrations: [new Integrations.Vue({
+//         Vue,
+//         attachProps: true
+//     })]
+// });
 
 
 // Attach Icon component to all components.

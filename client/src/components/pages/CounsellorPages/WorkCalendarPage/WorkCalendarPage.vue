@@ -36,8 +36,11 @@
     </div>
 
     <!-- Save Button -->
-    <div class="container">
+    <div class="container save">
       <button @click="saveSettings" class="btn btn-primary save-button">Save</button>
+      <div class="message">
+        <h4 class="heading-4 error" :class="{success : message.success}">{{message.contents}}</h4>
+      </div>
     </div>
   </div>
 </template>
@@ -47,12 +50,14 @@ import UserService from "@/services/UserService";
 import WorkDay from "@/models/WorkDay";
 
 export default {
-  components: {},
-
   data() {
     return {
       counsellor: {},
       appointments: [],
+      message: {
+        success: false,
+        contents: ""
+      },
       workDays: [
         "Monday",
         "Tuesday",
@@ -73,24 +78,6 @@ export default {
   },
 
   methods: {
-    sortAvailableWorkDays() {
-      console.log("sorting");
-      // sort available week days
-      let days = [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday"
-      ];
-      this.availableWorkDays = this.availableWorkDays.sort(function(a, b) {
-        console.log(days.indexOf(a.name) > days.indexOf(b.name));
-        return days.indexOf(a.name) > days.indexOf(b.name);
-      });
-    },
-
     formatTime(time) {
       console.log("raw: ", time);
       let formattedTime = this.moment(time);
@@ -111,17 +98,29 @@ export default {
       } else {
         // add day
         this.availableWorkDays.push(new WorkDay(currentDay));
+        this.sortAvailableWorkDays();
       }
     },
+    sortAvailableWorkDays() {
+      console.log("sorting");
+      // sort available week days
+      let days = this.workDays;
 
-    saveSettings() {
-      UserService.updateUser(
+      return this.availableWorkDays.sort(
+        (a, b) => days.indexOf(a.name) - days.indexOf(b.name)
+      );
+    },
+
+    async saveSettings() {
+      let response = await UserService.updateUser(
         this.counsellor._id,
         {
           workingDays: this.availableWorkDays
         },
         true
       );
+      this.message.success = response.data.success;
+      this.message.contents = response.data.message;
     }
   }
 };
@@ -132,6 +131,7 @@ export default {
 
 .container {
   margin-top: 5rem;
+
   .working-days-buttons {
     margin-top: 1rem;
     button {
@@ -167,8 +167,18 @@ export default {
       }
     }
   }
-  .save-button {
+  &.save {
     width: 30rem;
+
+    .message {
+      margin-top: 1rem;
+      height: 4rem;
+      vertical-align: middle;
+      //   text-align: center;
+    }
+    .save-button {
+      width: 100%;
+    }
   }
 }
 </style>

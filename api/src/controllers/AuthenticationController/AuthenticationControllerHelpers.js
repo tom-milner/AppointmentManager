@@ -94,10 +94,10 @@ function generateRandomPassword() {
 // create password reset 
 async function createPasswordReset(user) {
     // create random token
-    let token = await generateRandomToken();
+    let resetToken = await generateRandomToken();
 
     // create a hash of the token to store in a database.
-    let tokenHash = generateTokenHash(token);
+    let tokenHash = generateTokenHash(resetToken);
 
     // store hash and timestamp in the database.
     const passwordReset = await PasswordResetModel.create({
@@ -107,7 +107,7 @@ async function createPasswordReset(user) {
     });
 
     return {
-        token,
+        resetToken,
         passwordReset
     };
 }

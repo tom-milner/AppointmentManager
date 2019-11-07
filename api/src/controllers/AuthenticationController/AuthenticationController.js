@@ -15,6 +15,8 @@ const SessionModel = require("../../models/MongooseModels/SessionModel");
 const Logger = require("../../struct/Logger")(module);
 const crypto = require("crypto");
 
+let mailer = new Mailer();
+
 // Register a new counsellor
 async function registerCounsellor(req, res) {
     const response = new AppResponse(res);
@@ -88,6 +90,9 @@ async function registerClient(req, res) {
         const savedClient = await newClient.save();
         savedClient.password = undefined;
 
+        // Send confirmation email to user.
+        mailer.confirmNewUser(savedClient).send();
+
         // Return newly created client
         return response.success("Client added.", {
             user: savedClient
@@ -96,6 +101,7 @@ async function registerClient(req, res) {
         if (err.code == 11000) {
             return response.failure(Utils.getDuplicateMongoEntryKey(err.message) + " already exists.", 409);
         }
+        Logger.error("Error creating client", err);
         return response.failure("Error registering client.", 500);
     }
 }
@@ -128,18 +134,22 @@ async function registerGuest(req, res) {
 
         // create a password reset for the guest for when they want to fully activate their account.
         let {
-            token
+            resetToken
         } = await AuthenticationControllerHelpers.createPasswordReset(createdGuest);
 
         // send guest an email containing a link to activate their account.
-        let mailer = new Mailer();
-        mailer.confirmNewUser(createdGuest, token).send();
 
+        mailer.confirmNewUser(createdGuest, resetToken).send();
+
+
+        // create access token for guest
+        const accessToken = AuthenticationControllerHelpers.createAccessToken(createdGuest);
         // send back newly created guest
         createdGuest.password = undefined;
 
         return response.success("Guest created successfully", {
-            user: createdGuest
+            user: createdGuest,
+            accessToken: accessToken
         });
     } catch (error) {
         if (error.code == 11000) {
@@ -299,12 +309,12 @@ async function forgotPassword(req, res) {
         let requestIp = req.header("x-forwarded-for") || req.connection.remoteAddress;
 
         let {
-            token
+            resetToken
         } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
 
         // send email
-        let mailer = new Mailer();
-        mailer.forgotPassword(foundUser, token, requestIp).send();
+
+        mailer.forgotPassword(foundUser, resetToken, requestIp).send();
 
         // let the user know the email was sent.
         return response.success("Email sent sucessfully. If you can't find it, check your spam folder!");

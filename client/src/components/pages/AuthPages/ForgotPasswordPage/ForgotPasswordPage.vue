@@ -13,7 +13,7 @@
               class="paragraph"
             >Pressing the send button will send a password reset email to the above address. Follow the instructions in the email to reset you password.</p>
           </div>
-          <div class="row">
+          <div class="row" v-if="message">
             <h4 class="heading-4 error message" :class="{success: sentSuccessfully  }">{{message}}</h4>
           </div>
           <div :disabled="triesRemaining < 1" class="row send-button">

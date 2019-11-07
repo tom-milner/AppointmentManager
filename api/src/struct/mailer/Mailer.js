@@ -113,7 +113,7 @@ class Mailer {
 
     forgotPassword(user, token, requestIp) {
 
-        let email = this.email;
+        let email = {};
         email.to = user.email;
         email.subject = "Forgotten Password";
         email.html = `<p>Hi ${user.firstname}.</p>
@@ -164,9 +164,8 @@ class Mailer {
     async send() {
         this.email.from = Config.mailer.email;
         try {
-            // return this.transporter.sendMail(this.email);
+            return this.transporter.sendMail(this.email);
         } catch (error) {
-
             Logger.error("Error sending email.", error)
         }
     }

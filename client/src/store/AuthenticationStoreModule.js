@@ -50,7 +50,7 @@ const mutations = {
 }
 
 const getters = {
-    isLoggedIn: state => !!(state.refreshToken || state.accessToken),
+    isLoggedIn: state => !!((state.refreshToken || state.accessToken) && state.user.role > Role.Guest),
     authStatus: state => state.status,
     isCounsellor: state => state.user.role >= Role.Counsellor
 };

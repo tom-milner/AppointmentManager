@@ -2,6 +2,9 @@
   <div class="wrapper">
     <div class="content">
       <!-- Heading-->
+      <div class="icon-box" v-on:click="$router.go(-1)">
+        <icon name="arrow-left"></icon>
+      </div>
       <h2 class="heading-2">{{fullClient.firstname}} {{fullClient.lastname}}</h2>
 
       <ul class="user-details">
@@ -22,8 +25,8 @@
         </li>
 
         <!-- Error Message -->
-        <li class="section" v-if="message.length > 0">
-          <h4 class="heading-4 error" :class="{success: messageStatus }">{{message}}</h4>
+        <li class="section" v-if="message.content.length > 0">
+          <h4 class="heading-4 error" :class="{success: message.success }">{{message.content}}</h4>
         </li>
       </ul>
 
@@ -64,8 +67,7 @@ export default {
   data() {
     return {
       fullClient: {},
-      message: "",
-      messageStatus: false,
+      message: { content: "", success: false },
       showDeleteDialogue: false,
       clientEvents: {},
       clientAppointments: [],
@@ -97,31 +99,37 @@ export default {
     },
 
     async deleteUser() {
+      let response;
       try {
-        let response = await UserService.deleteUser(this.fullClient._id);
-        console.log(response);
-        this.messageStatus = true;
+        response = await UserService.deleteUser(this.fullClient._id);
         this.showDeleteDialogue = false;
-        this.message = response.data.message;
+        this.$router.go(-1);
       } catch (error) {
         console.log(error);
-        this.messageStatus = false;
-        this.message = error.response.data.message;
+        response = error.response;
       }
+      this.message.content = response.data.message;
+      this.message.success = response.data.success;
     },
 
     async saveClinicalNotes() {
+      let response;
       try {
-        let response = await UserService.updateUser(this.fullClient._id, {
+        if (!this.fullClient.clinicalNotes) {
+          this.message.content = "No clinical notes provided.";
+          this.message.success = false;
+          return;
+        }
+        response = await UserService.updateUser(this.fullClient._id, {
           clinicalNotes: this.fullClient.clinicalNotes
         });
-        this.messageStatus = response.data.success;
-        if (!this.messageStatus) throw response;
-        this.message = response.data.message;
       } catch (error) {
-        if (Utils.isString(error)) this.message = error;
-        else this.message = error.response.data.message;
+        if (Utils.isString(error)) return (this.message = error);
+        response = error.response;
       }
+
+      this.message.content = response.data.message;
+      this.message.success = response.data.success;
     }
   }
 };
@@ -150,6 +158,20 @@ export default {
 }
 
 .content {
+  .icon-box {
+    width: 2.5rem;
+    height: 2.5rem;
+    color: $color-primary;
+    display: inline-block;
+    margin-right: 1rem;
+    vertical-align: middle;
+    cursor: pointer;
+  }
+
+  h2 {
+    display: inline;
+    vertical-align: middle;
+  }
   .user-details {
     list-style: none;
     margin-top: 2rem;
