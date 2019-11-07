@@ -26,12 +26,12 @@
 
       <div class="container options">
         <div class="search">
-          <Icon class="icon" name="search"></Icon>
+          <icon class="icon" name="search"></icon>
           <h3 class="heading-3">Search:</h3>
           <input type="text" v-model="searchQuery" class="form-input search-box" />
         </div>
         <div class="filter">
-          <Icon name="filter"></Icon>
+          <icon name="filter"></icon>
           <h3 class="heading-3">Filter:</h3>
           <select v-model="chosenTimePeriod" class="form-input select">
             <option
@@ -110,14 +110,12 @@ import AppointmentService from "@/services/AppointmentService";
 import AppointmentCalendar from "@/components/misc/Calendar/AppointmentCalendar";
 import Role from "@/models/Role";
 import ViewAppointment from "@/components/misc/ViewAppointment";
-import Icon from "vue-icon/lib/vue-feather.esm";
 
 export default {
   components: {
     AppointmentCard,
     ViewAppointment,
-    AppointmentCalendar,
-    Icon
+    AppointmentCalendar
   },
 
   watch: {

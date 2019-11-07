@@ -32,15 +32,15 @@
       </div>
 
       <div class="right">
-        <!-- Dropdown Icon -->
+        <!-- Dropdown icon -->
         <div v-if="!forceOpen" class="icon-box">
-          <Icon v-if="!showFullType" class="edit" name="chevron-down"></Icon>
-          <Icon v-else class="edit" name="chevron-up"></Icon>
+          <icon v-if="!showFullType" class="edit" name="chevron-down"></icon>
+          <icon v-else class="edit" name="chevron-up"></icon>
         </div>
 
         <!-- Edit Button -->
         <div v-if="!isEditable && userCanEdit" @click="toggleIsEditable" class="icon-box">
-          <Icon class="icon" name="edit" />
+          <icon class="icon" name="edit" />
         </div>
 
         <!-- Save Button -->
@@ -129,7 +129,6 @@
 
 
 <script>
-import Icon from "vue-icon/lib/vue-feather.esm";
 import AppointmentTypeService from "@/services/AppointmentTypeService";
 import Dialogue from "@/components/layout/DialogueBox";
 import ColorPicker from "@/components/misc/ColorPicker";
@@ -149,7 +148,6 @@ export default {
     };
   },
   components: {
-    Icon,
     ColorPicker,
     Dialogue
   },

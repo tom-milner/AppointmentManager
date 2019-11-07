@@ -16,6 +16,10 @@ Sentry.init({
 });
 
 
+// Attach Icon component to all components.
+import Icon from "vue-icon/lib/vue-feather.esm";
+Vue.component("icon", Icon);
+
 
 // setup moment for date time formatting
 import moment from "moment";

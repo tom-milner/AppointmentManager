@@ -67,10 +67,10 @@ $card-width: 15.3rem;
     background-color: $color-error;
     content: "";
     position: absolute;
-    top: 0.25rem;
-    left: 0.25rem;
-    width: 1.5rem;
-    height: 1.5rem;
+    top: 0.5rem;
+    left: 0.5rem;
+    width: 1.25rem;
+    height: 1.25rem;
     shape-outside: circle();
     clip-path: circle();
 

@@ -10,12 +10,7 @@
 </template>
 
 <script>
-import Icon from "vue-icon/lib/vue-feather.esm";
-
 export default {
-  components: {
-    Icon
-  },
   methods: {
     goBack: function() {
       if (this.backUrl) this.$router.push(this.backUrl);

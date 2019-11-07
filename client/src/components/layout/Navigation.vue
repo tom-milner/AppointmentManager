@@ -55,13 +55,8 @@
 
 <script>
 import UserService from "@/services/UserService";
-import Icon from "vue-icon/lib/vue-feather.esm";
 
 export default {
-  components: {
-    Icon
-  },
-
   data() {
     return {
       user: {}

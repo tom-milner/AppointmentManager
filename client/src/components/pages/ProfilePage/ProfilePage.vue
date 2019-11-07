@@ -104,13 +104,11 @@
 <script>
 import Utils from "@/utils";
 import UserService from "@/services/UserService";
-import Icon from "vue-icon/lib/vue-feather.esm";
 import AuthenticationService from "@/services/AuthenticationService";
 import Dialogue from "@/components/layout/DialogueBox";
 
 export default {
   components: {
-    Icon,
     Dialogue
   },
   data() {

@@ -3,14 +3,14 @@
     <!-- title -->
     <h2 class="heading-2">{{appointment.title}}</h2>
 
-    <!-- Counsellor Icon -->
+    <!-- Counsellor icon -->
     <ul class="appointment-details">
       <li class="appointment-details-row">
         <icon class="icon" name="user"></icon>
         <h4 class="heading-4">{{counsellor.firstname}} {{counsellor.lastname}}</h4>
       </li>
 
-      <!-- Client Icon -->
+      <!-- Client icon -->
       <li class="appointment-details-row">
         <icon class="icon" name="users"></icon>
         <h4
@@ -126,7 +126,6 @@
 </template>
 
 <script>
-import Icon from "vue-icon/lib/vue-feather.esm";
 import UserService from "@/services/UserService";
 import AppointmentService from "@/services/AppointmentService";
 import AppointmentTypeContainer from "@/components/misc/AppointmentTypeContainer";
@@ -157,7 +156,6 @@ export default {
     };
   },
   components: {
-    Icon,
     AppointmentTypeContainer,
     Dialogue
   },

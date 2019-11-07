@@ -4,10 +4,10 @@
       <div class="modal-content" v-on-clickaway="close">
         <div class="icons">
           <div class="icon-box">
-            <Icon class="icon" name="maximize" v-on:click.native="toggleFullscreen()"></Icon>
+            <icon class="icon" name="maximize" v-on:click.native="toggleFullscreen()"></icon>
           </div>
           <div class="icon-box" v-if="canPrint">
-            <Icon class="icon" name="printer" v-on:click.native="printModal()"></Icon>
+            <icon class="icon" name="printer" v-on:click.native="printModal()"></icon>
           </div>
         </div>
         <div id="printContents">
@@ -20,13 +20,9 @@
 
 <script>
 import { mixin as clickaway } from "vue-clickaway";
-import Icon from "vue-icon/lib/vue-feather.esm";
 
 export default {
   mixins: [clickaway],
-  components: {
-    Icon
-  },
 
   props: {
     canPrint: Boolean
