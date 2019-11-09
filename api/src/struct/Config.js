@@ -1,5 +1,6 @@
 const port = process.env.PORT || 8081;
 const url = process.env.URL || "http://localhost"
+const path = require("path");
 
 module.exports = {
 
@@ -16,7 +17,7 @@ module.exports = {
         url: process.env.DB_URL || "mongodb://127.0.0.1:27017/appointment_manager",
         user: process.env.DB_USER,
         pass: process.env.DB_PASS,
-        backupLocation: process.env.DB_BACKUP_LOCATION,
+        backupLocation: process.env.DB_BACKUP_LOCATION || path.join(__dirname, "../../Backups/"),
         backupPassword: process.env.DB_BACKUP_PASSWORD
     },
     googleAuth: {

@@ -8,8 +8,6 @@ const Logger = require("../Logger")(module);
 
 // trying out javascript classes (new ES6 feature);
 
-
-
 class Mailer {
     // create singleton
     constructor() {
@@ -68,6 +66,8 @@ class Mailer {
                       <p>Approved: ${appointment.isApproved}</p>
                     </li>`;
         }
+        this.email = email;
+
         return this;
     }
 
@@ -91,6 +91,7 @@ class Mailer {
       <p> Access your appointments using the following link: </p>
       <a href = "${Config.clientUrl}/home">Access Appointments</a>`
         }
+        this.email = email;
 
         return this;
     }
@@ -107,6 +108,7 @@ class Mailer {
       <p> ${referringCounsellor.firstname} ${referringCounsellor.lastname} has given you authentication to create a counsellor's account.</p>
       <p > To create your new account, follow this link:</p> 
       <a href = "${Config.clientUrl}/auth/register?token=${token}">Activate Account</a>`
+      this.email = email;
 
         return this;
     }
@@ -122,6 +124,8 @@ class Mailer {
                   <a href="${Config.clientUrl}/auth/reset-password?token=${token}">Reset Password</a>
                   <p>Ip: ${requestIp}</p>
                   `;
+                  this.email = email;
+
         return this;
     }
 
@@ -158,13 +162,19 @@ class Mailer {
         email.html +=
             `<p>To edit your appointment details, follow <a href="${Config.clientUrl}/auth/login" >This Link</a> </p>`;
 
+            this.email = email;
         return this;
     }
 
     async send() {
         this.email.from = Config.mailer.email;
+
+        console.log(this);
+
+
         try {
-            return this.transporter.sendMail(this.email);
+            let response =  await this.transporter.sendMail(this.email);
+            console.log(response);
         } catch (error) {
             Logger.error("Error sending email.", error)
         }
