@@ -4,6 +4,7 @@ import ForgotPasswordPage from "@/components/pages/AuthPages/ForgotPasswordPage/
 import ResetPasswordPage from "@/components/pages/AuthPages/ResetPasswordPage/ResetPasswordPage";
 import GuestPage from "@/components/pages/AuthPages/GuestPage/GuestPage"
 
+
 export default [
     // Authentication Routes
     {
@@ -11,7 +12,7 @@ export default [
         name: "LoginPage",
         component: LoginPage,
         meta: {
-            hideNavigation: true
+            hideNavigation: true,
         }
     },
     {

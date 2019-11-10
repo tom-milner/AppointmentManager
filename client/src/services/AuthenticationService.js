@@ -27,15 +27,18 @@ function initializeNavigationGuard() {
 
         let isLoggedIn = Store.getters["authentication/isLoggedIn"];
 
-        // Users can't login if they are already in a session.
-        if (to.path.includes("auth") && isLoggedIn) return next(from.path);
+        // If the user doesn't need to be logged in let them through.
+        if (!minimumAuthRole) {
 
-        // If path doesn't require authentication, let the user through.
-        if (!minimumAuthRole) return next();
+            // Users can't login or register if they are already in a session.
+            if ((to.path.includes("login") || to.path.includes("register")) && isLoggedIn) {
+                return next(from.path);
+            }
+            return next();
+        }
 
         // If the user isn't logged in, send them to the login page.
         if (!isLoggedIn) return next("/auth/login");
-
 
         // Make sure there is a valid access token.
         let accessToken = Store.state.authentication.accessToken;
@@ -46,9 +49,9 @@ function initializeNavigationGuard() {
                 accessToken = await refreshAccessToken();
             } catch (error) {
                 console.log("Error refreshing token");
+
             }
         }
-
 
         // Make sure the user exists in store
         // The store is wiped on refresh, so this makes sure that there is always a user in the store.
@@ -60,11 +63,11 @@ function initializeNavigationGuard() {
             });
         }
 
+
         // check to see if the user has the required access levels
         if (currentUser.role >= minimumAuthRole) {
             // allow the user to continue to their chosen route, as they are logged in 
             next();
-
         } else {
             // The user doesn't have access to this page - send them to the landing page.
             next("/");

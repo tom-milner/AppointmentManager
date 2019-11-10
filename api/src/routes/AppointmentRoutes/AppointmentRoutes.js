@@ -12,11 +12,11 @@ let Role = require("../../models/Role");
 
 // Get all  reduced appointments of a counsellor.
 router.get(
-  "/counsellor/:userId",
-  AppointmentController.getAppointmentsOfUser({
-    reduced: true,
-    isCounsellor: true
-  })
+    "/counsellor/:userId",
+    AppointmentController.getAppointmentsOfUser({
+        reduced: true,
+        isCounsellor: true
+    })
 );
 
 
@@ -30,66 +30,66 @@ router.use(AuthenticationMiddleware.isLoggedIn);
 
 // Get all appointments of a specific user
 router.get(
-  "/client/:userId",
-  AuthenticationMiddleware.roleCheck({
-    role: Role.Client,
-    userSpecific: true
-  }),
-  AppointmentController.getAppointmentsOfUser({
-    isCounsellor: false,
-    reduced: false
-  })
+    "/client/:userId",
+    AuthenticationMiddleware.roleCheck({
+        role: Role.Guest,
+        userSpecific: true
+    }),
+    AppointmentController.getAppointmentsOfUser({
+        isCounsellor: false,
+        reduced: false
+    })
 );
 
 
 
 // get all full appointments of a counsellor
 router.get(
-  "/counsellor/full/:userId",
-  AuthenticationMiddleware.roleCheck({
-    role: Role.Counsellor
-  }),
-  AppointmentController.getAppointmentsOfUser({
-    reduced: false,
-    isCounsellor: true
-  })
+    "/counsellor/full/:userId",
+    AuthenticationMiddleware.roleCheck({
+        role: Role.Counsellor
+    }),
+    AppointmentController.getAppointmentsOfUser({
+        reduced: false,
+        isCounsellor: true
+    })
 );
 
 // Get all appointments
 router.get(
-  "/",
-  AuthenticationMiddleware.roleCheck({
-    role: Role.Admin
-  }),
-  AppointmentController.getAllAppointments
+    "/",
+    AuthenticationMiddleware.roleCheck({
+        role: Role.Admin
+    }),
+    AppointmentController.getAllAppointments
 );
 
 // Insert new appointment
 router.post(
-  "/",
-  AppointmentControllerPolicy.createAppointment,
-  AppointmentController.createAppointment
+    "/",
+    AppointmentControllerPolicy.createAppointment,
+    AppointmentController.createAppointment
 );
 
 
 
 // update an existing appointment
 router.post(
-  "/:appointmentId",
-  AuthenticationMiddleware.roleCheck({
-    role: Role.Client,
-  }),
-  AppointmentControllerPolicy.updateAppointment,
-  AppointmentController.updateAppointment
+    "/:appointmentId",
+    AuthenticationMiddleware.roleCheck({
+        role: Role.Client,
+    }),
+    AppointmentControllerPolicy.updateAppointment,
+    AppointmentController.updateAppointment
 );
 
 // delete an appointment
 router.post("/delete/:appointmentId",
-  AuthenticationMiddleware.roleCheck({
-    role: Role.Client,
-    userSpecific: true
-  }),
-  AppointmentControllerPolicy.deleteAppointment,
-  AppointmentController.deleteAppointment)
+    AuthenticationMiddleware.roleCheck({
+        role: Role.Client,
+        userSpecific: true
+    }),
+    AppointmentControllerPolicy.deleteAppointment,
+    AppointmentController.deleteAppointment)
 
 module.exports = router;
