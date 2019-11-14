@@ -75,7 +75,7 @@ const database = new Database();
         await googleAuth.init();
 
         // Initialise the mailer
-        await mailer.init();
+        await mailer.init(isProd);
 
         // initialize database
         await database.init(Config.db.url, Config.db);
@@ -87,7 +87,7 @@ const database = new Database();
         scheduler.start();
 
         // Database is required, so only start server if database connection can be established
-        app.listen(Config.port, function() {
+        app.listen(Config.port, function () {
             Logger.info(`Started server on port ${Config.port}`);
         });
     } catch (error) {

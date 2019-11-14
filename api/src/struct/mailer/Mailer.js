@@ -20,7 +20,7 @@ class Mailer {
         return this;
     }
 
-    async init() {
+    async init(isProd) {
 
         let googleAuth = new GoogleAuth();
 
@@ -33,7 +33,7 @@ class Mailer {
             refreshToken: googleAuth.refreshToken,
             accessToken: googleAuth.accessToken
         };
-
+        this.isProd = isProd;
         this.transporter = nodemailer.createTransport({
             service: "gmail",
             auth: auth
@@ -108,7 +108,7 @@ class Mailer {
       <p> ${referringCounsellor.firstname} ${referringCounsellor.lastname} has given you authentication to create a counsellor's account.</p>
       <p > To create your new account, follow this link:</p> 
       <a href = "${Config.clientUrl}/auth/register?token=${token}">Activate Account</a>`
-      this.email = email;
+        this.email = email;
 
         return this;
     }
@@ -124,7 +124,7 @@ class Mailer {
                   <a href="${Config.clientUrl}/auth/reset-password?token=${token}">Reset Password</a>
                   <p>Ip: ${requestIp}</p>
                   `;
-                  this.email = email;
+        this.email = email;
 
         return this;
     }
@@ -162,19 +162,20 @@ class Mailer {
         email.html +=
             `<p>To edit your appointment details, follow <a href="${Config.clientUrl}/auth/login" >This Link</a> </p>`;
 
-            this.email = email;
+        this.email = email;
         return this;
     }
 
     async send() {
-        this.email.from = Config.mailer.email;
 
-        console.log(this);
+        // only send the email in production
+        if (!this.isProd) return;
+
+        this.email.from = Config.mailer.email;
 
 
         try {
-            let response =  await this.transporter.sendMail(this.email);
-            console.log(response);
+            await this.transporter.sendMail(this.email);
         } catch (error) {
             Logger.error("Error sending email.", error)
         }

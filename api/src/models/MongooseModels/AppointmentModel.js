@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const moment = require("moment");
 
 const AppointmentTypeSchema = require("./AppointmentTypeModel").schema;
 
@@ -42,7 +43,10 @@ let appointmentSchema = new Schema({
     },
     endTime: {
         type: Date,
-        required: true
+        default: function () {
+            return moment(this.startTime).add(this.appointmentType.duration, "minutes");
+        }
+
     },
     // whether the apointment has been confirmed or not
     isApproved: {

@@ -65,7 +65,6 @@ function getAppointmentsOfUser({
         try {
             // execute the query
             let appointments = await appointmentQuery.exec();
-
             // check whether user wants reduced appointments or not.
             if (reduced) {
                 // remove everything but startTime, endTime and title
@@ -74,7 +73,10 @@ function getAppointmentsOfUser({
                     startTime: appointment.startTime,
                     endTime: appointment.endTime,
                     // Set title to "Counsellor Appointment" so as not to expose any clients.
-                    title: isCounsellor ? "Counsellor Appointment" : appointment.title
+                    title: isCounsellor ? "Counsellor Appointment" : appointment.title,
+                    appointmentType: {
+                        color: isCounsellor ? "#888" : appointment.appointmentType.color
+                    }
                 }));
             }
 
@@ -88,6 +90,8 @@ function getAppointmentsOfUser({
         }
     };
 }
+
+
 
 // Insert new appointment into db
 async function createAppointment(req, res) {

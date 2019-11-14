@@ -94,9 +94,7 @@
           v-on:close-modal="toggleAppointmentCalendarModal()"
           v-on:date-chosen="dateChosen"
           :clientAppointments="clientAppointments"
-          :counsellorAppointments="counsellorAppointments"
-          :businessHours="businessHours"
-          :appointmentBufferTime="chosenCounsellor.appointmentBufferTime"
+          :counsellor="chosenCounsellor"
         />
       </div>
     </Modal>
@@ -155,8 +153,7 @@ export default {
       appointmentCalendarDisplayed: false,
       errorMessage: "", // if there is an error message it is stored here.
 
-      clientAppointments: [],
-      counsellorAppointments: []
+      clientAppointments: []
     };
   },
   props: {
@@ -273,8 +270,9 @@ export default {
 
     // gets all the appointments that involve the clients
     getAppointmentsOfClient: async function() {
+      console.log("feg");
       // get appointments of current user
-      let result = (await AppointmentService.getAppointmentsOfUser({
+      let result = await AppointmentService.getAppointmentsOfUser({
         userId: this.chosenClient._id,
         isCounsellor: false,
         params: {
@@ -282,70 +280,31 @@ export default {
             .startOf("week")
             .toString()
         }
-      })).data.appointments;
-      return result;
-    },
+      });
 
-    // get all the appointments that involve the counsellor.
-    getAppointmentsOfCounsellor: async function() {
-      // get appointments
-      let result = (await AppointmentService.getAppointmentsOfUser({
-        userId: this.chosenCounsellor._id,
-        isCounsellor: true,
-        reduced: true,
-        params: {
-          fromTime: this.moment()
-            .startOf("week")
-            .toString()
-        }
-      })).data.appointments;
-      return result;
+      console.log(result);
+      return result.data.appointments;
     },
 
     // open and close appointment calendar
     toggleAppointmentCalendarModal() {
       this.appointmentCalendarDisplayed = !this.appointmentCalendarDisplayed;
-    },
-
-    createBusinessHours() {
-      this.businessHours = this.chosenCounsellor.workingDays.map(day => {
-        // return start, end and title
-
-        let dayNumber = Utils.getNumberOfDayInWeek(day.name);
-        return {
-          startTime: day.startTime,
-          endTime: day.endTime,
-          daysOfWeek: [dayNumber]
-        };
-      });
     }
   },
 
   watch: {
     // watch chosenCounsellor and get their appointments whenever one is chosen
     chosenCounsellor: async function() {
-      // Make sure we only perform requests if the user has chosen a counsellor.
-      if (!this.chosenCounsellor._id) return;
-
       // reset the chosen start time.
       this.chosenStartTime = undefined;
-
-      // update disabledDates with the dates the counsellor can't make
-      this.createBusinessHours();
-
-      // get counsellor appointments.
-      this.counsellorAppointments = await this.getAppointmentsOfCounsellor();
     },
-    chosenClient: async function() {
+    chosenClient: async function(val) {
       if (!this.chosenClient._id) return;
       // reset the chosen start time.
       this.chosenStartTime = undefined;
 
-      // get client appointments (if they are a registered client)
-      if (this.chosenClient.role > Role.Guest)
-        this.clientAppointments = await this.getAppointmentsOfClient();
-
-      console.log(this.clientAppointments);
+      // get client appointments
+      this.clientAppointments = await this.getAppointmentsOfClient();
     }
   },
 
@@ -373,7 +332,6 @@ export default {
 
 .request-form {
   margin: 2rem 0;
-  // width: 40%;
 
   .form-field {
     width: auto;

@@ -14,8 +14,8 @@
       }"
       :plugins="calendarPlugins"
       :eventSources="[
-        { events: getClientEvents, className:'userEvent' },
-        { events: getCounsellorEvents, className:'counsellorEvent' },
+        { events: getClientEvents},
+        { events: getCounsellorEvents },
       ]"
       :businessHours="businessHours"
       :selectConstraint="businessHours"
@@ -34,7 +34,7 @@
           :day="chosenDay"
           :dayEvents="getEventsOfChosenDay"
           :businessHours="getBusinessHoursOfDay"
-          :appointmentBufferTime="appointmentBufferTime"
+          :appointmentBufferTime="counsellor.appointmentBufferTime"
           v-on:date-chosen="dateChosen"
         ></AddEvent>
       </CalendarPopup>
@@ -59,8 +59,10 @@ import interactionPlugin from "@fullcalendar/interaction";
 // custom components
 import AddEvent from "./AddEvent.vue";
 import CalendarPopup from "./CalendarPopup";
-
 import ViewAppointment from "@/components/misc/ViewAppointment";
+
+import AppointmentService from "@/services/AppointmentService";
+import Utils from "@/utils";
 
 export default {
   data() {
@@ -70,7 +72,7 @@ export default {
       showViewEventPopup: false,
       screenToAvoid: {},
       chosenDay: {},
-
+      businessHours: [],
       viewAppointmentModalDisplayed: false,
 
       // events to display in the calendar.
@@ -82,9 +84,7 @@ export default {
   },
   props: {
     clientAppointments: Array,
-    counsellorAppointments: Array,
-    appointmentBufferTime: Number,
-    businessHours: {},
+    counsellor: Object,
     // whether the user can add events or not.
     userCanAddEvents: Boolean,
     allowViewEvents: Boolean
@@ -98,23 +98,20 @@ export default {
   },
 
   computed: {
-    // Get client events
-    getClientEvents() {
-      return this.events.clientEvents;
-    },
     getCounsellorEvents() {
       return this.events.counsellorEvents;
+    },
+
+    getClientEvents() {
+      return this.events.clientEvents;
     },
 
     // This function returns all the events in an event source that are on a day.
     getEventsOfChosenDay() {
       // merge both the counsellor and user events into a single array.
-      let allEvents = this.events.clientEvents.concat(
-        this.events.counsellorEvents
-      );
+      let allEvents = this.getCounsellorEvents.concat(this.getClientEvents);
       // create moment object from the day chosen
       let chosenDayTime = this.moment(this.chosenDay.start);
-      console.log(allEvents);
       // Filter all the events, excluding any events that don't have a start or end time that falls on the same day.
       let dayEvents = allEvents.filter(event => {
         // check to see if event is on the same day
@@ -123,8 +120,6 @@ export default {
           chosenDayTime.isSame(event.end, "day")
         );
       });
-
-      console.log(dayEvents);
 
       // return all the events of that given day.
       return dayEvents;
@@ -141,23 +136,19 @@ export default {
     }
   },
 
-  // TODO: add temporary event to show user (color it green or something to show its temporary)
+  // TODO: add temporary event to show user (color it green(?) to show its temporary)
   methods: {
     updateEvents() {
       this.$emit("update-events");
     },
-    mapAppointmentsToEvents(appointments, counsellorAppointments) {
-      // TODO: remove duplication
-      if (appointments) {
-        console.log(appointments[0]);
+    mapAppointmentsToEvents(appointments) {
+      if (appointments.length > 0) {
         return appointments.map(appointment => ({
           title: appointment.title,
           end: appointment.endTime,
           start: appointment.startTime,
           id: appointment._id,
-          backgroundColor: counsellorAppointments
-            ? appointment.appointmentType.color
-            : undefined
+          backgroundColor: appointment.appointmentType.color
         }));
       }
       return [];
@@ -175,6 +166,7 @@ export default {
 
     // triggered when an event is clicked
     handleEventClick(event) {
+      if (this.userCanAddEvents) return;
       this.viewAppointmentModalDisplayed = true;
       this.selectedAppointment = this.clientAppointments.find(
         appointment => event.event.id == appointment._id
@@ -212,60 +204,70 @@ export default {
 
     // This function removes any duplicate events in the counsellor events array (where the counsellor will be counselling the current user)
     removeDuplicateEvents: function() {
-      let clientEvents = this.events.clientEvents;
-      let counsellorEvents = this.events.counsellorEvents;
-
+      let clientEvents = this.getClientEvents;
+      let counsellorEvents = this.getCounsellorEvents;
       if (counsellorEvents) {
         // filter counsellorEvents, only including events that don't match the start or end time of a user event.
-        counsellorEvents = counsellorEvents.filter(function(counsellorEvent) {
+        this.events.counsellorEvents = counsellorEvents.filter(function(
+          counsellorEvent
+        ) {
           // see if clientEvents contains the current counsellor event, and find it's index.
-          let index = clientEvents.findIndex(
+          let dup = clientEvents.find(
             userEvent =>
               userEvent.start == counsellorEvent.start ||
               userEvent.end == counsellorEvent.end
           );
-          // if the index is -1, counsellorEvent is not in clientEvents. Therefore it can stay in counsellor events.
-          return index == -1;
+          return !dup;
         });
-        // save the filtered counsellorEvents
-        this.events.counsellorEvents = counsellorEvents;
       }
     },
-
-    setClientEvents() {
-      if (this.clientAppointments) {
-        this.events.clientEvents = this.mapAppointmentsToEvents(
-          this.clientAppointments,
-          true
-        );
-      }
-    },
-
-    setCounsellorEvents() {
-      if (this.counsellorAppointments) {
-        this.events.counsellorEvents = this.mapAppointmentsToEvents(
-          this.counsellorAppointments,
-          false
-        );
-      }
+    createBusinessHours() {
+      this.businessHours = this.counsellor.workingDays.map(day => {
+        // return start, end and title
+        let dayNumber = Utils.getNumberOfDayInWeek(day.name);
+        return {
+          startTime: day.startTime,
+          endTime: day.endTime,
+          daysOfWeek: [dayNumber]
+        };
+      });
     }
   },
+  async mounted() {
+    // get counsellor appointments
+    if (this.counsellor) {
+      let counsellorAppointments = (await AppointmentService.getAppointmentsOfUser(
+        {
+          userId: this.counsellor._id,
+          isCounsellor: true,
+          reduced: true,
+          params: {
+            fromTime: this.moment()
+              .startOf("week")
+              .toString()
+          }
+        }
+      )).data.appointments;
 
-  watch: {
-    clientAppointments() {
-      this.setClientEvents();
-    },
-
-    counsellorAppointments() {
-      this.setCounsellorEvents();
+      this.createBusinessHours();
+      this.events.counsellorEvents = this.mapAppointmentsToEvents(
+        counsellorAppointments
+      );
     }
-  },
 
-  mounted() {
-    this.setClientEvents();
-    this.setCounsellorEvents();
+    this.events.clientEvents = this.mapAppointmentsToEvents(
+      this.clientAppointments
+    );
 
     this.removeDuplicateEvents();
+  },
+  watch: {
+    clientAppointments(apps) {
+      this.events.clientEvents = this.mapAppointmentsToEvents(apps);
+    },
+    events() {
+      //   this.removeDuplicateEvents();
+    }
   }
 };
 </script>
@@ -281,20 +283,4 @@ export default {
 
 // custom css to override deafult calendar styling.
 @import "src/scss/components/calendar";
-
-// Event from user
-.userEvent {
-  // background-color: $color-primary !important;
-  outline: none;
-  border: none;
-  padding: 0.2rem;
-}
-
-// Event from calendar
-.counsellorEvent {
-  background-color: $color-grey !important;
-  outline: none;
-  border: none;
-  padding: 0.2rem;
-}
 </style>

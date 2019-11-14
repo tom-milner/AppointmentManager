@@ -144,10 +144,10 @@ function updateAppointment(req, res, next) {
         case Role.Client:
             // client can only access clientCanAttend (for now)
             // TODO: Move this into file of constants
-            allowedProperties.push("clientCanAttend", "clientNotes");
+            allowedProperties.push("clientCanAttend", "clientNotes", "startTime");
             break;
         case Role
-        .Counsellor: // THIS IS INTENTIONAL!! If the users role if Counsellor the switch will cascade to admin, as they (currently) have the same update rights.
+        .Counsellor: // If the users role if Counsellor the switch will cascade to admin, as they (currently) have the same update rights.
         case Role.Admin:
             // counsellors and admins can access everything
             allowedProperties = allowedProperties.concat(allAppointmentProperties);

@@ -25,7 +25,7 @@ router.use("/type", AppointmentTypeRoutes);
 
 
 
-// Always require users to be logged in for these routes - appointments contain personal information
+// Always require users to be logged in for the following routes - appointments contain personal information
 router.use(AuthenticationMiddleware.isLoggedIn);
 
 // Get all appointments of a specific user

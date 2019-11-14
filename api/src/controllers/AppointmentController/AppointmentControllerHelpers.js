@@ -75,7 +75,6 @@ async function insertAppointment(appointmentInfo) {
     let createdAppointment = await AppointmentModel.create({
         title: appointmentInfo.title,
         startTime: appointmentInfo.startTime,
-        // TODO: add buffer to end time
         endTime: appointmentInfo.endTime,
         appointmentType: appointmentInfo.appointmentType,
         // This is an array as I plan on adding support for multiple clients. This is an extension objective.

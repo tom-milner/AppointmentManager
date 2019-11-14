@@ -94,6 +94,11 @@
         >{{appointment.isApproved ? "Approved" : "Not Approved"}}</button>
       </li>
 
+      <!-- Reschedule Button -->
+      <li class="section reschedule">
+        <button class="btn btn-secondary">Reschedule Appointment</button>
+      </li>
+
       <!-- Delete Button -->
       <li v-if="isCounsellor" class="section delete">
         <button @click="showDeleteDialogue = true" class="btn btn-disapproved">Delete Appointment</button>
@@ -134,6 +139,7 @@ import UserService from "@/services/UserService";
 import AppointmentService from "@/services/AppointmentService";
 import AppointmentTypeContainer from "@/components/misc/AppointmentTypeContainer";
 import Dialogue from "@/components/layout/DialogueBox";
+import AppointmentCalendar from "@/components/misc/Calendar/AppointmentCalendar.vue";
 
 export default {
   props: {
@@ -161,7 +167,8 @@ export default {
   },
   components: {
     AppointmentTypeContainer,
-    Dialogue
+    Dialogue,
+    AppointmentCalendar
   },
   mounted() {
     this.getClientsNames();
