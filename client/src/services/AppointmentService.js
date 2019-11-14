@@ -24,14 +24,14 @@ function getAppointmentsOfUser({
     if (isCounsellor) {
         url += "/counsellor";
 
-        // if the user wants full appointments (more detail) append 'full'
-        if (!reduced) {
-            url += "/full"
-        }
-
         // use is requesting client (normal user) appointments
     } else {
         url += "/client"
+    }
+
+    // if the user wants full appointments (more detail) append 'full'
+    if (!reduced) {
+        url += "/full"
     }
 
     // append the userId to the url, to specify which user you want to get the appointments of.

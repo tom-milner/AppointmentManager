@@ -45,19 +45,15 @@ function roleCheck({
         if (req.user.role > role) {
             next();
             return;
+        } else if (req.user.role < role) {
+            return response.failure("Access Denied", 403);
         }
-        // check if the user is the required role.
-        if (req.user.role == role) {
-            // check if endpoint can only be accessed by specific user.
-            if (!userSpecific) {
-                next();
-                return;
-            }
-            let requestedId = req.params.userId || req.params.counsellorId || req.params.clientId;
-            if (req.user._id == requestedId) {
-                next();
-                return;
-            }
+
+        // check if endpoint can only be accessed by specific user.
+        let requestedId = req.params.userId || req.params.counsellorId || req.params.clientId;
+        if (req.user._id == requestedId) {
+            next();
+            return;
         }
         // deny access - user does not meet any of the above criteria
         return response.failure("Access Denied", 403);

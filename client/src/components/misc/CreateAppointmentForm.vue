@@ -275,6 +275,7 @@ export default {
       let result = await AppointmentService.getAppointmentsOfUser({
         userId: this.chosenClient._id,
         isCounsellor: false,
+        reduced: true,
         params: {
           fromTime: this.moment()
             .startOf("week")

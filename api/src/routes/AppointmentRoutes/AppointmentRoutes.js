@@ -30,9 +30,9 @@ router.use(AuthenticationMiddleware.isLoggedIn);
 
 // Get all appointments of a specific user
 router.get(
-    "/client/:userId",
+    "/client/full/:userId",
     AuthenticationMiddleware.roleCheck({
-        role: Role.Guest,
+        role: Role.Counsellor,
         userSpecific: true
     }),
     AppointmentController.getAppointmentsOfUser({
@@ -40,6 +40,21 @@ router.get(
         reduced: false
     })
 );
+
+
+// get reduced appointments about user
+router.get(
+    "/client/:userId",
+    AuthenticationMiddleware.roleCheck({
+        role: Role.Client,
+        userSpecific: true
+    }),
+    AppointmentController.getAppointmentsOfUser({
+        isCounsellor: false,
+        reduced: true
+    })
+);
+
 
 
 
