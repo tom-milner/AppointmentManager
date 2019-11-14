@@ -1,7 +1,9 @@
 "use strict";
 
+const isProd = process.env.NODE_ENV == "production";
+
 // Setup PM2 monitoring (only on prod server)
-if (process.env.NODE_ENV == "production") {
+if (isProd) {
     const io = require("@pm2/io");
     io.init({
         metrics: {
@@ -30,11 +32,12 @@ dotenv.config({
 const Config = require("./struct/Config");
 
 // Connect to sentry error tracking.
-Sentry.init({
-    dsn: "https://9bffd9e390ff4804b85b30eb5d8ab9b1@sentry.io/1803636"
-});
-app.use(Sentry.Handlers.requestHandler()); // This request handler must be the first middleware on the app
-
+if (isProd) {
+    Sentry.init({
+        dsn: "https://9bffd9e390ff4804b85b30eb5d8ab9b1@sentry.io/1803636"
+    });
+    app.use(Sentry.Handlers.requestHandler()); // This request handler must be the first middleware on the app
+}
 // Automatic CORS-policy handling
 app.use(cors());
 
@@ -51,7 +54,7 @@ const routes = require("./routes");
 app.use(routes);
 
 // User sentry error handler.
-app.use(Sentry.Handlers.errorHandler());
+if (isProd) app.use(Sentry.Handlers.errorHandler());
 
 // Import internal libraries
 const GoogleAuth = require("./struct/googleauth/GoogleAuth");
@@ -84,7 +87,7 @@ const database = new Database();
         scheduler.start();
 
         // Database is required, so only start server if database connection can be established
-        app.listen(Config.port, function () {
+        app.listen(Config.port, function() {
             Logger.info(`Started server on port ${Config.port}`);
         });
     } catch (error) {
