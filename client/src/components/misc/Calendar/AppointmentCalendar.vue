@@ -36,6 +36,7 @@
           :businessHours="getBusinessHoursOfDay"
           :appointmentBufferTime="counsellor.appointmentBufferTime"
           v-on:date-chosen="dateChosen"
+          :appointmentType="mandAppointmentType"
         ></AddEvent>
       </CalendarPopup>
     </div>
@@ -43,7 +44,7 @@
     <!-- Modal -->
     <ViewAppointment
       :appointment="selectedAppointment"
-      isUserCounsellor
+      isCounsellor
       v-if="viewAppointmentModalDisplayed"
       v-on:close-modal="viewAppointmentModalDisplayed = false; updateEvents()"
     ></ViewAppointment>
@@ -59,7 +60,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 // custom components
 import AddEvent from "./AddEvent.vue";
 import CalendarPopup from "./CalendarPopup";
-import ViewAppointment from "@/components/misc/ViewAppointment";
+import ViewAppointment from "@/components/misc/ViewAppointment/ViewAppointment";
 
 import AppointmentService from "@/services/AppointmentService";
 import Utils from "@/utils";
@@ -87,7 +88,8 @@ export default {
     counsellor: Object,
     // whether the user can add events or not.
     userCanAddEvents: Boolean,
-    allowViewEvents: Boolean
+    allowViewEvents: Boolean,
+    mandAppointmentType: {}
   },
 
   components: {

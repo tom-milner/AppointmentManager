@@ -96,7 +96,7 @@
       <!-- Modal -->
       <ViewAppointment
         :appointment="selectedAppointment"
-        :isUserCounsellor="isUserCounsellor"
+        :isCounsellor="isUserCounsellor"
         v-if="modalDisplayed"
         v-on:close-modal="modalDisplayed = false; getUserAppointments()"
       ></ViewAppointment>
@@ -109,7 +109,7 @@ import AppointmentCard from "@/components/pages/HomePage/AppointmentCard.vue";
 import AppointmentService from "@/services/AppointmentService";
 import AppointmentCalendar from "@/components/misc/Calendar/AppointmentCalendar";
 import Role from "@/models/Role";
-import ViewAppointment from "@/components/misc/ViewAppointment";
+import ViewAppointment from "@/components/misc/ViewAppointment/ViewAppointment";
 
 export default {
   components: {

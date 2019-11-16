@@ -7,7 +7,7 @@
     </div>
 
     <!-- Appointment Type Dropdown -->
-    <div class="segment">
+    <div v-if="!!!appointmentType" class="segment">
       <h4 class="form-heading">Choose an appointment type:</h4>
       <select v-model="chosenAppointmentType" class="form-input select">
         <option
@@ -34,8 +34,8 @@
       </select>
     </div>
 
-    <!-- Recurring Input -->
-    <div v-if="chosenAppointmentType._id" class="segment recurring">
+    <!-- Recurring -->
+    <div v-if="chosenAppointmentType._id && !!!appointmentType" class="segment recurring">
       <h4 class="form-heading">Is it recurring?</h4>
       <h4
         class="heading-4"
@@ -115,7 +115,8 @@ export default {
     day: {},
     dayEvents: {},
     businessHours: {},
-    appointmentBufferTime: Number
+    appointmentBufferTime: Number,
+    appointmentType: {}
   },
   computed: {
     getFormattedDate() {
@@ -126,8 +127,12 @@ export default {
     this.getPossibleTimeSlots();
   },
   async mounted() {
-    // get all the appointment types
-    this.appointmentTypes = (await AppointmentTypeService.getAppointmentTypes()).data.appointmentTypes;
+    if (this.appointmentType) {
+      this.chosenAppointmentType = this.appointmentType;
+    } else {
+      // get all the appointment types
+      this.appointmentTypes = (await AppointmentTypeService.getAppointmentTypes()).data.appointmentTypes;
+    }
   },
   methods: {
     timeChosen() {

@@ -15,7 +15,7 @@ export default {
     return {
       // default height + width
       popupWidth: 40,
-      popupHeight: 35
+      popupHeight: 0
     };
   },
   methods: {

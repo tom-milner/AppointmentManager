@@ -107,7 +107,6 @@ import AppointmentCalendar from "@/components/misc/Calendar/AppointmentCalendar"
 import Modal from "@/components/layout/Modal";
 import Utils from "@/utils";
 import AppointmentTypeContainer from "@/components/misc/AppointmentTypeContainer";
-import Role from "@/models/Role";
 
 export default {
   components: {
@@ -299,7 +298,7 @@ export default {
       // reset the chosen start time.
       this.chosenStartTime = undefined;
     },
-    chosenClient: async function(val) {
+    chosenClient: async function() {
       if (!this.chosenClient._id) return;
       // reset the chosen start time.
       this.chosenStartTime = undefined;
