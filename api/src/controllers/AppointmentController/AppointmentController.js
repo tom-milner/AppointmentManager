@@ -187,9 +187,14 @@ async function updateAppointment(req, res) {
     let appointmentId = req.params.appointmentId;
 
     try {
+        let appointment = await AppointmentModel.findById(appointmentId);
+        // check appointment exists.
+        if (!appointment) return response.failure(
+            "Appointment doesn't exist.",
+            400
+        );
         // make sure clients can't edit other people's appointments.
         if (req.user.role == Role.Client) {
-            let appointment = await AppointmentModel.findById(appointmentId);
             let validClient = appointment.clients.indexOf(req.user._id) > -1;
             if (!validClient)
                 return response.failure(
@@ -198,6 +203,16 @@ async function updateAppointment(req, res) {
                 );
         }
 
+        // If the user is changing the start time of an appointment, they shouldn't be able to change the time of the appointment if it was originally going to be in the next 24 hours.
+        if (Object.keys(newAppointmentProperties).includes("startTime")) {
+            const now = moment();
+            const next24Hours = now.clone().add(1, "day");
+            const requestedStartTime = moment(newAppointmentProperties.startTime)
+            if (requestedStartTime.isBetween(now, next24Hours)) return response.failure(
+                "You cannot reschedule an appointment that was originally scheduled for the next day.", 400);
+        }
+
+        // update appointment
         let updatedAppointment = await AppointmentModel.findByIdAndUpdate(
             appointmentId,
             newAppointmentProperties, {
@@ -207,18 +222,14 @@ async function updateAppointment(req, res) {
             }
         );
 
-        if (!updatedAppointment) {
-            return response.failure(
-                "Appointment doesn't exist.",
-                400
-            );
-        }
+
 
         return response.success("Appointment updated successfully", {
             updatedAppointment: updatedAppointment
         });
 
     } catch (error) {
+        Logger.error("Error updating appointment", error)
         let errorMessage = "Error updating appointment.";
         let errorCode = 500;
         return response.failure(errorMessage, errorCode);

@@ -108,7 +108,7 @@ function createAppointment(req, res, next) {
 
 
 // checks if user has required access level to change property
-function updateAppointment(req, res, next) {
+async function updateAppointment(req, res, next) {
     const response = new AppResponse(res);
 
 
@@ -121,7 +121,7 @@ function updateAppointment(req, res, next) {
         );
     }
 
-    // validate body (Joi isn't needed as there's only one variable to validate)
+    // validate body 
     if (!req.body.appointmentProperties) {
         return response.failure(
             "No properties found",
@@ -144,7 +144,7 @@ function updateAppointment(req, res, next) {
         case Role.Client:
             // client can only access clientCanAttend (for now)
             // TODO: Move this into file of constants
-            allowedProperties.push("clientCanAttend", "clientNotes", "startTime");
+            allowedProperties.push("clientCanAttend", "clientNotes", "startTime", "endTime");
             break;
         case Role
         .Counsellor: // If the users role if Counsellor the switch will cascade to admin, as they (currently) have the same update rights.
@@ -170,6 +170,16 @@ function updateAppointment(req, res, next) {
                 disallowedProperties: disallowedProperties
             }
         )
+    }
+
+
+
+    if (requestedAppointmentProperties.includes("startTime")) {
+        // new time must be in the past
+        const now = moment();
+        const startTime = moment(req.body.appointmentProperties.startTime);
+        if (startTime.isBefore(now)) return response.failure("You cannot reschedule an appointment to a past date.",
+            400);
     }
 
     // user can access all properties - allow request to be processed

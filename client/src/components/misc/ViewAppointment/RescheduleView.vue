@@ -24,7 +24,7 @@
       class="btn btn-secondary choose-time-button"
     >Choose a new time</button>
 
-    <h4 class="heading-4 error" :class="{'success' : 'message.success'}">{{message.content}}</h4>
+    <h4 class="heading-4 error" :class="{'success' : message.success}">{{message.content}}</h4>
     <button
       class="btn btn-primary reschedule-button"
       @click="rescheduleAppointment"
@@ -73,8 +73,8 @@ export default {
       try {
         res = await AppointmentService.updateAppointment(
           {
-            startTime: this.newTime.startTime.toString(),
-            endTime: this.newTime.endTime.toString()
+            startTime: this.newTime.startTime.toDate(),
+            endTime: this.newTime.endTime.toDate()
           },
           this.appointment._id
         );
@@ -84,6 +84,7 @@ export default {
       }
 
       this.message.content = res.data.message;
+      console.log(res.data.success);
       this.message.success = res.data.success;
     },
 
