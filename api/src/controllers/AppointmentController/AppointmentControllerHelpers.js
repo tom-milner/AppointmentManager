@@ -198,6 +198,7 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId, i
     // if any clashing appointments are found, reject the new appointment
     if (clashingAppointments.length > 0) {
         let clashInfo = createClashInfo(clashingAppointments);
+        console.log(clashInfo)
 
         return {
             message: `${isCounsellor? "Counsellor" : "Client" } is not available at this time.`,

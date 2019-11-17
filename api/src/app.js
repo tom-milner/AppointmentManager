@@ -1,6 +1,6 @@
 "use strict";
 
-const isProd = process.env.NODE_ENV == "production";
+const isProd = true || process.env.NODE_ENV == "production";
 
 // Setup PM2 monitoring (only on prod server)
 if (isProd) {

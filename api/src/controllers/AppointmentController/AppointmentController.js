@@ -150,7 +150,9 @@ async function createAppointment(req, res) {
         } = await AppointmentControllerHelpers.createAndCheckAllAppointments(appointmentInfo,
             appointmentType);
 
-        if (error) return response.failure(error.message, 400);
+        if (error) return response.failure(error.message, 400, {
+            clashInfo: error.clashInfo[0]
+        });
 
         // insert ready appointments into database.
         let createdAppointments = [];

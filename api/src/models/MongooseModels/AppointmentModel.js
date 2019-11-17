@@ -1,8 +1,13 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const moment = require("moment");
+const Mailer = require("../../struct/mailer/Mailer");
+
+const UserModel = require("./UserModels/UserModel");
 
 const AppointmentTypeSchema = require("./AppointmentTypeModel").schema;
+
+const mailer = new Mailer();
 
 // define schema
 let appointmentSchema = new Schema({
@@ -73,10 +78,41 @@ let appointmentSchema = new Schema({
     }
 });
 
-// Any time an appointmne is updated, the clients and counsellors will be sent an email reminder.
+// Any time an appointment is updated, the clients and counsellors will be sent an email reminder.
 
-appointmentSchema.post(/update/gi, function (doc) {
-    console.log("doc updated");
+// /update/gi is regex for any update query including "update" (case-insenstitive)
+appointmentSchema.post(/update/gi, async function (appointment) {
+    let updatedData = this._update;
+    let updatedFields = Object.keys(updatedData);
+    console.log(appointment);
+
+    // get the clients and counsellors emails.
+    let clients = [];
+    for (let client of appointment.clients) {
+        clients.push(await UserModel.findById(client));
+    }
+    let counsellor = await UserModel.findById(appointment.counsellorId);
+    let users = [];
+
+    // If the appointment times have changed, alert both the client and counsellor.
+    if (updatedFields.includes("startTime") || updatedFields.includes("endTime")) {
+
+        // format the dates.
+        updatedData.startTime = moment(updatedData.startTime).format("dddd, MMMM Do YYYY, h:mm:ss a");
+        updatedData.endTime = moment(updatedData.endTime).format("dddd, MMMM Do YYYY, h:mm:ss a");
+        mailer.alertAppointmentChanged(appointment, updatedData, [...clients, counsellor]).send();
+    }
+
+    // If the client status has changed, alert the counsellor.
+    if (updatedFields.includes("clientCanAttend")) {
+        mailer.alertAppointmentChanged(appointment, updatedData, [counsellor]).send();
+    }
+
+    // If the appointment approval status has changed, alert the client.
+    if (updatedFields.includes("isApproved")) {
+        mailer.alertAppointmentChanged(appointment, updatedData, clients).send();
+    }
+
 });
 
 module.exports = mongoose.model("Appointment", appointmentSchema);

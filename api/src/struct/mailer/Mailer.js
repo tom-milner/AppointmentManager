@@ -166,10 +166,31 @@ class Mailer {
         return this;
     }
 
+
+    alertAppointmentChanged(appointment, data, users) {
+        let tos = users.map(user => user.email);
+        let email = this.email;
+        email.to = tos;
+        email.subject = "Appointment Updated"
+        email.html = `<p>Hi there,</p>
+                    <p>The following appointment (${appointment.title}) has been updated:</p>`;
+
+        let keys = Object.keys(data);
+        for (const key of keys) {
+            email.html += `<p>${key} : ${data[key]}</p>`
+        }
+
+        return this;
+
+    }
+
     async send() {
 
         // only send the email in production
-        if (!this.isProd) return;
+        if (!this.isProd) {
+            console.log(this.email);
+            return;
+        };
 
         this.email.from = Config.mailer.email;
 

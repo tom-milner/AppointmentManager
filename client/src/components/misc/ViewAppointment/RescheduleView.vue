@@ -119,7 +119,7 @@ export default {
 
     async getCounsellor() {
       try {
-        let res = await UserService.getCounsellor(
+        let res = await UserService.getReducedCounsellor(
           this.appointment.counsellorId
         );
 

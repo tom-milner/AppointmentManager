@@ -40,21 +40,25 @@ function roleCheck({
 
         const response = new AppResponse(res);
 
+        if (userSpecific) {
+            // check if endpoint can only be accessed by specific user.
+            let requestedId = req.params.userId || req.params.counsellorId || req.params.clientId;
+            if (req.user._id == requestedId) {
+                next();
+                return;
+            }
+        }
+
         // if user is above minimum role, allow them access
         // even if the route is user-specific users with high level access can read them.
-        if (req.user.role > role) {
+        if (req.user.role >= role) {
             next();
             return;
         } else if (req.user.role < role) {
             return response.failure("Access Denied", 403);
         }
 
-        // check if endpoint can only be accessed by specific user.
-        let requestedId = req.params.userId || req.params.counsellorId || req.params.clientId;
-        if (req.user._id == requestedId) {
-            next();
-            return;
-        }
+
         // deny access - user does not meet any of the above criteria
         return response.failure("Access Denied", 403);
     };
