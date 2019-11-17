@@ -193,6 +193,7 @@ async function updateAppointment(req, res) {
             "Appointment doesn't exist.",
             400
         );
+
         // make sure clients can't edit other people's appointments.
         if (req.user.role == Role.Client) {
             let validClient = appointment.clients.indexOf(req.user._id) > -1;
@@ -210,6 +211,11 @@ async function updateAppointment(req, res) {
             const requestedStartTime = moment(newAppointmentProperties.startTime)
             if (requestedStartTime.isBetween(now, next24Hours)) return response.failure(
                 "You cannot reschedule an appointment that was originally scheduled for the next day.", 400);
+
+            // They also shouldn't be able to reschedule past appointments.
+            const oldStartTime = moment(appointment.startTime);
+            if (oldStartTime.isBefore(now)) return response.failure("You can't reschedule a past appointment.",
+                400);
         }
 
         // update appointment

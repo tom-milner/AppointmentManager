@@ -73,4 +73,10 @@ let appointmentSchema = new Schema({
     }
 });
 
+// Any time an appointmne is updated, the clients and counsellors will be sent an email reminder.
+
+appointmentSchema.post(/update/gi, function (doc) {
+    console.log("doc updated");
+});
+
 module.exports = mongoose.model("Appointment", appointmentSchema);
