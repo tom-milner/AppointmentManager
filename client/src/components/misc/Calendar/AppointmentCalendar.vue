@@ -44,7 +44,7 @@
     <!-- Modal -->
     <ViewAppointment
       :appointment="selectedAppointment"
-      isCounsellor
+      :isCounsellor="$store.state.authentication.isCounsellor"
       v-if="viewAppointmentModalDisplayed"
       v-on:close-modal="viewAppointmentModalDisplayed = false; updateEvents()"
     ></ViewAppointment>

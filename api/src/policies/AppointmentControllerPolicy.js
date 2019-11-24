@@ -147,7 +147,7 @@ async function updateAppointment(req, res, next) {
             allowedProperties.push("clientCanAttend", "clientNotes", "startTime", "endTime");
             break;
         case Role
-        .Counsellor: // If the users role if Counsellor the switch will cascade to admin, as they (currently) have the same update rights.
+            .Counsellor: // If the users role if Counsellor the switch will cascade to admin, as they (currently) have the same update rights.
         case Role.Admin:
             // counsellors and admins can access everything
             allowedProperties = allowedProperties.concat(allAppointmentProperties);
@@ -165,10 +165,10 @@ async function updateAppointment(req, res, next) {
     // if user is requesting anything not in allowedProperties, reject the request
     if (disallowedProperties.length > 0) {
         return response.failure(
-            "You do not have access to change those properties.",
+            "You are not authorized to change those properties.",
             400, {
-                disallowedProperties: disallowedProperties
-            }
+            disallowedProperties: disallowedProperties
+        }
         )
     }
 
