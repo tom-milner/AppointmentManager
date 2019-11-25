@@ -7,7 +7,6 @@ const Role = require("../../models/Role");
 const axios = require("axios");
 const Math = require("mathjs");
 
-
 // #############################
 //      HELPER FUNCTIONS
 // #############################
@@ -99,11 +98,17 @@ async function createPasswordReset(user) {
     // create a hash of the token to store in a database.
     let tokenHash = generateTokenHash(resetToken);
 
+    // create expiry time.
+    let now = new Date();
+    // 2.628e+6 seconds: 1 month
+    // 1800 seconds: 30 mins
+    const expireTime = new Date(now + ((user.role == Role.Guest ? 2.628e+6 : 1800) * 1000));
+
     // store hash and timestamp in the database.
     const passwordReset = await PasswordResetModel.create({
         hash: tokenHash,
         userId: user._id,
-        isGuest: user.role == Role.Guest
+        expireTime: expireTime
     });
 
     return {
@@ -117,7 +122,7 @@ async function createPasswordReset(user) {
 async function calculateGeoIpDistance(ip1, ip2) {
     // get rough location of ips
     const ipStack = axios.create({
-        baseURL: "http://api.ipstack.com/",
+        baseURL: Config.location.ipStackApi,
     });
     ipStack.interceptors.request.use((config) => {
         config.params = {

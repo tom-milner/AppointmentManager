@@ -1,5 +1,4 @@
 const CounsellorModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
-const CounsellorRegistrationModel = require("../../models/MongooseModels/CounsellorRegistrationModel");
 const AuthenticationControllerHelpers = require("../AuthenticationController/AuthenticationControllerHelpers")
 const AppResponse = require("../../struct/AppResponse");
 const Utils = require("../../utils/Utils");
@@ -50,9 +49,9 @@ async function updateCounsellor(req, res) {
         let updatedcounsellorInfo = await CounsellorModel.findByIdAndUpdate(
             counsellorId,
             newCounsellorInfo, {
-                new: true,
-                runValidators: true
-            }
+            new: true,
+            runValidators: true
+        }
         );
 
         if (!updatedcounsellorInfo) return response.failure(

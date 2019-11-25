@@ -313,7 +313,6 @@ async function forgotPassword(req, res) {
         } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
 
         // send email
-
         mailer.forgotPassword(foundUser, resetToken, requestIp).send();
 
         // let the user know the email was sent.
