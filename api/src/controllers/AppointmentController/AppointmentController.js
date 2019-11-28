@@ -147,8 +147,7 @@ async function createAppointment(req, res) {
         let {
             error,
             appointments
-        } = await AppointmentControllerHelpers.createAndCheckAllAppointments(appointmentInfo,
-            appointmentType);
+        } = await AppointmentControllerHelpers.createAndCheckAllAppointments(appointmentInfo);
 
         if (error) return response.failure(error.message, 400, {
             clashInfo: error.clashInfo[0]
@@ -206,8 +205,27 @@ async function updateAppointment(req, res) {
                 );
         }
 
+
+
         // If the user is changing the start time of an appointment, they shouldn't be able to change the time of the appointment if it was originally going to be in the next 24 hours.
         if (Object.keys(newAppointmentProperties).includes("startTime")) {
+
+            // Make sure the appointments is available
+
+            // create an object containing the appointment with it's updated properties.
+            let newAppointment = {
+                ...appointment,
+                ...newAppointmentProperties
+            };
+
+            let {
+                error
+            } = await AppointmentControllerHelpers.createAndCheckAllAppointments(newAppointment);
+
+            if (error) return response.failure(error.message, 400, {
+                clashInfo: error.clashInfo[0]
+            });
+
             const now = moment();
             const next24Hours = now.clone().add(1, "day");
             const requestedStartTime = moment(newAppointmentProperties.startTime)

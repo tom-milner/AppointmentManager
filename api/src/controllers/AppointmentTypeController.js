@@ -15,7 +15,6 @@ async function createAppointmentType(req, res) {
         let recurringDuration = req.body.recurringDuration;
 
 
-
         // create new appointment type
         let newAppointmentType = new AppointmentTypeModel({
             name: name,

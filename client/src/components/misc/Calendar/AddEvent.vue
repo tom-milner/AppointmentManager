@@ -172,8 +172,6 @@ export default {
         this.businessHours.endTime
       );
 
-      // You can only schedule 1 appointment per hour
-      let oneHour = this.moment.duration(1, "hour");
       // create a moment duration of the duration of the appointment type.
       let appointmentDuration = this.moment.duration(
         this.chosenAppointmentType.duration,
@@ -193,6 +191,8 @@ export default {
       while (!lastTimeSlot.endTime.isSameOrAfter(dayEnd)) {
         timeSlots.push(lastTimeSlot);
 
+        // You can only schedule 1 appointment per hour
+        let oneHour = this.moment.duration(1, "hour");
         // calculate the next time slot
         let nextTimeSlot = {};
         nextTimeSlot.startTime = this.moment(lastTimeSlot.startTime).add(
@@ -213,7 +213,7 @@ export default {
     filterTimeSlots(timeSlots) {
       // create moment objects
       let bufferTime = this.appointmentBufferTime;
-      console.log(bufferTime);
+
       let disabledTimes = this.dayEvents.map(event => ({
         startTime: this.moment(event.start).subtract(bufferTime, "minutes"),
         endTime: this.moment(event.end).add(bufferTime, "minutes")

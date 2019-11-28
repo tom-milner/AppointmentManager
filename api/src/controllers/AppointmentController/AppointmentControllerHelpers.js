@@ -10,10 +10,10 @@ const moment = require("moment");
 // Helper functions - not called directly by route handler
 // ########################################################
 
-async function createAndCheckAllAppointments(appointmentInfo, appointmentType) {
+async function createAndCheckAllAppointments(appointmentInfo) {
 
     let appointments = [];
-    if (appointmentType.isRecurring) {
+    if (appointmentInfo.appointmentType.isRecurring) {
         // give the recurring series of appointments an ID so that they can be found together easily.
         let recurringSeriesId = new MongooseObjectId();
         appointmentInfo.recurringSeriesId = recurringSeriesId;

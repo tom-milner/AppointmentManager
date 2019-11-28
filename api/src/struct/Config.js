@@ -30,6 +30,6 @@ module.exports = {
         ipStackApi: process.env.IPSTACK_API // The ipStack API URL.
     },
     monitoring: {
-        sentryDSN: process.env.SENTRY_API_DSN
+        sentryDSN: process.env.SENTRY_API_DSN // The unique identifier of the project in sentry.
     }
 }

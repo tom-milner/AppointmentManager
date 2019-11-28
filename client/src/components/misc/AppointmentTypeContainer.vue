@@ -141,7 +141,7 @@ export default {
       maxNameLength: 20,
       maxDescriptionLength: 200,
       maxDuration: 120,
-      minDuration: 5,
+      minDuration: 50,
       showFullType: false,
       showDeleteDialogue: false,
       appointmentType: {}

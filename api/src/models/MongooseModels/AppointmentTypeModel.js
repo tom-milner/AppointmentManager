@@ -11,7 +11,7 @@ let appointmentTypeSchema = new Schema({
         type: Number,
         required: true,
         max: 120,
-        min: 5
+        min: 50
     },
     isRecurring: {
         type: Boolean,
