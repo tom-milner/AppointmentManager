@@ -1,7 +1,7 @@
 "use strict";
 
 // This is a flag used to determine whether or not the app is running in a production environment or not. THe NODE_ENV environment variable is set automatically by the server.
-const isProd = true || process.env.NODE_ENV == "production";
+const isProd =process.env.NODE_ENV == "production";
 
 // Setup PM2 monitoring server (only on prod server)
 if (isProd) {

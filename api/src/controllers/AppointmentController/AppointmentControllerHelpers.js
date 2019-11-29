@@ -5,6 +5,7 @@ const AppointmentModel = require("../../models/MongooseModels/AppointmentModel")
 const Utils = require("../../utils/Utils");
 const MongooseObjectId = require("mongoose").Types.ObjectId;
 const moment = require("moment");
+const Role = require("../../models/Role");
 
 // ########################################################
 // Helper functions - not called directly by route handler
@@ -15,14 +16,21 @@ async function createAndCheckAllAppointments(appointmentInfo) {
     let appointments = [];
     if (appointmentInfo.appointmentType.isRecurring) {
         // give the recurring series of appointments an ID so that they can be found together easily.
-        let recurringSeriesId = new MongooseObjectId();
-        appointmentInfo.recurringSeriesId = recurringSeriesId;
-
-        // create the recurrring appointments
-        appointments.push(appointmentInfo);
+        if(!appointmentInfo.recurringSeriesId){
+            let recurringSeriesId = new MongooseObjectId();
+            appointmentInfo.recurringSeriesId = recurringSeriesId;
+        }
+        
+        appointmentInfo.startTime = moment(appointmentInfo.startTime);
+        appointmentInfo.endTime = moment(appointmentInfo.endTime);
 
         let originalStart = appointmentInfo.startTime.clone();
         let originalEnd = appointmentInfo.endTime.clone();
+
+
+        // create original appointment
+        appointments.push(appointmentInfo);
+
 
         // add the recurring appointments
         for (
@@ -50,19 +58,23 @@ async function createAndCheckAllAppointments(appointmentInfo) {
             startTime,
             endTime,
             counsellorId,
-            clientId
+            clients
         } = appointment;
+
+        
+
         let error;
+        for(let clientId of clients){
         error = await checkUserAvailability(startTime, endTime, clientId)
         if (error) return ({
             error
         })
-        error = await checkUserAvailability(startTime, endTime, counsellorId, true);
+        }
+        error = await checkUserAvailability(startTime, endTime, counsellorId);
         if (error) return ({
             error
         })
     }
-
     // all appointments are free, so book them;
     return {
         appointments
@@ -136,12 +148,11 @@ function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) 
 }
 
 
-async function checkUserAvailability(desiredStartTime, desiredEndTime, userId, isCounsellor) {
+async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
 
 
     // first make sure the client exists
-    let validUser = isCounsellor ? await CounsellorModel.findById(userId) : await UserModel.findById(userId);
-
+    let validUser =  await UserModel.findById(userId);
     if (!validUser) {
         return {
             message: "User doesn't exist",
@@ -151,7 +162,7 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId, i
     // Now we know that the counsellor is working during the requested times, we need to check to see if the desired time clashes with any other appointments.
     let appointmentQuery = AppointmentModel.find();
 
-    if (isCounsellor) {
+    if (validUser.role >= Role.Counsellor) {
         let error = checkCounsellorIsWorking(validUser, desiredStartTime, desiredEndTime);
         if (error) return error;
         appointmentQuery.where({
@@ -198,7 +209,6 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId, i
     // if any clashing appointments are found, reject the new appointment
     if (clashingAppointments.length > 0) {
         let clashInfo = createClashInfo(clashingAppointments);
-        console.log(clashInfo)
 
         return {
             message: `${isCounsellor? "Counsellor" : "Client" } is not available at this time.`,

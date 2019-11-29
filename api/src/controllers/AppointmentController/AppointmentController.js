@@ -214,7 +214,7 @@ async function updateAppointment(req, res) {
 
             // create an object containing the appointment with it's updated properties.
             let newAppointment = {
-                ...appointment,
+                ...appointment._doc , 
                 ...newAppointmentProperties
             };
 
@@ -223,7 +223,7 @@ async function updateAppointment(req, res) {
             } = await AppointmentControllerHelpers.createAndCheckAllAppointments(newAppointment);
 
             if (error) return response.failure(error.message, 400, {
-                clashInfo: error.clashInfo[0]
+                clashInfo: error.clashInfo
             });
 
             const now = moment();

@@ -182,17 +182,18 @@ export default {
       let timeSlots = [];
 
       // set last time slot to be the first time slot.
-      let firstTimeSlot = {};
-      firstTimeSlot.startTime = dayStart;
-      firstTimeSlot.endTime = this.moment(dayStart).add(appointmentDuration);
-      let lastTimeSlot = firstTimeSlot;
+      let lastTimeSlot = {};
+      lastTimeSlot.startTime = dayStart;
+      lastTimeSlot.endTime = this.moment(dayStart).add(appointmentDuration);
+
+      // You can only schedule 1 appointment per hour
+        let oneHour = this.moment.duration(1, "hour");
 
       // until we've reached the end of the day
       while (!lastTimeSlot.endTime.isSameOrAfter(dayEnd)) {
         timeSlots.push(lastTimeSlot);
 
-        // You can only schedule 1 appointment per hour
-        let oneHour = this.moment.duration(1, "hour");
+  
         // calculate the next time slot
         let nextTimeSlot = {};
         nextTimeSlot.startTime = this.moment(lastTimeSlot.startTime).add(
@@ -214,7 +215,7 @@ export default {
       // create moment objects
       let bufferTime = this.appointmentBufferTime;
 
-      let disabledTimes = this.dayEvents.map(event => ({
+      let bookedTimes = this.dayEvents.map(event => ({
         startTime: this.moment(event.start).subtract(bufferTime, "minutes"),
         endTime: this.moment(event.end).add(bufferTime, "minutes")
       }));
@@ -222,32 +223,20 @@ export default {
       let filteredTimeSlots = [];
       timeSlots.forEach(timeSlot => {
         // find the index of any disabled times.
-
-        let conflictingAppoinment = disabledTimes.find(disabledTime => {
+    
+        let conflictingAppoinment = bookedTimes.find(bookedTime => {
           // check to see if there are conflicting appointments
 
           return (
-            disabledTime.startTime.isBetween(
-              timeSlot.startTime,
-              timeSlot.endTime,
-              null,
-              "()"
-            ) ||
-            disabledTime.endTime.isBetween(
-              timeSlot.startTime,
-              timeSlot.endTime,
-              null,
-              "()"
-            ) ||
             timeSlot.startTime.isBetween(
-              disabledTime.startTime,
-              disabledTime.endTime,
+              bookedTime.startTime,
+              bookedTime.endTime,
               null,
               "()"
             ) ||
             timeSlot.endTime.isBetween(
-              disabledTime.startTime,
-              disabledTime.endTime,
+              bookedTime.startTime,
+              bookedTime.endTime,
               null,
               "()"
             )

@@ -4,7 +4,7 @@
     <h2 class="heading-2">Request An Appointment</h2>
     <!-- Form - all the logic is self-contained -->
     <div class="create-appointment">
-      <CreateAppointmentForm :user="user"></CreateAppointmentForm>
+      <CreateAppointmentForm  @appointment-created="$router.push('/')" :user="user"></CreateAppointmentForm>
     </div>
   </div>
 </template>
