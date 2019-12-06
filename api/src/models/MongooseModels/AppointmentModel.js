@@ -26,6 +26,7 @@ let appointmentSchema = new Schema({
         ref: "User"
     },
     // clients that booked the appointment
+    // This is an array as I plan on adding support for appointments with multiple clients (This is an extension objective)
     clients: [{
         type: Schema.Types.ObjectId,
         ref: "User"

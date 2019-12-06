@@ -162,6 +162,7 @@ async function createAppointment(req, res) {
 
 
         // add full client information to the first appointment of the series.
+        // We don't need to populate all the appointments because you can only create multiple appointments at once if they are recurring appointments, which have the same clients and counsellor.
         await createdAppointments[0].populate("clients").populate("counsellorId").execPopulate();
         // send clients email confirming appointment.
         let mailer = new Mailer();
@@ -214,7 +215,7 @@ async function updateAppointment(req, res) {
 
             // create an object containing the appointment with it's updated properties.
             let newAppointment = {
-                ...appointment._doc , 
+                ...appointment._doc,
                 ...newAppointmentProperties
             };
 
@@ -242,10 +243,10 @@ async function updateAppointment(req, res) {
         let updatedAppointment = await AppointmentModel.findByIdAndUpdate(
             appointmentId,
             newAppointmentProperties, {
-                // get the newly created appointment
-                new: true,
-                runValidators: true
-            }
+            // get the newly created appointment
+            new: true,
+            runValidators: true
+        }
         );
 
 

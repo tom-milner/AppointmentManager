@@ -1,4 +1,3 @@
-const CounsellorModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
 const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 const AppointmentTypeModel = require("../../models/MongooseModels/AppointmentTypeModel");
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel");
@@ -14,23 +13,22 @@ const Role = require("../../models/Role");
 async function createAndCheckAllAppointments(appointmentInfo) {
 
     let appointments = [];
+
+    // add first appointment of series.
+    appointments.push(appointmentInfo);
+
     if (appointmentInfo.appointmentType.isRecurring) {
         // give the recurring series of appointments an ID so that they can be found together easily.
-        if(!appointmentInfo.recurringSeriesId){
+        if (!appointmentInfo.recurringSeriesId) {
             let recurringSeriesId = new MongooseObjectId();
             appointmentInfo.recurringSeriesId = recurringSeriesId;
         }
-        
+
         appointmentInfo.startTime = moment(appointmentInfo.startTime);
         appointmentInfo.endTime = moment(appointmentInfo.endTime);
 
         let originalStart = appointmentInfo.startTime.clone();
         let originalEnd = appointmentInfo.endTime.clone();
-
-
-        // create original appointment
-        appointments.push(appointmentInfo);
-
 
         // add the recurring appointments
         for (
@@ -46,12 +44,8 @@ async function createAndCheckAllAppointments(appointmentInfo) {
             // add appointment
             appointments[index] = newAppointment;
         }
-    } else {
-        // create single appointment
-        appointments.push(
-            appointmentInfo
-        );
     }
+
     // check that the counsellor and client can make all the appointments.
     for (let appointment of appointments) {
         let {
@@ -61,14 +55,14 @@ async function createAndCheckAllAppointments(appointmentInfo) {
             clients
         } = appointment;
 
-        
+
 
         let error;
-        for(let clientId of clients){
-        error = await checkUserAvailability(startTime, endTime, clientId)
-        if (error) return ({
-            error
-        })
+        for (let clientId of clients) {
+            error = await checkUserAvailability(startTime, endTime, clientId)
+            if (error) return ({
+                error
+            })
         }
         error = await checkUserAvailability(startTime, endTime, counsellorId);
         if (error) return ({
@@ -117,14 +111,14 @@ function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) 
     // check counsellor is working on given day.
     let validDay = availableWorkDays.find(day => day.name == requiredDay);
 
-    // if counsellor isn't working that day, return an error
+    // if counsellor isn't working that day...
     if (!validDay) {
         return {
             message: `Counsellor is not available on ${requiredDay}.`,
         };
     }
     // Now check if counsellor is working the required hours.
-    // create new moment objects for requested day containing the start and end times. The moment objects are needed for reliable comparison.
+    // Create new moment objects for requested day containing the start and end times. The moment objects are needed for reliable comparison.
     let startOfDay = Utils.getMomentFromTimeString(
         desiredStartTime,
         validDay.startTime
@@ -152,7 +146,7 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
 
 
     // first make sure the client exists
-    let validUser =  await UserModel.findById(userId);
+    let validUser = await UserModel.findById(userId);
     if (!validUser) {
         return {
             message: "User doesn't exist",
@@ -176,31 +170,31 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
 
     appointmentQuery.where({
         $or: [{
-                $and: [{
-                        startTime: {
-                            $lte: desiredEndTime
-                        }
-                    },
-                    {
-                        startTime: {
-                            $gte: desiredStartTime
-                        }
-                    }
-                ]
+            $and: [{
+                startTime: {
+                    $lte: desiredEndTime
+                }
             },
             {
-                $and: [{
-                        endTime: {
-                            $gte: desiredStartTime
-                        }
-                    },
-                    {
-                        endTime: {
-                            $lte: desiredEndTime
-                        }
-                    }
-                ]
+                startTime: {
+                    $gte: desiredStartTime
+                }
             }
+            ]
+        },
+        {
+            $and: [{
+                endTime: {
+                    $gte: desiredStartTime
+                }
+            },
+            {
+                endTime: {
+                    $lte: desiredEndTime
+                }
+            }
+            ]
+        }
         ]
     });
 
@@ -211,7 +205,7 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
         let clashInfo = createClashInfo(clashingAppointments);
 
         return {
-            message: `${isCounsellor? "Counsellor" : "Client" } is not available at this time.`,
+            message: `${isCounsellor ? "Counsellor" : "Client"} is not available at this time.`,
             clashInfo: clashInfo,
         };
     }

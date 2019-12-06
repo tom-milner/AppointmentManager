@@ -219,9 +219,11 @@ export default {
 
       // check duration
       if (duration < this.minDuration || duration > this.maxDuration) {
-        this.errorMessage = `Max duration is ${
-          this.maxDuration
-        } minutes (${this.minsToHours(this.maxDuration)} hours)`;
+        let isMin = duration < this.minDuration;
+        let violatedDuration = isMin ?  this.minDuration : this.maxDuration;
+        this.errorMessage = `${isMin? "Min" : "Max"} duration is ${
+          violatedDuration
+        } minutes (${this.minsToHours(violatedDuration)} hours)`;
         return false;
       }
 

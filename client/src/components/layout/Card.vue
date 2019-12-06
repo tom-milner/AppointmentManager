@@ -11,8 +11,10 @@
 
 <script>
 export default {
+  // Navigate to the previous page when the goBack button is pressed.
   methods: {
     goBack: function() {
+      // If a specific URL was specified navigate to it instead of going back.
       if (this.backUrl) this.$router.push(this.backUrl);
       else this.$router.go(-1);
     }
