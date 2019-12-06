@@ -30,6 +30,7 @@ function getDuplicateMongoEntryKey(message) {
 
   // Get the index of the character that comes directly *after* "index: "
   let firstIndex = message.indexOf("index: ") + "index: ".length
+  // 
   let secondHalf = message.substring(firstIndex);
 
   // split the message on "_", as there is always an underscore after the key name. This returns an array, of which the first element is the key we're looking for.
