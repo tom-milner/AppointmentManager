@@ -1,5 +1,6 @@
 // Import required models
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel");
+const AppointmentTypeModel = require("../../models/MongooseModels/AppointmentTypeModel");
 const AppointmentControllerHelpers = require("./AppointmentControllerHelpers");
 const AppResponse = require("../../struct/AppResponse");
 const Role = require("../../models/Role");
@@ -113,10 +114,9 @@ async function createAppointment(req, res) {
     }
 
     try {
+
         // make sure the appointment type exists
-        let appointmentType = await AppointmentControllerHelpers.getAppointmentType(
-            appointmentTypeId
-        );
+        let appointmentType = await AppointmentTypeModel.findById(typeId);
         if (!appointmentType)
             return response.failure(
                 "Appointment type doesn't exist",
@@ -147,7 +147,7 @@ async function createAppointment(req, res) {
         let {
             error,
             appointments
-        } = await AppointmentControllerHelpers.createAndCheckAllAppointments(appointmentInfo);
+        } = await AppointmentControllerHelpers.checkAllAppointments(appointmentInfo);
 
         if (error) return response.failure(error.message, 400, {
             clashInfo: error.clashInfo[0]
@@ -221,7 +221,7 @@ async function updateAppointment(req, res) {
 
             let {
                 error
-            } = await AppointmentControllerHelpers.createAndCheckAllAppointments(newAppointment);
+            } = await AppointmentControllerHelpers.checkAllAppointments(newAppointment);
 
             if (error) return response.failure(error.message, 400, {
                 clashInfo: error.clashInfo

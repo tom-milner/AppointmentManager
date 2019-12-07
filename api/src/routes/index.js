@@ -6,6 +6,9 @@ const AppointmentRoutes = require("./AppointmentRoutes/AppointmentRoutes");
 const UserRoutes = require("./UserRoutes/UserRoutes");
 const AdminRoutes = require("./UserRoutes/AdminRoutes");
 
+router.get("/status", function (req, res) {
+  res.json({ status: "UP" })
+})
 
 // setup routes
 router.use("/auth", AuthenticationRoutes);

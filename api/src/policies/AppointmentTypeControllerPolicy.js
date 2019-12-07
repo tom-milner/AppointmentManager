@@ -108,11 +108,13 @@ function updateAppointmentType({
 
 function deleteAppointmentType(req, res, next) {
     const response = new AppResponse(res);
+    // check that the supplied ID is the right format.
     let appointmentTypeId = req.params.appointmentTypeId;
     let idIsValid = Utils.validateMongoId(appointmentTypeId);
     if (!idIsValid) {
         return response.failure("Invalid appointment type.", 400);
     }
+    next();
 }
 
 

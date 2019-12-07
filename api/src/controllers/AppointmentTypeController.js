@@ -65,9 +65,9 @@ async function updateAppointmentType(req, res) {
         let updatedAppointmentType = await AppointmentTypeModel.findByIdAndUpdate(
             appointmentTypeId,
             newAppointmentTypeProperties, {
-                new: true,
-                runValidators: true
-            }
+            new: true,
+            runValidators: true
+        }
         );
         // This check is in the controller, not the policy. This is because checking the existence of the appointment type has to involve querying the database for it, and doing that twice would require unnecessary computing.
         if (!updatedAppointmentType) {
@@ -94,12 +94,12 @@ async function updateAppointmentType(req, res) {
 }
 
 async function deleteAppointmentType(req, res) {
+    console.log("here");
     const response = new AppResponse(res);
     let appointmentTypeId = req.params.appointmentTypeId;
 
     try {
-        let model = await AppointmentTypeModel.findByIdAndRemove(appointmentTypeId);
-
+        await AppointmentTypeModel.findByIdAndRemove(appointmentTypeId);
         return response.success("Appointment Type deleted successfully.");
     } catch (error) {
         let errorMessage = error.message || "Error deleting appointment type.";

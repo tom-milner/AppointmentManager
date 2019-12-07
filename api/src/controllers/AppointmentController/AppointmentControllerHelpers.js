@@ -10,19 +10,18 @@ const Role = require("../../models/Role");
 // Helper functions - not called directly by route handler
 // ########################################################
 
-async function createAndCheckAllAppointments(appointmentInfo) {
+
+// Check if an appointment is available.
+async function checkAllAppointments(appointmentInfo) {
 
     let appointments = [];
-
     // add first appointment of series.
     appointments.push(appointmentInfo);
 
     if (appointmentInfo.appointmentType.isRecurring) {
         // give the recurring series of appointments an ID so that they can be found together easily.
-        if (!appointmentInfo.recurringSeriesId) {
-            let recurringSeriesId = new MongooseObjectId();
-            appointmentInfo.recurringSeriesId = recurringSeriesId;
-        }
+        if (!appointmentInfo.recurringSeriesId) appointmentInfo.recurringSeriesId = new MongooseObjectId();
+
 
         appointmentInfo.startTime = moment(appointmentInfo.startTime);
         appointmentInfo.endTime = moment(appointmentInfo.endTime);
@@ -37,6 +36,9 @@ async function createAndCheckAllAppointments(appointmentInfo) {
             let newStart = originalStart.add(1, "week");
             let newEnd = originalEnd.add(1, "week");
 
+            // Here I use Object.assign to create  a new instance of the appointmentInfo object.
+            // This is because the moment library mutates the original instance of a date, and uses pass by reference.
+            // Without Object.assign, every appointment would have the same start and end dates. (Which would be the times of the last appointment in the recurring series)
             const newAppointment = Object.assign({}, appointmentInfo);
             newAppointment.startTime = moment(newStart);
             newAppointment.endTime = moment(newEnd);
@@ -59,17 +61,19 @@ async function createAndCheckAllAppointments(appointmentInfo) {
 
         let error;
         for (let clientId of clients) {
+            // Check each client is free for the appointment.
             error = await checkUserAvailability(startTime, endTime, clientId)
             if (error) return ({
                 error
             })
         }
+        // check the counsellor is available for the appointments.
         error = await checkUserAvailability(startTime, endTime, counsellorId);
         if (error) return ({
             error
         })
     }
-    // all appointments are free, so book them;
+    // All appointments are free, so book them;
     return {
         appointments
     };
@@ -95,11 +99,7 @@ async function insertAppointment(appointmentInfo) {
     return createdAppointment;
 }
 
-async function getAppointmentType(typeId) {
-    let foundType = await AppointmentTypeModel.findById(typeId);
-    if (!foundType) return;
-    return foundType;
-}
+
 
 function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) {
     // now check to see if the counsellor if available to work at the desired time.
@@ -227,7 +227,6 @@ function createClashInfo(clashingAppointments) {
 }
 
 module.exports = {
-    getAppointmentType,
     insertAppointment,
-    createAndCheckAllAppointments
+    checkAllAppointments
 };
