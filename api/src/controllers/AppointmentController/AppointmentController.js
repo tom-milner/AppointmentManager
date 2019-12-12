@@ -198,7 +198,8 @@ async function updateAppointment(req, res) {
 
         // make sure clients can't edit other people's appointments.
         if (req.user.role == Role.Client) {
-            let validClient = appointment.clients.indexOf(req.user._id) > -1;
+            // Search for the user in the client field of the appointment.
+            let validClient = appointment.clients.find(req.user._id);
             if (!validClient)
                 return response.failure(
                     "You do not have permission to edit this appointment.",
@@ -211,9 +212,10 @@ async function updateAppointment(req, res) {
         // If the user is changing the start time of an appointment, they shouldn't be able to change the time of the appointment if it was originally going to be in the next 24 hours.
         if (Object.keys(newAppointmentProperties).includes("startTime")) {
 
-            // Make sure the appointments is available
+            // Make sure the appointment is available
 
             // create an object containing the appointment with it's updated properties.
+            // The spreac operator combines 
             let newAppointment = {
                 ...appointment._doc,
                 ...newAppointmentProperties

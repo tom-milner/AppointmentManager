@@ -23,8 +23,6 @@
   width: $nav-width;
 }
 
-// TODO: flash messages
-
 .app-main {
   order: 1;
   flex-grow: 1;

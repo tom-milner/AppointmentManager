@@ -101,8 +101,8 @@ async function insertAppointment(appointmentInfo) {
 
 
 
+// TODO: This can be refactored to use an array of times.
 function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) {
-    // now check to see if the counsellor if available to work at the desired time.
     let availableWorkDays = counsellor.workingDays;
 
     // get Day string from start time e.g. "Monday" (we're assuming no appointments run over 2 days)
@@ -119,11 +119,11 @@ function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) 
     }
     // Now check if counsellor is working the required hours.
     // Create new moment objects for requested day containing the start and end times. The moment objects are needed for reliable comparison.
-    let startOfDay = Utils.getMomentFromTimeString(
+    let startOfDay = Utils.getMomentOfSameDayFromTimeString(
         desiredStartTime,
         validDay.startTime
     );
-    let endOfDay = Utils.getMomentFromTimeString(
+    let endOfDay = Utils.getMomentOfSameDayFromTimeString(
         desiredEndTime,
         validDay.endTime
     );
@@ -131,9 +131,8 @@ function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) 
     // check start and end times are valid (Counsellor is working on during the requested appointment time.).
     let timeIsValid =
         desiredStartTime.isBetween(startOfDay, endOfDay, null, []) &&
-        desiredEndTime.isBetween(startOfDay, endOfDay, null,
-            []); // AND operation - counsellor must be free for both the start and end.
-    // If the required time isn't valid, return an error.
+        desiredEndTime.isBetween(startOfDay, endOfDay, null, []); // AND operation - counsellor must be free for both the start and end.
+    // If the required timea aren't valid, return an error.
     if (!timeIsValid) {
         return {
             message: "Counsellor is not working at that time",
@@ -153,21 +152,27 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
         };
     }
 
-    // Now we know that the counsellor is working during the requested times, we need to check to see if the desired time clashes with any other appointments.
     let appointmentQuery = AppointmentModel.find();
 
+    // If the supplied user is a counsellor, make sure they are working on the requested day.
     if (validUser.role >= Role.Counsellor) {
         let error = checkCounsellorIsWorking(validUser, desiredStartTime, desiredEndTime);
         if (error) return error;
+        // look for the user id in the counsellorId field.
         appointmentQuery.where({
             counsellorId: userId
         });
     } else {
+        // Look for the user id in the clients field.
         appointmentQuery.where({
             clients: userId
         });
     }
+    // Now we know that the counsellor is working during the requested times, we need to check to see if the desired time clashes with any other appointments.
 
+
+    // Query to find any appointments that clash with the chosen times.
+    // It finds any appointments that have a start or end time that is between the requested start and end time.
     appointmentQuery.where({
         $or: [{
             $and: [{
@@ -197,11 +202,12 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
         }
         ]
     });
-
+    // execute the query
     let clashingAppointments = await appointmentQuery.exec();
 
-    // if any clashing appointments are found, reject the new appointment
+    // if any clashing appointments are found, reject the requested appointment
     if (clashingAppointments.length > 0) {
+        // Create an object containing reduced information about the clashing appointments.
         let clashInfo = createClashInfo(clashingAppointments);
 
         return {
@@ -211,17 +217,19 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
     }
 }
 
+
+// Create reduced info about a list of clashing appointments.
 function createClashInfo(clashingAppointments) {
     let clashInfo = [];
     for (let appointment of clashingAppointments) {
-        if (appointment.appointmentType.isRecurring) {
-            clashInfo.push({
-                startTime: appointment.startTime,
-                endTime: appointment.endTime,
-                noFutureAppointments: appointment.appointmentType.recurringDuration - appointment
-                    .recurringNo
-            });
-        }
+        clashInfo.push({
+            startTime: appointment.startTime,
+            endTime: appointment.endTime,
+            // The number of future appointments at the requested time.
+            noFutureAppointments: appointment.appointmentType.recurringDuration - appointment
+                .recurringNo
+        });
+
     }
     return clashInfo;
 }
