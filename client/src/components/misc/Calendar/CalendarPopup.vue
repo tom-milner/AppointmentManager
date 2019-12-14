@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper">
-    <div v-on-clickaway="closePopup" :style="positionStyle" class="popup">
+    <div v-on-clickaway="closePopup" :style="positionPopup" class="popup">
       <slot id="slot"></slot>
     </div>
   </div>
@@ -14,7 +14,7 @@ export default {
   data() {
     return {
       // default height + width
-      popupWidth: 40,
+      popupWidth: 0,
       popupHeight: 0
     };
   },
@@ -26,10 +26,9 @@ export default {
   mounted() {
     // adjust dimensions to fit content
     let popup = document.querySelector(".popup").getBoundingClientRect();
-    let width = Utils.convertPixelsToRem(popup.width);
-    let height = Utils.convertPixelsToRem(popup.height);
-    this.popupWidth = width;
-    this.popupHeight = height;
+    this.popupWidth  = Utils.convertPixelsToRem(popup.width);
+    this.popupHeight = Utils.convertPixelsToRem(popup.height);
+    
   },
   props: {
     // spaceClicked is an object that should be obtained using getBoundingClientRect()
@@ -38,8 +37,7 @@ export default {
 
   mixins: [clickaway],
   computed: {
-    positionStyle() {
-      // TODO: clean up function (variable names etc)
+    positionPopup() {
       // this function returns a css class that will position the dialogue box somewhere that doesn't obstruct the user's view of the day.
       // it also positions the dialogue somewhere not off the screenzs
       let elementX, elementY;
@@ -49,39 +47,36 @@ export default {
       // convert dimensions of the dialogue box into pixels
       let popupHeightPx = Utils.convertRemToPixels(this.popupHeight);
       let popupWidthPx = Utils.convertRemToPixels(this.popupWidth);
-
-      // buffer x and y to make dialogue look more natural
-      let bufferY = 10;
-      let bufferX = 10;
+      
+      // offset x and y to make dialogue look more natural
+      let offsetY = 10;
+      let offsetX = 10;
 
       // the rectangle of screen used by the element
-      let elementRectangle = this.spaceClicked;
+      let clickedElement = this.spaceClicked;
 
       // check to see if the day on the calendar is on the left or right side of the screen
-      if (elementRectangle.left <= windowWidth / 2) {
+      if (clickedElement.left <= windowWidth / 2) {
         // on the left - move the dialogue box to the right (where there is more space)
-        elementX = elementRectangle.left + elementRectangle.width + bufferX;
+        elementX = clickedElement.left + clickedElement.width + offsetX;
       } else {
         // on the right - move dialogue box to the left
-        elementX = elementRectangle.left - popupWidthPx - bufferX;
+        elementX = clickedElement.left - popupWidthPx - offsetX;
       }
 
       // check to see if the dialoge will fit on the screen
-      if (elementRectangle.top >= windowHeight - popupHeightPx) {
+      if (clickedElement.top >= windowHeight - popupHeightPx) {
         // dialogue won't fit - move it up so that it does
-        elementY = windowHeight - popupHeightPx - bufferY;
+        elementY = windowHeight - popupHeightPx - offsetY;
         // make extra room underneath popup
         elementY -= 40;
       } else {
         // dialogue fits
-        elementY = elementRectangle.top + bufferY;
+        elementY = clickedElement.top + offsetY;
       }
       return {
-        position: "fixed",
         left: `${elementX}px`,
         top: `${elementY}px`,
-        width: `${this.popupWidth}rem`,
-        minHeight: `${this.popupHeight}rem`
       };
     }
   }
@@ -108,5 +103,7 @@ export default {
   background-color: $color-white;
   border-radius: 10px;
   padding: 2rem;
+  position:fixed;
+  width: 40rem;
 }
 </style>
