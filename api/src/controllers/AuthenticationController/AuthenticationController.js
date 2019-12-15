@@ -303,7 +303,7 @@ async function forgotPassword(req, res) {
             email: email
         });
 
-        if (!foundUser) return response.failure("Error finding user associated with that email", 400);
+        if (!foundUser) return response.failure("A user with that email couldn't be found.", 400);
 
         // get ip address of request.
         let requestIp = req.header("x-forwarded-for") || req.connection.remoteAddress;

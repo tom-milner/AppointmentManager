@@ -57,22 +57,18 @@ export default {
       }
 
       // send the request.
+      let response;
       try {
-        let response = await AuthenticationService.forgotPassword(this.email);
-        console.log(response);
-
-        if (!response.data.success) {
-          throw response.data.message;
-        } else {
-          this.triesRemaining--;
-          this.message = response.data.message;
-          this.sentSuccessfully = true;
-          this.buttonContent = "Didn't get it? Send again.";
-        }
+        response = await AuthenticationService.forgotPassword(this.email);
+        this.triesRemaining--;
+        this.buttonContent = "Didn't get it? Send again.";
+        
       } catch (error) {
-        if (Utils.isString(error)) this.message = error;
-        this.message = error.response.data.message;
+        response = error.response;
       }
+      this.message = response.data.message;
+      this.sentSuccessfully = response.data.success;
+      
     }
   },
   mounted() {
