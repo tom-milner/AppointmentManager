@@ -28,7 +28,6 @@
 <script>
 import Card from "@/components/layout/Card";
 import AuthenticationService from "@/services/AuthenticationService";
-import Utils from "@/utils";
 export default {
   components: {
     Card
@@ -68,7 +67,7 @@ export default {
       }
       this.message = response.data.message;
       this.sentSuccessfully = response.data.success;
-      
+
     }
   },
   mounted() {

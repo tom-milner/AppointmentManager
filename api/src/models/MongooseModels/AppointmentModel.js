@@ -14,7 +14,7 @@ let appointmentSchema = new Schema({
 
     title: {
         type: String,
-        require: true,
+        required: true,
         max: 100
     },
 
@@ -23,13 +23,15 @@ let appointmentSchema = new Schema({
 
     counsellorId: {
         type: Schema.Types.ObjectId,
-        ref: "User"
+        ref: "User",
+        required: true
     },
     // clients that booked the appointment
     // This is an array as I plan on adding support for appointments with multiple clients (This is an extension objective)
     clients: [{
         type: Schema.Types.ObjectId,
-        ref: "User"
+        ref: "User",
+        required: true
     }],
     // client notes about appointment
     clientNotes: {
@@ -73,19 +75,14 @@ let appointmentSchema = new Schema({
     recurringNo: {
         type: Number,
         default: 0,
-        required: function () {
-            return this.appointmentType.isRecurring
-        }
     }
 });
 
 // Any time an appointment is updated, the clients and counsellors will be sent an email reminder.
-
 // /update/gi is regex for any update query including "update" (case-insenstitive)
 appointmentSchema.post(/update/gi, async function (appointment) {
     let updatedData = this._update;
     let updatedFields = Object.keys(updatedData);
-    console.log(appointment);
 
     // get the clients and counsellors emails.
     let clients = [];
@@ -93,7 +90,6 @@ appointmentSchema.post(/update/gi, async function (appointment) {
         clients.push(await UserModel.findById(client));
     }
     let counsellor = await UserModel.findById(appointment.counsellorId);
-    let users = [];
 
     // If the appointment times have changed, alert both the client and counsellor.
     if (updatedFields.includes("startTime") || updatedFields.includes("endTime")) {

@@ -45,10 +45,10 @@ async function sendWeeklyAppointmentsEmail(mailer) {
     let startOfWeek = moment().startOf("isoWeek");
     let endOfWeek = moment().endOf("isoWeek");
 
-    // get all counsellors
+    // get all users
     let allUsers = await UserModel.find({});
 
-    // send all counsellor emails
+    // send all users emails
     for (let user of allUsers) {
         let weeksAppointments = await AppointmentModel.find({
             counsellorId: user._id,
@@ -57,15 +57,9 @@ async function sendWeeklyAppointmentsEmail(mailer) {
                 $lte: endOfWeek
             }
         }).populate("clients");
-        if (weeksAppointments.length < 1) {
-            weeksAppointments = await AppointmentModel.find({
-                clients: user._id,
-                startTime: {
-                    $gte: startOfWeek,
-                    $lte: endOfWeek
-                }
-            }).populate("clients");
-        }
+        // Don't send an email if there're no appointments this week.
+        if (weeksAppointments.length < 1) continue;
+
         // send the email containing the users appointments.
         mailer.weeksAppointments(user, weeksAppointments).send();
     }

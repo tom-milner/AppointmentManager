@@ -102,21 +102,23 @@ async function createAppointment(req, res) {
     // load  info from body
     const appointmentTypeId = req.body.typeId;
     const counsellorId = req.body.counsellorId;
-    let clientId, counsellorNotes, clientNotes;
+    let counsellorNotes, clientNotes;
+    let clients = [];
+
+
     // only counsellors can make appointments for other people and set counsellor notes
     if (req.user.role >= Role.Counsellor) {
-        clientId = req.body.clientId;
+        clients = req.body.clients;
         counsellorNotes = req.body.counsellorNotes;
     } else {
         // clients can only make appointments for themselves.
-        clientId = req.user._id;
+        clients[0] = req.user._id;
         clientNotes = req.body.clientNotes;
     }
-
     try {
 
         // make sure the appointment type exists
-        let appointmentType = await AppointmentTypeModel.findById(typeId);
+        let appointmentType = await AppointmentTypeModel.findById(appointmentTypeId);
         if (!appointmentType)
             return response.failure(
                 "Appointment type doesn't exist",
@@ -133,14 +135,12 @@ async function createAppointment(req, res) {
             title: req.body.title,
             startTime: appointmentStartTime,
             endTime: appointmentEndTime,
-            clientId: clientId,
+            clients: clients,
             counsellorId: counsellorId,
             clientNotes: clientNotes,
             counsellorNotes: counsellorNotes,
             appointmentType: appointmentType,
-            recurringNo: 0
         };
-
 
 
         // make sure all the appointments are available
@@ -148,7 +148,6 @@ async function createAppointment(req, res) {
             error,
             appointments
         } = await AppointmentControllerHelpers.checkAllAppointments(appointmentInfo);
-
         if (error) return response.failure(error.message, 400, {
             clashInfo: error.clashInfo[0]
         });
@@ -156,12 +155,12 @@ async function createAppointment(req, res) {
         // insert ready appointments into database.
         let createdAppointments = [];
         for (let appointment of appointments) {
-            let createdAppointment = await AppointmentControllerHelpers.insertAppointment(appointment);
+            let createdAppointment = await AppointmentModel.create(appointment);
             createdAppointments.push(createdAppointment);
         }
 
 
-        // add full client information to the first appointment of the series.
+        // Add full client information to the first appointment of the series to be used in the email.
         // We don't need to populate all the appointments because you can only create multiple appointments at once if they are recurring appointments, which have the same clients and counsellor.
         await createdAppointments[0].populate("clients").populate("counsellorId").execPopulate();
         // send clients email confirming appointment.
@@ -176,7 +175,7 @@ async function createAppointment(req, res) {
         });
         // Catch any errors and respond appropriately
     } catch (error) {
-
+        console.log(error);
         Logger.error("Error creating appointment.", error);
         return response.failure("Error creating appointment.", 500);
     }

@@ -14,7 +14,7 @@ function createAppointment(req, res, next) {
         typeId: Joi.string().required(),
         counsellorId: Joi.string().required(),
         clientNotes: Joi.string().allow(""),
-        clientId: Joi.string().allow(""),
+        clients: Joi.array(),
         counsellorNotes: Joi.string().allow("")
     };
 
@@ -47,8 +47,8 @@ function createAppointment(req, res, next) {
             case "counsellorNotes":
                 errorMessage = "Invalid counsellor notes.";
                 break;
-            case "clientId":
-                errorMessage = "Invalid client Id";
+            case "clients":
+                errorMessage = "Invalid clients";
                 break;
             default:
                 errorMessage = "Error creating appointment";

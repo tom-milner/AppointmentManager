@@ -58,7 +58,6 @@ async function checkAllAppointments(appointmentInfo) {
         } = appointment;
 
 
-
         let error;
         for (let clientId of clients) {
             // Check each client is free for the appointment.
@@ -78,27 +77,6 @@ async function checkAllAppointments(appointmentInfo) {
         appointments
     };
 }
-
-async function insertAppointment(appointmentInfo) {
-
-    // Create new appointment model
-    let createdAppointment = await AppointmentModel.create({
-        title: appointmentInfo.title,
-        startTime: appointmentInfo.startTime,
-        endTime: appointmentInfo.endTime,
-        appointmentType: appointmentInfo.appointmentType,
-        // This is an array as I plan on adding support for multiple clients. This is an extension objective.
-        clients: [appointmentInfo.clientId],
-        isApproved: false,
-        counsellorId: appointmentInfo.counsellorId,
-        clientNotes: appointmentInfo.clientNotes,
-        counsellorNotes: appointmentInfo.counsellorNotes,
-        recurringSeriesId: appointmentInfo.recurringSeriesId,
-        recurringNo: appointmentInfo.recurringNo
-    });
-    return createdAppointment;
-}
-
 
 
 // TODO: This can be refactored to use an array of times.
@@ -155,7 +133,8 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
     let appointmentQuery = AppointmentModel.find();
 
     // If the supplied user is a counsellor, make sure they are working on the requested day.
-    if (validUser.role >= Role.Counsellor) {
+    const isCounsellor = validUser.role >= Role.Counsellor;
+    if (isCounsellor) {
         let error = checkCounsellorIsWorking(validUser, desiredStartTime, desiredEndTime);
         if (error) return error;
         // look for the user id in the counsellorId field.
@@ -235,6 +214,5 @@ function createClashInfo(clashingAppointments) {
 }
 
 module.exports = {
-    insertAppointment,
     checkAllAppointments
 };

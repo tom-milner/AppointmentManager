@@ -4,7 +4,7 @@ let Schema = mongoose.Schema;
 let appointmentTypeSchema = new Schema({
     name: {
         type: String,
-        require: true,
+        required: true,
         maxlength: 20,
     },
     duration: {
