@@ -11,7 +11,6 @@ const mailer = new Mailer();
 
 // define schema
 let appointmentSchema = new Schema({
-
     title: {
         type: String,
         required: true,
@@ -28,11 +27,13 @@ let appointmentSchema = new Schema({
     },
     // clients that booked the appointment
     // This is an array as I plan on adding support for appointments with multiple clients (This is an extension objective)
-    clients: [{
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true
-    }],
+    clients: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true
+        }
+    ],
     // client notes about appointment
     clientNotes: {
         type: String
@@ -51,10 +52,9 @@ let appointmentSchema = new Schema({
     },
     endTime: {
         type: Date,
-        default: function () {
+        default: function() {
             return moment(this.startTime).add(this.appointmentType.duration, "minutes");
         }
-
     },
     // whether the apointment has been confirmed or not
     isApproved: {
@@ -68,48 +68,48 @@ let appointmentSchema = new Schema({
     },
     recurringSeriesId: {
         type: Schema.Types.ObjectId,
-        required: function () {
-            return this.appointmentType.isRecurring
+        required: function() {
+            return this.appointmentType.isRecurring;
         }
     },
     recurringNo: {
         type: Number,
-        default: 0,
+        default: 0
     }
 });
 
 // Any time an appointment is updated, the clients and counsellors will be sent an email reminder.
 // /update/gi is regex for any update query including "update" (case-insenstitive)
-appointmentSchema.post(/update/gi, async function (appointment) {
+appointmentSchema.post(/update/gi, async function(appointment) {
     let updatedData = this._update;
     let updatedFields = Object.keys(updatedData);
 
+    console.log(updatedFields);
+
     // get the clients and counsellors emails.
-    let clients = [];
-    for (let client of appointment.clients) {
-        clients.push(await UserModel.findById(client));
-    }
-    let counsellor = await UserModel.findById(appointment.counsellorId);
+    await appointment
+        .populate("clients")
+        .populate("counsellorId")
+        .execPopulate();
+
+    let recipients = [];
 
     // If the appointment times have changed, alert both the client and counsellor.
     if (updatedFields.includes("startTime") || updatedFields.includes("endTime")) {
-
         // format the dates.
         updatedData.startTime = moment(updatedData.startTime).format("dddd, MMMM Do YYYY, h:mm:ss a");
         updatedData.endTime = moment(updatedData.endTime).format("dddd, MMMM Do YYYY, h:mm:ss a");
-        mailer.alertAppointmentChanged(appointment, updatedData, [...clients, counsellor]).send();
+        recipients.push([...appointments.client, appointment.counsellorId]);
     }
 
     // If the client status has changed, alert the counsellor.
-    if (updatedFields.includes("clientCanAttend")) {
-        mailer.alertAppointmentChanged(appointment, updatedData, [counsellor]).send();
-    }
+    if (updatedFields.includes("clientCanAttend")) recipients.push(appointment.counsellorId);
 
     // If the appointment approval status has changed, alert the client.
-    if (updatedFields.includes("isApproved")) {
-        mailer.alertAppointmentChanged(appointment, updatedData, clients).send();
-    }
+    if (updatedFields.includes("isApproved")) recipients.push(appointment.clients);
 
+    // Send the email
+    if (recipients.length > 0) mailer.alertAppointmentChanged(appointment, updatedData, recipients).send();
 });
 
 module.exports = mongoose.model("Appointment", appointmentSchema);
