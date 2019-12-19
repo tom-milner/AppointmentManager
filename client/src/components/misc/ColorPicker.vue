@@ -18,7 +18,7 @@ export default {
   },
   data() {
     return {
-      chosenColor: String
+      chosenColor: ""
     };
   },
   methods: {
@@ -41,6 +41,9 @@ export default {
 
       return styleObject;
     }
+  },
+  mounted() {
+    this.chosenColor = this.$attrs.value;
   }
 };
 </script>

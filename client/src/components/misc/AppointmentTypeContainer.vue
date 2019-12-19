@@ -99,10 +99,7 @@
 
       <div class="color-picker" v-if="isEditable">
         <h4 class="form-heading dropdown-heading">Color:</h4>
-        <ColorPicker
-          v-model="appointmentType.color"
-          :colors="['#3398d3', '#65ca35', '#2300ED', '#f44336', '#fcba03','#E91E63','#2196F3','#607D8B']"
-        ></ColorPicker>
+        <ColorPicker v-model="appointmentType.color" :colors="appointmentTypeColours"></ColorPicker>
       </div>
     </div>
 
@@ -144,7 +141,17 @@ export default {
       minDuration: 50,
       showFullType: false,
       showDeleteDialogue: false,
-      appointmentType: {}
+      appointmentType: {},
+      appointmentTypeColours: [
+        "#3398d3",
+        "#65ca35",
+        "#2300ED",
+        "#f44336",
+        "#fcba03",
+        "#E91E63",
+        "#2196F3",
+        "#607D8B"
+      ]
     };
   },
   components: {
@@ -220,10 +227,12 @@ export default {
       // check duration
       if (duration < this.minDuration || duration > this.maxDuration) {
         let isMin = duration < this.minDuration;
-        let violatedDuration = isMin ?  this.minDuration : this.maxDuration;
-        this.errorMessage = `${isMin? "Min" : "Max"} duration is ${
+        let violatedDuration = isMin ? this.minDuration : this.maxDuration;
+        this.errorMessage = `${
+          isMin ? "Min" : "Max"
+        } duration is ${violatedDuration} minutes (${this.minsToHours(
           violatedDuration
-        } minutes (${this.minsToHours(violatedDuration)} hours)`;
+        )} hours)`;
         return false;
       }
 
