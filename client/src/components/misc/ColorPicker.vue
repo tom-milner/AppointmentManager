@@ -29,20 +29,18 @@ export default {
     getColorStyle(color) {
       let styleObject = {
         "background-color": color
-        // : `2px solid black`
       };
 
       if (this.chosenColor == color) {
         styleObject.width = "4rem";
         styleObject.height = "4rem";
-
-        // styleObject["border-radius"] = "50px";
       }
 
       return styleObject;
     }
   },
   mounted() {
+    // The value given to v-model on the parent component is stored in "$attrs.value" - Here we set the initial chosen color.
     this.chosenColor = this.$attrs.value;
   }
 };
