@@ -158,13 +158,13 @@ export default {
         // validate any input from the user. This process is also repeated on the server.
         // returns an object containing error and message.
         validateInput() {
-            // check for title
-            if (!this.chosenTitle) {
-                return {
-                    error: true,
-                    message: "Please enter a title for your appointment."
-                };
-            }
+            // // check for title
+            // if (!this.chosenTitle) {
+            //     return {
+            //         error: true,
+            //         message: "Please enter a title for your appointment."
+            //     };
+            // }
             // check if user has chosen a counsellor
             if (!this.chosenCounsellor._id) {
                 return {

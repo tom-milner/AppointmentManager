@@ -118,7 +118,7 @@ async function createAppointment(req, res) {
         appointmentEndTime.add(appointmentType.duration, "minutes");
 
         let appointmentInfo = {
-            title: req.body.title,
+            title: req.body.title || undefined,
             startTime: appointmentStartTime,
             endTime: appointmentEndTime,
             clients: clients,

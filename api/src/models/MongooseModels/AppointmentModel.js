@@ -3,8 +3,6 @@ const Schema = mongoose.Schema;
 const moment = require("moment");
 const Mailer = require("../../struct/mailer/Mailer");
 
-const UserModel = require("./UserModels/UserModel");
-
 const AppointmentTypeSchema = require("./AppointmentTypeModel").schema;
 
 const mailer = new Mailer();
@@ -13,8 +11,9 @@ const mailer = new Mailer();
 let appointmentSchema = new Schema({
     title: {
         type: String,
-        required: true,
-        max: 100
+        default: function() {
+            return this.appointmentType.name;
+        }
     },
 
     // save the appointment type directly in the schema so that if appointment types are updated, the appointment specific info will be left unchanged.
