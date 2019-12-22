@@ -6,6 +6,7 @@
             <div class="form-field">
                 <h4 class="form-heading">Appointment Title</h4>
                 <input type="text" max="200" v-model="chosenTitle" class="form-input short-input" />
+                <p class="paragraph" ><em>This will default to the name of the appointment type if left blank.</em></p>
             </div>
 
             <!-- Counsellor Selection Dropdown -->

@@ -78,8 +78,9 @@ export default {
             }
 
             this.message.content = res.data.message;
-            console.log(res.data.success);
             this.message.success = res.data.success;
+
+            if (res.data.success) this.$parent.$emit("close-dialogue");
         },
 
         setNewTime({ appointmentStartTime, appointmentType }) {
@@ -121,7 +122,7 @@ export default {
         getFullAppointmentTime(start, end) {
             start = this.moment(start);
             end = this.moment(end);
-            return `${start.format("HH:m")}-${end.format("HH:mm")}, ${start.clone().format("dddd Do MMMM")}`;
+            return `${start.format("HH:mm")}-${end.format("HH:mm")}, ${start.clone().format("dddd Do MMMM")}`;
         }
     },
     async mounted() {

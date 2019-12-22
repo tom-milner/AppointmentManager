@@ -93,7 +93,7 @@
 
                 <!-- Counsellor Approval Buttons -->
                 <li v-if="isCounsellor" class="section attendance">
-                    <h4 class="heading-4">Appointment Approval</h4>
+                    <h4 class="heading-4">Appointment approval:</h4>
                     <button
                         @click="toggleCounsellorApproval(true)"
                         class="btn checked"

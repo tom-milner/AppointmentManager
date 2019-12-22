@@ -10,29 +10,23 @@ const Role = require("../../models/Role");
 // Helper functions - not called directly by route handler
 // ########################################################
 
-
 // Check if an appointment is available.
 async function checkAllAppointments(appointmentInfo) {
-
     let appointments = [];
     // add first appointment of series.
+    appointmentInfo.startTime = moment(appointmentInfo.startTime);
+    appointmentInfo.endTime = moment(appointmentInfo.endTime);
     appointments.push(appointmentInfo);
 
     if (appointmentInfo.appointmentType.isRecurring) {
         // give the recurring series of appointments an ID so that they can be found together easily.
         if (!appointmentInfo.recurringSeriesId) appointmentInfo.recurringSeriesId = new MongooseObjectId();
 
-
-        appointmentInfo.startTime = moment(appointmentInfo.startTime);
-        appointmentInfo.endTime = moment(appointmentInfo.endTime);
-
         let originalStart = appointmentInfo.startTime.clone();
         let originalEnd = appointmentInfo.endTime.clone();
 
         // add the recurring appointments
-        for (
-            let index = 1; index < appointmentInfo.appointmentType.recurringDuration; index++
-        ) {
+        for (let index = 1; index < appointmentInfo.appointmentType.recurringDuration; index++) {
             let newStart = originalStart.add(1, "week");
             let newEnd = originalEnd.add(1, "week");
 
@@ -50,27 +44,23 @@ async function checkAllAppointments(appointmentInfo) {
 
     // check that the counsellor and client can make all the appointments.
     for (let appointment of appointments) {
-        let {
-            startTime,
-            endTime,
-            counsellorId,
-            clients
-        } = appointment;
-
+        let { startTime, endTime, counsellorId, clients } = appointment;
 
         let error;
         for (let clientId of clients) {
             // Check each client is free for the appointment.
-            error = await checkUserAvailability(startTime, endTime, clientId)
-            if (error) return ({
-                error
-            })
+            error = await checkUserAvailability(startTime, endTime, clientId);
+            if (error)
+                return {
+                    error
+                };
         }
         // check the counsellor is available for the appointments.
         error = await checkUserAvailability(startTime, endTime, counsellorId);
-        if (error) return ({
-            error
-        })
+        if (error)
+            return {
+                error
+            };
     }
     // All appointments are free, so book them;
     return {
@@ -78,11 +68,10 @@ async function checkAllAppointments(appointmentInfo) {
     };
 }
 
-
 // TODO: This can be refactored to use an array of times.
 function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) {
     let availableWorkDays = counsellor.workingDays;
-
+    console.log(desiredStartTime);
     // get Day string from start time e.g. "Monday" (we're assuming no appointments run over 2 days)
     let requiredDay = desiredStartTime.format("dddd");
 
@@ -92,19 +81,13 @@ function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) 
     // if counsellor isn't working that day...
     if (!validDay) {
         return {
-            message: `Counsellor is not available on ${requiredDay}.`,
+            message: `Counsellor is not available on ${requiredDay}.`
         };
     }
     // Now check if counsellor is working the required hours.
     // Create new moment objects for requested day containing the start and end times. The moment objects are needed for reliable comparison.
-    let startOfDay = Utils.getMomentOfSameDayFromTimeString(
-        desiredStartTime,
-        validDay.startTime
-    );
-    let endOfDay = Utils.getMomentOfSameDayFromTimeString(
-        desiredEndTime,
-        validDay.endTime
-    );
+    let startOfDay = Utils.getMomentOfSameDayFromTimeString(desiredStartTime, validDay.startTime);
+    let endOfDay = Utils.getMomentOfSameDayFromTimeString(desiredEndTime, validDay.endTime);
 
     // check start and end times are valid (Counsellor is working on during the requested appointment time.).
     let timeIsValid =
@@ -113,20 +96,17 @@ function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) 
     // If the required timea aren't valid, return an error.
     if (!timeIsValid) {
         return {
-            message: "Counsellor is not working at that time",
+            message: "Counsellor is not working at that time"
         };
     }
 }
 
-
 async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
-
-
     // first make sure the client exists
     let validUser = await UserModel.findById(userId);
     if (!validUser) {
         return {
-            message: "User doesn't exist",
+            message: "User doesn't exist"
         };
     }
 
@@ -149,36 +129,38 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
     }
     // Now we know that the counsellor is working during the requested times, we need to check to see if the desired time clashes with any other appointments.
 
-
     // Query to find any appointments that clash with the chosen times.
     // It finds any appointments that have a start or end time that is between the requested start and end time.
     appointmentQuery.where({
-        $or: [{
-            $and: [{
-                startTime: {
-                    $lte: desiredEndTime
-                }
+        $or: [
+            {
+                $and: [
+                    {
+                        startTime: {
+                            $lte: desiredEndTime
+                        }
+                    },
+                    {
+                        startTime: {
+                            $gte: desiredStartTime
+                        }
+                    }
+                ]
             },
             {
-                startTime: {
-                    $gte: desiredStartTime
-                }
+                $and: [
+                    {
+                        endTime: {
+                            $gte: desiredStartTime
+                        }
+                    },
+                    {
+                        endTime: {
+                            $lte: desiredEndTime
+                        }
+                    }
+                ]
             }
-            ]
-        },
-        {
-            $and: [{
-                endTime: {
-                    $gte: desiredStartTime
-                }
-            },
-            {
-                endTime: {
-                    $lte: desiredEndTime
-                }
-            }
-            ]
-        }
         ]
     });
     // execute the query
@@ -191,11 +173,10 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
 
         return {
             message: `${isCounsellor ? "Counsellor" : "Client"} is not available at this time.`,
-            clashInfo: clashInfo,
+            clashInfo: clashInfo
         };
     }
 }
-
 
 // Create reduced info about a list of clashing appointments.
 function createClashInfo(clashingAppointments) {
@@ -205,10 +186,8 @@ function createClashInfo(clashingAppointments) {
             startTime: appointment.startTime,
             endTime: appointment.endTime,
             // The number of future appointments at the requested time.
-            noFutureAppointments: appointment.appointmentType.recurringDuration - appointment
-                .recurringNo
+            noFutureAppointments: appointment.appointmentType.recurringDuration - appointment.recurringNo
         });
-
     }
     return clashInfo;
 }
