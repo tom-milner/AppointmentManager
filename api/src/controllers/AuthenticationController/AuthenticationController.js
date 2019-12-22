@@ -21,27 +21,20 @@ let mailer = new Mailer();
 async function registerCounsellor(req, res) {
     const response = new AppResponse(res);
 
-    let {
-        email,
-        username,
-        firstname,
-        lastname,
-        password,
-        counsellorToken
-    } = req.body;
+    let { email, username, firstname, lastname, password, counsellorToken } = req.body;
 
     // assert there is permission to create token
     let tokenHash = await AuthenticationControllerHelpers.generateTokenHash(counsellorToken);
 
     try {
-        let foundReg = CounsellorRegistrationModel.find({
+        let foundReg = await CounsellorRegistrationModel.findOne({
             hash: tokenHash
         });
 
         if (!foundReg) return response.failure("Invalid token.", 400);
 
         // check it's for input email.
-        if (!foundReg.email == email) return response.failure("Invalid email for given token.", 400);
+        if (!foundReg.email == email) return response.failure("Invalid email for provided token.", 400);
 
         // delete counsellor registration
         await CounsellorRegistrationModel.findByIdAndDelete(foundReg._id);
@@ -63,7 +56,6 @@ async function registerCounsellor(req, res) {
             user: savedCounsellor
         });
     } catch (err) {
-
         if (err.code == 11000) {
             return response.failure(Utils.getDuplicateMongoEntryKey(err.message) + " already exists.", 409);
         }
@@ -109,11 +101,7 @@ async function registerClient(req, res) {
 async function registerGuest(req, res) {
     const response = new AppResponse(res);
 
-    let {
-        firstname,
-        lastname,
-        email
-    } = req.body;
+    let { firstname, lastname, email } = req.body;
 
     // generate random password - this is only to prevent people logging into a guest account
     let password = await AuthenticationControllerHelpers.generateRandomPassword();
@@ -133,14 +121,11 @@ async function registerGuest(req, res) {
         });
 
         // create a password reset for the guest for when they want to fully activate their account.
-        let {
-            resetToken
-        } = await AuthenticationControllerHelpers.createPasswordReset(createdGuest);
+        let { resetToken } = await AuthenticationControllerHelpers.createPasswordReset(createdGuest);
 
         // send guest an email containing a link to activate their account.
 
         mailer.confirmNewUser(createdGuest, resetToken).send();
-
 
         // create access token for guest
         const accessToken = AuthenticationControllerHelpers.createAccessToken(createdGuest);
@@ -257,10 +242,7 @@ async function refreshToken(req, res) {
         if (process.env.NODE_ENV == "production") {
             const requestIp = req.headers["x-forwarded-for"].split(",")[0] || req.connection.remoteAddress;
             const sessionIp = foundSession.clientIp;
-            const {
-                error,
-                distance
-            } = await AuthenticationControllerHelpers.calculateGeoIpDistance(
+            const { error, distance } = await AuthenticationControllerHelpers.calculateGeoIpDistance(
                 requestIp,
                 sessionIp
             );
@@ -308,9 +290,7 @@ async function forgotPassword(req, res) {
         // get ip address of request.
         let requestIp = req.header("x-forwarded-for") || req.connection.remoteAddress;
 
-        let {
-            resetToken
-        } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
+        let { resetToken } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
 
         // send email
         mailer.forgotPassword(foundUser, resetToken, requestIp).send();
