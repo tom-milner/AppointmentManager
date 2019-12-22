@@ -5,18 +5,18 @@
             <!-- title -->
             <h2 class="heading-2">{{ appointment.title }}</h2>
 
-            <!-- Counsellor icon -->
+            <!-- Counsellor  -->
             <ul class="appointment-details">
                 <li class="appointment-details-row">
                     <icon class="icon" name="user"></icon>
                     <h4 class="heading-4">{{ counsellor.firstname }} {{ counsellor.lastname }}</h4>
                 </li>
 
-                <!-- Client icon -->
+                <!-- Clients -->
                 <li class="appointment-details-row">
                     <icon class="icon" name="users"></icon>
-                    <h4 v-for="client in clients" :key="client._id" class="heading-4">
-                        {{ client.firstname }} {{ client.lastname }}
+                    <h4 class="heading-4 ">
+                        {{ getFormattedClients }}
                     </h4>
                 </li>
 
@@ -172,6 +172,13 @@ export default {
         },
         getApprovalColor: function() {
             return this.appointment.isApproved ? "approved" : "pending";
+        },
+        getFormattedClients() {
+            return this.clients.reduce(
+                (acc, client, index) =>
+                    (acc += `${client.firstname} ${client.lastname}${!index == this.clients.length - 1 ? ", " : ""}`),
+                ""
+            );
         }
     },
     data() {

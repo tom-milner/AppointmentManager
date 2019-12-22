@@ -53,6 +53,8 @@
         </form>
       </div>
 
+    
+      <!--  For counsellors only -->
       <div v-if="userIsCounsellor" class="container create-counsellor">
         <h3 class="heading-3">Create a Counsellor</h3>
         <p
@@ -154,18 +156,17 @@ export default {
   },
   methods: {
     async sendNewCounsellorEmail() {
+      let response; 
       try {
-        let response = await UserService.sendNewCounsellorEmail(
+        response = await UserService.sendNewCounsellorEmail(
           this.newCounsellorEmail,
           this.createCounsellorPassword
         );
-        if (!response.success) throw { response };
-        this.requestOk = true;
-        this.createCounsellorMessage = response.data.message;
       } catch (error) {
-        this.createCounsellorMessage = error.response.data.message;
-        this.requestOk = false;
+        response = error.response;
       }
+      this.createCounsellorMessage = response.data.message;
+      this.requestOk = response.data.success;
     },
 
     async deleteUser() {

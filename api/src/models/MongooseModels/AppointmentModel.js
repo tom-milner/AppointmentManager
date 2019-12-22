@@ -82,9 +82,7 @@ let appointmentSchema = new Schema({
 // /update/gi is regex for any update query including "update" (case-insenstitive)
 appointmentSchema.post(/update/gi, async function(appointment) {
     let updatedData = this._update;
-    let updatedFields = Object.keys(updatedData);
-
-    console.log(updatedFields);
+    let updatedFields = Object.keys(updatedData.$set);
 
     // get the clients and counsellors emails.
     await appointment
@@ -93,20 +91,22 @@ appointmentSchema.post(/update/gi, async function(appointment) {
         .execPopulate();
 
     let recipients = [];
+    console.log(appointment);
 
     // If the appointment times have changed, alert both the client and counsellor.
     if (updatedFields.includes("startTime") || updatedFields.includes("endTime")) {
         // format the dates.
         updatedData.startTime = moment(updatedData.startTime).format("dddd, MMMM Do YYYY, h:mm:ss a");
         updatedData.endTime = moment(updatedData.endTime).format("dddd, MMMM Do YYYY, h:mm:ss a");
-        recipients.push([...appointments.client, appointment.counsellorId]);
+        recipients.push(...appointment.clients);
+        recipients.push(appointment.counsellorId);
     }
 
     // If the client status has changed, alert the counsellor.
     if (updatedFields.includes("clientCanAttend")) recipients.push(appointment.counsellorId);
 
     // If the appointment approval status has changed, alert the client.
-    if (updatedFields.includes("isApproved")) recipients.push(appointment.clients);
+    if (updatedFields.includes("isApproved")) recipients.push(...appointment.clients);
 
     // Send the email
     if (recipients.length > 0) mailer.alertAppointmentChanged(appointment, updatedData, recipients).send();

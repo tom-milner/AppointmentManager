@@ -25,12 +25,8 @@ async function getAllAppointments(req, res) {
     }
 }
 
-function getAppointmentsOfUser({
-    reduced,
-    isCounsellor
-}) {
-    return async function (req, res) {
-
+function getAppointmentsOfUser({ reduced, isCounsellor }) {
+    return async function(req, res) {
         const response = new AppResponse(res);
         // dynamically construct mongoose query
         const appointmentQuery = AppointmentModel.find();
@@ -84,7 +80,6 @@ function getAppointmentsOfUser({
             return response.success("Appointments returned successfully", {
                 appointments: appointments
             });
-
         } catch (error) {
             // return an error message
             return response.failure("Error returning appointments.", 400);
@@ -92,19 +87,15 @@ function getAppointmentsOfUser({
     };
 }
 
-
-
 // Insert new appointment into db
 async function createAppointment(req, res) {
     const response = new AppResponse(res);
-
 
     // load  info from body
     const appointmentTypeId = req.body.typeId;
     const counsellorId = req.body.counsellorId;
     let counsellorNotes, clientNotes;
     let clients = [];
-
 
     // only counsellors can make appointments for other people and set counsellor notes
     if (req.user.role >= Role.Counsellor) {
@@ -116,14 +107,9 @@ async function createAppointment(req, res) {
         clientNotes = req.body.clientNotes;
     }
     try {
-
         // make sure the appointment type exists
         let appointmentType = await AppointmentTypeModel.findById(appointmentTypeId);
-        if (!appointmentType)
-            return response.failure(
-                "Appointment type doesn't exist",
-                400
-            );
+        if (!appointmentType) return response.failure("Appointment type doesn't exist", 400);
         // calculate start time
         let appointmentStartTime = moment(req.body.startTime);
 
@@ -139,18 +125,15 @@ async function createAppointment(req, res) {
             counsellorId: counsellorId,
             clientNotes: clientNotes,
             counsellorNotes: counsellorNotes,
-            appointmentType: appointmentType,
+            appointmentType: appointmentType
         };
 
-
         // make sure all the appointments are available
-        let {
-            error,
-            appointments
-        } = await AppointmentControllerHelpers.checkAllAppointments(appointmentInfo);
-        if (error) return response.failure(error.message, 400, {
-            clashInfo: error.clashInfo[0]
-        });
+        let { error, appointments } = await AppointmentControllerHelpers.checkAllAppointments(appointmentInfo);
+        if (error)
+            return response.failure(error.message, 400, {
+                clashInfo: error.clashInfo[0]
+            });
 
         // insert ready appointments into database.
         let createdAppointments = [];
@@ -159,10 +142,12 @@ async function createAppointment(req, res) {
             createdAppointments.push(createdAppointment);
         }
 
-
         // Add full client information to the first appointment of the series to be used in the email.
         // We don't need to populate all the appointments because you can only create multiple appointments at once if they are recurring appointments, which have the same clients and counsellor.
-        await createdAppointments[0].populate("clients").populate("counsellorId").execPopulate();
+        await createdAppointments[0]
+            .populate("clients")
+            .populate("counsellorId")
+            .execPopulate();
         // send clients email confirming appointment.
         let mailer = new Mailer();
         for (let client of createdAppointments[0].clients) {
@@ -190,74 +175,60 @@ async function updateAppointment(req, res) {
     try {
         let appointment = await AppointmentModel.findById(appointmentId);
         // check appointment exists.
-        if (!appointment) return response.failure(
-            "Appointment doesn't exist.",
-            400
-        );
+        if (!appointment) return response.failure("Appointment doesn't exist.", 400);
 
         // make sure clients can't edit other people's appointments.
         if (req.user.role == Role.Client) {
             // Search for the user in the client field of the appointment.
             let validClient = appointment.clients.find(req.user._id);
-            if (!validClient)
-                return response.failure(
-                    "You do not have permission to edit this appointment.",
-                    403
-                );
+            if (!validClient) return response.failure("You do not have permission to edit this appointment.", 403);
         }
-
-
 
         // If the user is changing the start time of an appointment, they shouldn't be able to change the time of the appointment if it was originally going to be in the next 24 hours.
         if (Object.keys(newAppointmentProperties).includes("startTime")) {
-
             // Make sure the appointment is available
 
             // create an object containing the appointment with it's updated properties.
-            // The spreac operator combines 
+            // The spreac operator combines
             let newAppointment = {
                 ...appointment._doc,
                 ...newAppointmentProperties
             };
 
-            let {
-                error
-            } = await AppointmentControllerHelpers.checkAllAppointments(newAppointment);
+            let { error } = await AppointmentControllerHelpers.checkAllAppointments(newAppointment);
 
-            if (error) return response.failure(error.message, 400, {
-                clashInfo: error.clashInfo
-            });
+            if (error)
+                return response.failure(error.message, 400, {
+                    clashInfo: error.clashInfo
+                });
 
             const now = moment();
             const next24Hours = now.clone().add(1, "day");
-            const requestedStartTime = moment(newAppointmentProperties.startTime)
-            if (requestedStartTime.isBetween(now, next24Hours)) return response.failure(
-                "You cannot reschedule an appointment that was originally scheduled for the next day.", 400);
+            const requestedStartTime = moment(newAppointmentProperties.startTime);
+            if (requestedStartTime.isBetween(now, next24Hours))
+                return response.failure(
+                    "You cannot reschedule an appointment that was originally scheduled for the next day.",
+                    400
+                );
 
             // They also shouldn't be able to reschedule past appointments.
             const oldStartTime = moment(appointment.startTime);
-            if (oldStartTime.isBefore(now)) return response.failure("You can't reschedule a past appointment.",
-                400);
+            if (oldStartTime.isBefore(now)) return response.failure("You can't reschedule a past appointment.", 400);
         }
 
         // update appointment
-        let updatedAppointment = await AppointmentModel.findByIdAndUpdate(
-            appointmentId,
-            newAppointmentProperties, {
+        let updatedAppointment = await AppointmentModel.findByIdAndUpdate(appointmentId, newAppointmentProperties, {
             // get the newly created appointment
             new: true,
             runValidators: true
-        }
-        );
-
-
+        });
 
         return response.success("Appointment updated successfully", {
             updatedAppointment: updatedAppointment
         });
-
     } catch (error) {
-        Logger.error("Error updating appointment", error)
+        console.log(error);
+        Logger.error("Error updating appointment", error);
         let errorMessage = "Error updating appointment.";
         let errorCode = 500;
         return response.failure(errorMessage, errorCode);
@@ -271,13 +242,8 @@ async function deleteAppointment(req, res) {
     let deleteRecurring = req.body.deleteRecurring;
 
     try {
-        let deletedAppointment = await AppointmentModel.findByIdAndDelete(
-            appointmentId
-        );
-        if (!deletedAppointment)
-            return response.failure(
-                "Appointment doesn't exist."
-            );
+        let deletedAppointment = await AppointmentModel.findByIdAndDelete(appointmentId);
+        if (!deletedAppointment) return response.failure("Appointment doesn't exist.");
 
         if (deleteRecurring) {
             // delete all recurring appointments
