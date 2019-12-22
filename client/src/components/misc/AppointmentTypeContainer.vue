@@ -177,7 +177,7 @@ export default {
       };
     },
     isRecurringText() {
-      return this.appointmentType.isRecurring ? "Yes" : "No";
+      return this.appointmentType.isRecurring ? "Yes:" : "No";
     }
   },
   beforeMount() {
@@ -451,7 +451,7 @@ textarea {
   &-duration {
     display: inline-block;
     height: 3rem;
-    margin-left: 1rem;
+    margin-left: .5rem;
     input {
       // margin-top: 5rem;
       display: inline-block;

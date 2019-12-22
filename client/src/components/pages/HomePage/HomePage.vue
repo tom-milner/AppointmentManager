@@ -345,5 +345,6 @@ export default {
   flex-wrap: nowrap;
   overflow-x: auto;
   min-height: 18rem;
+  margin-top: 1rem;
 }
 </style>

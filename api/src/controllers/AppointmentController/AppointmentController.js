@@ -180,7 +180,7 @@ async function updateAppointment(req, res) {
         // make sure clients can't edit other people's appointments.
         if (req.user.role == Role.Client) {
             // Search for the user in the client field of the appointment.
-            let validClient = appointment.clients.find(req.user._id);
+            let validClient = appointment.clients.find(userId => userId == req.user._id);
             if (!validClient) return response.failure("You do not have permission to edit this appointment.", 403);
         }
 
