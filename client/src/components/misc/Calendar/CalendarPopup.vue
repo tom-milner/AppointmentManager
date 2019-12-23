@@ -14,20 +14,37 @@ export default {
     data() {
         return {
             popupWidth: 0,
-            popupHeight: 0
+            popupHeight: 0,
+            popup: {},
+            observer: {}
         };
     },
     methods: {
         closePopup() {
             this.$emit("close-popup");
+        },
+        getPopupDimensions() {
+            // adjust dimensions to fit content
+            this.popup = document.querySelector(".popup");
+            const popupRect = this.popup.getBoundingClientRect();
+            this.popupWidth = Utils.convertPixelsToRem(popupRect.width);
+            this.popupHeight = Utils.convertPixelsToRem(popupRect.height);
         }
     },
     mounted() {
-        // adjust dimensions to fit content
-        let popup = document.querySelector(".popup").getBoundingClientRect();
-        this.popupWidth = Utils.convertPixelsToRem(popup.width);
-        this.popupHeight = Utils.convertPixelsToRem(popup.height);
+        this.getPopupDimensions();
+        console.log(this.popup);
+
+        // create observer to reposition popup whrn slot contents changes.
+        this.observer = new MutationObserver(this.getPopupDimensions);
+
+        // setup the observer
+        this.observer.observe(this.popup, { attributes: true, childList: true, characterData: true, subtree: true });
     },
+    beforeDestroy() {
+        this.observer.disconnect();
+    },
+
     props: {
         // spaceClicked is an object that should be obtained using getBoundingClientRect()
         spaceClicked: {}
