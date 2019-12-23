@@ -8,7 +8,6 @@
 
 <script>
 import { mixin as clickaway } from "vue-clickaway";
-import Utils from "@/utils";
 
 export default {
     data() {
@@ -27,13 +26,12 @@ export default {
             // adjust dimensions to fit content
             this.popup = document.querySelector(".popup");
             const popupRect = this.popup.getBoundingClientRect();
-            this.popupWidth = Utils.convertPixelsToRem(popupRect.width);
-            this.popupHeight = Utils.convertPixelsToRem(popupRect.height);
+            this.popupWidth = popupRect.width;
+            this.popupHeight = popupRect.height;
         }
     },
     mounted() {
         this.getPopupDimensions();
-        console.log(this.popup);
 
         // create observer to reposition popup whrn slot contents changes.
         this.observer = new MutationObserver(this.getPopupDimensions);
@@ -55,44 +53,34 @@ export default {
         positionPopup() {
             // this function returns a css class that will position the dialogue box somewhere that doesn't obstruct the user's view of the day.
             // it also positions the dialogue somewhere not off the screenzs
-            let elementX, elementY;
+
             // get window dimensions
             let windowWidth = window.innerWidth;
             let windowHeight = window.innerHeight;
-            // convert dimensions of the dialogue box into pixels
-            let popupHeightPx = Utils.convertRemToPixels(this.popupHeight);
-            let popupWidthPx = Utils.convertRemToPixels(this.popupWidth);
 
-            // offset x and y to make dialogue look more natural
+            // offset x and y to make the popup look more natural
             let offsetY = 10;
             let offsetX = 10;
 
-            // the rectangle of screen used by the element
-            let clickedElement = this.spaceClicked;
-
+            // The final styling of the object.
             let finalStyle = {};
 
             // check to see if the day on the calendar is on the left or right side of the screen
-            if (clickedElement.left <= windowWidth / 2) {
+            if (this.spaceClicked.left <= windowWidth / 2) {
                 // on the left - move the dialogue box to the right (where there is more space)
-                elementX = clickedElement.left + clickedElement.width + offsetX;
+                finalStyle.left = `${this.spaceClicked.left + this.spaceClicked.width + offsetX}px`;
             } else {
                 // on the right - move dialogue box to the left
-                elementX = clickedElement.left - popupWidthPx - offsetX;
+                finalStyle.right = `${windowWidth - this.spaceClicked.left + offsetX}px`;
             }
-            finalStyle.left = `${elementX}px`;
 
             // check to see if the dialoge will fit on the screen
-            if (clickedElement.top >= windowHeight - popupHeightPx) {
-                // dialogue won't fit - move it up so that it does
-                // elementY = windowHeight - popupHeightPx - offsetY;
-                // make extra room underneath popup
-                // elementY -= 40;
-                finalStyle.bottom = `${offsetY + 40}px`;
+            if (this.spaceClicked.top >= windowHeight - this.popupHeight - offsetY) {
+                // dialogue won't fit - set it's positioning using the "bottom" property so that it remains on the screen.
+                finalStyle.bottom = `${offsetY}px`;
             } else {
                 // dialogue fits
-                elementY = clickedElement.top + offsetY;
-                finalStyle.top = `${elementY}px`;
+                finalStyle.top = `${this.spaceClicked.top + offsetY}px`;
             }
 
             return finalStyle;
