@@ -184,7 +184,7 @@ export default {
         // sends request to delete appointment
         async deleteAppointmentType() {
             // send delete request
-            await AppointmentTypeService.deleteAppointmentType(this.appointmentType._id);
+            if (this.appointmentType._id) await AppointmentTypeService.deleteAppointmentType(this.appointmentType._id);
             // refresh appointments
             this.$emit("refresh-appointments");
         },

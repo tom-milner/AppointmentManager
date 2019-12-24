@@ -10,7 +10,12 @@
             </p>
             <ul class="appointment-type-list">
                 <li class="list-item" v-for="type in appointmentTypes" :key="type._id">
-                    <AppointmentTypeContainer userCanEdit @refresh-appointments="getAppointmentTypes" :type="type" />
+                    <AppointmentTypeContainer
+                        userCanEdit
+                        @refresh-appointments="getAppointmentTypes"
+                        :type="type"
+                        :forceOpen="!!!type.name"
+                    />
                 </li>
                 <li class="list-item">
                     <button @click="addNewAppointmentType" class="btn btn-secondary">Add New</button>
@@ -65,7 +70,7 @@ export default {
             this.appointmentTypes.push({
                 name: "",
                 description: "",
-                duration: 50,
+                duration: 0,
                 isRecurring: false
             });
         },
