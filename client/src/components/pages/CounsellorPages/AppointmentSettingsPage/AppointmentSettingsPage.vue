@@ -53,13 +53,14 @@ export default {
     },
     computed: {
         addingNewAppointmentType() {
-            if (this.appointmentTypes.length > 0) return !!!this.appointmentTypes[this.appointmentTypes.length - 1]._id;
+            if (this.appointmentTypes.length > 0) return !this.appointmentTypes[this.appointmentTypes.length - 1]._id;
+            return false;
         }
     },
     methods: {
         async updateBufferTime() {
             try {
-                let response = await UserService.updateUser(
+                await UserService.updateUser(
                     this.counsellor._id,
                     {
                         appointmentBufferTime: this.counsellor.appointmentBufferTime

@@ -14,7 +14,6 @@ async function createAppointmentType(req, res) {
         let isRecurring = req.body.isRecurring;
         let recurringDuration = req.body.recurringDuration;
 
-
         // create new appointment type
         let newAppointmentType = new AppointmentTypeModel({
             name: name,
@@ -26,19 +25,16 @@ async function createAppointmentType(req, res) {
 
         let createdAppointmentType = await newAppointmentType.save();
 
-        // appointment type created successfully - return it 
+        // appointment type created successfully - return it
         return response.success("Appointment type created successfully.", {
-            appointmentType: createdAppointmentType,
+            appointmentType: createdAppointmentType
         });
-
     } catch (error) {
         if (error.code === 11000) {
-            return response.failure(Utils.getDuplicateMongoEntryKey(error.message) +
-                " already exists.", 409);
+            return response.failure(Utils.getDuplicateMongoEntryKey(error.message) + " already exists.", 409);
         }
         Logger.error("Error creating appointment type.", error);
         return response.failure("Error creating appointment type.", 500);
-
     }
 }
 
@@ -49,7 +45,7 @@ async function getAllAppointmentTypes(req, res) {
         let appointmentTypes = await AppointmentTypeModel.find({});
         return response.success("Appointment types returned successfully", {
             appointmentTypes: appointmentTypes
-        })
+        });
     } catch (error) {
         let errorMessage = error.message || "Error getting appointment types.";
         return response.failure(errorMessage, 500);
@@ -64,24 +60,21 @@ async function updateAppointmentType(req, res) {
         const appointmentTypeId = req.params.appointmentTypeId;
         let updatedAppointmentType = await AppointmentTypeModel.findByIdAndUpdate(
             appointmentTypeId,
-            newAppointmentTypeProperties, {
-            new: true,
-            runValidators: true
-        }
+            newAppointmentTypeProperties,
+            {
+                new: true,
+                runValidators: true
+            }
         );
         // This check is in the controller, not the policy. This is because checking the existence of the appointment type has to involve querying the database for it, and doing that twice would require unnecessary computing.
         if (!updatedAppointmentType) {
-            return response.failure(
-                "Appointment Type doesn't exist",
-                400
-            );
+            return response.failure("Appointment Type doesn't exist", 400);
         }
 
         // appointment type updated successfully
         return response.success("Appointment type updated successfully", {
             updatedAppointmentType: updatedAppointmentType
         });
-
     } catch (error) {
         let errorMessage = error.message || "Error updating appointment type.";
         let errorCode = error.code || 400;
@@ -94,7 +87,6 @@ async function updateAppointmentType(req, res) {
 }
 
 async function deleteAppointmentType(req, res) {
-    console.log("here");
     const response = new AppResponse(res);
     let appointmentTypeId = req.params.appointmentTypeId;
 
@@ -105,14 +97,12 @@ async function deleteAppointmentType(req, res) {
         let errorMessage = error.message || "Error deleting appointment type.";
         let errorCode = error.code || 500;
         return response.failure(errorMessage, errorCode);
-
     }
 }
-
 
 module.exports = {
     createAppointmentType,
     getAllAppointmentTypes,
     updateAppointmentType,
     deleteAppointmentType
-}
+};
