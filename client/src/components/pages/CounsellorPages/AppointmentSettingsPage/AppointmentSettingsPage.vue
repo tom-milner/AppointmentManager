@@ -17,7 +17,7 @@
                         :forceOpen="!!!type.name"
                     />
                 </li>
-                <li class="list-item">
+                <li class="list-item" v-if="!addingNewAppointmentType">
                     <button @click="addNewAppointmentType" class="btn btn-secondary">Add New</button>
                 </li>
             </ul>
@@ -51,6 +51,11 @@ export default {
             counsellor: {}
         };
     },
+    computed: {
+        addingNewAppointmentType() {
+            if (this.appointmentTypes.length > 0) return !!!this.appointmentTypes[this.appointmentTypes.length - 1]._id;
+        }
+    },
     methods: {
         async updateBufferTime() {
             try {
@@ -61,18 +66,18 @@ export default {
                     },
                     true
                 );
-                console.log(response);
             } catch (error) {
                 console.log(error);
             }
         },
         addNewAppointmentType() {
-            this.appointmentTypes.push({
-                name: "",
-                description: "",
-                duration: 0,
-                isRecurring: false
-            });
+            if (!this.addingNewAppointmentType)
+                this.appointmentTypes.push({
+                    name: "",
+                    description: "",
+                    duration: 0,
+                    isRecurring: false
+                });
         },
 
         async getAppointmentTypes() {

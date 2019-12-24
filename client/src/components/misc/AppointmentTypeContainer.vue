@@ -175,6 +175,8 @@ export default {
         this.appointmentType = this.type;
         if (!this.appointmentType._id) {
             this.isEditable = true;
+            const randomInt = Math.round(Math.random() * this.appointmentTypeColours.length);
+            this.appointmentType.color = this.appointmentTypeColours[randomInt];
         }
 
         this.showFullType = this.forceOpen;
