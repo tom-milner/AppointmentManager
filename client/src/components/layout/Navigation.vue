@@ -40,7 +40,7 @@
                     <router-link to="/counsellor/clients">
                         <li class="nav-item">
                             <icon name="users" class="nav-icon" />
-                            <h4 class="nav-heading">Clients</h4>
+                            <h4 class="nav-heading">Manage Clients</h4>
                         </li>
                     </router-link>
                 </div>

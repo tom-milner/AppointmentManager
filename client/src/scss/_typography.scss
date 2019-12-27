@@ -18,6 +18,8 @@
 .heading-4 {
   font-size: 1.8rem;
   font-weight: 300;
+  text-decoration: none;
+  color: inherit;
 }
 
 .form-heading {
@@ -25,7 +27,6 @@
   font-weight: 300;
   margin-bottom: 0.3rem;
 }
-
 
 // Input styles
 .form-input {
@@ -61,7 +62,6 @@
 }
 
 .paragraph {
-
   &,
   .note {
     span {
@@ -70,9 +70,8 @@
     }
   }
 
-  margin-top: .3rem;
+  margin-top: 0.3rem;
   font-size: 1.3rem;
   // margin: 1rem 0;
   font-weight: 300;
-
 }

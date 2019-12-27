@@ -119,6 +119,7 @@ export default {
             width: 6rem;
             font-size: 2rem;
             font-weight: 300;
+            margin-right: 0.2rem;
         }
         h4 {
             display: inline-block;
