@@ -17,7 +17,8 @@ module.exports = {
         url: process.env.DB_URL || "mongodb://127.0.0.1:27017/appointment_manager", // The url of the database.
         user: process.env.DB_USER, // The user to use to access the database.
         pass: process.env.DB_PASS, // The password of the database user.
-        backupLocation: process.env.DB_BACKUP_LOCATION || path.join(__dirname, "../../Backups/"), // The location to backup the database to.
+        backupLocation: process.env.DB_BACKUP_LOCATION || path.join(__dirname,
+            "../../Backups/"), // The location to backup the database to.
         backupPassword: process.env.DB_BACKUP_PASSWORD // The password to encrypt the database with. 
     },
     googleAuth: {

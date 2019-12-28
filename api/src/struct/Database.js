@@ -1,8 +1,10 @@
 // import necessary packages
 const mongoose = require("mongoose"); // needed for interacting with databases
 const fs = require("fs");
+const path = require("path");
 const {
-    spawn
+    spawn,
+    execSync
 } = require("child_process");
 const Logger = require("./Logger");
 
@@ -68,12 +70,22 @@ class Database {
             // Check that the backup location exists
             try {
                 if (!location) throw (new Error("No backup location specified."))
+
+                // Check that the location specified is a folder
+                if (path.extname(location)) {
+                    // Path has a file extension - not a valid folder
+                    throw (new Error("Specified location is not a directory"));
+                }
+
                 if (fs.existsSync(location)) {
                     //file exists
                     Logger.info("Database backup location found.");
                     resolve()
                 } else {
-                    throw (new Error("Database backup location not found."))
+                    Logger.warn("Database backup location not found. Creating directory...")
+                    // Create the backup folder.
+                    execSync(`mkdir ${location}`);
+                    Logger.info(`Backup Directory created at ${location}`)
                 }
             } catch (err) {
                 Logger.error("Error checking backup location.", err)
