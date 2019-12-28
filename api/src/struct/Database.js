@@ -4,7 +4,7 @@ const fs = require("fs");
 const {
     spawn
 } = require("child_process");
-const Logger = require("./Logger")(module);
+const Logger = require("./Logger");
 
 class Database {
 
@@ -13,7 +13,7 @@ class Database {
         Logger.info("Initializing database...")
         // make sure url is given
         if (url == null) {
-            throw ("You have not specified a mongoose connection URL.")
+            throw (new Error("You have not specified a mongoose connection URL."));
         }
 
         // connect to database
@@ -26,7 +26,7 @@ class Database {
             Logger.info("Database Connected.")
         }).catch(function (err) {
             Logger.error("MongoDB connection error", err);
-            throw (`Error connecting to MongoDB database at ${url}`);
+            throw (new Error(`Error connecting to MongoDB database at ${url}`));
         });
 
     }
@@ -67,13 +67,13 @@ class Database {
         return new Promise((resolve, reject) => {
             // Check that the backup location exists
             try {
-                if (!location) throw ("No backup location specified.")
+                if (!location) throw (new Error("No backup location specified."))
                 if (fs.existsSync(location)) {
                     //file exists
                     Logger.info("Database backup location found.");
                     resolve()
                 } else {
-                    throw ("Database backup location not found.")
+                    throw (new Error("Database backup location not found."))
                 }
             } catch (err) {
                 Logger.error("Error checking backup location.", err)

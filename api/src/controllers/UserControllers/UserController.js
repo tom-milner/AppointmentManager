@@ -1,7 +1,7 @@
 const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 const AppResponse = require("../../struct/AppResponse");
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel");
-const Logger = require("../../struct/Logger")(module);
+const Logger = require("../../struct/Logger");
 
 // takes array of user Ids an returns simple user object.
 async function getReducedUsers(req, res) {

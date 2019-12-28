@@ -4,7 +4,7 @@ const moment = require("moment");
 const nodemailer = require("nodemailer");
 const GoogleAuth = require("../googleauth/GoogleAuth");
 const Role = require("../../models/Role");
-const Logger = require("../Logger")(module);
+const Logger = require("../Logger");
 
 // trying out javascript classes (new ES6 feature);
 

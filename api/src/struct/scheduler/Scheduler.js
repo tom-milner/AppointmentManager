@@ -7,7 +7,7 @@ const AppointmentModel = require("../../models/MongooseModels/AppointmentModel")
 const Mailer = require("../mailer/Mailer");
 const UserModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
 const Config = require("../Config");
-const Logger = require("../Logger")(module);
+const Logger = require("../Logger");
 
 
 class Scheduler {

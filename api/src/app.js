@@ -1,7 +1,7 @@
 "use strict";
 
 // This is a flag used to determine whether or not the app is running in a production environment or not. THe NODE_ENV environment variable is set automatically by the server.
-const isProd =process.env.NODE_ENV == "production";
+const isProd = process.env.NODE_ENV == "production";
 
 // Setup PM2 monitoring server (only on prod server)
 if (isProd) {
@@ -20,7 +20,7 @@ if (isProd) {
 const dotenv = require("dotenv"); // Required for loading custom environment variables.
 const path = require("path"); // Used for creating/using file paths.
 const express = require("express"); // The server framework used by the app.
-const app = express();  // creating a global express instance to use within the app.
+const app = express(); // creating a global express instance to use within the app.
 const Sentry = require("@sentry/node"); // Sentry error tracking/reporting.
 const cors = require("cors"); //  Used for cross-origin routing.
 const bodyParser = require("body-parser"); // Used for processing a http request body.
@@ -68,7 +68,7 @@ if (isProd) app.use(Sentry.Handlers.errorHandler());
 const GoogleAuth = require("./struct/googleauth/GoogleAuth"); // Used for authenticating with Google's API.
 const Mailer = require("./struct/mailer/Mailer"); // Used for creating and sending emails to users.
 const Database = require("./struct/Database"); // Used for connecting to the database.
-const Logger = require("./struct/Logger")(module, "AppointmentManagerAPI"); // Used for logging application errors or important info.
+const Logger = require("./struct/Logger"); // Used for logging application errors or important info.
 const Scheduler = require("./struct/scheduler/Scheduler"); // Used for running scheduled tasks.
 
 // Instantiate packages.
@@ -101,7 +101,7 @@ const database = new Database();
             Logger.info(`Started server on port ${Config.port}`);
         });
     } catch (error) {
-        Logger.error("Startup error", error);
+        Logger.error("Startup error.", error);
         process.exit();
     }
 })();

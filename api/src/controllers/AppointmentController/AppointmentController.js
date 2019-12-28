@@ -6,7 +6,7 @@ const AppResponse = require("../../struct/AppResponse");
 const Role = require("../../models/Role");
 const moment = require("moment");
 const Mailer = require("../../struct/mailer/Mailer");
-const Logger = require("../../struct/Logger")(module);
+const Logger = require("../../struct/Logger");
 
 // Fetch all appointments regardless
 

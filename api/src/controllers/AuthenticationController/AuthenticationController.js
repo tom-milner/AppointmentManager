@@ -12,7 +12,7 @@ const Role = require("../../models/Role");
 const Utils = require("../../utils/Utils");
 const AppResponse = require("../../struct/AppResponse");
 const SessionModel = require("../../models/MongooseModels/SessionModel");
-const Logger = require("../../struct/Logger")(module);
+const Logger = require("../../struct/Logger");
 const crypto = require("crypto");
 
 let mailer = new Mailer();

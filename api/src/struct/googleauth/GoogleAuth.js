@@ -9,7 +9,7 @@ const url = require('url');
 const Config = require("../Config");
 const fs = require('fs');
 const path = require("path");
-const Logger = require("../Logger")(module);
+const Logger = require("../Logger");
 
 
 class GoogleAuth {

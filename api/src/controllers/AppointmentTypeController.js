@@ -2,7 +2,7 @@
 const AppointmentTypeModel = require("../models/MongooseModels/AppointmentTypeModel");
 const AppResponse = require("../struct/AppResponse");
 const Utils = require("../utils/Utils");
-const Logger = require("..//struct/Logger")(module);
+const Logger = require("..//struct/Logger");
 
 // create a new appointment type
 async function createAppointmentType(req, res) {

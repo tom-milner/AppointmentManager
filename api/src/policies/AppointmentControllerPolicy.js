@@ -4,7 +4,7 @@ const AppointmentModel = require("../models/MongooseModels/AppointmentModel");
 const Utils = require("../utils/Utils");
 const moment = require("moment");
 const AppResponse = require("../struct/AppResponse");
-const Logger = require("../struct/Logger")(module);
+const Logger = require("../struct/Logger");
 
 function createAppointment(req, res, next) {
     const response = new AppResponse(res);

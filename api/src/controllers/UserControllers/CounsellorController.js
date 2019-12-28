@@ -5,7 +5,7 @@ const AppResponse = require("../../struct/AppResponse");
 const Utils = require("../../utils/Utils");
 const Mailer = require("../../struct/mailer/Mailer");
 const bcrypt = require("bcrypt");
-const Logger = require("../../struct/Logger")(module);
+const Logger = require("../../struct/Logger");
 
 // get list of all the counsellors
 async function getAllCounsellorsReduced(req, res) {

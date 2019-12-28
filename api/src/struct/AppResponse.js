@@ -1,4 +1,4 @@
-const Logger = require("./Logger")(module);
+const Logger = require("./Logger");
 
 class AppResponse {
 

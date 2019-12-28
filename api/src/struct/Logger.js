@@ -4,28 +4,28 @@ const {
     transports
 } = require("winston");
 
-const path = require("path");
 
+// Due to a bug in Winston, the error message is automatically appended to the info message. (https://github.com/winstonjs/winston/issues/1660#issuecomment-512226578)
+// This format "unconcatenates" the two messages.
 
-function getFileName(module) {
-    let pathArray = module.filename.split(path.sep);
-    return pathArray[pathArray.length - 1];
-}
+const messageFormat = format(info => {
+    if (info.level == "error") {
+        const errorMessage = info[Symbol.for("splat")][0].message;
+        info.message = info.message.replace(errorMessage, "");
+    }
+    return info
+})
 
 // Setup logger
 const logger = createLogger({
     level: "info",
     format: format.combine(
+        messageFormat(),
         format.timestamp({
             format: "YYYY-MM-DD HH:mm:ss"
         }),
-        // include error stack in log
-        format.errors({
-            stack: true,
-        }),
-        format.json()
+        format.json(),
     ),
-    defaultMeta: {},
     transports: [
         // write errors to error.log
         new transports.File({
@@ -49,7 +49,7 @@ if (process.env.NODE_ENV !== "production") {
         timestamp,
         error
     }) => {
-        return `${level} [${timestamp}] : ${message} ${ error || ""}`
+        return `${level} [${timestamp}] : ${message} ${error|| ""}`
     });
 
     logger.add(new transports.Console({
@@ -60,25 +60,4 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 
-module.exports = function (module, serviceName) {
-    if (serviceName) {
-        logger.defaultMeta = {
-            serviceName: serviceName
-        };
-    }
-
-    const fileName = getFileName(module);
-    return {
-
-        // return custom functions to prepend the name of the file to the message (for easier debugging);
-        info: function (message) {
-            logger.info(message);
-        },
-        error: function (message, error) {
-            logger.error(`[${fileName}] ${message}`, error);
-        },
-        warn: function (message, error) {
-            logger.error(`[${fileName}] ${message}`, error);
-        }
-    }
-}
+module.exports = logger;

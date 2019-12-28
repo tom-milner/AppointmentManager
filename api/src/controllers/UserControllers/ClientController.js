@@ -1,6 +1,6 @@
 const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
 const AppResponse = require("../../struct/AppResponse");
-const Logger = require("../../struct/Logger")(module);
+const Logger = require("../../struct/Logger");
 const Utils = require("../../utils/Utils");
 // get all the clients
 async function getClients(req, res) {
