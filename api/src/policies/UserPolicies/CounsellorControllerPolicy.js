@@ -11,9 +11,11 @@ function updateCounsellor(req, res, next) {
     if (counsellorInfo.workingDays) {
         const invalidStartTime = counsellorInfo.workingDays.some(day => {
             // turn times into integer values  -  e.g. "23:00" -> 2300
-            let start = parseInt(day.startTime.replace(":", ""));
-            let end = parseInt(day.endTime.replace(":", ""));
-            if (start >= end) return true;
+            if (day.startTime && day.endTime) {
+                let start = parseInt(day.startTime.replace(":", ""));
+                let end = parseInt(day.endTime.replace(":", ""));
+                if (start >= end) return true;
+            }
         });
 
         if (invalidStartTime) {

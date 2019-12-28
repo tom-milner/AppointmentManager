@@ -5,10 +5,7 @@ const Role = require("../../Role.js");
 
 // Counsellor Schema
 const counsellorSchema = new mongoose.Schema({
-    role: {
-        type: Number,
-        default: Role.Counsellor
-    },
+
     appointmentBufferTime: {
         type: Number,
         default: 10
@@ -29,7 +26,7 @@ const counsellorSchema = new mongoose.Schema({
                 required: true,
                 default: "17:00"
             }
-        },],
+        }, ],
         default: [],
         validate: [workDayLimit, "{PATH} exceeds limit of 7 work days."]
     }

@@ -7,10 +7,7 @@ const Role = require("../../Role");
 
 // Guest Schema
 const guestSchema = new mongoose.Schema({
-    role: {
-        type: Number,
-        default: Role.Guest
-    },
+
     timeCreated: {
         type: Date,
         default: Date.now()

@@ -33,6 +33,12 @@ let UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         select: false
+    },
+    role: {
+        type: Number,
+        default () {
+            return Role[this.type];
+        }
     }
 }, options);
 

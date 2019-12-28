@@ -1,6 +1,7 @@
 // import json web token library
 const jwt = require("jsonwebtoken"); // used for using token based authentication
 const AppResponse = require("../struct/AppResponse");
+const Config = require("../struct/Config");
 
 // middleware for checking user access
 function isLoggedIn(req, res, next) {
@@ -13,7 +14,7 @@ function isLoggedIn(req, res, next) {
 
         // validate secret
         // The jsonwebtoken library doesn't support promises yet.
-        jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
+        jwt.verify(token, Config.accessTokenSecret, function (err, decoded) {
             if (err) {
                 // return error if token isn't valid
                 return response.failure("Failed to authenticate token", 401);

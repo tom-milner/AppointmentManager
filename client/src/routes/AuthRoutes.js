@@ -13,6 +13,7 @@ export default [
         component: LoginPage,
         meta: {
             hideNavigation: true,
+
         }
     },
     {
