@@ -2,6 +2,7 @@ import Store from "@/store/store";
 import Router from "@/routes";
 import Api from "@/services/Api";
 import Utils from "@/utils";
+import Role from "../models/Role";
 
 function forgotPassword(email) {
     return Api.post("/auth/forgot-password", {
@@ -24,6 +25,7 @@ function initializeNavigationGuard() {
         const {
             minimumAuthRole
         } = to.meta;
+        let currentUser = Store.state.authentication.user;
 
         let isLoggedIn = Store.getters["authentication/isLoggedIn"];
 
@@ -31,7 +33,8 @@ function initializeNavigationGuard() {
         if (!minimumAuthRole) {
 
             // Users can't login or register if they are already in a session.
-            if ((to.path.includes("login") || to.path.includes("register")) && isLoggedIn) {
+            if ((to.path.includes("login") || to.path.includes("register")) && isLoggedIn && currentUser
+                .role > Role.Guest) {
                 return next(from.path);
             }
             return next();
@@ -55,7 +58,6 @@ function initializeNavigationGuard() {
 
         // Make sure the user exists in store
         // The store is wiped on refresh, so this makes sure that there is always a user in the store.
-        let currentUser = Store.state.authentication.user;
         if (!currentUser) { // No user in store.
             currentUser = Utils.getTokenPayload(accessToken);
             Store.commit("authentication/auth_success", {

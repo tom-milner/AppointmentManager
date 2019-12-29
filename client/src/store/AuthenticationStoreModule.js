@@ -52,7 +52,7 @@ const mutations = {
 const getters = {
     isLoggedIn: state => !!(state.refreshToken || state.accessToken),
     authStatus: state => state.status,
-    isCounsellor: state => state.user.role >= Role.Counsellor
+    isCounsellor: state => state.user.role >= Role.Counsellor,
 };
 
 export const authentication = {

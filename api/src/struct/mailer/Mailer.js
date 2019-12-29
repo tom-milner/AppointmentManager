@@ -51,7 +51,7 @@ class Mailer {
         for (let appointment of appointments) {
             let clients = appointment.clients.map(
                 (client, index) =>
-                    `${client.firstname} ${client.lastname} ${!index == appointment.clients.length ? ", " : " "}`
+                `${client.firstname} ${client.lastname} ${!index == appointment.clients.length ? ", " : " "}`
             );
 
             let startTime = moment(appointment.startTime).format("LT");
@@ -81,7 +81,7 @@ class Mailer {
             email.html = ` <p> Hi ${user.firstname}, </p> 
       <p> Welcome to appointment manager. </p>
       <p> You should 've received an email containing your appointment info.</p>
-      <p > To view or edit your appointment details, activate your account using the following link. </p> 
+      <p > To view or edit your appointment details in the application, activate your account using the following link. </p> 
       <a href = "${Config.clientUrl}/auth/reset-password?token=${token}">Activate Account</a>`;
         } else {
             email.html = ` <p> Hi ${user.firstname}, </p> 
@@ -152,7 +152,8 @@ class Mailer {
                     </li>`;
         }
 
-        email.html += `<p>To edit your appointment details, follow <a href="${Config.clientUrl}/auth/login" >This Link</a> </p>`;
+        email.html +=
+            `<p>To edit your appointment details, follow <a href="${Config.clientUrl}/auth/login" >This Link</a> </p>`;
 
         this.email = email;
         return this;
