@@ -1,5 +1,8 @@
 "use strict";
 
+// This file is responsible for setting up the different modules used by the AP.
+// It is the main file used to start the API.
+
 // This is a flag used to determine whether or not the app is running in a production environment or not. THe NODE_ENV environment variable is set automatically by the server.
 const isProd = process.env.NODE_ENV == "production";
 
@@ -33,6 +36,7 @@ dotenv.config({
 // load config file. This maps the above environment variables to javascript objects.
 const Config = require("./struct/Config");
 
+// TODO: move dotenv import to Config file.
 
 // ** SETUP APP MIDDLEWARE **
 // This includes error tracking & monitoring, application routes, and global middleware.
@@ -45,6 +49,7 @@ if (isProd) {
     });
     app.use(Sentry.Handlers.requestHandler()); // NOTE: This request handler must be the first middleware on the app
 }
+// TODO: lock down cors.
 // Automatic CORS-policy handling
 // This allows any origin to access the api routes.
 app.use(cors());

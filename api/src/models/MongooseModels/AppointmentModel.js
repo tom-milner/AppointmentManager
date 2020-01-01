@@ -11,7 +11,7 @@ const mailer = new Mailer();
 let appointmentSchema = new Schema({
     title: {
         type: String,
-        default: function() {
+        default: function () {
             return this.appointmentType.name;
         }
     },
@@ -26,13 +26,11 @@ let appointmentSchema = new Schema({
     },
     // clients that booked the appointment
     // This is an array as I plan on adding support for appointments with multiple clients (This is an extension objective)
-    clients: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: "User",
-            required: true
-        }
-    ],
+    clients: [{
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    }],
     // client notes about appointment
     clientNotes: {
         type: String
@@ -51,7 +49,7 @@ let appointmentSchema = new Schema({
     },
     endTime: {
         type: Date,
-        default: function() {
+        default: function () {
             return moment(this.startTime).add(this.appointmentType.duration, "minutes");
         }
     },
@@ -67,7 +65,7 @@ let appointmentSchema = new Schema({
     },
     recurringSeriesId: {
         type: Schema.Types.ObjectId,
-        required: function() {
+        required: function () {
             return this.appointmentType.isRecurring;
         }
     },
@@ -79,7 +77,7 @@ let appointmentSchema = new Schema({
 
 // Any time an appointment is updated, the clients and counsellors will be sent an email reminder.
 // /update/gi is regex for any update query including "update" (case-insenstitive)
-appointmentSchema.post(/update/gi, async function(appointment) {
+appointmentSchema.post(/update/gi, async function (appointment) {
     let updatedData = this._update;
     let updatedFields = Object.keys(updatedData.$set);
 
@@ -90,7 +88,6 @@ appointmentSchema.post(/update/gi, async function(appointment) {
         .execPopulate();
 
     let recipients = [];
-    console.log(appointment);
 
     // If the appointment times have changed, alert both the client and counsellor.
     if (updatedFields.includes("startTime") || updatedFields.includes("endTime")) {

@@ -6,7 +6,6 @@ const GoogleAuth = require("../googleauth/GoogleAuth");
 const Role = require("../../models/Role");
 const Logger = require("../Logger");
 
-// trying out javascript classes (new ES6 feature);
 
 class Mailer {
     // create singleton
@@ -20,10 +19,12 @@ class Mailer {
         return this;
     }
 
+    // This function initialises the Mailer.
+    // It connects to Gmail(using GoogleAuth) and creates a Nodemailer transport to send the emails with.
     async init(isProd) {
         let googleAuth = new GoogleAuth();
 
-        // configure nodemailer
+        // Create the email authentication details to use to send emails.
         let auth = {
             type: "oauth2",
             user: Config.mailer.email,
@@ -32,12 +33,17 @@ class Mailer {
             refreshToken: googleAuth.refreshToken,
             accessToken: googleAuth.accessToken
         };
+
+        // Save whether the application is running in a production environment globally.
         this.isProd = isProd;
+
+        // Create the transporter.
         this.transporter = nodemailer.createTransport({
             service: "gmail",
             auth: auth
         });
         Logger.info("Mailer initialized.");
+
     }
 
     weeksAppointments(user, appointments) {
@@ -48,12 +54,18 @@ class Mailer {
         email.html = `<p>Hi ${user.firstname}</p>
                   <p>Here are your upcoming appointments this week:</p>`;
 
+        // Loop through the appointments and append their details to the email.
         for (let appointment of appointments) {
-            let clients = appointment.clients.map(
-                (client, index) =>
-                `${client.firstname} ${client.lastname} ${!index == appointment.clients.length ? ", " : " "}`
+
+            // Turn the list of client appointments into a single string of the form "Firstname Lastname, Firstname Lastname"
+            let clients = appointment.clients.reduce( // Reduce turns an array into a single value.
+                (acc, client, index) =>
+                acc +=
+                `${client.firstname} ${client.lastname}${appointment.clients.length != (index+1) ? ", ": ""}`,
+                "" // Provide "" as the initial value.
             );
 
+            // Format the details so they are easy to read.
             let startTime = moment(appointment.startTime).format("LT");
             let endTime = moment(appointment.endTime).format("LT");
             let date = moment(appointment.startTime).format("LL");
@@ -77,23 +89,25 @@ class Mailer {
 
         email.subject = "Account Created.";
 
+        email.html = `<p> Hi ${user.firstname}, </p> 
+                      <p> Welcome to appointment manager. </p>`
+
         if (user.role == Role.Guest) {
-            email.html = ` <p> Hi ${user.firstname}, </p> 
-      <p> Welcome to appointment manager. </p>
-      <p> You should 've received an email containing your appointment info.</p>
-      <p > To view or edit your appointment details in the application, activate your account using the following link. </p> 
-      <a href = "${Config.clientUrl}/auth/reset-password?token=${token}">Activate Account</a>`;
+            email.html += `
+                <p> You should 've received an email containing your appointment info.</p>
+                <p > To view or edit your appointment details in the application, activate your account using the following link. </p> 
+                <a href = "${ConDCfig.clientUrl}/auth/reset-password?token=${token}">Activate Account</a>`;
         } else {
-            email.html = ` <p> Hi ${user.firstname}, </p> 
-      <p> Welcome to appointment manager. </p>
-      <p> Access your appointments using the following link: </p>
-      <a href = "${Config.clientUrl}/home">Access Appointments</a>`;
+            email.html += `
+                <p> Access your appointments using the following link: </p>
+                <a href = "${Config.clientUrl}/home">Access Appointments</a>`;
         }
         this.email = email;
 
         return this;
     }
 
+    // Send
     newCounsellorEmail(referringCounsellor, toEmail, token) {
         let email = this.email;
         email.to = toEmail;
@@ -104,12 +118,13 @@ class Mailer {
       <p> Welcome to appointment manager. </p>
       <p> ${referringCounsellor.firstname} ${referringCounsellor.lastname} has given you authentication to create a counsellor's account.</p>
       <p > To create your new account, follow this link:</p> 
-      <a href = "${Config.clientUrl}/auth/register?token=${token}">Activate Account</a>`;
+      <a href = "${Config.clientUrl}/auth/register?token=${token}">Create Account</a>`;
         this.email = email;
 
         return this;
     }
 
+    // Create an email to the user that requested to change their password that contains a link that they can use to reset their password.
     forgotPassword(user, token, requestIp) {
         let email = {};
         email.to = user.email;
@@ -125,6 +140,7 @@ class Mailer {
         return this;
     }
 
+    // Create an email to the clients and counsellor confirming the new appointment booking.
     confirmAppointment(appointments, client, counsellor) {
         let email = this.email;
 
@@ -149,6 +165,7 @@ class Mailer {
                       <p>Counsellor: ${counsellor.firstname} ${counsellor.lastname}</p>
                       <p>Client: ${client.firstname} ${client.lastname}</p>
                       <p>Appointment Type: ${appointment.appointmentType.name}</p>
+                      <p>Approved: ${appointment.isApproved}</p>
                     </li>`;
         }
 
@@ -159,6 +176,7 @@ class Mailer {
         return this;
     }
 
+    // Alert the clients/counsellor that an appointment detail has been changed.
     alertAppointmentChanged(appointment, data, users) {
         let tos = users.map(user => user.email);
         let email = this.email;
@@ -175,8 +193,9 @@ class Mailer {
         return this;
     }
 
+    // Function to send the built emails. 
     async send() {
-        // only send the email in production
+        // Only send the email if the application is running in a production environment.
         if (!this.isProd) {
             console.log(this.email);
             return;

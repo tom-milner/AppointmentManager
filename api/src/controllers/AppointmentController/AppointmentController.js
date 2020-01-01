@@ -25,8 +25,11 @@ async function getAllAppointments(req, res) {
     }
 }
 
-function getAppointmentsOfUser({ reduced, isCounsellor }) {
-    return async function(req, res) {
+function getAppointmentsOfUser({
+    reduced,
+    isCounsellor
+}) {
+    return async function (req, res) {
         const response = new AppResponse(res);
         // dynamically construct mongoose query
         const appointmentQuery = AppointmentModel.find();
@@ -129,7 +132,10 @@ async function createAppointment(req, res) {
         };
 
         // make sure all the appointments are available
-        let { error, appointments } = await AppointmentControllerHelpers.checkAllAppointments(appointmentInfo);
+        let {
+            error,
+            appointments
+        } = await AppointmentControllerHelpers.checkAllAppointments(appointmentInfo);
         if (error)
             return response.failure(error.message, 400, {
                 clashInfo: error.clashInfo[0]
@@ -195,7 +201,9 @@ async function updateAppointment(req, res) {
                 ...newAppointmentProperties
             };
 
-            let { error } = await AppointmentControllerHelpers.checkAllAppointments(newAppointment);
+            let {
+                error
+            } = await AppointmentControllerHelpers.checkAllAppointments(newAppointment);
 
             if (error)
                 return response.failure(error.message, 400, {
@@ -213,7 +221,8 @@ async function updateAppointment(req, res) {
 
             // They also shouldn't be able to reschedule past appointments.
             const oldStartTime = moment(appointment.startTime);
-            if (oldStartTime.isBefore(now)) return response.failure("You can't reschedule a past appointment.", 400);
+            if (oldStartTime.isBefore(now)) return response.failure("You can't reschedule a past appointment.",
+            400);
         }
 
         // update appointment

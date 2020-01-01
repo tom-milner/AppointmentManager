@@ -5,7 +5,7 @@ const GuestModel = require("../../models/MongooseModels/UserModels/GuestModel");
 const Database = require("../Database");
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel");
 const Mailer = require("../mailer/Mailer");
-const UserModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
+const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 const Config = require("../Config");
 const Logger = require("../Logger");
 
@@ -41,22 +41,30 @@ class Scheduler {
 
 
 async function sendWeeklyAppointmentsEmail(mailer) {
+
     // send an email to the user with the weeks appointments.
     let startOfWeek = moment().startOf("isoWeek");
     let endOfWeek = moment().endOf("isoWeek");
 
     // get all users
     let allUsers = await UserModel.find({});
-
     // send all users emails
     for (let user of allUsers) {
+
         let weeksAppointments = await AppointmentModel.find({
-            counsellorId: user._id,
+            $or: [{
+                    counsellorId: user._id
+                },
+                {
+                    clients: user._id
+                }
+            ],
             startTime: {
                 $gte: startOfWeek,
                 $lte: endOfWeek
             }
         }).populate("clients");
+
         // Don't send an email if there're no appointments this week.
         if (weeksAppointments.length < 1) continue;
 
@@ -66,7 +74,7 @@ async function sendWeeklyAppointmentsEmail(mailer) {
 
 }
 
-
+// Remove any expired guest accounts from the database.
 async function removeExpiredGuests() {
     let allGuests = await GuestModel.find({});
     let oneWeekAgo = moment().subtract(1, "week");
@@ -74,14 +82,20 @@ async function removeExpiredGuests() {
     let deletedCount = 0;
     let totalGuests = allGuests.length;
 
+    // Loop through the guest accounts and check to see if they're expired or not.
     for (let guest of allGuests) {
+
+        // Get all the appointments within the last week that the guest is involved in.
         let involvedAppointments = await AppointmentModel.find({
             clients: guest._id,
             startTime: {
                 $gt: oneWeekAgo
             }
         });
+
+        // If the guest has not been involved in an appointment in the last week and has no appointments coming up, they are safe to be deleted. 
         if (!involvedAppointments || involvedAppointments.length < 1) {
+            // Also check that the guest account has existed for more than a week.
             if (moment(guest.timeCreated).isBefore(oneWeekAgo)) {
                 // delete the guest account
                 await GuestModel.findByIdAndDelete(guest._id);
