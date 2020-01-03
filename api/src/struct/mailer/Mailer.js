@@ -6,7 +6,7 @@ const GoogleAuth = require("../googleauth/GoogleAuth");
 const Role = require("../../models/Role");
 const Logger = require("../Logger");
 
-
+// TODO: refactor to not use class.
 class Mailer {
     // create singleton
     constructor() {
@@ -140,9 +140,11 @@ class Mailer {
         return this;
     }
 
-    // Create an email to the clients and counsellor confirming the new appointment booking.
+    // Create an email to the user counsellor confirming the new appointment booking.
     confirmAppointment(appointments, client, counsellor) {
         let email = this.email;
+
+        console.log(appointments, client, counsellor);
 
         // set email to field
         email.to = [client.email, counsellor.email];

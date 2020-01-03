@@ -7,7 +7,6 @@ const {
 
 // Due to a bug in Winston, the error message is automatically appended to the info message. (https://github.com/winstonjs/winston/issues/1660#issuecomment-512226578)
 // This format "unconcatenates" the two messages.
-
 const messageFormat = format(info => {
     if (info.level == "error") {
         const errorMessage = info[Symbol.for("splat")][0].message;

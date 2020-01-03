@@ -49,7 +49,7 @@ if (isProd) {
     });
     app.use(Sentry.Handlers.requestHandler()); // NOTE: This request handler must be the first middleware on the app
 }
-// TODO: lock down cors.
+// TODO: lock down cors
 // Automatic CORS-policy handling
 // This allows any origin to access the api routes.
 app.use(cors());

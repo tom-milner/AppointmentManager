@@ -8,27 +8,40 @@ const moment = require("moment");
 const Mailer = require("../../struct/mailer/Mailer");
 const Logger = require("../../struct/Logger");
 
-// Fetch all appointments regardless
-
-// This is never used in the app, it is only here for testing purposes.
+/**
+ * Fetch all appointments.This is never used in the app, it is only here for testing + maintenance purposes.
+ * @param {Object} req 
+ * @param {Object} res
+ * @returns {[]} AppResponse object.
+ */
 async function getAllAppointments(req, res) {
     const response = new AppResponse(res);
     try {
-        // get appointments and sort them
+        // get appointments and sort them by start time in ascending order.
         let allAppointments = await AppointmentModel.find({}).sort({
             startTime: "asc"
         });
+
         // return the appointments
         return response.success("Successfully returned appointments", allAppointments);
     } catch (error) {
+        Logger.error("Error fetching all appointments.", err);
         return response.failure("An error has occured sending appointments");
     }
 }
 
+/**
+ * Get all the appointments of a specific user.
+ * @param {boolean} reduced Whether or not to return appointments with reduced details.
+ * @param {boolean} isCounsellor Whether or not the user we're looking for is a counsellor.
+ * @returns {[]} Array of appointments.
+ */
 function getAppointmentsOfUser({
     reduced,
     isCounsellor
 }) {
+
+    // Return the function to be used by the request handler.
     return async function (req, res) {
         const response = new AppResponse(res);
         // dynamically construct mongoose query
@@ -90,7 +103,11 @@ function getAppointmentsOfUser({
     };
 }
 
-// Insert new appointment into db
+/**
+ * Insert new appointment into db.
+ * @param {{}} req The request data
+ * @param {{}} res The response data
+ */
 async function createAppointment(req, res) {
     const response = new AppResponse(res);
 
@@ -113,15 +130,16 @@ async function createAppointment(req, res) {
         // make sure the appointment type exists
         let appointmentType = await AppointmentTypeModel.findById(appointmentTypeId);
         if (!appointmentType) return response.failure("Appointment type doesn't exist", 400);
-        // calculate start time
-        let appointmentStartTime = moment(req.body.startTime);
 
+        // Create apppointment start and end times.
+        let appointmentStartTime = moment(req.body.startTime);
         // calculate end time
         let appointmentEndTime = moment(appointmentStartTime);
         appointmentEndTime.add(appointmentType.duration, "minutes");
 
         let appointmentInfo = {
-            title: req.body.title || undefined,
+            title: req.body.title ||
+                undefined, // If there is no appointment title, remove the property from the object.
             startTime: appointmentStartTime,
             endTime: appointmentEndTime,
             clients: clients,
@@ -148,12 +166,13 @@ async function createAppointment(req, res) {
             createdAppointments.push(createdAppointment);
         }
 
-        // Add full client information to the first appointment of the series to be used in the email.
+        // Add full client and counsellor information to the first appointment of the series to be used in the email.
         // We don't need to populate all the appointments because you can only create multiple appointments at once if they are recurring appointments, which have the same clients and counsellor.
         await createdAppointments[0]
             .populate("clients")
             .populate("counsellorId")
             .execPopulate();
+
         // send clients email confirming appointment.
         let mailer = new Mailer();
         for (let client of createdAppointments[0].clients) {
@@ -172,6 +191,11 @@ async function createAppointment(req, res) {
     }
 }
 
+/**
+ * Update an existing appointment.
+ * @param {Object} req 
+ * @param {Object} res 
+ */
 async function updateAppointment(req, res) {
     const response = new AppResponse(res);
 
@@ -222,7 +246,7 @@ async function updateAppointment(req, res) {
             // They also shouldn't be able to reschedule past appointments.
             const oldStartTime = moment(appointment.startTime);
             if (oldStartTime.isBefore(now)) return response.failure("You can't reschedule a past appointment.",
-            400);
+                400);
         }
 
         // update appointment
@@ -244,6 +268,11 @@ async function updateAppointment(req, res) {
     }
 }
 
+/**
+ * Delete an appointment.
+ * @param {{}} req The request data
+ * @param {{}} res The response data
+ */
 async function deleteAppointment(req, res) {
     const response = new AppResponse(res);
 
@@ -268,9 +297,9 @@ async function deleteAppointment(req, res) {
 
 // expose functions
 module.exports = {
-    createAppointment,
     getAllAppointments,
     getAppointmentsOfUser,
+    createAppointment,
     updateAppointment,
     deleteAppointment
-};
+}

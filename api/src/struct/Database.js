@@ -10,7 +10,6 @@ const Logger = require("./Logger");
 
 class Database {
 
-
     init(url, user) {
         Logger.info("Initializing database...")
         // make sure url is given

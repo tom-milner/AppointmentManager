@@ -44,7 +44,12 @@ async function checkAllAppointments(appointmentInfo) {
 
     // check that the counsellor and client can make all the appointments.
     for (let appointment of appointments) {
-        let { startTime, endTime, counsellorId, clients } = appointment;
+        let {
+            startTime,
+            endTime,
+            counsellorId,
+            clients
+        } = appointment;
 
         let error;
         for (let clientId of clients) {
@@ -71,7 +76,7 @@ async function checkAllAppointments(appointmentInfo) {
 // TODO: This can be refactored to use an array of times.
 function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) {
     let availableWorkDays = counsellor.workingDays;
-    console.log(desiredStartTime);
+
     // get Day string from start time e.g. "Monday" (we're assuming no appointments run over 2 days)
     let requiredDay = desiredStartTime.format("dddd");
 
@@ -92,7 +97,8 @@ function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) 
     // check start and end times are valid (Counsellor is working on during the requested appointment time.).
     let timeIsValid =
         desiredStartTime.isBetween(startOfDay, endOfDay, null, []) &&
-        desiredEndTime.isBetween(startOfDay, endOfDay, null, []); // AND operation - counsellor must be free for both the start and end.
+        desiredEndTime.isBetween(startOfDay, endOfDay, null,
+            []); // AND operation - counsellor must be free for both the start and end.
     // If the required timea aren't valid, return an error.
     if (!timeIsValid) {
         return {
@@ -132,10 +138,8 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
     // Query to find any appointments that clash with the chosen times.
     // It finds any appointments that have a start or end time that is between the requested start and end time.
     appointmentQuery.where({
-        $or: [
-            {
-                $and: [
-                    {
+        $or: [{
+                $and: [{
                         startTime: {
                             $lte: desiredEndTime
                         }
@@ -148,8 +152,7 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
                 ]
             },
             {
-                $and: [
-                    {
+                $and: [{
                         endTime: {
                             $gte: desiredStartTime
                         }
