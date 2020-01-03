@@ -140,20 +140,18 @@ class Mailer {
         return this;
     }
 
-    // Create an email to the user counsellor confirming the new appointment booking.
-    confirmAppointment(appointments, client, counsellor) {
+    // Create an email to the user  confirming the new appointment booking.
+    confirmAppointment(appointments, clients, counsellor) {
         let email = this.email;
 
-        console.log(appointments, client, counsellor);
-
-        // set email to field
-        email.to = [client.email, counsellor.email];
+        // set the "to" field to the emails of the clients and counsellor.
+        email.to = [...clients.map(client => client.email), counsellor.email];
 
         // set email subject.
         email.subject = "Appointment Confirmation";
 
         // set email contents
-        email.html = `<p>Hi ${client.firstname}.</p>
+        email.html = `<p>Hi there.</p>
                   <p>Here are your confirmed appointments:</p>
                   <ul>`;
 
@@ -165,7 +163,8 @@ class Mailer {
                       <h4>${appointment.title}: ${startTime} - ${endTime} </h4>
                       <p>Date: ${date}</p>
                       <p>Counsellor: ${counsellor.firstname} ${counsellor.lastname}</p>
-                      <p>Client: ${client.firstname} ${client.lastname}</p>
+                      <p>Clients: ${clients.reduce((acc, client, index) =>
+                    (acc += `${client.firstname} ${client.lastname}${!index == clients.length - 1 ? ", " : ""}`),"")}</p>
                       <p>Appointment Type: ${appointment.appointmentType.name}</p>
                       <p>Approved: ${appointment.isApproved}</p>
                     </li>`;

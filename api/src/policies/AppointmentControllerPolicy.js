@@ -21,20 +21,23 @@ function createAppointment(req, res, next) {
         counsellorNotes: Joi.string().allow("")
     };
 
-    const { error, value } = Joi.validate(req.body, joiSchema);
+    const {
+        error,
+        value
+    } = Joi.validate(req.body, joiSchema);
 
     let validatedBody = value;
     let errorMessage = "";
     let errorCode = 400;
 
     if (error) {
+        console.dir(error)
         switch (error.details[0].context.key) {
             case "startTime":
                 errorMessage = "Invalid start time";
                 break;
-            // case "title":
-            // errorMessage = "Invalid title.";
-            // break;
+                // case "title":
+
             case "typeId":
                 errorMessage = "Invalid appointment type Id";
                 break;
@@ -119,7 +122,8 @@ async function updateAppointment(req, res, next) {
             // TODO: Move this into file of constants
             allowedProperties.push("clientCanAttend", "clientNotes", "startTime", "endTime");
             break;
-        case Role.Counsellor: // If the users role if Counsellor the switch will cascade to admin, as they (currently) have the same update rights.
+        case Role
+        .Counsellor: // If the users role if Counsellor the switch will cascade to admin, as they (currently) have the same update rights.
         case Role.Admin:
             // counsellors and admins can access everything
             allowedProperties = allowedProperties.concat(allAppointmentProperties);

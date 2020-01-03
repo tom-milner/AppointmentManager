@@ -154,10 +154,11 @@ async function createAppointment(req, res) {
             error,
             appointments
         } = await AppointmentControllerHelpers.checkAllAppointments(appointmentInfo);
-        if (error)
+        if (error) {
             return response.failure(error.message, 400, {
-                clashInfo: error.clashInfo[0]
+                clashInfo: error.clashInfo ? error.clashInfo[0] : undefined
             });
+        }
 
         // insert ready appointments into database.
         let createdAppointments = [];
@@ -175,9 +176,9 @@ async function createAppointment(req, res) {
 
         // send clients email confirming appointment.
         let mailer = new Mailer();
-        for (let client of createdAppointments[0].clients) {
-            mailer.confirmAppointment(createdAppointments, client, createdAppointments[0].counsellorId).send();
-        }
+        mailer.confirmAppointment(createdAppointments, createdAppointments[0].clients, createdAppointments[0]
+            .counsellorId).send();
+
 
         // Send back new appointment
         return response.success("Appointment created successfully", {
