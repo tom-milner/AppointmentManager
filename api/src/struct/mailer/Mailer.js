@@ -164,6 +164,7 @@ class Mailer {
                       <p>Date: ${date}</p>
                       <p>Counsellor: ${counsellor.firstname} ${counsellor.lastname}</p>
                       <p>Clients: ${clients.reduce((acc, client, index) =>
+                          // This turns the array of clients into a single string containing each users firstname and lastname. Each client is seperated by commas.
                     (acc += `${client.firstname} ${client.lastname}${!index == clients.length - 1 ? ", " : ""}`),"")}</p>
                       <p>Appointment Type: ${appointment.appointmentType.name}</p>
                       <p>Approved: ${appointment.isApproved}</p>
