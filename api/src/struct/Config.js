@@ -1,6 +1,13 @@
+const dotenv = require("dotenv"); // Required for loading custom environment variables.
+const path = require("path");
+
+// Load in custom environment variables
+dotenv.config({
+    path: path.join(__dirname, "../.env")
+});
+
 const port = process.env.PORT || 8081;
 const url = process.env.URL || "http://localhost"
-const path = require("path");
 
 module.exports = {
 

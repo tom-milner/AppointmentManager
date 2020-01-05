@@ -20,23 +20,15 @@ if (isProd) {
 }
 
 // Import external libraries
-const dotenv = require("dotenv"); // Required for loading custom environment variables.
-const path = require("path"); // Used for creating/using file paths.
 const express = require("express"); // The server framework used by the app.
 const app = express(); // creating a global express instance to use within the app.
 const Sentry = require("@sentry/node"); // Sentry error tracking/reporting.
 const cors = require("cors"); //  Used for cross-origin routing.
 const bodyParser = require("body-parser"); // Used for processing a http request body.
 
-// Load in custom environment variables
-dotenv.config({
-    path: path.join(__dirname, "../.env")
-});
 
-// load config file. This maps the above environment variables to javascript objects.
+// load config file. This maps the environment variables to javascript objects.
 const Config = require("./struct/Config");
-
-// TODO: move dotenv import to Config file.
 
 // ** SETUP APP MIDDLEWARE **
 // This includes error tracking & monitoring, application routes, and global middleware.
