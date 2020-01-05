@@ -73,7 +73,6 @@ async function checkAllAppointments(appointmentInfo) {
     };
 }
 
-// TODO: This can be refactored to use an array of times.
 function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) {
     let availableWorkDays = counsellor.workingDays;
 
@@ -89,16 +88,23 @@ function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) 
             message: `Counsellor is not available on ${requiredDay}.`
         };
     }
+
     // Now check if counsellor is working the required hours.
-    // Create new moment objects for requested day containing the start and end times. The moment objects are needed for reliable comparison.
-    let startOfDay = Utils.getMomentOfSameDayFromTimeString(desiredStartTime, validDay.startTime);
-    let endOfDay = Utils.getMomentOfSameDayFromTimeString(desiredEndTime, validDay.endTime);
+
+    // Turn the times into integer values for comparison.
+    let startOfDay = parseInt(validDay.startTime.replace(":", ""));
+    let endOfDay = parseInt(validDay.endTime.replace(":", ""));
+
+    desiredStartTime = parseInt(desiredStartTime.format("HHmm"));
+    desiredEndTime = parseInt(desiredEndTime.format("HHmm"));
+
 
     // check start and end times are valid (Counsellor is working on during the requested appointment time.).
     let timeIsValid =
-        desiredStartTime.isBetween(startOfDay, endOfDay, null, []) &&
-        desiredEndTime.isBetween(startOfDay, endOfDay, null,
-            []); // AND operation - counsellor must be free for both the start and end.
+        desiredStartTime >= startOfDay && desiredStartTime <= endOfDay &&
+        desiredEndTime >= startOfDay && desiredEndTime <= endOfDay
+    // AND operation - counsellor must be free for both the start and end.
+
     // If the required timea aren't valid, return an error.
     if (!timeIsValid) {
         return {
