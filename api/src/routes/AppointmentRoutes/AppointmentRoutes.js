@@ -101,8 +101,7 @@ router.post(
 // delete an appointment
 router.post("/delete/:appointmentId",
     AuthenticationMiddleware.roleCheck({
-        role: Role.Client,
-        userSpecific: true
+        role: Role.Counsellor
     }),
     AppointmentControllerPolicy.deleteAppointment,
     AppointmentController.deleteAppointment)

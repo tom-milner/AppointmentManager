@@ -12,7 +12,7 @@ const Logger = require("../../struct/Logger");
  * Fetch all appointments.This is never used in the app, it is only here for testing + maintenance purposes.
  * @param {Object} req 
  * @param {Object} res
- * @returns {[]} AppResponse object.
+ * @returns {AppResponse} AppResponse object.
  */
 async function getAllAppointments(req, res) {
     const response = new AppResponse(res);
@@ -34,7 +34,7 @@ async function getAllAppointments(req, res) {
  * Get all the appointments of a specific user.
  * @param {boolean} reduced Whether or not to return appointments with reduced details.
  * @param {boolean} isCounsellor Whether or not the user we're looking for is a counsellor.
- * @returns {[]} Array of appointments.
+ * @returns {Function} Request handler.
  */
 function getAppointmentsOfUser({
     reduced,
@@ -88,6 +88,7 @@ function getAppointmentsOfUser({
                     // Set title to "Counsellor Appointment" so as not to expose any clients.
                     title: isCounsellor ? "Counsellor Appointment" : appointment.title,
                     appointmentType: {
+                        // Overwrite the appointment type color if it's a counsellor's appointment so as not to expose any other client's info / appointment types.
                         color: isCounsellor ? "#888" : appointment.appointmentType.color
                     }
                 }));
@@ -107,6 +108,7 @@ function getAppointmentsOfUser({
  * Insert new appointment into db.
  * @param {{}} req The request data
  * @param {{}} res The response data
+ * @returns {AppResponse} App Response Object.
  */
 async function createAppointment(req, res) {
     const response = new AppResponse(res);
@@ -220,7 +222,6 @@ async function updateAppointment(req, res) {
             // Make sure the appointment is available
 
             // create an object containing the appointment with it's updated properties.
-            // The spreac operator combines
             let newAppointment = {
                 ...appointment._doc,
                 ...newAppointmentProperties
