@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
 const Config = require("../../struct/Config");
 const PasswordResetModel = require("../../models/MongooseModels/PasswordResetModel");
-const Role = require("../../models/Role");
+const Roles = require("../../models/Roles");
 const axios = require("axios");
 const Math = require("mathjs");
 
@@ -103,7 +103,7 @@ async function createPasswordReset(user) {
     let now = new Date();
     // 2.628e+6 seconds: 1 month
     // 1800 seconds: 30 mins
-    const expireTime = new Date(now + ((user.role == Role.Guest ? 2.628e+6 : 1800) * 1000));
+    const expireTime = new Date(now + ((user.role == Roles.GUEST ? 2.628e+6 : 1800) * 1000));
 
     // store hash and timestamp in the database.
     const passwordReset = await PasswordResetModel.create({

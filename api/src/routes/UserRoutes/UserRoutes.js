@@ -7,7 +7,7 @@ const UserControllerPolicy = require("../../policies/UserPolicies/UserController
 const AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
 const ClientRoutes = require("./ClientRoutes");
 const CounsellorRoutes = require("./CounsellorRoutes");
-const Role = require("../../models/Role");
+const Roles = require("../../models/Roles");
 // these routes are all under "/user"
 
 
@@ -20,8 +20,8 @@ router.get("/", UserControllerPolicy.getReducedUsers, UserController.getReducedU
 
 // delete a user
 router.post("/delete/:userId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck({
-  userSpecific: true,
-  role: Role.Client
+    userSpecific: true,
+    role: Roles.CLIENT
 }), UserController.deleteUser)
 // export the router.
 module.exports = router;

@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const Role = require("../models/Role");
+const Roles = require("../models/Roles");
 const AppointmentModel = require("../models/MongooseModels/AppointmentModel");
 const Utils = require("../utils/Utils");
 const moment = require("moment");
@@ -117,14 +117,14 @@ async function updateAppointment(req, res, next) {
     let allowedProperties = [];
     switch (req.user.role) {
         // no case for guests - they can't edit anything
-        case Role.Client:
+        case Roles.CLIENT:
             // client can only access clientCanAttend (for now)
             // TODO: Move this into file of constants
             allowedProperties.push("clientCanAttend", "clientNotes", "startTime", "endTime");
             break;
-        case Role
-        .Counsellor: // If the users role if Counsellor the switch will cascade to admin, as they (currently) have the same update rights.
-        case Role.Admin:
+        case Roles
+        .COUNSELLOR: // If the users role if Counsellor the switch will cascade to admin, as they (currently) have the same update rights.
+        case Roles.ADMIN:
             // counsellors and admins can access everything
             allowedProperties = allowedProperties.concat(allAppointmentProperties);
             break;

@@ -2,7 +2,7 @@ import Store from "@/store/store";
 import Router from "@/routes";
 import Api from "@/services/Api";
 import Utils from "@/utils";
-import Role from "../models/Role";
+import Roles from "../models/Roles";
 
 function forgotPassword(email) {
     return Api.post("/auth/forgot-password", {
@@ -34,7 +34,7 @@ function initializeNavigationGuard() {
 
             // Users can't login or register if they are already in a session.
             if ((to.path.includes("login") || to.path.includes("register")) && isLoggedIn && currentUser
-                .role > Role.Guest) {
+                .role > Roles.GUEST) {
                 return next(from.path);
             }
             return next();

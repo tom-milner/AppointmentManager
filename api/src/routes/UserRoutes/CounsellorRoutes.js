@@ -3,7 +3,7 @@ const router = express.Router();
 
 const CounsellorController = require("../../controllers/UserControllers/CounsellorController");
 const AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
-const Role = require("../../models/Role");
+const Roles = require("../../models/Roles");
 const CounsellorControllerPolicy = require("../../policies/UserPolicies/CounsellorControllerPolicy");
 const AuthenticationControllerPolicy = require("../../policies/AuthenticationControllerPolicy");
 
@@ -14,7 +14,7 @@ router.get("/", CounsellorController.getAllCounsellorsReduced);
 router.post("/send-email",
     AuthenticationMiddleware.isLoggedIn,
     AuthenticationMiddleware.roleCheck({
-        role: Role.Counsellor
+        role: Roles.COUNSELLOR
     }),
     CounsellorController.sendNewCounsellorEmail
 );
@@ -24,7 +24,7 @@ router.post(
     "/:counsellorId",
     AuthenticationMiddleware.isLoggedIn,
     AuthenticationMiddleware.roleCheck({
-        role: Role.Counsellor,
+        role: Roles.COUNSELLOR,
         useSpecific: true
     }),
     AuthenticationControllerPolicy.updateUser({
@@ -40,7 +40,7 @@ router.get(
     "/full/:counsellorId",
     AuthenticationMiddleware.isLoggedIn,
     AuthenticationMiddleware.roleCheck({
-        role: Role.Counsellor
+        role: Roles.COUNSELLOR
     }),
     CounsellorController.getCounsellor({
         reduced: false

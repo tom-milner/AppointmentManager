@@ -2,7 +2,7 @@
 
 import Api from "@/services/Api.js";
 import Store from "@/store/store";
-import Role from "@/models/Role";
+import Roles from "@/models/Roles";
 import Router from "@/routes";
 
 import AuthenticationService from "@/services/AuthenticationService";
@@ -43,15 +43,15 @@ function registerUser(newUser, role) {
 
     let userEndpoint = "";
     switch (role) {
-        case Role.Guest:
+        case Roles.GUEST:
             userEndpoint = "guest"
             break;
-        case Role.Client:
+        case Roles.CLIENT:
         default:
             // default is sign users up as client
             userEndpoint = "client";
             break;
-        case Role.Counsellor:
+        case Roles.COUNSELLOR:
             userEndpoint = "counsellor"
             break;
     }
@@ -127,7 +127,7 @@ function updateUser(userId, userInfo, isCounsellor) {
                 "firstname",
                 "lastname",
                 "username",
-                "role"
+                "Roles"
             ];
 
             // If userInfo contains any of the token keys. 

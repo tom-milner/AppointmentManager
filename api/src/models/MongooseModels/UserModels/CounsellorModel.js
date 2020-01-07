@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
 const UserModel = require("./UserModel");
-const Role = require("../../Role.js");
 
 // Counsellor Schema
 const counsellorSchema = new mongoose.Schema({

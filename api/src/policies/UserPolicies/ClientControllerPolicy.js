@@ -1,7 +1,7 @@
 const AppResponse = require("../../struct/AppResponse")
 const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
 const Utils = require("../../utils/Utils");
-const Role = require("../../models/Role");
+const Roles = require("../../models/Roles");
 
 
 // update an existing client
@@ -27,11 +27,11 @@ function updateClient(req, res, next) {
 
     let allowedProperties = [];
     switch (req.user.role) {
-        case Role.Client:
+        case Roles.CLIENT:
             allowedProperties.push("firstname", "lastname", "username", "email")
             break;
-        case Role.Counsellor:
-        case Role.Admin:
+        case Roles.COUNSELLOR:
+        case Roles.ADMIN:
             // can edit everything
             allowedProperties = allowedProperties.concat(clientProperties);
             break;

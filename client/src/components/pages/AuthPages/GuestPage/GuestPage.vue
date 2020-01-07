@@ -54,7 +54,7 @@
 import UserService from "@/services/UserService";
 import Card from "@/components/layout/Card";
 import CreateAppointmentForm from "@/components/misc/CreateAppointmentForm";
-import Role from "@/models/Role";
+import Roles from "@/models/Roles";
 
 export default {
   data() {
@@ -106,7 +106,7 @@ export default {
       };
 
       try {
-        let response = await UserService.registerUser(guest, Role.Guest);
+        let response = await UserService.registerUser(guest, Roles.GUEST);
         console.log(response);
         let { user, accessToken } = response.data;
         this.$store.commit("authentication/auth_success", {

@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-
-const Role = require("../../Role.js");
+const Roles = require("../../Roles");
 
 const options = {
     discriminatorKey: "type"
@@ -37,7 +36,7 @@ let UserSchema = new mongoose.Schema({
     role: {
         type: Number,
         default () {
-            return Role[this.type];
+            return Roles[this.type];
         }
     }
 }, options);

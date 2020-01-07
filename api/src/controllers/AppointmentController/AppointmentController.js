@@ -3,7 +3,7 @@ const AppointmentModel = require("../../models/MongooseModels/AppointmentModel")
 const AppointmentTypeModel = require("../../models/MongooseModels/AppointmentTypeModel");
 const AppointmentControllerHelpers = require("./AppointmentControllerHelpers");
 const AppResponse = require("../../struct/AppResponse");
-const Role = require("../../models/Role");
+const Roles = require("../../models/Roles");
 const moment = require("moment");
 const Mailer = require("../../struct/mailer/Mailer");
 const Logger = require("../../struct/Logger");
@@ -120,7 +120,7 @@ async function createAppointment(req, res) {
     let clients = [];
 
     // only counsellors can make appointments for other people and set counsellor notes
-    if (req.user.role >= Role.Counsellor) {
+    if (req.user.role >= Roles.COUNSELLOR) {
         clients = req.body.clients;
         counsellorNotes = req.body.counsellorNotes;
     } else {
@@ -211,7 +211,7 @@ async function updateAppointment(req, res) {
         if (!appointment) return response.failure("Appointment doesn't exist.", 400);
 
         // make sure clients can't edit other people's appointments.
-        if (req.user.role == Role.Client) {
+        if (req.user.role == Roles.CLIENT) {
             // Search for the user in the client field of the appointment.
             let validClient = appointment.clients.find(userId => userId == req.user._id);
             if (!validClient) return response.failure("You do not have permission to edit this appointment.", 403);

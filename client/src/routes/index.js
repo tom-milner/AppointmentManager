@@ -7,7 +7,7 @@ import LandingPage from '@/components/pages/LandingPage/LandingPage.vue'
 import HomePage from "@/components/pages/HomePage/HomePage.vue";
 import CreateAppointmentPage from "@/components/pages/CreateAppointmentPage/CreateAppointmentPage";
 import ProfilePage from "@/components/pages/ProfilePage/ProfilePage"
-import Role from "@/models/Role";
+import Roles from "@/models/Roles";
 
 // import other routes 
 import CounsellorRoutes from "./CounsellorRoutes";
@@ -20,56 +20,56 @@ Vue.use(Router)
 
 // define the routes for the app.
 let router = new Router({
-  mode: "history",
-  routes: [
+    mode: "history",
+    routes: [
 
-    ...CounsellorRoutes,
-    ...AuthRoutes,
+        ...CounsellorRoutes,
+        ...AuthRoutes,
 
-    // Landing Page
-    {
-      path: "/",
-      name: "LandingPage",
-      component: LandingPage,
-      meta: {
-        hideNavigation: true
-      }
-    },
+        // Landing Page
+        {
+            path: "/",
+            name: "LandingPage",
+            component: LandingPage,
+            meta: {
+                hideNavigation: true
+            }
+        },
 
-    // Home page
-    {
-      path: "/home",
-      name: "HomePage",
-      component: HomePage,
-      meta: {
-        minimumAuthRole: Role.Client,
-        hideNavigation: false
-      }
-    }, {
-      path: "/create",
-      name: "CreateAppointmentPage",
-      component: CreateAppointmentPage,
-      meta: {
-        minimumAuthRole: Role.Client,
-        hideNavigation: false
-      }
-    },
-    // Profile Page
-    {
-      path: "/profile",
-      name: "ProfilePage",
-      component: ProfilePage,
-      meta: {
-        minimumAuthRole: Role.Client,
-        hideNavigation: false
-      }
-    },
-    // 404
-    {
-      path: "*",
-      redirect: "/"
-    }
-  ]
+        // Home page
+        {
+            path: "/home",
+            name: "HomePage",
+            component: HomePage,
+            meta: {
+                minimumAuthRole: Roles.CLIENT,
+                hideNavigation: false
+            }
+        }, {
+            path: "/create",
+            name: "CreateAppointmentPage",
+            component: CreateAppointmentPage,
+            meta: {
+                minimumAuthRole: Roles.CLIENT,
+                hideNavigation: false
+            }
+        },
+        // Profile Page
+        {
+            path: "/profile",
+            name: "ProfilePage",
+            component: ProfilePage,
+            meta: {
+                minimumAuthRole: Roles.CLIENT,
+                hideNavigation: false
+            }
+        },
+        // 404
+        {
+            path: "*",
+            redirect: "/"
+        }
+    ]
 });
 
 

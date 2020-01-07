@@ -3,7 +3,7 @@ const Config = require("../Config");
 const moment = require("moment");
 const nodemailer = require("nodemailer");
 const GoogleAuth = require("../googleauth/GoogleAuth");
-const Role = require("../../models/Role");
+const Roles = require("../../models/Roles");
 const Logger = require("../Logger");
 
 // TODO: refactor to not use class.
@@ -92,7 +92,7 @@ class Mailer {
         email.html = `<p> Hi ${user.firstname}, </p> 
                       <p> Welcome to appointment manager. </p>`
 
-        if (user.role == Role.Guest) {
+        if (user.role == Roles.GUEST) {
             email.html += `
                 <p> You should 've received an email containing your appointment info.</p>
                 <p > To view or edit your appointment details in the application, activate your account using the following link. </p> 

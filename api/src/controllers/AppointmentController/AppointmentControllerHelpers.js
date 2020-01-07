@@ -1,16 +1,18 @@
 const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
-const AppointmentTypeModel = require("../../models/MongooseModels/AppointmentTypeModel");
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel");
-const Utils = require("../../utils/Utils");
 const MongooseObjectId = require("mongoose").Types.ObjectId;
 const moment = require("moment");
-const Role = require("../../models/Role");
+const Roles = require("../../models/Roles");
 
-// ########################################################
-// Helper functions - not called directly by route handler
-// ########################################################
+/*
+    NOTE: These functions are here as they are not called directly by the route handler.
+*/
 
-// Check if an appointment is available.
+/**
+ * Check if an appointment is available. If the appointment is recurring, it will create and check all the future appointments aswell.
+ * @param {{}} appointmentInfo - an object containing all the appointment information.
+ * @returns {{}} {appointments, error} - An object containing either an error or a list of valid appointments.
+ */
 async function checkAllAppointments(appointmentInfo) {
     let appointments = [];
     // add first appointment of series.
@@ -73,16 +75,22 @@ async function checkAllAppointments(appointmentInfo) {
     };
 }
 
-function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) {
-    let availableWorkDays = counsellor.workingDays;
+/**
+ * Check that a counsellor is working on the day and time of an appointment.
+ * @param {[]]} workingDays - An array of the days the counsellor is working. 
+ * @param {moment} desiredStartTime - The desired start time of the appointment.
+ * @param {moment} desiredEndTime - The desired end time of the appointment.
+ * @returns {{}} An object containing an error message to be sent back to the user.
+ */
+function checkCounsellorIsWorking(workingDays, desiredStartTime, desiredEndTime) {
 
     // get Day string from start time e.g. "Monday" (we're assuming no appointments run over 2 days)
     let requiredDay = desiredStartTime.format("dddd");
 
     // check counsellor is working on given day.
-    let validDay = availableWorkDays.find(day => day.name == requiredDay);
+    let validDay = workingDays.find(day => day.name == requiredDay);
 
-    // if counsellor isn't working that day...
+    // if counsellor isn't working that day, return a relevant error message.
     if (!validDay) {
         return {
             message: `Counsellor is not available on ${requiredDay}.`
@@ -94,25 +102,34 @@ function checkCounsellorIsWorking(counsellor, desiredStartTime, desiredEndTime) 
     // Turn the times into integer values for comparison.
     let startOfDay = parseInt(validDay.startTime.replace(":", ""));
     let endOfDay = parseInt(validDay.endTime.replace(":", ""));
-
     desiredStartTime = parseInt(desiredStartTime.format("HHmm"));
     desiredEndTime = parseInt(desiredEndTime.format("HHmm"));
 
 
     // check start and end times are valid (Counsellor is working on during the requested appointment time.).
+    // check that the desired start and end times are inbetween the counsellor's working start and end days for the appointment.
     let timeIsValid =
         desiredStartTime >= startOfDay && desiredStartTime <= endOfDay &&
         desiredEndTime >= startOfDay && desiredEndTime <= endOfDay
     // AND operation - counsellor must be free for both the start and end.
 
-    // If the required timea aren't valid, return an error.
+    // If the required times aren't valid, return an error.
     if (!timeIsValid) {
         return {
             message: "Counsellor is not working at that time"
         };
     }
+
+    // If we reach here the desired times are all fine, so we don't need to return anything.
 }
 
+
+/**
+ * Check that a given user is free for an appointment. (There are no clashes with any other appointments)
+ * @param {moment} desiredStartTime - The desired start time of the appointment.
+ * @param {moment} desiredEndTime - The desired end time of the appointment.
+ * @param {String} userId - The id of the user to check the availability of.
+ */
 async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
     // first make sure the client exists
     let validUser = await UserModel.findById(userId);
@@ -125,9 +142,9 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
     let appointmentQuery = AppointmentModel.find();
 
     // If the supplied user is a counsellor, make sure they are working on the requested day.
-    const isCounsellor = validUser.role >= Role.Counsellor;
+    const isCounsellor = validUser.role >= Roles.COUNSELLOR;
     if (isCounsellor) {
-        let error = checkCounsellorIsWorking(validUser, desiredStartTime, desiredEndTime);
+        let error = checkCounsellorIsWorking(validUser.workingDays, desiredStartTime, desiredEndTime);
         if (error) return error;
         // look for the user id in the counsellorId field.
         appointmentQuery.where({
@@ -187,7 +204,11 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
     }
 }
 
-// Create reduced info about a list of clashing appointments.
+/**
+ * Create reduced info about a list of clashing appointments.
+ * @param {[]]} clashingAppointments - A list of appointments that clash with the chosen appointment.
+ * @returns {{}} clashInfo - An object containing reduced information about the clashing appointments.
+ */
 function createClashInfo(clashingAppointments) {
     let clashInfo = [];
     for (let appointment of clashingAppointments) {
@@ -201,6 +222,7 @@ function createClashInfo(clashingAppointments) {
     return clashInfo;
 }
 
+// Expose the checkAllAppointments function.
 module.exports = {
     checkAllAppointments
 };

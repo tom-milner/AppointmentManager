@@ -1,5 +1,5 @@
 // This file contains all the authentication state management.
-import Role from "../models/Role";
+import Roles from "../models/Roles";
 
 // The data to be kept in the store.
 const state = {
@@ -52,7 +52,7 @@ const mutations = {
 const getters = {
     isLoggedIn: state => !!(state.refreshToken || state.accessToken),
     authStatus: state => state.status,
-    isCounsellor: state => state.user.role >= Role.Counsellor,
+    isCounsellor: state => state.user.role >= Roles.COUNSELLOR,
 };
 
 export const authentication = {

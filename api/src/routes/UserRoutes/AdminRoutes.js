@@ -4,10 +4,10 @@ const path = require("path");
 const fs = require("fs");
 
 const AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
-const Role = require("../../models/Role");
+const Roles = require("../../models/Roles");
 
 router.get("/getLogs", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck({
-    role: Role.Admin
+    role: Roles.ADMIN
 }), function (
     req,
     res) {

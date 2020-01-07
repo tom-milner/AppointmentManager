@@ -117,7 +117,7 @@
 import AppointmentCard from "@/components/pages/HomePage/AppointmentCard.vue";
 import AppointmentService from "@/services/AppointmentService";
 import AppointmentCalendar from "@/components/misc/Calendar/AppointmentCalendar";
-import Role from "@/models/Role";
+import Roles from "@/models/Roles";
 import ViewAppointment from "@/components/misc/ViewAppointment/ViewAppointment";
 
 export default {
@@ -141,7 +141,7 @@ export default {
       );
     },
     isUserCounsellor() {
-      return this.user.role >= Role.Counsellor;
+      return this.user.role >= Roles.COUNSELLOR;
     },
     // returns a list of all the approved appointments
     approvedAppointments() {
@@ -225,7 +225,7 @@ export default {
               .endOf(this.chosenTimePeriod)
               .toString();
 
-      let userIsCounsellor = this.user.role >= Role.Counsellor;
+      let userIsCounsellor = this.user.role >= Roles.COUNSELLOR;
       let response = await AppointmentService.getAppointmentsOfUser({
         userId: this.user._id,
         isCounsellor: userIsCounsellor,

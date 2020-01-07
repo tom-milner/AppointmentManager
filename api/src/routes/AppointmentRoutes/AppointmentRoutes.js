@@ -5,7 +5,7 @@ const AppointmentTypeRoutes = require("./AppointmentTypeRoutes");
 let AppointmentController = require("../../controllers/AppointmentController/AppointmentController");
 let AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
 let AppointmentControllerPolicy = require("../../policies/AppointmentControllerPolicy");
-let Role = require("../../models/Role");
+let Roles = require("../../models/Roles");
 
 // These routes are all under "/appointments"
 
@@ -32,7 +32,7 @@ router.use(AuthenticationMiddleware.isLoggedIn);
 router.get(
     "/client/full/:userId",
     AuthenticationMiddleware.roleCheck({
-        role: Role.Counsellor,
+        role: Roles.COUNSELLOR,
         userSpecific: true
     }),
     AppointmentController.getAppointmentsOfUser({
@@ -46,7 +46,7 @@ router.get(
 router.get(
     "/client/:userId",
     AuthenticationMiddleware.roleCheck({
-        role: Role.Client,
+        role: Roles.CLIENT,
         userSpecific: true
     }),
     AppointmentController.getAppointmentsOfUser({
@@ -62,7 +62,7 @@ router.get(
 router.get(
     "/counsellor/full/:userId",
     AuthenticationMiddleware.roleCheck({
-        role: Role.Counsellor
+        role: Roles.COUNSELLOR
     }),
     AppointmentController.getAppointmentsOfUser({
         reduced: false,
@@ -74,7 +74,7 @@ router.get(
 router.get(
     "/",
     AuthenticationMiddleware.roleCheck({
-        role: Role.Admin
+        role: Roles.ADMIN
     }),
     AppointmentController.getAllAppointments
 );
@@ -92,7 +92,7 @@ router.post(
 router.post(
     "/:appointmentId",
     AuthenticationMiddleware.roleCheck({
-        role: Role.Client,
+        role: Roles.CLIENT,
     }),
     AppointmentControllerPolicy.updateAppointment,
     AppointmentController.updateAppointment
@@ -101,7 +101,7 @@ router.post(
 // delete an appointment
 router.post("/delete/:appointmentId",
     AuthenticationMiddleware.roleCheck({
-        role: Role.Counsellor
+        role: Roles.COUNSELLOR
     }),
     AppointmentControllerPolicy.deleteAppointment,
     AppointmentController.deleteAppointment)

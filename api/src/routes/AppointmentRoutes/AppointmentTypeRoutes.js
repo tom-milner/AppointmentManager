@@ -4,7 +4,7 @@ const router = express.Router();
 const AppointmentTypeController = require("../../controllers/AppointmentTypeController");
 const AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
 const AppointmentTypeControllerPolicy = require("../../policies/AppointmentTypeControllerPolicy");
-const Role = require("../../models/Role");
+const Roles = require("../../models/Roles");
 
 // Appointment Type Routes
 // All these routes are under the endpoint "appointments/type/"
@@ -18,7 +18,7 @@ router.use(AuthenticationMiddleware.isLoggedIn);
 router.post(
     "/",
     AuthenticationMiddleware.roleCheck({
-        role: Role.Counsellor
+        role: Roles.COUNSELLOR
     }),
     AppointmentTypeControllerPolicy.updateAppointmentType({
         isNew: true
@@ -30,7 +30,7 @@ router.post(
 router.post(
     "/:appointmentTypeId",
     AuthenticationMiddleware.roleCheck({
-        role: Role.Counsellor
+        role: Roles.COUNSELLOR
     }),
     AppointmentTypeControllerPolicy.updateAppointmentType({
         isNew: false
@@ -42,7 +42,7 @@ router.post(
 router.post(
     "/delete/:appointmentTypeId",
     AuthenticationMiddleware.roleCheck({
-        role: Role.Counsellor
+        role: Roles.COUNSELLOR
     }),
     AppointmentTypeControllerPolicy.deleteAppointmentType,
     AppointmentTypeController.deleteAppointmentType

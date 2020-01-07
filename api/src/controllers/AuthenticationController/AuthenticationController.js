@@ -8,19 +8,27 @@ const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 const PasswordResetModel = require("../../models/MongooseModels/PasswordResetModel");
 const AuthenticationControllerHelpers = require("./AuthenticationControllerHelpers");
 const CounsellorRegistrationModel = require("../../models/MongooseModels/CounsellorRegistrationModel");
-const Role = require("../../models/Role");
+const Roles = require("../../models/Roles");
 const Utils = require("../../utils/Utils");
 const AppResponse = require("../../struct/AppResponse");
 const SessionModel = require("../../models/MongooseModels/SessionModel");
 const Logger = require("../../struct/Logger");
 const crypto = require("crypto");
+const ErrorCodes = require("../../models/ErrorCodes");
 
+// Declare a global instance of the mailer to use throughout the file.
 let mailer = new Mailer();
 
-// Register a new counsellor
+
+/**
+ * Add a new counsellor to the database.
+ * @param {*} req - The request data
+ * @param {*} res - The response data.
+ */
 async function registerCounsellor(req, res) {
     const response = new AppResponse(res);
 
+    // Get the counsellor's info from the request body.
     let {
         email,
         username,
@@ -30,23 +38,27 @@ async function registerCounsellor(req, res) {
         counsellorToken
     } = req.body;
 
-    // assert there is permission to create token
+    // Assert there is permission to create token:
+
+    // regenerate the token hash using the provided token.
     let tokenHash = await AuthenticationControllerHelpers.generateTokenHash(counsellorToken);
 
     try {
+        // Look for a matching token hash in the database.
         let foundReg = await CounsellorRegistrationModel.findOne({
             hash: tokenHash
         });
 
+        // If no counsellor registration could be found, the token is invalid/expired, so return an error message.
         if (!foundReg) return response.failure("Invalid token.", 400);
 
-        // check it's for input email.
+        // Make sure the provided email is the same as the original email that the registration link was sent to.
         if (!(foundReg.email == email)) return response.failure("Invalid email for provided token.", 400);
 
-        // delete counsellor registration
+        // Delete counsellor registration as it has been used.
         await CounsellorRegistrationModel.findByIdAndDelete(foundReg._id);
 
-        // hash password
+        // Hash the counsellor's password
         let passwordHash = await AuthenticationControllerHelpers.hashPassword(password);
 
         // save counsellor in database
@@ -57,13 +69,16 @@ async function registerCounsellor(req, res) {
             lastname: lastname,
             password: passwordHash
         });
-        savedCounsellor.password = undefined;
+        savedCounsellor.password =
+            undefined; // Delete the counsellor's password hash from the object so it can be used in the response.
 
+        // Return the newly created counsellor.
         return response.success("Counsellor created successfully.", {
             user: savedCounsellor
         });
+
     } catch (err) {
-        if (err.code == 11000) {
+        if (err.code == ErrorCodes.MONGO_DUPLICATE_KEY) {
             return response.failure(Utils.getDuplicateMongoEntryKey(err.message) + " already exists.", 409);
         }
         return response.failure("Error registering counsellor.", 500);
@@ -357,7 +372,7 @@ async function resetPassword(req, res) {
         });
 
         // if the user was previously a guest turn them into a client.
-        if (updatedUser.role == Role.Guest) {
+        if (updatedUser.role == Roles.GUEST) {
             // delete guest account
             await GuestModel.findByIdAndDelete(updatedUser._id);
 
