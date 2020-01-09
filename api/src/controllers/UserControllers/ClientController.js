@@ -2,6 +2,8 @@ const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel"
 const AppResponse = require("../../struct/AppResponse");
 const Logger = require("../../struct/Logger");
 const Utils = require("../../utils/Utils");
+const ErrorCodes = require("../../models/ErrorCodes");
+
 // get all the clients
 async function getClients(req, res) {
     const response = new AppResponse(res);
@@ -24,8 +26,10 @@ async function getClients(req, res) {
 }
 
 // get information about a single client.
-function getClient({ reduced }) {
-    return async function(req, res) {
+function getClient({
+    reduced
+}) {
+    return async function (req, res) {
         const response = new AppResponse(res);
         let clientId = req.params.clientId;
 
@@ -67,7 +71,7 @@ async function updateClient(req, res) {
             updatedClient: updatedClient
         });
     } catch (error) {
-        if (error.code == 11000) {
+        if (error.code == ErrorCodes.MONGO_DUPLICATE_KEY) {
             return response.failure(`${Utils.getDuplicateMongoEntryKey(error.message)} already taken.`, 409);
         }
         return response.failure("Error updating client", 500);

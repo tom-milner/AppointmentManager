@@ -85,23 +85,27 @@ async function registerCounsellor(req, res) {
     }
 }
 
-// register a new client
+
+/**
+ * Register a new client.
+ * @param {{}} req - The request data.
+ * @param {*} res - The response data.
+ */
 async function registerClient(req, res) {
     const response = new AppResponse(res);
     try {
-        // create client model
-        let newClient = new ClientModel({
+
+        // Create client in database.
+        const savedClient = await ClientModel.create({
             email: req.body.email,
-            username: req.body.username,
+            username: req.body.email,
             firstname: req.body.firstname,
-            lastname: req.body.lastname
-        });
+            lastname: req.body.lastname,
+            // Hash password
+            password: await AuthenticationControllerHelpers.hashPassword(req.body.password)
+        })
 
-        // store hashed password in user object.
-        newClient.password = await AuthenticationControllerHelpers.hashPassword(req.body.password);
-
-        // Save client to database
-        const savedClient = await newClient.save();
+        // Remove password hash from client object so it can be used in the application response.
         savedClient.password = undefined;
 
         // Send confirmation email to user.
@@ -111,8 +115,9 @@ async function registerClient(req, res) {
         return response.success("Client added.", {
             user: savedClient
         });
+
     } catch (err) {
-        if (err.code == 11000) {
+        if (err.code == ErrorCodes.MONGO_DUPLICATE_KEY) {
             return response.failure(Utils.getDuplicateMongoEntryKey(err.message) + " already exists.", 409);
         }
         Logger.error("Error creating client", err);
@@ -165,7 +170,7 @@ async function registerGuest(req, res) {
             accessToken: accessToken
         });
     } catch (error) {
-        if (error.code == 11000) {
+        if (error.code == ErrorCodes.MONGO_DUPLICATE_KEY) {
             let fieldKey = Utils.getDuplicateMongoEntryKey(error.message);
             if (fieldKey == "userId")
                 return response.failure("This user has already been sent a registration email.", 400);
@@ -332,7 +337,7 @@ async function forgotPassword(req, res) {
         // let the user know the email was sent.
         return response.success("Email sent sucessfully. If you can't find it, check your spam folder!");
     } catch (error) {
-        if (error.code == 11000) {
+        if (error.code == ErrorCodes.MONGO_DUPLICATE_KEY) {
             return response.failure("This user has already been sent a password reset email.", 400);
         }
         Logger.error("Error sending forgot password email", error);

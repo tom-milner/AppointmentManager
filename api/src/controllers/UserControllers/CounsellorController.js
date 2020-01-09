@@ -6,6 +6,7 @@ const Utils = require("../../utils/Utils");
 const Mailer = require("../../struct/mailer/Mailer");
 const bcrypt = require("bcrypt");
 const Logger = require("../../struct/Logger");
+const ErrorCodes = require("../../models/ErrorCodes");
 
 // get list of all the counsellors
 async function getAllCounsellorsReduced(req, res) {
@@ -52,15 +53,17 @@ async function updateCounsellor(req, res) {
         // send an appropriate error message.
         let errorMessage = error.message || "Error updating counsellor settings";
         let errorCode = error.code || 400;
-        if (errorCode == 11000) {
+        if (errorCode == ErrorCodes.MONGO_DUPLICATE_KEY) {
             errorMessage = Utils.getDuplicateMongoEntryKey(error.message) + " already exists.";
         }
         return response.failure(errorMessage, errorCode);
     }
 }
 
-function getCounsellor({ reduced }) {
-    return async function(req, res) {
+function getCounsellor({
+    reduced
+}) {
+    return async function (req, res) {
         const response = new AppResponse(res);
         let counsellorId = req.params.counsellorId;
 
@@ -89,7 +92,10 @@ function getCounsellor({ reduced }) {
 
 async function sendNewCounsellorEmail(req, res) {
     const response = new AppResponse(res);
-    const { email, counsellorPassword } = req.body;
+    const {
+        email,
+        counsellorPassword
+    } = req.body;
 
     if (!email) return response.failure("No email provided", 400);
     if (!counsellorPassword) return response.failure("No password provided.", 400);
@@ -101,14 +107,11 @@ async function sendNewCounsellorEmail(req, res) {
     if (!isPasswordValid) return response.failure("Invalid password", 403);
 
     // check user isn't already a counsellor.
-    let existingCounsellor = await CounsellorModel.find(
-        {
-            email: email
-        },
-        {
-            email: 1
-        }
-    ).limit(1)[0];
+    let existingCounsellor = await CounsellorModel.find({
+        email: email
+    }, {
+        email: 1
+    }).limit(1)[0];
 
     if (existingCounsellor) return response.failure("Counsellor already exists", 400);
 
@@ -129,7 +132,8 @@ async function sendNewCounsellorEmail(req, res) {
 
         return response.success("Email sent successfully");
     } catch (error) {
-        if (error.code == 11000) return response.failure("This user has already been sent a registration email.", 400);
+        if (error.code == ErrorCodes.MONGO_DUPLICATE_KEY) return response.failure(
+            "This user has already been sent a registration email.", 400);
 
         Logger.error("Error sending email.", error);
         return response.failure("Error sending email", 500);

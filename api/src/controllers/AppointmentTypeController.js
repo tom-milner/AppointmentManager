@@ -3,6 +3,7 @@ const AppointmentTypeModel = require("../models/MongooseModels/AppointmentTypeMo
 const AppResponse = require("../struct/AppResponse");
 const Utils = require("../utils/Utils");
 const Logger = require("..//struct/Logger");
+const ErrorCodes = require("../models/ErrorCodes");
 
 // create a new appointment type
 async function createAppointmentType(req, res) {
@@ -30,7 +31,7 @@ async function createAppointmentType(req, res) {
             appointmentType: createdAppointmentType
         });
     } catch (error) {
-        if (error.code === 11000) {
+        if (error.code === ErrorCodes.MONGO_DUPLICATE_KEY) {
             return response.failure(Utils.getDuplicateMongoEntryKey(error.message) + " already exists.", 409);
         }
         Logger.error("Error creating appointment type.", error);
@@ -60,8 +61,7 @@ async function updateAppointmentType(req, res) {
         const appointmentTypeId = req.params.appointmentTypeId;
         let updatedAppointmentType = await AppointmentTypeModel.findByIdAndUpdate(
             appointmentTypeId,
-            newAppointmentTypeProperties,
-            {
+            newAppointmentTypeProperties, {
                 new: true,
                 runValidators: true
             }
@@ -78,7 +78,7 @@ async function updateAppointmentType(req, res) {
     } catch (error) {
         let errorMessage = error.message || "Error updating appointment type.";
         let errorCode = error.code || 400;
-        if (errorCode == 11000) {
+        if (errorCode == ErrorCodes.MONGO_DUPLICATE_KEY) {
             errorMessage = Utils.getDuplicateMongoEntryKey(errorMessage) + "Appointment Type name already exists.";
             errorCode = 200;
         }

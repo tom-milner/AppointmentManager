@@ -130,7 +130,7 @@ function checkCounsellorIsWorking(workingDays, desiredStartTime, desiredEndTime)
  * @param {moment} desiredEndTime - The desired end time of the appointment.
  * @param {String} userId - The id of the user to check the availability of.
  */
-async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
+async function checkUserAvailability(desireIndStartTime, desiredEndTime, userId) {
     // first make sure the client exists
     let validUser = await UserModel.findById(userId);
     if (!validUser) {
@@ -216,7 +216,8 @@ function createClashInfo(clashingAppointments) {
             startTime: appointment.startTime,
             endTime: appointment.endTime,
             // The number of future appointments at the requested time.
-            noFutureAppointments: appointment.appointmentType.recurringDuration - appointment.recurringNo
+            noFutureAppointments: appointment.isRecurring ? appointment.appointmentType.recurringDuration -
+                appointment.recurringNo : 0
         });
     }
     return clashInfo;
