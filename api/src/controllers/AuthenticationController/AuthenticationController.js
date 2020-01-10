@@ -125,6 +125,11 @@ async function registerClient(req, res) {
     }
 }
 
+/**
+ * Register a guest user.
+ * @param {{}} req - The request data
+ * @param {{}} res - The response data.
+ */
 async function registerGuest(req, res) {
     const response = new AppResponse(res);
 
@@ -134,7 +139,7 @@ async function registerGuest(req, res) {
         email
     } = req.body;
 
-    // generate random password - this is only to prevent people logging into a guest account
+    // Generate a temporary random password. This is to keep the account secure, and will be replaced when the user activates their account.
     let password = await AuthenticationControllerHelpers.generateRandomPassword();
 
     try {
@@ -143,7 +148,7 @@ async function registerGuest(req, res) {
 
         // save guest in database
         let createdGuest = await GuestModel.create({
-            // default username is the user's email
+            // default username is the user's email - this can be changed in the application.
             username: email,
             firstname: firstname,
             lastname: lastname,
@@ -157,18 +162,18 @@ async function registerGuest(req, res) {
         } = await AuthenticationControllerHelpers.createPasswordReset(createdGuest);
 
         // send guest an email containing a link to activate their account.
-
         mailer.confirmNewUser(createdGuest, resetToken).send();
 
         // create access token for guest
         const accessToken = AuthenticationControllerHelpers.createAccessToken(createdGuest);
-        // send back newly created guest
-        createdGuest.password = undefined;
 
+        // send back newly created guest (without password hash)
+        createdGuest.password = undefined;
         return response.success("Guest created successfully", {
             user: createdGuest,
             accessToken: accessToken
         });
+
     } catch (error) {
         if (error.code == ErrorCodes.MONGO_DUPLICATE_KEY) {
             let fieldKey = Utils.getDuplicateMongoEntryKey(error.message);
@@ -182,7 +187,12 @@ async function registerGuest(req, res) {
     }
 }
 
-// Login the client and provide them with an access token
+
+/**
+ * Login the client and provide them with an access token
+ * @param {{}} req - The request data.
+ * @param {{}} res - The repsonse data.
+ */
 async function login(req, res) {
     const response = new AppResponse(res);
 
@@ -204,7 +214,7 @@ async function login(req, res) {
         // Invalid password - send error.
         if (!isPasswordValid) return response.failure("Incorrect password.", 401);
 
-        // create a refresh token.
+        // create a refresh token - a user can have myl
         const salt = crypto.randomBytes(128);
         let refreshToken = AuthenticationControllerHelpers.createRefreshToken(matchingUser, req, salt);
 
@@ -233,7 +243,7 @@ async function login(req, res) {
     }
 }
 
-async function refreshToken(req, res) {
+async function refreshAccessToken(req, res) {
     const response = new AppResponse(res);
     try {
         const refreshToken = req.query.refreshToken;
@@ -295,6 +305,7 @@ async function refreshToken(req, res) {
                     foundSession,
                     distance
                 });
+                await SessionModel.findByIdAndDelete(foundSession._id);
                 return response.failure("Invalid session.", 403);
             }
         }
@@ -302,7 +313,7 @@ async function refreshToken(req, res) {
         // create new token
         const accessToken = AuthenticationControllerHelpers.createAccessToken(foundSession.user);
 
-        // return new token and original user
+        // return new token.
         return response.success("Token refreshed successfully.", {
             accessToken: accessToken
         });
@@ -434,7 +445,7 @@ async function logout(req, res) {
 module.exports = {
     registerClient,
     login,
-    refreshToken,
+    refreshAccessToken,
     registerCounsellor,
     forgotPassword,
     resetPassword,

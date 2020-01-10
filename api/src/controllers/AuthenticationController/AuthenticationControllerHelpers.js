@@ -31,7 +31,7 @@ function createAccessToken(user) {
     return accessToken;
 }
 
-
+//TODO: refactor to only use ip and userAgent variables.
 // Create a refresh token for the user. This has a TTL of 1 week, and can be used to generate new access tokens if the user's current one has expired.
 // It is important to note that these can ONLY be used for creating new access tokens - they can't be used to access resources.
 function createRefreshToken(user, req, salt) {

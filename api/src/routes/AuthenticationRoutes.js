@@ -33,7 +33,7 @@ router.post("/login", AuthenticationController.login);
 router.post("/logout", AuthenticationMiddleware.isLoggedIn, AuthenticationController.logout)
 
 // refresh the current token
-router.get("/token", AuthenticationController.refreshToken);
+router.get("/token", AuthenticationController.refreshAccessToken);
 
 
 // forgot password
