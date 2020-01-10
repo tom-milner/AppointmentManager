@@ -1,7 +1,7 @@
 module.exports = {
     apps: [{
         name: "AppointmentManagerAPI",
-        cwd: "/home/pi/Projects/AppointmentManager/api",
+        cwd: "/home/tom/Projects/OtherProjects/AppointmentManager/api",
         script: "./src/app.js",
         env: {
             "NODE_ENV": "production"
