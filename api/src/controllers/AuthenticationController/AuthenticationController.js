@@ -282,33 +282,33 @@ async function refreshAccessToken(req, res) {
         // Make sure user is no more than 100km from where they originally acquired the refresh token.#
 
         // DISABLE THIS IN TESTING (NO IP ADDRESS!!)
-        if (process.env.NODE_ENV == "production") {
-            const requestIp = req.headers["x-forwarded-for"].split(",")[0] || req.connection.remoteAddress;
-            const sessionIp = foundSession.clientIp;
-            const {
-                error,
-                distance
-            } = await AuthenticationControllerHelpers.calculateGeoIpDistance(
-                requestIp,
-                sessionIp
-            );
-            if (error) {
-                Logger.error("Error calculating distance", error);
-                return response.failure("Error refreshing token", 500);
-            }
-
-            const oneHundredKilometers = 100000;
-            if (distance > oneHundredKilometers) {
-                // 100km
-                Logger.warn("Possible token fraud", {
-                    requestIp,
-                    foundSession,
-                    distance
-                });
-                await SessionModel.findByIdAndDelete(foundSession._id);
-                return response.failure("Invalid session.", 403);
-            }
+        // if (process.env.NODE_ENV == "production") {
+        const requestIp = req.headers["x-forwarded-for"].split(",")[0] || req.connection.remoteAddress;
+        const sessionIp = foundSession.clientIp;
+        const {
+            error,
+            distance
+        } = await AuthenticationControllerHelpers.calculateGeoIpDistance(
+            requestIp,
+            sessionIp
+        );
+        if (error) {
+            Logger.error("Error calculating distance", error);
+            return response.failure("Error refreshing token", 500);
         }
+
+        const oneHundredKilometers = 100000;
+        if (distance > oneHundredKilometers) {
+            // 100km
+            Logger.warn("Possible token fraud", {
+                requestIp,
+                foundSession,
+                distance
+            });
+            await SessionModel.findByIdAndDelete(foundSession._id);
+            return response.failure("Invalid session.", 403);
+        }
+        // }
 
         // create new token
         const accessToken = AuthenticationControllerHelpers.createAccessToken(foundSession.user);

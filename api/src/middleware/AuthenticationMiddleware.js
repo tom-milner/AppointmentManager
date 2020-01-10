@@ -11,7 +11,6 @@ function isLoggedIn(req, res, next) {
     // decode token (if present)
     if (token) {
         token = token.replace("Bearer ", "");
-
         // validate secret
         // The jsonwebtoken library doesn't support promises yet.
         jwt.verify(token, Config.accessTokenSecret, function (err, decoded) {

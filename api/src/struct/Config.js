@@ -3,7 +3,6 @@ const path = require("path");
 
 // Load in custom environment variables
 const envFilePath = path.join(__dirname, "../../.env")
-console.log(envFilePath);
 
 dotenv.config({
     path: envFilePath
