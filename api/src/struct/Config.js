@@ -2,8 +2,11 @@ const dotenv = require("dotenv"); // Required for loading custom environment var
 const path = require("path");
 
 // Load in custom environment variables
+const envFilePath = path.join(__dirname, "../.env")
+console.log(envFilePath);
+
 dotenv.config({
-    path: path.join(__dirname, "../.env")
+    path: envFilePath
 });
 
 const port = process.env.PORT || 8081;
