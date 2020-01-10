@@ -29,8 +29,7 @@ Vue.prototype.moment = moment;
 // setup navigation guard
 AuthenticationService.initializeNavigationGuard();
 
-
-
+// TODO: set document title.
 
 Vue.config.productionTip = false;
 
