@@ -2,7 +2,7 @@ const dotenv = require("dotenv"); // Required for loading custom environment var
 const path = require("path");
 
 // Load in custom environment variables
-const envFilePath = path.join(__dirname, "../.env")
+const envFilePath = path.join(__dirname, "../../.env")
 console.log(envFilePath);
 
 dotenv.config({
