@@ -285,6 +285,10 @@ async function refreshAccessToken(req, res) {
         // if (process.env.NODE_ENV == "production") {
         const requestIp = req.headers["x-forwarded-for"].split(",")[0] || req.connection.remoteAddress;
         const sessionIp = foundSession.clientIp;
+        Logger.info("Checking Ip", {
+            requestIp,
+            sessionIp
+        });
         const {
             error,
             distance
