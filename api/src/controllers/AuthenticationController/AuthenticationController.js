@@ -289,30 +289,33 @@ async function refreshAccessToken(req, res) {
             requestIp,
             sessionIp
         });
-        const {
-            error,
-            distance
-        } = await AuthenticationControllerHelpers.calculateGeoIpDistance(
-            requestIp,
-            sessionIp
-        );
-        if (error) {
-            Logger.error("Error calculating distance", error);
-            return response.failure("Error refreshing token", 500);
-        }
 
-        const oneHundredKilometers = 100000;
-        if (distance > oneHundredKilometers) {
-            // 100km
-            Logger.warn("Possible token fraud", {
-                requestIp,
-                foundSession,
+        // Only run this check if the user is using different Ip address.
+        if (!requestIp == sessionIp) {
+            const {
+                error,
                 distance
-            });
-            await SessionModel.findByIdAndDelete(foundSession._id);
-            return response.failure("Invalid session.", 403);
+            } = await AuthenticationControllerHelpers.calculateGeoIpDistance(
+                requestIp,
+                sessionIp
+            );
+            if (error) {
+                Logger.error("Error calculating distance", error);
+                return response.failure("Error refreshing token", 500);
+            }
+
+            const oneHundredKilometers = 100000;
+            if (distance > oneHundredKilometers) {
+                // 100km
+                Logger.warn("Possible token fraud", {
+                    requestIp,
+                    foundSession,
+                    distance
+                });
+                await SessionModel.findByIdAndDelete(foundSession._id);
+                return response.failure("Invalid session.", 403);
+            }
         }
-        // }
 
         // create new token
         const accessToken = AuthenticationControllerHelpers.createAccessToken(foundSession.user);
