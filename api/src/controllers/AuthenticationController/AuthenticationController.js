@@ -280,9 +280,6 @@ async function refreshAccessToken(req, res) {
 
         // Location check:
         // Make sure user is no more than 100km from where they originally acquired the refresh token.#
-
-        // DISABLE THIS IN TESTING (NO IP ADDRESS!!)
-        // if (process.env.NODE_ENV == "production") {
         const requestIp = req.headers["x-forwarded-for"].split(",")[0] || req.connection.remoteAddress;
         const sessionIp = foundSession.clientIp;
         Logger.info("Checking Ip", {
