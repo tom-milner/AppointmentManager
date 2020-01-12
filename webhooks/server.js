@@ -8,9 +8,21 @@ const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const path = require("path");
 const fs = require("fs");
+const dotenv = require("dotenv"); // Required for loading custom environment variables.
 const port = 3360;
 
-// create server to listen to github:
+// Load in custom environment variables
+const envFilePath = path.join(__dirname, "./.env");
+
+dotenv.config({
+    path: envFilePath
+});
+
+const secret = process.env.SECRET;
+const repo = process.env.REPO;
+const token = process.env.REPO_TOKEN;
+
+// create server .
 const server = http.createServer(handler);
 server.listen(port, err => {
     if (err) {
@@ -27,17 +39,21 @@ function handler(req, res) {
         case "/pullLatest":
             pullLatest(req, res);
             break;
+        case "/commitId":
+            getCurrentCommit(req, res);
+            break;
         default:
             res.end("Invalid webhook.");
     }
 }
 
+async function getCurrentCommit(req, res) {
+    const gitInfo = await exec(`cd ${repo}; git rev-parse HEAD`);
+    console.log(gitInfo);
+    res.end(gitInfo.stdout);
+}
 
 function pullLatest(req, res) {
-    const secret = "9c583a3a81446e06fb410e44f08a5f949536bbd1869a26797059";
-    const repo = "/home/ubuntu/Projects/AppointmentManager";
-    const token = "907f14f88356617a9ae9128c7efcdbd26cf46511";
-
     if (!req.method == "POST") res.end("Invalid method.");
 
     // get body
@@ -67,19 +83,13 @@ function pullLatest(req, res) {
                 );
                 console.log(response);
 
-
-
                 response = await exec(`cd ${repo}; git reset --hard FETCH_HEAD `);
                 console.log(response);
 
-                response = await exec(
-                    `cd ${repo}/api; npm i --save; npm audit fix`
-                );
+                response = await exec(`cd ${repo}/api; npm i --save; npm audit fix`);
 
                 // rebuild client
-                response = await exec(
-                    `cd ${repo}/client; npm i --save; npm audit fix `
-                );
+                response = await exec(`cd ${repo}/client; npm i --save; npm audit fix `);
 
                 response = await exec(`cd ${repo}/client; npm run build;`);
                 console.log(response);
