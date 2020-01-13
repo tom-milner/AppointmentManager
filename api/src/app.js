@@ -37,7 +37,7 @@ const Config = require("./struct/Config");
 if (isProd) {
     // This enables me to remotely check errors via the sentry dashboard.
     Sentry.init({
-        dsn: Config.monitoring.sentryDSN
+        dsn: Config.monitoring.SENTRY_API_DSN
     });
     app.use(Sentry.Handlers.requestHandler()); // NOTE: This request handler must be the first middleware on the app
 }
@@ -85,17 +85,20 @@ const database = new Database();
         await mailer.init(isProd);
 
         // Initialize database
-        await database.init(Config.db.url, Config.db);
+        await database.init(Config.db.URL, {
+            user: Config.db.USER,
+            pass: Config.db.PASS
+        });
 
         // Check that the backup location exists.
-        await database.checkBackupLocation(Config.db.backupLocation);
+        await database.checkBackupLocation(Config.db.BACKUP_LOCATION);
 
         // Start all scheduled tasks.
         scheduler.start();
 
         // Start the server.
-        app.listen(Config.port, function () {
-            Logger.info(`Started server on port ${Config.port}`);
+        app.listen(Config.PORT, function () {
+            Logger.info(`Started server on port ${Config.PORT}`);
         });
     } catch (error) {
         Logger.error("Startup error.", error);

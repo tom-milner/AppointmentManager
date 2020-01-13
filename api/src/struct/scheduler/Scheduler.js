@@ -27,13 +27,13 @@ class Scheduler {
             removeExpiredGuests()
         });
 
-        
+
 
         // Every Week
         // 0 0 * * 0
         cron.schedule("0 0 * * 0", () => {
             sendWeeklyAppointmentsEmail(this.mailer);
-            Database.backupDatabase(Config.db.url, Config.db.backupLocation, Config.db.backupPassword);
+            Database.backupDatabase(Config.db.URL, Config.db.BACKUP_LOCATION, Config.db.BACKUP_PASSWORD);
         });
 
         // NOTE: I intentionally don't await the above functions, as it doesn't matter what order they run in.

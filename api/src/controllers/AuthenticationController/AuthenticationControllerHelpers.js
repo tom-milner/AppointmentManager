@@ -24,7 +24,7 @@ function createAccessToken(user) {
     };
 
     // Create JWT token.
-    const accessToken = jwt.sign(user, Config.accessTokenSecret, {
+    const accessToken = jwt.sign(user, Config.ACCESS_TOKEN_SECRET, {
         expiresIn: "30m"
     });
 
@@ -39,7 +39,7 @@ function createRefreshToken(user, req, salt) {
     // create a HMAC hash containing the user's user agent, their user Id and their password.
     const userAgent = req.headers['user-agent'];
 
-    const refreshToken = crypto.createHmac("sha256", Config.refreshTokenSecret);
+    const refreshToken = crypto.createHmac("sha256", Config.REFRESH_TOKEN_SECRET);
     const payload = userAgent + user._id + user.password;
     refreshToken.update(payload);
     // salt payload to prevent attacker being able to compare two tokens to see if they are the same.
@@ -123,11 +123,11 @@ async function createPasswordReset(user) {
 async function calculateGeoIpDistance(ip1, ip2) {
     // get rough location of ips
     const ipStack = axios.create({
-        baseURL: Config.location.ipStackApi,
+        baseURL: Config.location.IPSTACK_API,
     });
     ipStack.interceptors.request.use((config) => {
         config.params = {
-            access_key: Config.location.ipStackApiKey
+            access_key: Config.location.IPSTACK_API_KEY
         }
         return config;
     });

@@ -48,16 +48,16 @@ class GoogleAuth {
 
         Logger.info("Setting up google APIs...")
         let {
-            clientId,
-            clientSecret,
-            redirectUri
+            CLIENT_ID,
+            CLIENT_SECRET,
+            REDIRECT_URI
         } = Config.googleAuth;
 
 
         this.oauth2Client = new google.auth.OAuth2(
-            clientId,
-            clientSecret,
-            redirectUri
+            CLIENT_ID,
+            CLIENT_SECRET,
+            REDIRECT_URI
         );
 
         const tokenFileName = "googleTokens.json";

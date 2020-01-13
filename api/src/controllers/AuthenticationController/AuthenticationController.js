@@ -19,7 +19,6 @@ const ErrorCodes = require("../../models/ErrorCodes");
 // Declare a global instance of the mailer to use throughout the file.
 let mailer = new Mailer();
 
-
 /**
  * Add a new counsellor to the database.
  * @param {*} req - The request data
@@ -29,14 +28,7 @@ async function registerCounsellor(req, res) {
     const response = new AppResponse(res);
 
     // Get the counsellor's info from the request body.
-    let {
-        email,
-        username,
-        firstname,
-        lastname,
-        password,
-        counsellorToken
-    } = req.body;
+    let { email, username, firstname, lastname, password, counsellorToken } = req.body;
 
     // Assert there is permission to create token:
 
@@ -69,14 +61,12 @@ async function registerCounsellor(req, res) {
             lastname: lastname,
             password: passwordHash
         });
-        savedCounsellor.password =
-            undefined; // Delete the counsellor's password hash from the object so it can be used in the response.
+        savedCounsellor.password = undefined; // Delete the counsellor's password hash from the object so it can be used in the response.
 
         // Return the newly created counsellor.
         return response.success("Counsellor created successfully.", {
             user: savedCounsellor
         });
-
     } catch (err) {
         if (err.code == ErrorCodes.MONGO_DUPLICATE_KEY) {
             return response.failure(Utils.getDuplicateMongoEntryKey(err.message) + " already exists.", 409);
@@ -84,7 +74,6 @@ async function registerCounsellor(req, res) {
         return response.failure("Error registering counsellor.", 500);
     }
 }
-
 
 /**
  * Register a new client.
@@ -94,7 +83,6 @@ async function registerCounsellor(req, res) {
 async function registerClient(req, res) {
     const response = new AppResponse(res);
     try {
-
         // Create client in database.
         const savedClient = await ClientModel.create({
             email: req.body.email,
@@ -103,7 +91,7 @@ async function registerClient(req, res) {
             lastname: req.body.lastname,
             // Hash password
             password: await AuthenticationControllerHelpers.hashPassword(req.body.password)
-        })
+        });
 
         // Remove password hash from client object so it can be used in the application response.
         savedClient.password = undefined;
@@ -115,7 +103,6 @@ async function registerClient(req, res) {
         return response.success("Client added.", {
             user: savedClient
         });
-
     } catch (err) {
         if (err.code == ErrorCodes.MONGO_DUPLICATE_KEY) {
             return response.failure(Utils.getDuplicateMongoEntryKey(err.message) + " already exists.", 409);
@@ -133,11 +120,7 @@ async function registerClient(req, res) {
 async function registerGuest(req, res) {
     const response = new AppResponse(res);
 
-    let {
-        firstname,
-        lastname,
-        email
-    } = req.body;
+    let { firstname, lastname, email } = req.body;
 
     // Generate a temporary random password. This is to keep the account secure, and will be replaced when the user activates their account.
     let password = await AuthenticationControllerHelpers.generateRandomPassword();
@@ -157,9 +140,7 @@ async function registerGuest(req, res) {
         });
 
         // create a password reset for the guest for when they want to fully activate their account.
-        let {
-            resetToken
-        } = await AuthenticationControllerHelpers.createPasswordReset(createdGuest);
+        let { resetToken } = await AuthenticationControllerHelpers.createPasswordReset(createdGuest);
 
         // send guest an email containing a link to activate their account.
         mailer.confirmNewUser(createdGuest, resetToken).send();
@@ -173,7 +154,6 @@ async function registerGuest(req, res) {
             user: createdGuest,
             accessToken: accessToken
         });
-
     } catch (error) {
         if (error.code == ErrorCodes.MONGO_DUPLICATE_KEY) {
             let fieldKey = Utils.getDuplicateMongoEntryKey(error.message);
@@ -186,7 +166,6 @@ async function registerGuest(req, res) {
         return response.failure("Error creating guest.", 500);
     }
 }
-
 
 /**
  * Login the client and provide them with an access token
@@ -289,10 +268,7 @@ async function refreshAccessToken(req, res) {
 
         // Only run this check if the user is using different Ip address.
         if (!requestIp == sessionIp) {
-            const {
-                error,
-                distance
-            } = await AuthenticationControllerHelpers.calculateGeoIpDistance(
+            const { error, distance } = await AuthenticationControllerHelpers.calculateGeoIpDistance(
                 requestIp,
                 sessionIp
             );
@@ -342,9 +318,7 @@ async function forgotPassword(req, res) {
         // get ip address of request.
         let requestIp = req.header("x-forwarded-for") || req.connection.remoteAddress;
 
-        let {
-            resetToken
-        } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
+        let { resetToken } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
 
         // send email
         mailer.forgotPassword(foundUser, resetToken, requestIp).send();

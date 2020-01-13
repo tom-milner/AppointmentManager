@@ -13,7 +13,7 @@ function isLoggedIn(req, res, next) {
         token = token.replace("Bearer ", "");
         // validate secret
         // The jsonwebtoken library doesn't support promises yet.
-        jwt.verify(token, Config.accessTokenSecret, function (err, decoded) {
+        jwt.verify(token, Config.ACCESS_TOKEN_SECRET, function (err, decoded) {
             if (err) {
                 // return error if token isn't valid
                 return response.failure("Failed to authenticate token", 401);
