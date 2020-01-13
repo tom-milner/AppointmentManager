@@ -28,7 +28,14 @@ async function registerCounsellor(req, res) {
     const response = new AppResponse(res);
 
     // Get the counsellor's info from the request body.
-    let { email, username, firstname, lastname, password, counsellorToken } = req.body;
+    let {
+        email,
+        username,
+        firstname,
+        lastname,
+        password,
+        counsellorToken
+    } = req.body;
 
     // Assert there is permission to create token:
 
@@ -61,7 +68,8 @@ async function registerCounsellor(req, res) {
             lastname: lastname,
             password: passwordHash
         });
-        savedCounsellor.password = undefined; // Delete the counsellor's password hash from the object so it can be used in the response.
+        savedCounsellor.password =
+            undefined; // Delete the counsellor's password hash from the object so it can be used in the response.
 
         // Return the newly created counsellor.
         return response.success("Counsellor created successfully.", {
@@ -120,7 +128,11 @@ async function registerClient(req, res) {
 async function registerGuest(req, res) {
     const response = new AppResponse(res);
 
-    let { firstname, lastname, email } = req.body;
+    let {
+        firstname,
+        lastname,
+        email
+    } = req.body;
 
     // Generate a temporary random password. This is to keep the account secure, and will be replaced when the user activates their account.
     let password = await AuthenticationControllerHelpers.generateRandomPassword();
@@ -140,7 +152,9 @@ async function registerGuest(req, res) {
         });
 
         // create a password reset for the guest for when they want to fully activate their account.
-        let { resetToken } = await AuthenticationControllerHelpers.createPasswordReset(createdGuest);
+        let {
+            resetToken
+        } = await AuthenticationControllerHelpers.createPasswordReset(createdGuest);
 
         // send guest an email containing a link to activate their account.
         mailer.confirmNewUser(createdGuest, resetToken).send();
@@ -170,7 +184,7 @@ async function registerGuest(req, res) {
 /**
  * Login the client and provide them with an access token
  * @param {{}} req - The request data.
- * @param {{}} res - The repsonse data.
+ * @param {{}} res - The response data.
  */
 async function login(req, res) {
     const response = new AppResponse(res);
@@ -222,6 +236,11 @@ async function login(req, res) {
     }
 }
 
+/**
+ * This function will validate a supplied refresh token, and supply the requesting device with a new access token.
+ * @param {{}} req - The request data.
+ * @param {{}} res - The response data.
+ */
 async function refreshAccessToken(req, res) {
     const response = new AppResponse(res);
     try {
@@ -234,7 +253,12 @@ async function refreshAccessToken(req, res) {
             path: "user",
             select: "+password"
         });
-        if (!foundSession) return response.failure("Invalid refresh token", 401);
+        if (!foundSession) {
+            Logger.warn("Possible token fraud.", {
+                req
+            });
+            return response.failure("Invalid refresh token", 401)
+        };
 
         // assert that the refresh token was issued to the same device that is using it.
         // create hash using info of device that made the request.
@@ -268,7 +292,10 @@ async function refreshAccessToken(req, res) {
 
         // Only run this check if the user is using different Ip address.
         if (!requestIp == sessionIp) {
-            const { error, distance } = await AuthenticationControllerHelpers.calculateGeoIpDistance(
+            const {
+                error,
+                distance
+            } = await AuthenticationControllerHelpers.calculateGeoIpDistance(
                 requestIp,
                 sessionIp
             );
@@ -318,7 +345,9 @@ async function forgotPassword(req, res) {
         // get ip address of request.
         let requestIp = req.header("x-forwarded-for") || req.connection.remoteAddress;
 
-        let { resetToken } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
+        let {
+            resetToken
+        } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
 
         // send email
         mailer.forgotPassword(foundUser, resetToken, requestIp).send();
