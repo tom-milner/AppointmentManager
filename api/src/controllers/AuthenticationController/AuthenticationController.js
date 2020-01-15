@@ -86,7 +86,7 @@ async function registerCounsellor(req, res) {
 /**
  * Register a new client.
  * @param {{}} req - The request data.
- * @param {*} res - The response data.
+ * @param {{}} res - The response data.
  */
 async function registerClient(req, res) {
     const response = new AppResponse(res);
@@ -257,8 +257,8 @@ async function refreshAccessToken(req, res) {
             Logger.warn("Possible token fraud.", {
                 req
             });
-            return response.failure("Invalid refresh token", 401)
-        };
+            return response.failure("Invalid refresh token", 401);
+        }
 
         // assert that the refresh token was issued to the same device that is using it.
         // create hash using info of device that made the request.
@@ -282,8 +282,11 @@ async function refreshAccessToken(req, res) {
         }
 
         // Location check:
-        // Make sure user is no more than 100km from where they originally acquired the refresh token.#
-        const requestIp = req.headers["x-forwarded-for"].split(",")[0] || req.connection.remoteAddress;
+        // Make sure user is no more than 100km from where they originally acquired the refresh token.
+        const requestIp = req.headers["x-forwarded-for"] ? req.headers["x-forwarded-for"].split(",")[0] : req
+            .connection
+            .remoteAddress;
+
         const sessionIp = foundSession.clientIp;
         Logger.info("Checking Ip", {
             requestIp,
@@ -291,7 +294,7 @@ async function refreshAccessToken(req, res) {
         });
 
         // Only run this check if the user is using different Ip address.
-        if (!requestIp == sessionIp) {
+        if (requestIp != sessionIp) {
             const {
                 error,
                 distance
@@ -330,12 +333,18 @@ async function refreshAccessToken(req, res) {
     }
 }
 
+/**
+ * This function is called when a user requests to change their password. It creates a new password reset in the database and emails the user a link that they can use to reset their password.
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ */
 async function forgotPassword(req, res) {
     const response = new AppResponse(res);
     // get the email from the request body and search for the user associated with it.
     let email = req.body.email;
 
     try {
+        // get the user from the database.
         let foundUser = await UserModel.findOne({
             email: email
         });
@@ -345,6 +354,7 @@ async function forgotPassword(req, res) {
         // get ip address of request.
         let requestIp = req.header("x-forwarded-for") || req.connection.remoteAddress;
 
+        // Create a password reset.
         let {
             resetToken
         } = await AuthenticationControllerHelpers.createPasswordReset(foundUser);
@@ -363,6 +373,12 @@ async function forgotPassword(req, res) {
     }
 }
 
+/**
+ * This function is called when a user needs to reset their password. It makes sure that the provided reset token is a legitimate token, and also that the token hasn't expired. Then it resets the user's password in the database.
+ * Once the password has been reset, any existing sessions for the user are expired.
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details
+ */
 async function resetPassword(req, res) {
     let token = req.body.token;
     let password = req.body.password;
@@ -431,13 +447,20 @@ async function resetPassword(req, res) {
     }
 }
 
+/**
+ * This function logs out a user. It does this by expiring any active sessions associated with the user. Note that it only logs out a user on a particular device - the user will stay logged in on other devices.
+ * If the user has an access token it will remain valid until it expires (<30 mins).
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ */
 async function logout(req, res) {
     const response = new AppResponse(res);
     // To log a user out, we have to expire their refresh token.
     // This means that when their access token expires, they will have to log in to obtain a new token pair (refresh and access).
 
     try {
-        // If the user find and delete the users refresh token.
+        // Find and delete the users refresh token.
+        // We supply the user agent so that we only log the user out on this device.
         await SessionModel.deleteMany({
             userAgent: req.headers["user-agent"],
             user: req.user._id

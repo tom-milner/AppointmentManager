@@ -3,20 +3,29 @@ const AppResponse = require("../../struct/AppResponse");
 const Logger = require("../../struct/Logger");
 const Utils = require("../../utils/Utils");
 const ErrorCodes = require("../../models/ErrorCodes");
+const Roles = require("../../models/Roles");
 
-// get all the clients
+/**
+ * Get all the clients from the database.
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ * 
+ */
 async function getClients(req, res) {
     const response = new AppResponse(res);
-    // return all the clients.
-    // TODO: implement limits
-    const limit = parseInt(req.query.limit);
 
+    const limit = req.query.limit;
+
+    // Get all the clients from the database.
     let clientQuery = ClientModel.find({}).select("username firstname lastname email");
 
+    // If there is a limiy specified, limit the amount of clients.
     if (limit) clientQuery.limit(limit);
 
     try {
+        // Execute the query.
         let allClients = await clientQuery.exec();
+        // Return the found clients.
         return response.success("Clients returned successfully.", {
             clients: allClients
         });
@@ -25,26 +34,34 @@ async function getClients(req, res) {
     }
 }
 
-// get information about a single client.
+/**
+ * Get information about a single client.
+ * @param {boolean} reduced - Whether or not to return the client information in a reduced form. 
+ */
 function getClient({
     reduced
 }) {
+    // Return a function to be used as the handler function. This is so that I can pass variables to this function in the route declaration.
     return async function (req, res) {
         const response = new AppResponse(res);
         let clientId = req.params.clientId;
 
-        try {
-            // find matching client;
-            let client = await ClientModel.findById(clientId).select("+clinicalNotes");
-            if (reduced)
-                client = {
-                    firstname: client.firstname,
-                    lastname: client.lastname,
-                    _id: client._id
-                };
+        // find matching client;
+        let client = ClientModel.findById(clientId);
 
+        // If the "reduced" flag is given, only return basic information about the client.
+        if (reduced) {
+            client.select("firstname lastname");
+        } else if (req.user.role >= Roles.COUNSELLOR) {
+            // If the requesting user is a counsellor, attach the clinical notes.
+            client.select(
+                "+clinicalNotes");
+        }
+
+        try {
+            const foundClient = await client.exec();
             return response.success("Client returned successfully", {
-                client: client
+                client: foundClient
             });
         } catch (error) {
             return response.failure("Client couldn't be found.", 404);

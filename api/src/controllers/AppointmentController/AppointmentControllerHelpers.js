@@ -46,12 +46,7 @@ async function checkAllAppointments(appointmentInfo) {
 
     // check that the counsellor and client can make all the appointments.
     for (let appointment of appointments) {
-        let {
-            startTime,
-            endTime,
-            counsellorId,
-            clients
-        } = appointment;
+        let { startTime, endTime, counsellorId, clients } = appointment;
 
         let error;
         for (let clientId of clients) {
@@ -77,13 +72,12 @@ async function checkAllAppointments(appointmentInfo) {
 
 /**
  * Check that a counsellor is working on the day and time of an appointment.
- * @param {[]]} workingDays - An array of the days the counsellor is working. 
+ * @param {[]]} workingDays - An array of the days the counsellor is working on.
  * @param {moment} desiredStartTime - The desired start time of the appointment.
  * @param {moment} desiredEndTime - The desired end time of the appointment.
- * @returns {{}} An object containing an error message to be sent back to the user.
+ * @returns {{}} {message} An object containing an error message to be sent back to the user.
  */
 function checkCounsellorIsWorking(workingDays, desiredStartTime, desiredEndTime) {
-
     // get Day string from start time e.g. "Monday" (we're assuming no appointments run over 2 days)
     let requiredDay = desiredStartTime.format("dddd");
 
@@ -105,12 +99,13 @@ function checkCounsellorIsWorking(workingDays, desiredStartTime, desiredEndTime)
     desiredStartTime = parseInt(desiredStartTime.format("HHmm"));
     desiredEndTime = parseInt(desiredEndTime.format("HHmm"));
 
-
     // check start and end times are valid (Counsellor is working on during the requested appointment time.).
     // check that the desired start and end times are inbetween the counsellor's working start and end days for the appointment.
     let timeIsValid =
-        desiredStartTime >= startOfDay && desiredStartTime <= endOfDay &&
-        desiredEndTime >= startOfDay && desiredEndTime <= endOfDay
+        desiredStartTime >= startOfDay &&
+        desiredStartTime <= endOfDay &&
+        desiredEndTime >= startOfDay &&
+        desiredEndTime <= endOfDay;
     // AND operation - counsellor must be free for both the start and end.
 
     // If the required times aren't valid, return an error.
@@ -123,14 +118,14 @@ function checkCounsellorIsWorking(workingDays, desiredStartTime, desiredEndTime)
     // If we reach here the desired times are all fine, so we don't need to return anything.
 }
 
-
 /**
  * Check that a given user is free for an appointment. (There are no clashes with any other appointments)
  * @param {moment} desiredStartTime - The desired start time of the appointment.
  * @param {moment} desiredEndTime - The desired end time of the appointment.
  * @param {String} userId - The id of the user to check the availability of.
+ * @returns {{}} {message, clashInfo} - An object containing an error message, and (optionally) information about clashing appointments.
  */
-async function checkUserAvailability(desireIndStartTime, desiredEndTime, userId) {
+async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
     // first make sure the client exists
     let validUser = await UserModel.findById(userId);
     if (!validUser) {
@@ -161,8 +156,10 @@ async function checkUserAvailability(desireIndStartTime, desiredEndTime, userId)
     // Query to find any appointments that clash with the chosen times.
     // It finds any appointments that have a start or end time that is between the requested start and end time.
     appointmentQuery.where({
-        $or: [{
-                $and: [{
+        $or: [
+            {
+                $and: [
+                    {
                         startTime: {
                             $lte: desiredEndTime
                         }
@@ -175,7 +172,8 @@ async function checkUserAvailability(desireIndStartTime, desiredEndTime, userId)
                 ]
             },
             {
-                $and: [{
+                $and: [
+                    {
                         endTime: {
                             $gte: desiredStartTime
                         }
@@ -207,7 +205,7 @@ async function checkUserAvailability(desireIndStartTime, desiredEndTime, userId)
 /**
  * Create reduced info about a list of clashing appointments.
  * @param {[]]} clashingAppointments - A list of appointments that clash with the chosen appointment.
- * @returns {{}} clashInfo - An object containing reduced information about the clashing appointments.
+ * @returns {[]} clashInfo - An array of objects each containing reduced information about a clashing appointment.
  */
 function createClashInfo(clashingAppointments) {
     let clashInfo = [];
@@ -216,8 +214,9 @@ function createClashInfo(clashingAppointments) {
             startTime: appointment.startTime,
             endTime: appointment.endTime,
             // The number of future appointments at the requested time.
-            noFutureAppointments: appointment.isRecurring ? appointment.appointmentType.recurringDuration -
-                appointment.recurringNo : 0
+            noFutureAppointments: appointment.isRecurring
+                ? appointment.appointmentType.recurringDuration - appointment.recurringNo
+                : 0
         });
     }
     return clashInfo;

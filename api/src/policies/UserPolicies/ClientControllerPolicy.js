@@ -26,14 +26,17 @@ function updateClient(req, res, next) {
     let clientProperties = Object.keys(ClientModel.schema.paths);
 
     let allowedProperties = [];
+
+    // This switch case cascades down, so that each role can access all the properties of the role below it (with the exception of the ADMIN role);
     switch (req.user.role) {
-        case Roles.CLIENT:
-            allowedProperties.push("firstname", "lastname", "username", "email")
+        case Roles.ADMIN:
+            allowedProperties = allowedProperties.concat(clientProperties);
             break;
         case Roles.COUNSELLOR:
-        case Roles.ADMIN:
-            // can edit everything
-            allowedProperties = allowedProperties.concat(clientProperties);
+            allowedProperties.push("clinicalNotes")
+            // Cascade down so that counsellors can edit same properties as clients.
+        case Roles.CLIENT:
+            allowedProperties.push("firstname", "lastname", "username", "email")
             break;
         default:
             return response.failure(
@@ -44,15 +47,15 @@ function updateClient(req, res, next) {
 
     // TODO: turn this into middleware
     const foundProperties = requestedClientProperties.filter(property => {
-        return allowedProperties.indexOf(property) == 1;
+        return allowedProperties.find(prop => prop == property);
     });
+
     if (foundProperties.length < 1) {
         return response.failure(
             "You can't change these details",
-            403,
+            403
         );
     }
-
     next();
 }
 
