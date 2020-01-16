@@ -55,7 +55,6 @@ function initializeNavigationGuard() {
 
             }
         }
-
         // Make sure the user exists in store
         // The store is wiped on refresh, so this makes sure that there is always a user in the store.
         if (!currentUser) { // No user in store.
@@ -64,12 +63,11 @@ function initializeNavigationGuard() {
                 user: currentUser
             });
         }
-
-
         // check to see if the user has the required access levels
         if (currentUser.role >= minimumAuthRole) {
             // allow the user to continue to their chosen route, as they are logged in 
             next();
+
         } else {
             // The user doesn't have access to this page - send them to the landing page.
             next("/");

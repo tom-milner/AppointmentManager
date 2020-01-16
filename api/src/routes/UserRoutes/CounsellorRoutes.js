@@ -16,6 +16,7 @@ router.post("/send-email",
     AuthenticationMiddleware.roleCheck({
         role: Roles.COUNSELLOR
     }),
+    CounsellorControllerPolicy.sendNewCounsellorEmail,
     CounsellorController.sendNewCounsellorEmail
 );
 

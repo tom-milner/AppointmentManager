@@ -27,9 +27,11 @@ class AppResponse {
     failure(errorMessage, statusCode, payload) {
 
         if (statusCode < 100 || statusCode > 598) {
-            Logger.error("Invalid status code!", errorMessage);
+            Logger.error("Invalid status code!", {
+                errorMessage,
+                statusCode
+            });
         }
-
         // create error object
         let errorObject = {
             success: false,
@@ -50,5 +52,6 @@ class AppResponse {
     }
 
 }
+
 
 module.exports = AppResponse;

@@ -5,8 +5,8 @@ const Logger = require("../../struct/Logger");
 
 // takes array of user Ids an returns simple user object.
 async function getReducedUsers(req, res) {
-
     const response = new AppResponse(res);
+
     // userIds is a string with comma seperated values
     try {
         let userIds = req.query.userIds.split(",").filter(Boolean);
@@ -42,6 +42,7 @@ async function deleteUser(req, res) {
             400
         );
 
+        // TODO: make this an option OR demote user to guest account so their account will be deleted after the last appointment.
         // delete any future appointments of the user.
         await AppointmentModel.deleteMany({
             clients: deletedUser

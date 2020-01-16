@@ -1,4 +1,5 @@
 const AppResponse = require("../../struct/AppResponse");
+const Joi = require("joi");
 
 function updateCounsellor(req, res, next) {
     const response = new AppResponse(res);
@@ -26,6 +27,45 @@ function updateCounsellor(req, res, next) {
     next();
 }
 
+
+/**
+ * Validate the input.
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ */
+function sendNewCounsellorEmail(req, res, next) {
+
+    const response = new AppResponse(res);
+
+    const joiSchema = {
+        email: Joi.string().email().required(),
+        counsellorPassword: Joi.string().required()
+    }
+
+    const {
+        error,
+        value
+    } = Joi.validate(req.body, joiSchema);
+    if (error) {
+        let errorMessage = "";
+        switch (error.details[0].context.key) {
+            case "email":
+                errorMessage = "Please provide a valid email.";
+                break;
+            case "counsellorPassword":
+                errorMessage = "Please provide the counsellor's password."
+                break;
+            default:
+                errorMessage = "Error sending counsellor email."
+                break;
+        }
+        return response.failure(errorMessage, 400);
+    }
+
+    next();
+}
+
 module.exports = {
-    updateCounsellor
+    updateCounsellor,
+    sendNewCounsellorEmail
 };

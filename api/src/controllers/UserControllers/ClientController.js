@@ -14,17 +14,15 @@ const Roles = require("../../models/Roles");
 async function getClients(req, res) {
     const response = new AppResponse(res);
 
-    const limit = req.query.limit;
-
     // Get all the clients from the database.
     let clientQuery = ClientModel.find({}).select("username firstname lastname email");
 
-    // If there is a limiy specified, limit the amount of clients.
-    if (limit) clientQuery.limit(limit);
+    // If there is a limit specified, limit the amount of clients.
+    if (req.query.limit) clientQuery.limit(parseInt(req.query.limit));
 
     try {
         // Execute the query.
-        let allClients = await clientQuery.exec();
+        const allClients = await clientQuery.exec();
         // Return the found clients.
         return response.success("Clients returned successfully.", {
             clients: allClients
@@ -69,7 +67,12 @@ function getClient({
     };
 }
 
-// update an existing client
+/**
+ * Update an existing client's details.
+ * We don't need to perform any input validation here as it is all handled by ClientControllerPolicy.js.
+ * @param {{}} req - The request data.
+ * @param {{}} res - The response data.
+ */
 async function updateClient(req, res) {
     const response = new AppResponse(res);
 
@@ -78,8 +81,8 @@ async function updateClient(req, res) {
 
     try {
         let updatedClient = await ClientModel.findByIdAndUpdate(clientId, newClientInfo, {
-            new: true,
-            runValidators: true
+            new: true, // Return the newly created user.
+            runValidators: true // Run the validation methods when updating the client.
         });
 
         if (!updatedClient) return response.failure("Client doesn't exist", 404);
@@ -95,6 +98,7 @@ async function updateClient(req, res) {
     }
 }
 
+// Export the functions so they can be used.
 module.exports = {
     getClients,
     getClient,

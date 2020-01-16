@@ -15,9 +15,9 @@ function getReducedUsers(req, res, next) {
         value
     } = Joi.validate(req.query, joiSchema);
 
-    let errorMessage = "";
 
     if (error) {
+        let errorMessage = "";
         switch (error.details[0].context.key) {
             case "userIds":
                 errorMessage = "No user ids found.";

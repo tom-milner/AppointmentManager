@@ -36,7 +36,7 @@ let UserSchema = new mongoose.Schema({
     role: {
         type: Number,
         default () {
-            return Roles[this.type];
+            return Roles[this.type.toUpperCase()];
         }
     }
 }, options);

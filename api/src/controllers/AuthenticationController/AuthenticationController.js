@@ -94,7 +94,7 @@ async function registerClient(req, res) {
         // Create client in database.
         const savedClient = await ClientModel.create({
             email: req.body.email,
-            username: req.body.email,
+            username: req.body.username,
             firstname: req.body.firstname,
             lastname: req.body.lastname,
             // Hash password
