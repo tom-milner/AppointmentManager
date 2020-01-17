@@ -32,7 +32,7 @@ router.use(AuthenticationMiddleware.isLoggedIn);
 router.get(
     "/client/full/:userId",
     AuthenticationMiddleware.roleCheck({
-        role: Roles.COUNSELLOR,
+        role: Roles.CLIENT,
         userSpecific: true
     }),
     AppointmentController.getAppointmentsOfUser({

@@ -2,8 +2,10 @@ const Utils = require("../utils/Utils");
 const AppResponse = require("../struct/AppResponse");
 const Joi = require("joi");
 
-function updateAppointmentType({ isNew }) {
-    return function(req, res, next) {
+function updateAppointmentType({
+    isNew
+}) {
+    return function (req, res, next) {
         const response = new AppResponse(res);
         const joiSchema = {
             name: Joi.string().max(20),
@@ -12,32 +14,35 @@ function updateAppointmentType({ isNew }) {
                 .max(200)
                 .allow(""),
             isRecurring: Joi.bool(),
-            recurringDuration: Joi.number()
-                .max(10)
-                .min(2)
+
         };
 
+        // These fields are only required if a new appointment type is being created.
         if (isNew) {
             joiSchema.name.required();
             joiSchema.duration.required();
         }
-        let data = req.body;
-        if (!isNew) {
-            data = req.body.appointmentTypeProperties;
-        }
+
+        let data;
+        if (!isNew) data = req.body.appointmentTypeProperties;
+        else data = req.body
+
+        // Only check the reccurring duration if the appointment type is a recurring one.
+        if (data.isRecurring) joiSchema.recurringDuration = Joi.number().max(10).min(2);
 
         // validate the request body against the schema
-
-        const { error } = Joi.validate(data, joiSchema, {
-            stripUnknown: true
+        const {
+            error
+        } = Joi.validate(data, joiSchema, {
+            stripUnknown: true // Remove unknown fields.
         });
 
-        // set error message and code. These will be overwritten if there is a more specific error.
-        let errorMessage;
-        let errorCode;
 
         // check errors
         if (error) {
+            let errorMessage;
+            let errorCode;
+
             switch (error.details[0].context.key) {
                 case "name":
                     errorCode = 400;

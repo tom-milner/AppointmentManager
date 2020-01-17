@@ -1,29 +1,34 @@
-// import json web token library
 const jwt = require("jsonwebtoken"); // used for using token based authentication
 const AppResponse = require("../struct/AppResponse");
 const Config = require("../struct/Config");
 
-// middleware for checking user access
+
+/**
+ * This function is middleware that checks whether a user is logged in or not.
+ * Being "logged in" is defined as "having a valid access token".
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ * @param {{}} next - The next function specified in the middleware chain.
+ */
 function isLoggedIn(req, res, next) {
     const response = new AppResponse(res);
-    // check header for token
-    var token = req.headers.authorization;
-    // decode token (if present)
+    // Check header for token
+    let token = req.headers.authorization;
+
+    // Decode token (if present)
     if (token) {
+        // All tokens
         token = token.replace("Bearer ", "");
-        // validate secret
-        // The jsonwebtoken library doesn't support promises yet.
+        // Validate secret
         jwt.verify(token, Config.ACCESS_TOKEN_SECRET, function (err, decoded) {
-            if (err) {
-                // return error if token isn't valid
-                return response.failure("Failed to authenticate token", 401);
-            } else {
-                // token is valid
-                // store token in browser for later usage
-                req.user = decoded;
-                // continue to controller that requires authorization
-                next();
-            }
+            // Return error if token isn't valid
+            if (err) return response.failure("Failed to authenticate token", 401);
+
+            // Token is valid - attach the user object to the request so it can be used later on.
+            req.user = decoded;
+
+            next();
+
         });
     } else {
         // no token - return an error
@@ -40,27 +45,24 @@ function roleCheck({
 
         const response = new AppResponse(res);
 
-        if (userSpecific) {
+        // Check that 
+        if (userSpecific && req.user.role == role) {
             // check if endpoint can only be accessed by specific user.
             let requestedId = req.params.userId || req.params.counsellorId || req.params.clientId;
             if (req.user._id == requestedId) {
-                next();
-                return;
+                return next();
+            } else {
+                return response.failure("Access Denied", 403)
             }
         }
 
         // if user is above minimum role, allow them access
         // even if the route is user-specific users with high level access can read them.
         if (req.user.role >= role) {
-            next();
-            return;
-        } else if (req.user.role < role) {
+            return next();
+        } else {
             return response.failure("Access Denied", 403);
         }
-
-
-        // deny access - user does not meet any of the above criteria
-        return response.failure("Access Denied", 403);
     };
 }
 

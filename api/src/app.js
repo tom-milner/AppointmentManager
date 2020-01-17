@@ -6,18 +6,6 @@
 // This is a flag used to determine whether or not the app is running in a production environment or not. THe NODE_ENV environment variable is set automatically by the server.
 const isProd = process.env.NODE_ENV == "production";
 
-// Setup PM2 monitoring server (only on prod server)
-if (isProd) {
-    const io = require("@pm2/io");
-    // This monitores app metrics, so that I can check the server status remotely.
-    io.init({
-        metrics: {
-            network: {
-                ports: true
-            }
-        }
-    });
-}
 
 // Import external libraries
 const express = require("express"); // The server framework used by the app.
@@ -33,14 +21,7 @@ const Config = require("./struct/Config");
 // ** SETUP APP MIDDLEWARE **
 // This includes error tracking & monitoring, application routes, and global middleware.
 
-// Connect to sentry error tracking.
-if (isProd) {
-    // This enables me to remotely check errors via the sentry dashboard.
-    Sentry.init({
-        dsn: Config.monitoring.SENTRY_API_DSN
-    });
-    app.use(Sentry.Handlers.requestHandler()); // NOTE: This request handler must be the first middleware on the app
-}
+
 // TODO: lock down cors
 // Automatic CORS-policy handling
 // This allows any origin to access the api routes.
@@ -58,8 +39,6 @@ app.use(bodyParser.json()); // Load the http request body using JSON.
 const routes = require("./routes");
 app.use(routes);
 
-// Attach sentry error handler.
-if (isProd) app.use(Sentry.Handlers.errorHandler());
 
 // Import internal packages.
 const GoogleAuth = require("./struct/googleauth/GoogleAuth"); // Used for authenticating with Google's API.

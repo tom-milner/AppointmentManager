@@ -5,10 +5,16 @@ const Utils = require("../utils/Utils");
 const Logger = require("..//struct/Logger");
 const ErrorCodes = require("../models/ErrorCodes");
 
-// create a new appointment type
+
+/**
+ * Create a new appointment type.
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ */
 async function createAppointmentType(req, res) {
     const response = new AppResponse(res);
     try {
+
         let name = req.body.name;
         let duration = req.body.duration;
         let description = req.body.description;
@@ -16,15 +22,13 @@ async function createAppointmentType(req, res) {
         let recurringDuration = req.body.recurringDuration;
 
         // create new appointment type
-        let newAppointmentType = new AppointmentTypeModel({
+        let createdAppointmentType = await AppointmentTypeModel.create({
             name: name,
             duration: duration,
             description: description,
             isRecurring: isRecurring,
             recurringDuration: recurringDuration
         });
-
-        let createdAppointmentType = await newAppointmentType.save();
 
         // appointment type created successfully - return it
         return response.success("Appointment type created successfully.", {
@@ -39,7 +43,12 @@ async function createAppointmentType(req, res) {
     }
 }
 
-// get all the different types of appointment
+
+/**
+ * Get all the appointment types. There is no limit for this as the number of appointment types will always be quite small.
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ */
 async function getAllAppointmentTypes(req, res) {
     const response = new AppResponse(res);
     try {
@@ -53,7 +62,12 @@ async function getAllAppointmentTypes(req, res) {
     }
 }
 
-// function called by counsellor to change appointment type details.
+
+/**
+ * This function is used to change an appointment type's details.
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ */
 async function updateAppointmentType(req, res) {
     let response = new AppResponse(res);
     try {
@@ -85,7 +99,11 @@ async function updateAppointmentType(req, res) {
         return response.failure(errorMessage, errorCode);
     }
 }
-
+/**
+ * Delete an appointment type.
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ */
 async function deleteAppointmentType(req, res) {
     const response = new AppResponse(res);
     let appointmentTypeId = req.params.appointmentTypeId;
@@ -100,6 +118,7 @@ async function deleteAppointmentType(req, res) {
     }
 }
 
+// Expose the functions.
 module.exports = {
     createAppointmentType,
     getAllAppointmentTypes,
