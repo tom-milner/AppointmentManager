@@ -131,7 +131,6 @@ export default {
         if (Utils.isString(error)) return (this.message = error);
         response = error.response;
       }
-
       this.message.content = response.data.message;
       this.message.success = response.data.success;
     }

@@ -21,7 +21,7 @@ const mutations = {
         if (accessToken) state.accessToken = accessToken;
         if (refreshToken) state.refreshToken = refreshToken;
         if (user) state.user = user;
-        state.status = "success";
+        state.status = "SUCCESS";
 
         // make tokens persistent.
         localStorage.setItem("accessToken", state.accessToken);
@@ -30,10 +30,10 @@ const mutations = {
 
     // changes the status to "loading" so any dependent services know to wait.
     auth_request(state) {
-        state.status = "loading";
+        state.status = "LOADING";
     },
     auth_error(state) {
-        state.status = "error";
+        state.status = "ERROR";
     },
 
     // resets token and user
@@ -49,6 +49,7 @@ const mutations = {
     },
 }
 
+// Getters are used for common operations so the state doesn't have to be directly requested.
 const getters = {
     isLoggedIn: state => !!(state.refreshToken || state.accessToken),
     authStatus: state => state.status,

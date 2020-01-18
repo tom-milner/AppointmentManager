@@ -4,15 +4,6 @@
 import moment from "moment";
 
 export default {
-    // convert rem value into pixels
-    convertRemToPixels(rem) {
-        return rem * parseFloat(getComputedStyle(document.documentElement).fontSize);
-    },
-
-    // convert pixel value into rem
-    convertPixelsToRem(pixels) {
-        return pixels / parseFloat(getComputedStyle(document.documentElement).fontSize);
-    },
 
     // function to check if object is empty
     objIsEmpty(obj) {
@@ -49,6 +40,7 @@ export default {
     },
 
     // This function creates a moment object on the same day as another, but with a different time.
+    // e.g. Turns '07:00' into a moment object of the same time on a specified day.
     getMomentFromTimeString(originalMoment, time) {
         let parts = time.split(":");
         let hours = parts[0];
@@ -72,12 +64,10 @@ export default {
         input.style.height = "1rem";
         input.style.width = "1rem";
 
-
         document.body.appendChild(input);
         input.focus();
         input.select();
         let success = document.execCommand("copy");
-        console.log(success)
         document.body.removeChild(input);
         return success;
     }

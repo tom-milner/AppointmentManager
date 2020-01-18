@@ -1,8 +1,8 @@
-import LoginPage from '@/components/pages/AuthPages/LoginPage/LoginPage.vue'
-import RegisterPage from "@/components/pages/AuthPages/RegisterPage/RegisterPage.vue"
-import ForgotPasswordPage from "@/components/pages/AuthPages/ForgotPasswordPage/ForgotPasswordPage";
-import ResetPasswordPage from "@/components/pages/AuthPages/ResetPasswordPage/ResetPasswordPage";
-import GuestPage from "@/components/pages/AuthPages/GuestPage/GuestPage"
+import LoginPage from '@/components/pages/AuthPages/LoginPage.vue'
+import RegisterPage from "@/components/pages/AuthPages/RegisterPage.vue"
+import ForgotPasswordPage from "@/components/pages/AuthPages/ForgotPasswordPage";
+import ResetPasswordPage from "@/components/pages/AuthPages/ResetPasswordPage";
+import GuestPage from "@/components/pages/AuthPages/GuestPage"
 
 
 export default [

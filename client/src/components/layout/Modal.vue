@@ -55,7 +55,7 @@ export default {
       }
 
       // Open the print window
-      const WinPrint = window.open(
+      const winPrint = window.open(
         "",
         "",
         "left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0"
@@ -71,17 +71,12 @@ export default {
   </body>
 </html>`;
 
-      WinPrint.document.write(printHTML);
+      winPrint.document.write(printHTML);
 
-      WinPrint.document.close();
-      WinPrint.focus();
-      WinPrint.print();
-      WinPrint.close();
-
-      // redisplay al buttons
-      // buttons.forEach(btn => {
-      //   btn.style.display = "block";
-      // });
+      winPrint.document.close();
+      winPrint.focus();
+      winPrint.print();
+      winPrint.close();
     }
   }
 };

@@ -1,19 +1,28 @@
 const Joi = require("joi");
 const AppResponse = require("../struct/AppResponse");
 
+/**
+ * 
+ * @param {{}} isGuest - Whether the user being updated is a guest or not. 
+ * @param {{}} isNew - Whether the user is new or not.
+ */
 function updateUser({
     isGuest,
     isNew
 }) {
-
+    // Return a function to use as a route handler.
     return function (req, res, next) {
         const response = new AppResponse(res);
+
+        // The minimum joi schema. This will be built upon.
         let joiSchema = {
             firstname: Joi.string().min(1).max(50),
             lastname: Joi.string().min(1).max(50),
             email: Joi.string().email(),
         }
+        // If the user isn't a guest, validate their username.
         if (!isGuest) {
+            // Only validate the password if the user is new (existing users can't update their password through this route);
             if (isNew) {
                 joiSchema.password = Joi.string().min(8).max(32);
             }
@@ -21,12 +30,14 @@ function updateUser({
         }
 
 
-        // if this is new user, make everything required.
+        // If this is new user, make every field in the joiSchema required.
         if (isNew) {
             for (let key of Object.keys(joiSchema)) {
                 joiSchema[key] = joiSchema[key].required();
             }
         }
+
+        // TODO: DESIGN - Got here.
 
         // Some parts of the web app use this middleware, but provide the data inside either counsellor or client objects. 
         let data = req.body;

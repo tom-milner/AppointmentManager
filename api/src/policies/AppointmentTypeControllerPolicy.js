@@ -2,9 +2,16 @@ const Utils = require("../utils/Utils");
 const AppResponse = require("../struct/AppResponse");
 const Joi = require("joi");
 
+/**
+ * Validate the appointment information.
+ * The function will perform checks depending on whether the appointment is new or not.
+ * @param {boolean} isNew - Whether the appointment is new or not. 
+ */
 function updateAppointmentType({
     isNew
 }) {
+
+    // Return a function to use a route handler.
     return function (req, res, next) {
         const response = new AppResponse(res);
         const joiSchema = {
@@ -62,6 +69,7 @@ function updateAppointmentType({
                     break;
                 case "recurringDuration":
                     errorCode = 400;
+                    // Build the error message depending on whether 'recurringDuration' is too little or too many.
                     errorMessage = `You cannot have ${
                         error.details[0].type == "number.min" ? "less than 2" : "more than 10"
                     } recurring appointments.`;
@@ -71,27 +79,28 @@ function updateAppointmentType({
                     errorMessage = "Error creating appointment type.";
                     break;
             }
-
             return response.failure(errorMessage, errorCode);
         }
 
-        // if the user is updating an existing appointment
+        // If the user is updating an existing appointment, perform some extra checks.
         if (!isNew) {
-            const newAppointmentTypeProperties = req.body.appointmentTypeProperties;
             const appointmentTypeId = req.params.appointmentTypeId;
 
             // validate id - we don't need to do a presence check, as the endpoint only exists with a appointment type id
             let validAppointmentType = Utils.validateMongoId(appointmentTypeId);
             if (!validAppointmentType) return response.failure("Invalid appointment type id", 400);
-
-            // check for new properties.
-            if (!newAppointmentTypeProperties) return response.failure("No properties specified.", 400);
         }
 
         next();
     };
 }
 
+/**
+ * Vaidate the supplied Id of an appointment to delete.
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ * @param {{}} next - The next function in the route handler chain.
+ */
 function deleteAppointmentType(req, res, next) {
     const response = new AppResponse(res);
     // check that the supplied ID is the right format.

@@ -82,11 +82,11 @@ async function setupTokenRefresher(config) {
 
     let accessToken = Store.state.authentication.accessToken;
 
-    // ignore requests to all authentication routes except "logout" - these are already getting new tokens.
+    // Ignore requests to all authentication routes except "logout" - these are already getting new tokens.
     // also only allow refresh if token exists, and if the token isn't currently being updated
     if ((config.url.includes("auth") && !config.url.includes("logout")) || !accessToken || Store.state
         .authentication
-        .status == "loading" || Store.state.authentication.status == "error") {
+        .status == "LOADING" || Store.state.authentication.status == "ERROR") {
         return config;
     }
 

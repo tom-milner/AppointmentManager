@@ -27,7 +27,7 @@ function isLoggedIn(req, res, next) {
             // Token is valid - attach the user object to the request so it can be used later on.
             req.user = decoded;
 
-            next();
+            return next();
 
         });
     } else {

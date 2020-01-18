@@ -6,6 +6,13 @@ const moment = require("moment");
 const AppResponse = require("../struct/AppResponse");
 const Logger = require("../struct/Logger");
 
+/**
+ * Verify the request body contents, including making sure the ids are in the valid format.
+ * This function also makes sure that a user can't edit an existing appointment.
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ * @param {{}} next - The next function in the route handler chain.
+ */
 function createAppointment(req, res, next) {
     const response = new AppResponse(res);
     // first check presence
@@ -31,7 +38,6 @@ function createAppointment(req, res, next) {
     let errorCode = 400;
 
     if (error) {
-        console.dir(error)
         switch (error.details[0].context.key) {
             case "startTime":
                 errorMessage = "Invalid start time";
@@ -92,7 +98,13 @@ function createAppointment(req, res, next) {
     next();
 }
 
-// checks if user has required access level to change property
+
+/**
+ * Check if user has required access level to change an appointment's details.
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ * @param {{}} next - The next function in the route handler chain.
+ */
 async function updateAppointment(req, res, next) {
     const response = new AppResponse(res);
 
@@ -102,16 +114,11 @@ async function updateAppointment(req, res, next) {
         return response.failure("Invalid appointment Id", 400);
     }
 
-    // validate body
     if (!req.body.appointmentProperties) {
         return response.failure("No properties found", 400);
     }
 
     let requestedAppointmentProperties = Object.keys(req.body.appointmentProperties);
-
-    // get list of all the properties of the model.
-    // AppointmentModel.schema is the original schema of the model. .paths is an object containing all tyhe properties of the schema.
-    let allAppointmentProperties = Object.keys(AppointmentModel.schema.paths);
 
     // allowedProperties is a whitelist of properties that can be edited
     let allowedProperties = [];
@@ -125,6 +132,9 @@ async function updateAppointment(req, res, next) {
         case Roles
         .COUNSELLOR: // If the users role if Counsellor the switch will cascade to admin, as they (currently) have the same update rights.
         case Roles.ADMIN:
+            // get list of all the properties of the model.
+            // AppointmentModel.schema is the original schema of the model. .paths is an object containing all type properties of the schema.
+            let allAppointmentProperties = Object.keys(AppointmentModel.schema.paths);
             // counsellors and admins can access everything
             allowedProperties = allowedProperties.concat(allAppointmentProperties);
             break;
@@ -136,15 +146,15 @@ async function updateAppointment(req, res, next) {
         // return true of property isn't found
         return allowedProperties.indexOf(property) == -1;
     });
-    // if user is requesting anything not in allowedProperties, reject the request
+    // if user is requesting anything not in allowed, reject the request
     if (disallowedProperties.length > 0) {
         return response.failure("You are not authorized to change those properties.", 400, {
             disallowedProperties: disallowedProperties
         });
     }
 
+    // Make sure the user isn't rescheduling the appointment to a past time.
     if (requestedAppointmentProperties.includes("startTime")) {
-        // new time must be in the past
         const now = moment();
         const startTime = moment(req.body.appointmentProperties.startTime);
         if (startTime.isBefore(now))
@@ -155,15 +165,23 @@ async function updateAppointment(req, res, next) {
     next();
 }
 
+/**
+ * Validate data being sent to the deleteAppointment controller.
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ * @param {{}} next - The next function in the route handler chain.
+ */
 function deleteAppointment(req, res, next) {
     const response = new AppResponse(res);
 
     let appointmentId = req.params.appointmentId;
     let deleteRecurring = req.body.deleteRecurring;
+    // deleteRecurring must be a boolean.
     if (deleteRecurring && typeof deleteRecurring !== "boolean") {
         return response.failure("deleteRecurring must be a boolean", 400);
     }
 
+    // Validate the Id.
     let validId = Utils.validateMongoId(appointmentId);
     if (!validId) {
         return response.failure("Invalid Id", 400);

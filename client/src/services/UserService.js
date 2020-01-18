@@ -129,12 +129,11 @@ function updateUser(userId, userInfo, isCounsellor) {
                 "username",
                 "Roles"
             ];
-
+            console.log(Store.state.authentication);
             // If userInfo contains any of the token keys. 
             if ((Object.keys(userInfo)).some((key) => tokenKeys.find((info) => key == info))) {
                 await AuthenticationService.refreshAccessToken();
             }
-
             resolve(response);
         } catch (error) {
             reject(error);

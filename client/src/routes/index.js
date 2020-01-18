@@ -3,10 +3,10 @@ import Router from 'vue-router'
 
 
 
-import LandingPage from '@/components/pages/LandingPage/LandingPage.vue'
+import LandingPage from '@/components/pages/LandingPage.vue'
 import HomePage from "@/components/pages/HomePage/HomePage.vue";
-import CreateAppointmentPage from "@/components/pages/CreateAppointmentPage/CreateAppointmentPage";
-import ProfilePage from "@/components/pages/ProfilePage/ProfilePage"
+import CreateAppointmentPage from "@/components/pages/CreateAppointmentPage";
+import ProfilePage from "@/components/pages/ProfilePage"
 import Roles from "@/models/Roles";
 
 // import other routes 

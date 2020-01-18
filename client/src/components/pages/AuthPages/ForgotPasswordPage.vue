@@ -11,7 +11,7 @@
           <div class="row">
             <p
               class="paragraph"
-            >Pressing the send button will send a password reset email to the above address. Follow the instructions in the email to reset you password.</p>
+            >Pressing the send button will send a password reset email to the above address. Follow the instructions in the email to reset your password.</p>
           </div>
           <div class="row" v-if="message">
             <h4 class="heading-4 error message" :class="{success: sentSuccessfully  }">{{message}}</h4>
@@ -61,13 +61,11 @@ export default {
         response = await AuthenticationService.forgotPassword(this.email);
         this.triesRemaining--;
         this.buttonContent = "Didn't get it? Send again.";
-        
       } catch (error) {
         response = error.response;
       }
       this.message = response.data.message;
       this.sentSuccessfully = response.data.success;
-
     }
   },
   mounted() {

@@ -1,6 +1,13 @@
 const AppResponse = require("../../struct/AppResponse");
 const Joi = require("joi");
 
+
+/**
+ * This function verifies that a request attempting to update a counsellor's details is valid.
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ * @param {{}} next - The next function in the route handler chain.
+ */
 function updateCounsellor(req, res, next) {
     const response = new AppResponse(res);
 
@@ -29,9 +36,10 @@ function updateCounsellor(req, res, next) {
 
 
 /**
- * Validate the input.
+ * This function verifies that a request attempting to send a 'new counsellor' email is valid.
  * @param {{}} req - The request details.
  * @param {{}} res - The response details.
+ * @param {{}} next - The next function in the route handler chain.
  */
 function sendNewCounsellorEmail(req, res, next) {
 
@@ -43,8 +51,7 @@ function sendNewCounsellorEmail(req, res, next) {
     }
 
     const {
-        error,
-        value
+        error
     } = Joi.validate(req.body, joiSchema);
     if (error) {
         let errorMessage = "";

@@ -1,6 +1,6 @@
-import WorkCalendarPage from '@/components/pages/CounsellorPages/WorkCalendarPage/WorkCalendarPage.vue'
+import WorkCalendarPage from '@/components/pages/CounsellorPages/WorkCalendarPage.vue'
 import ManageClientsPage from "@/components/pages/CounsellorPages/ManageClientsPage/ManageClientsPage";
-import AppointmentSettingsPage from "@/components/pages/CounsellorPages/AppointmentSettingsPage/AppointmentSettingsPage";
+import AppointmentSettingsPage from "@/components/pages/CounsellorPages/AppointmentSettingsPage";
 import UserDetailsPage from "@/components/pages/CounsellorPages/ManageClientsPage/UserDetails"
 import Roles from "@/models/Roles";
 // Counsellor Routes

@@ -3,6 +3,12 @@ const Utils = require("../../utils/Utils");
 const AppResponse = require("../../struct/AppResponse");
 
 
+/**
+ * This function verifies that a request attempting to fetch a list of users is valid.
+ * @param {{}} req - The request details.
+ * @param {{}} res - The response details.
+ * @param {{}} next - The next function in the route handler chain.
+ */
 function getReducedUsers(req, res, next) {
     const response = new AppResponse(res);
 

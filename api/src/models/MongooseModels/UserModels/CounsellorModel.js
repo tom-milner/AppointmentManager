@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const UserModel = require("./UserModel");
 
 // Counsellor Schema
+// These fields are specific to the counsellor user type.
 const counsellorSchema = new mongoose.Schema({
 
     appointmentBufferTime: {
@@ -31,9 +32,12 @@ const counsellorSchema = new mongoose.Schema({
     }
 });
 
+// Make sure the work day field never contains more than items.
 function workDayLimit(days) {
     return days.length <= 7;
 }
+
+// Make this model an extension of the user model.
 UserModel.discriminator("Counsellor", counsellorSchema);
 
 module.exports = mongoose.model("Counsellor", counsellorSchema);

@@ -1,7 +1,7 @@
 /*
     This file contains the different user access levels (roles).
-    The roles are exposed as constants.
-    
+    This file is required by file that needs to perform role-based functions.
+    This means that there is a single source of truth for the Role levels.
 */
 
 module.exports = {
