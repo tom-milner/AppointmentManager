@@ -325,7 +325,9 @@ export default {
       this.chosenCounsellor = this.specificCounsellor;
     } else {
       // get all counsellors
-      this.counsellors = (await UserService.getAllCounsellors()).data.counsellors;
+      this.counsellors = (
+        await UserService.getAllCounsellors()
+      ).data.counsellors;
     }
   }
 };

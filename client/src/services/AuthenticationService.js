@@ -89,6 +89,7 @@ async function setupTokenRefresher(config) {
         .status == "LOADING" || Store.state.authentication.status == "ERROR") {
         return config;
     }
+    console.log("checking token");
 
     // check how long token is valid for.
     let decodedPayload = Utils.getTokenPayload(accessToken);
@@ -101,7 +102,7 @@ async function setupTokenRefresher(config) {
         try {
             await refreshAccessToken();
         } catch (error) {
-            // If the token refresh fails, 
+            console.log(error);
         }
     }
 

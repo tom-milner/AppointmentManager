@@ -106,7 +106,6 @@ export default {
   },
   methods: {
     formatTime(time) {
-      console.log("raw: ", time);
       let formattedTime = this.moment(time);
       return formattedTime;
     },
@@ -129,7 +128,6 @@ export default {
       }
     },
     sortAvailableWorkDays() {
-      console.log("sorting");
       // sort available week days
       let days = this.workDays;
 

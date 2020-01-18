@@ -6,23 +6,24 @@ function getAllAppointments() {
 }
 
 // get appointments of a user.
-function getAppointmentsOfUser({ isCounsellor, userId, reduced, params }) {
+function getAppointmentsOfUser({
+    isCounsellor,
+    userId,
+    reduced,
+    params
+}) {
     // this is the base URL for the appointments endpoint
     let url = "/appointments";
 
     // if the user is requesting counsellor appointments, append '/counsellor' to the url to request counsellor appointments.
-    if (isCounsellor) {
-        url += "/counsellor";
+    if (isCounsellor) url += "/counsellor";
 
-        // use is requesting client (normal user) appointments
-    } else {
-        url += "/client";
-    }
+    // user is requesting client (normal user) appointments
+    else url += "/client";
 
     // if the user wants full appointments (more detail) append 'full'
-    if (!reduced) {
-        url += "/full";
-    }
+    if (!reduced) url += "/full";
+
 
     // append the userId to the url, to specify which user you want to get the appointments of.
     url += `/${userId}`;

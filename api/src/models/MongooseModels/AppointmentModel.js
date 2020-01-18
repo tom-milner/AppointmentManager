@@ -90,7 +90,7 @@ let appointmentSchema = new Schema({
 // /update/gi is regex for any update query including "update" (case-insenstitive)
 appointmentSchema.post(/update/gi, async function (appointment) {
     let updatedData = this._update;
-    let updatedFields = Object.keys(updatedData.$set);
+    let updatedFields = Object.keys(updatedData);
 
     // Get the clients and counsellor information.
     await appointment

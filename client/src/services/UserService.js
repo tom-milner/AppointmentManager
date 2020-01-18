@@ -123,17 +123,13 @@ function updateUser(userId, userInfo, isCounsellor) {
                 });
             }
             // If the change will affect the current access token, refresh it.
-            let tokenKeys = [
-                "firstname",
-                "lastname",
-                "username",
-                "Roles"
-            ];
-            console.log(Store.state.authentication);
-            // If userInfo contains any of the token keys. 
-            if ((Object.keys(userInfo)).some((key) => tokenKeys.find((info) => key == info))) {
-                await AuthenticationService.refreshAccessToken();
-            }
+            let tokenKeys = Object.keys(Store.state.authentication.user);
+            const updatedInfoKeys = Object.keys(userInfo);
+
+            // If tokenKeys contains any of the user info keys. 
+            const clashingKeys = tokenKeys.map(key => updatedInfoKeys.find(info => info == key));
+            if (clashingKeys.length > 0) await AuthenticationService.refreshAccessToken();
+
             resolve(response);
         } catch (error) {
             reject(error);
