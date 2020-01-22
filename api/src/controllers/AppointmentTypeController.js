@@ -92,6 +92,7 @@ async function updateAppointmentType(req, res) {
     } catch (error) {
         let errorMessage = error.message || "Error updating appointment type.";
         let errorCode = error.code || 400;
+
         if (errorCode == ErrorCodes.MONGO_DUPLICATE_KEY) {
             errorMessage = Utils.getDuplicateMongoEntryKey(errorMessage) + "Appointment Type name already exists.";
             errorCode = 200;

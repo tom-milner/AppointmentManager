@@ -23,7 +23,7 @@ class Mailer {
     // It connects to Gmail(using GoogleAuth) and creates a Nodemailer transport to send the emails with.
     async init(isProd) {
         let googleAuth = new GoogleAuth();
-
+        this.googleAuth = googleAuth;
         // Create the email authentication details to use to send emails.
         let auth = {
             type: "oauth2",
@@ -209,6 +209,9 @@ class Mailer {
             await this.transporter.sendMail(this.email);
         } catch (error) {
             Logger.error("Error sending email.", error);
+            // If the google tokens are invalid, new tokens need to be obtained.
+            if (error.code == 'EENVELOPE') this.googleAuth.reset();
+
         }
     }
 }

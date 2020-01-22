@@ -38,8 +38,5 @@ module.exports = {
     location: {
         IPSTACK_API_KEY: process.env.IPSTACK_API_KEY, // The API Key to use with the ipStack service
         IPSTACK_API: process.env.IPSTACK_API // The ipStack API URL.
-    },
-    monitoring: {
-        SENTRY_API_DSN: process.env.SENTRY_API_DSN // The unique identifier of the project in sentry.
     }
 }

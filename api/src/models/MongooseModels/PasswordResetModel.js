@@ -13,6 +13,7 @@ const passwordResetSchema = new mongoose.Schema({
     // The time to expire the password refresh.
     expires: {
         type: Date,
+        required: true
     },
 
     // The user that was sent the password refresh.

@@ -53,6 +53,12 @@ class GoogleAuth {
             REDIRECT_URI
         } = Config.googleAuth;
 
+        if (!(CLIENT_ID &&
+                CLIENT_SECRET &&
+                REDIRECT_URI)) {
+            throw (new Error("No google mail config found."))
+        }
+
 
         this.oauth2Client = new google.auth.OAuth2(
             CLIENT_ID,
@@ -62,6 +68,9 @@ class GoogleAuth {
 
         const tokenFileName = "googleTokens.json";
         let tokenFilePath = path.resolve(__dirname, tokenFileName);
+
+        // Save file path globally.
+        this.tokenFilePath = tokenFilePath;
         let tokens = {};
 
         try {
@@ -69,28 +78,23 @@ class GoogleAuth {
             let readFile = fs.readFileSync(tokenFilePath);
             tokens = JSON.parse(readFile);
         } catch (error) {
-            switch (error.code) {
-                default:
-                    Logger.error(`${tokenFileName} is corrupt or doesn't exist. Deleting...`)
-                    // the file must be corrupt - delete it.
-                    fs.unlinkSync(tokenFilePath);
-                    // no break here so that we create a new token file
-
-                case "ENOENT": // skip straight to creating the new file if it doesn't exist
-                    Logger.warn("No google tokens found.")
-
-                    // create new tokens
-                    tokens = await this.authenticate("http://mail.google.com");
-                    // save new tokens to file
-                    fs.writeFileSync(tokenFilePath, JSON.stringify(tokens));
-                    break;
-
+            // TODO: allow application to run without mailer.
+            if (error.code == 'ENOENT') {
+                Logger.warn("No google tokens found.")
+            } else {
+                Logger.error(`${tokenFileName} is corrupt or doesn't exist. Deleting...`)
+                // the file must be corrupt - delete it.
+                fs.unlinkSync(tokenFilePath);
             }
 
+            // create new tokens
+            tokens = await this.authenticate("http://mail.google.com");
+            // save new tokens to file
+            fs.writeFileSync(tokenFilePath, JSON.stringify(tokens));
 
         }
 
-        Logger.info("Google tokens found.")
+        Logger.info("Google tokens found.");
         this.oauth2Client.credentials = tokens;
     }
 
@@ -111,23 +115,26 @@ class GoogleAuth {
                 try {
                     if (req.url.indexOf("/oauth2") > -1) {
                         // get code from url
-                        const code = new url.URL(req.url, "http://localhost:3000").searchParams
+                        const code = new url.URL(req.url, "http://localhost:3000")
+                            .searchParams
                             .get("code");
                         Logger.info(`Received code.`);
-
-                        // send success message to webpage
-                        res.end("Authentication Successfull.")
-                        // destroy the temporary server.
-                        tempServer.destroy();
 
                         // generate new tokens.
                         const {
                             tokens
                         } = await this.oauth2Client.getToken(code);
 
+                        // send success message to webpage
+                        res.end("Authentication Successfull.")
+                        // destroy the temporary server.
+                        tempServer.destroy();
+
+
                         resolve(tokens);
                     }
                 } catch (error) {
+                    res.end("Error authenticating email.")
                     Logger.error("Error authenticating gmail account", error);
                     reject(error);
                 }
@@ -140,6 +147,13 @@ class GoogleAuth {
             // destroy server so that it won't interfere with the application server.
             destroyer(tempServer);
         });
+    }
+
+
+    reset() {
+        Logger.info("Resetting google tokens.")
+        // Remove the tokens and re-initialise the gmail agent.
+        fs.unlinkSync(this.tokenFilePath);
     }
 }
 

@@ -15,7 +15,7 @@ let appointmentSchema = new Schema({
         default: function () {
             // If no appointment title is specified, make the title of the appointment the name of the appointment type.
             return this.appointmentType.name;
-        }
+        },
     },
 
     // Save the appointment type directly in the schema so that if appointment types are updated, the appointment specific info will be left unchanged.

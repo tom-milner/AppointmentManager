@@ -147,13 +147,13 @@ async function createPasswordReset(user) {
     let now = new Date();
     // 2.628e+6 seconds: 1 month
     // 1800 seconds: 30 mins
-    const expireTime = new Date(now + ((user.role == Roles.GUEST ? 2.628e+6 : 1800) * 1000));
+    const expireTime = new Date(now.getTime() + ((user.role == Roles.GUEST ? 2.628e+6 : 1800) * 1000));
 
     // store hash and timestamp in the database.
     const passwordReset = await PasswordResetModel.create({
         hash: tokenHash,
         userId: user._id,
-        expireTime: expireTime
+        expires: expireTime
     });
 
     return {

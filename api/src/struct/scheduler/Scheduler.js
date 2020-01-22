@@ -28,7 +28,6 @@ class Scheduler {
         });
 
 
-
         // Every Week
         // 0 0 * * 0
         cron.schedule("0 0 * * 0", () => {

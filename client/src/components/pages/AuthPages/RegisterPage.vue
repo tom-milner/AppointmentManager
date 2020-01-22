@@ -22,7 +22,12 @@
           </div>
           <div class="login-field">
             <h4 class="form-heading">Password</h4>
-            <input class="form-input" v-model="password" type="password" />
+            <input
+              class="form-input"
+              v-on:input="checkConfirmPassword()"
+              v-model="password"
+              type="password"
+            />
           </div>
           <div class="login-field">
             <h4 class="form-heading">Confirm Password</h4>

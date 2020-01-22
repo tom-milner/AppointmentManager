@@ -241,7 +241,7 @@ async function updateAppointment(req, res) {
             const requestedStartTime = moment(newAppointmentProperties.startTime);
             if (requestedStartTime.isBetween(now, next24Hours))
                 return response.failure(
-                    "You cannot reschedule an appointment that was originally scheduled for the next day.",
+                    "You cannot reschedule an appointment for the next day.",
                     400
                 );
 

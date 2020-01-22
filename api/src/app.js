@@ -81,6 +81,5 @@ const database = new Database();
         });
     } catch (error) {
         Logger.error("Startup error.", error);
-        process.exit();
     }
 })();

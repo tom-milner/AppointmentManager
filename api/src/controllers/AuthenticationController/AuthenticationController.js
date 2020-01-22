@@ -193,13 +193,20 @@ async function login(req, res) {
 
     try {
         // Find matching users in database
-        const matchingUser = await UserModel.findOne({
-            username: req.body.username
+        // The user can login using either their username or email.
+        let matchingUser = await UserModel.findOne({
+            $or: [{
+                    username: req.body.username
+                },
+                {
+                    email: req.body.username
+                }
+            ]
         }).select("+password");
 
         if (!matchingUser) {
             // user doesn't exist - send error
-            return response.failure("Incorrect login information.", 401);
+            return response.failure("Invalid username or email", 401);
         }
 
         // Hash password and check against hash in database

@@ -16,7 +16,7 @@ function updateAppointmentType({
         const response = new AppResponse(res);
         const joiSchema = {
             name: Joi.string().max(20),
-            duration: Joi.number(),
+            duration: Joi.number().min(50).max(110),
             description: Joi.string()
                 .max(200)
                 .allow(""),
@@ -57,7 +57,12 @@ function updateAppointmentType({
                     break;
                 case "duration":
                     errorCode = 400;
-                    errorMessage = "Must include valid duration.";
+                    let errorDetails = error.details[0];
+                    errorMessage = "Duration must be "
+                    if (errorDetails.type == "number.min") errorMessage += `above ${errorDetails.context.limit}`
+                    else if (errorDetails.type == "number.max") errorMessage +=
+                        `below ${errorDetails.context.limit}`
+                    errorMessage += ' minutes.'
                     break;
                 case "description":
                     errorCode = 400;

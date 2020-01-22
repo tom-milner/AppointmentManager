@@ -20,7 +20,7 @@ function createAppointment(req, res, next) {
         startTime: Joi.date().required(),
         title: Joi.string()
             .allow("")
-            .max(200),
+            .max(50),
         typeId: Joi.string().required(),
         counsellorId: Joi.string().required(),
         clientNotes: Joi.string().allow(""),
@@ -42,8 +42,6 @@ function createAppointment(req, res, next) {
             case "startTime":
                 errorMessage = "Invalid start time";
                 break;
-                // case "title":
-
             case "typeId":
                 errorMessage = "Invalid appointment type Id";
                 break;
@@ -57,7 +55,10 @@ function createAppointment(req, res, next) {
                 errorMessage = "Invalid counsellor notes.";
                 break;
             case "clients":
-                errorMessage = "Invalid clients";
+                errorMessage = "Invalid clients.";
+                break;
+            case "title":
+                errorMessage = "Title must be less than 50 characters."
                 break;
             default:
                 errorMessage = "Error creating appointment";

@@ -15,7 +15,7 @@ let appointmentTypeSchema = new Schema({
     duration: {
         type: Number,
         required: true,
-        max: 120,
+        max: 110,
         min: 50
     },
 
