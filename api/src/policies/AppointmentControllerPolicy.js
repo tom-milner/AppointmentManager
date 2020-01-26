@@ -38,6 +38,7 @@ function createAppointment(req, res, next) {
     let errorCode = 400;
 
     if (error) {
+        console.log(error.details[0]);
         switch (error.details[0].context.key) {
             case "startTime":
                 errorMessage = "Invalid start time";

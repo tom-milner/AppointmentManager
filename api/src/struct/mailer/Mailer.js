@@ -6,7 +6,6 @@ const GoogleAuth = require("../googleauth/GoogleAuth");
 const Roles = require("../../models/Roles");
 const Logger = require("../Logger");
 
-// TODO: refactor to not use class.
 class Mailer {
     // create singleton
     constructor() {
@@ -19,8 +18,12 @@ class Mailer {
         return this;
     }
 
-    // This function initialises the Mailer.
-    // It connects to Gmail(using GoogleAuth) and creates a Nodemailer transport to send the emails with.
+
+    /**
+     * This function initialises the Mailer.
+     * It connects to Gmail(using GoogleAuth.js) and creates a Nodemailer transport to send the emails with.
+     * @param {{}} isProd - Whether the application is running in a production environment or not.
+     */
     async init(isProd) {
         let googleAuth = new GoogleAuth();
         this.googleAuth = googleAuth;
@@ -46,6 +49,11 @@ class Mailer {
 
     }
 
+    /**
+     * Create an email containing the week's appointments.
+     * @param {{}} user - The user to send the email to.
+     * @param {[]} appointments - The appointments to include in the email.
+     */
     weeksAppointments(user, appointments) {
         let email = this.email;
 
@@ -69,7 +77,7 @@ class Mailer {
             let startTime = moment(appointment.startTime).format("LT");
             let endTime = moment(appointment.endTime).format("LT");
             let date = moment(appointment.startTime).format("LL");
-
+            // Add the appointment to the email.
             email.html += `<li>
                       <h4>${appointment.title}: ${startTime} - ${endTime} </h4>
                       <p>Date: ${date}</p>
@@ -79,10 +87,15 @@ class Mailer {
                     </li>`;
         }
         this.email = email;
-
         return this;
     }
 
+    /**
+     * This creates an email for a new user welcoming them to the application.
+     * If the user is a guest it will also email them their password reset token that they can use to activate their account.
+     * @param {{}} user - The user to send the email to.
+     * @param {String} token - (Optional) The password reset token that the guest can use to activate their account.
+     */
     confirmNewUser(user, token) {
         let email = this.email;
         email.to = user.email;
@@ -92,6 +105,7 @@ class Mailer {
         email.html = `<p> Hi ${user.firstname}, </p> 
                       <p> Welcome to appointment manager. </p>`
 
+        //If the user is a guest include the reset token they can use to activate their account.
         if (user.role == Roles.GUEST) {
             email.html += `
                 <p> You should 've received an email containing your appointment info.</p>
@@ -103,11 +117,15 @@ class Mailer {
                 <a href = "${Config.CLIENT_URL}/home">Access Appointments</a>`;
         }
         this.email = email;
-
         return this;
     }
 
-    // Send
+    /**
+     * This function created am email for a new counsellor containing a link to create a new counsellor account. 
+     * @param {{}} referringCounsellor - The counsellor that authenticated the new counsellor.
+     * @param {String} toEmail - The recipient email address.
+     * @param {String} token - The counsellor registration token for the new counsellor to use.
+     */
     newCounsellorEmail(referringCounsellor, toEmail, token) {
         let email = this.email;
         email.to = toEmail;
@@ -120,11 +138,16 @@ class Mailer {
       <p > To create your new account, follow this link:</p> 
       <a href = "${Config.CLIENT_URL}/auth/register?token=${token}">Create Account</a>`;
         this.email = email;
-
         return this;
     }
 
-    // Create an email to the user that requested to change their password that contains a link that they can use to reset their password.
+
+    /**
+     * Create an email for user that requested to change their password that contains a link that they can use to reset their password.
+     * @param {{}} user - The user that requested the password reset.
+     * @param {String} token - The password reset token.
+     * @param {{}} requestIp - The IP address of the device that made the request.
+     */
     forgotPassword(user, token, requestIp) {
         let email = {};
         email.to = user.email;
@@ -140,7 +163,12 @@ class Mailer {
         return this;
     }
 
-    // Create an email to the user  confirming the new appointment booking.
+    /**
+     * Create an email for a counselor and any clients involved in an appointment.
+     * @param {[]} appointments - The appointments to include in the email.
+     * @param {[]} clients - The clients to send the email to.
+     * @param {{}} counsellor - The counsellor to send the email to.
+     */
     confirmAppointment(appointments, clients, counsellor) {
         let email = this.email;
 
@@ -156,14 +184,18 @@ class Mailer {
                   <ul>`;
 
         for (let appointment of appointments) {
+            // Format dates and times.
             let startTime = moment(appointment.startTime).format("LT");
             let endTime = moment(appointment.endTime).format("LT");
             let date = moment(appointment.startTime).format("LL");
+
+            // Add the appointment to the email.
             email.html += `<li>
                       <h4>${appointment.title}: ${startTime} - ${endTime} </h4>
                       <p>Date: ${date}</p>
                       <p>Counsellor: ${counsellor.firstname} ${counsellor.lastname}</p>
                       <p>Clients: ${clients.reduce((acc, client, index) =>
+                          
                           // This turns the array of clients into a single string containing each users firstname and lastname. Each client is seperated by commas.
                     (acc += `${client.firstname} ${client.lastname}${!index == clients.length - 1 ? ", " : ""}`),"")}</p>
                       <p>Appointment Type: ${appointment.appointmentType.name}</p>
@@ -172,22 +204,30 @@ class Mailer {
         }
 
         email.html +=
-            `<p>To edit your appointment details, follow <a href="${Config.CLIENT_URL}/auth/login" >This Link</a> </p>`;
+            `</ul>
+            <p>To edit your appointment details, follow <a href="${Config.CLIENT_URL}/auth/login" >This Link</a> </p>`;
 
         this.email = email;
         return this;
     }
 
-    // Alert the clients/counsellor that an appointment detail has been changed.
-    alertAppointmentChanged(appointment, data, users) {
-        let tos = users.map(user => user.email);
+
+    /**
+     * Alert the clients / counsellor that an appointment detail has been changed.
+     * @param {{}} title - The title of the appointment that's been changed.
+     * @param {{}} data - The changed appointment information.
+     * @param {[]} users - The users involved in the appointment.
+     */
+    alertAppointmentChanged(title, data, users) {
+        let recipients = users.map(user => user.email);
         let email = this.email;
-        email.to = tos;
+        email.to = recipients;
         email.subject = "Appointment Updated";
         email.html = `<p>Hi there,</p>
-                    <p>The following appointment (${appointment.title}) has been updated:</p>`;
+                    <p>The following appointment (${title}) has been updated:</p>`;
 
         let keys = Object.keys(data);
+        // Add each changed field to the appointment.
         for (const key of keys) {
             email.html += `<p>${key} : ${data[key]}</p>`;
         }
@@ -195,14 +235,15 @@ class Mailer {
         return this;
     }
 
-    // Function to send the built emails. 
+    /**
+     * Send the constructed emails.
+     */
     async send() {
         // Only send the email if the application is running in a production environment.
         if (!this.isProd) {
             console.log(this.email);
             return;
         }
-
         this.email.from = Config.mailer.EMAIL;
 
         try {

@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
+// These are the routes for operations to do with appointments.
+
 const AppointmentTypeRoutes = require("./AppointmentTypeRoutes");
 let AppointmentController = require("../../controllers/AppointmentController/AppointmentController");
 let AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
@@ -8,6 +10,9 @@ let AppointmentControllerPolicy = require("../../policies/AppointmentControllerP
 let Roles = require("../../models/Roles");
 
 // These routes are all under "/appointments"
+
+// Import Appointment Type Routes
+router.use("/type", AppointmentTypeRoutes);
 
 
 // Get all  reduced appointments of a counsellor.
@@ -18,11 +23,6 @@ router.get(
         isCounsellor: true
     })
 );
-
-
-// import Appointment Type Routes
-router.use("/type", AppointmentTypeRoutes);
-
 
 
 // Always require users to be logged in for the following routes - appointments contain personal information

@@ -3,6 +3,8 @@ const router = express.Router();
 const path = require("path");
 const fs = require("fs");
 
+// This file contains routes to deal with admin operations.
+
 const AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
 const Roles = require("../../models/Roles");
 

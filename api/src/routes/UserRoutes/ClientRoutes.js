@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-// import policies
-const ClientControllerPolicy = require("../../policies/UserPolicies/ClientControllerPolicy");
+// These routes are for any operations that concern clients.
 
+const ClientControllerPolicy = require("../../policies/UserPolicies/ClientControllerPolicy");
 const ClientController = require("../../controllers/UserControllers/ClientController");
 const AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
 const AuthenticationControllerPolicy = require("../../policies/AuthenticationControllerPolicy");

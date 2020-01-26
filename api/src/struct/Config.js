@@ -1,6 +1,8 @@
 const dotenv = require("dotenv"); // Required for loading custom environment variables.
 const path = require("path");
 
+// This file maps the environment variables to a javascript object, and sets any defaut variables if the environment variables can't be found.
+
 // Load in custom environment variables
 const envFilePath = path.join(__dirname, "../../.env")
 
@@ -13,7 +15,7 @@ const url = process.env.URL || "http://localhost"
 
 module.exports = {
 
-    PORT: port, // The port to tun on. NOTE: this is the internal port for NGINX to point to.
+    PORT: port, // The port to run on. NOTE: this is the internal port for NGINX to point to.
     URL: url, // The baseURL of the app.
     API_URL: process.env.URL ? `${url}/api` : `${url}:${port}`, // The URL of the API
     CLIENT_URL: process.env.URL ? `${url}` : `${url}:8080`, // The URL of the client

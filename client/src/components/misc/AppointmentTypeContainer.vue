@@ -1,8 +1,9 @@
 <template>
-  <div
+  <form
     @click="!isEditable ? toggleShowFullAppointmentType() : null"
     class="appointment-type-wrapper"
     :style="getBorder"
+    v-on:submit.prevent="saveAppointmentType"
   >
     <div class="row">
       <!-- If the user is not currently editing  -->
@@ -44,7 +45,7 @@
         </div>
 
         <!-- Save Button -->
-        <button @click="saveAppointmentType" v-if="isEditable" class="btn btn-primary">Save</button>
+        <button type="submit" v-if="isEditable" class="btn btn-primary">Save</button>
       </div>
       <!-- Error Message -->
       <div v-if="errorMessage.length > 0">
@@ -90,16 +91,13 @@
         </div>
       </div>
 
-      <!-- Delete appointment type -->
-      <button
-        @click="showDeleteDialogue = true"
-        class="btn btn-disapproved delete-button"
-        v-if="isEditable"
-      >Delete</button>
-
-      <div class="color-picker" v-if="isEditable">
-        <h4 class="form-heading dropdown-heading">Color:</h4>
-        <ColorPicker v-model="appointmentType.color" :colors="appointmentTypeColours"></ColorPicker>
+      <div v-if="isEditable" class="bottom-row">
+        <div>
+          <h4 class="form-heading dropdown-heading">Color:</h4>
+          <ColorPicker v-model="appointmentType.color" :colors="appointmentTypeColours"></ColorPicker>
+        </div>
+        <!-- Delete appointment type -->
+        <button @click="showDeleteDialogue = true" class="btn btn-disapproved delete-button">Delete</button>
       </div>
     </div>
 
@@ -117,7 +115,7 @@
         </div>
       </div>
     </Dialogue>
-  </div>
+  </form>
 </template>
 
 <script>
@@ -221,6 +219,11 @@ export default {
       // check name
       if (name.length > this.maxNameLength) {
         this.errorMessage = `Name must be below ${this.maxNameLength} characters.`;
+        return false;
+      }
+
+      if (name.length < 1) {
+        this.errorMessage = "Invalid appointment type name.";
         return false;
       }
 
@@ -393,11 +396,6 @@ textarea {
   height: 10rem !important;
 }
 
-.delete-button {
-  float: right;
-  margin-top: 2rem;
-}
-
 .dialogue-content {
   height: 100%;
   width: 30rem;
@@ -436,9 +434,7 @@ textarea {
 }
 
 .recurring {
-  vertical-align: center;
-  display: inline-block;
-
+  margin-top: 1.5rem;
   button {
     display: inline-block;
     margin-right: 2rem;
@@ -465,7 +461,14 @@ textarea {
   }
 }
 
-.color-picker {
+.bottom-row {
   margin-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+
+  .delete-button {
+    margin-bottom: 0.2rem;
+  }
 }
 </style>

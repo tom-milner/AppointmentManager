@@ -33,7 +33,7 @@
           v-model="counsellor.appointmentBufferTime"
           class="form-input"
           max="30"
-          min="0"
+          min="10"
         />
         <h4 class="heading-4">mins</h4>
         <button class="btn btn-primary">Save</button>
@@ -84,7 +84,8 @@ export default {
           name: "",
           description: "",
           duration: 0,
-          isRecurring: false
+          isRecurring: false,
+          color: ""
         });
     },
 

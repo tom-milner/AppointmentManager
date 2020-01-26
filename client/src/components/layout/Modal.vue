@@ -81,7 +81,6 @@ export default {
   }
 };
 </script>
-
 <style lang="scss" scoped>
 @import "../../scss/global.scss";
 
@@ -91,7 +90,7 @@ export default {
   margin-left: 2rem;
   left: 0;
   position: absolute;
-  z-index: 30000;
+  //   z-index: 998;
 }
 
 .icon-box {
@@ -134,14 +133,14 @@ export default {
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
-  z-index: 100;
+  z-index: 998;
   background-color: rgba($color-black, 0.1);
 
   &-content {
     background-color: $color-white;
     height: 95%;
     margin-right: 2rem;
-    z-index: 10000;
+    z-index: 998;
     position: relative;
     border-radius: 10px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);

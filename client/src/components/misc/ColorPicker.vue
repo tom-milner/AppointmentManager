@@ -1,12 +1,14 @@
 <template>
   <div class="wrapper">
-    <div
-      class="color-box"
-      @click="setColor(color)"
-      :style="getColorStyle(color)"
-      v-for="color in colors"
-      :key="color"
-    ></div>
+    <div class="inner">
+      <div
+        class="color-box"
+        @click="setColor(color)"
+        :style="getColorStyle(color)"
+        v-for="color in colors"
+        :key="color"
+      ></div>
+    </div>
   </div>
 </template>
 
@@ -48,6 +50,9 @@ export default {
 
 <style lang="scss" scoped>
 .wrapper {
+  display: inline-block;
+}
+.inner {
   min-width: 20rem;
   min-height: 4rem;
   display: flex;

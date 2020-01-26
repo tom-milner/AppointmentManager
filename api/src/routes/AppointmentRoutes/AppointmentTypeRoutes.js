@@ -7,11 +7,12 @@ const AppointmentTypeControllerPolicy = require("../../policies/AppointmentTypeC
 const Roles = require("../../models/Roles");
 
 // Appointment Type Routes
-// All these routes are under the endpoint "appointments/type/"
+// All these routes are under the endpoint "appointments/type/", and concern any operations to do with appointment types.
 
 // Get all appointment types
 router.get("/", AppointmentTypeController.getAllAppointmentTypes);
 
+// Users must be logged in for all these routes.
 router.use(AuthenticationMiddleware.isLoggedIn);
 
 // Create a new appointment type

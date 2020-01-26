@@ -357,6 +357,7 @@ export default {
 
     button {
       width: 100%;
+      margin-top: 0.25rem;
     }
   }
   .calendar-box {

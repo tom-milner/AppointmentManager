@@ -5,7 +5,8 @@ const AuthenticationController = require("../controllers/AuthenticationControlle
 const AuthenticationMiddleware = require("../middleware/AuthenticationMiddleware");
 const AuthenticationControllerPolicy = require("../policies/AuthenticationControllerPolicy");
 
-// these routes are all under "/auth"
+// Chese routes are all under "/auth", and are for any operations concerning authentication.
+// The register routes are in this file insted of the specific guest/client/counsellor files because they are all similar, and require similar middleware.
 
 // Creating new Clients
 router.post("/register/client", AuthenticationControllerPolicy.updateUser({

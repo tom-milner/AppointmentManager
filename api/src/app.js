@@ -10,7 +10,6 @@ const isProd = process.env.NODE_ENV == "production";
 // Import external libraries
 const express = require("express"); // The server framework used by the app.
 const app = express(); // creating a global express instance to use within the app.
-const Sentry = require("@sentry/node"); // Sentry error tracking/reporting.
 const cors = require("cors"); //  Used for cross-origin routing.
 const bodyParser = require("body-parser"); // Used for processing a http request body.
 

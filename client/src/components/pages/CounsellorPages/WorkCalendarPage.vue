@@ -46,6 +46,7 @@
         </div>
       </div>
     </div>
+    <h2 class="container not-working" v-else>You are not working this week!</h2>
 
     <!-- Save Button -->
     <div class="container save">
@@ -122,8 +123,8 @@ export default {
         let index = this.availableWorkDays.indexOf(dayFound);
         this.availableWorkDays.splice(index, 1);
       } else {
-        // add day
-        this.availableWorkDays.push(new WorkDay(currentDay));
+        // add day (Set times to default 9-5)
+        this.availableWorkDays.push(new WorkDay(currentDay, "09:00", "17:00"));
         this.sortAvailableWorkDays();
       }
     },
@@ -162,6 +163,10 @@ export default {
 
 .container {
   margin-top: 5rem;
+
+  .not-working {
+    margin-top: 2rem;
+  }
 
   .working-days-buttons {
     margin-top: 1rem;

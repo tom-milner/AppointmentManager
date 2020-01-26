@@ -8,7 +8,9 @@ const counsellorSchema = new mongoose.Schema({
 
     appointmentBufferTime: {
         type: Number,
-        default: 10
+        default: 10,
+        min: 10,
+        max: 30
     },
     workingDays: {
         type: [{

@@ -15,8 +15,6 @@ let appointmentTypeSchema = new Schema({
     duration: {
         type: Number,
         required: true,
-        max: 110,
-        min: 50
     },
 
     // Whether the appointment type is recurring or not.

@@ -120,7 +120,7 @@ appointmentSchema.post(/update/gi, async function (appointment) {
 
     // If any recipients are specified, send an email.
     if (recipients.length > 0) {
-        mailer.alertAppointmentChanged(appointment, updatedData, recipients).send();
+        mailer.alertAppointmentChanged(appointment.title, updatedData, recipients).send();
     };
 });
 

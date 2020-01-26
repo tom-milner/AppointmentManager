@@ -1,13 +1,15 @@
 const express = require("express");
 const router = express.Router();
 
+// These routes are for any operations that concern counsellors.
+
 const CounsellorController = require("../../controllers/UserControllers/CounsellorController");
 const AuthenticationMiddleware = require("../../middleware/AuthenticationMiddleware");
 const Roles = require("../../models/Roles");
 const CounsellorControllerPolicy = require("../../policies/UserPolicies/CounsellorControllerPolicy");
 const AuthenticationControllerPolicy = require("../../policies/AuthenticationControllerPolicy");
 
-// get list of counsellors
+// Get reduced information about all counsellors.
 router.get("/", CounsellorController.getAllCounsellorsReduced);
 
 // send an email to an existing user allowing them to upgrade their account status.
