@@ -1,9 +1,8 @@
 <template>
-  <form
+  <div
     @click="!isEditable ? toggleShowFullAppointmentType() : null"
     class="appointment-type-wrapper"
     :style="getBorder"
-    v-on:submit.prevent="saveAppointmentType"
   >
     <div class="row">
       <!-- If the user is not currently editing  -->
@@ -45,7 +44,7 @@
         </div>
 
         <!-- Save Button -->
-        <button type="submit" v-if="isEditable" class="btn btn-primary">Save</button>
+        <button v-if="isEditable" class="btn btn-primary" @click="saveAppointmentType">Save</button>
       </div>
       <!-- Error Message -->
       <div v-if="errorMessage.length > 0">
@@ -115,7 +114,7 @@
         </div>
       </div>
     </Dialogue>
-  </form>
+  </div>
 </template>
 
 <script>

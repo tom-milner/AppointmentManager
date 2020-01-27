@@ -54,9 +54,6 @@ async function registerCounsellor(req, res) {
         // Make sure the provided email is the same as the original email that the registration link was sent to.
         if (!(foundReg.email == email)) return response.failure("Invalid email for provided token.", 400);
 
-        // Delete counsellor registration as it has been used.
-        await CounsellorRegistrationModel.findByIdAndDelete(foundReg._id);
-
         // Hash the counsellor's password
         let passwordHash = await AuthenticationControllerHelpers.hashPassword(password);
 
@@ -70,6 +67,9 @@ async function registerCounsellor(req, res) {
         });
         savedCounsellor.password =
             undefined; // Delete the counsellor's password hash from the object so it can be used in the response.
+
+        // Delete counsellor registration as it has been used.
+        await CounsellorRegistrationModel.findByIdAndDelete(foundReg._id);
 
         // Return the newly created counsellor.
         return response.success("Counsellor created successfully.", {
