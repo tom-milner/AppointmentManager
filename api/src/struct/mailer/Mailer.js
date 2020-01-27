@@ -247,7 +247,8 @@ class Mailer {
         this.email.from = Config.mailer.EMAIL;
 
         try {
-            await this.transporter.sendMail(this.email);
+            let res = await this.transporter.sendMail(this.email);
+            Logger.info("Email sent.", res);
         } catch (error) {
             Logger.error("Error sending email.", error);
             // If the google tokens are invalid, new tokens need to be obtained.
