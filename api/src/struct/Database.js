@@ -28,7 +28,6 @@ class Database {
         return mongoose.connect(url, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            useCreateIndex: true,
             user: user.user,
             pass: user.pass
         }).then(function (result) {
