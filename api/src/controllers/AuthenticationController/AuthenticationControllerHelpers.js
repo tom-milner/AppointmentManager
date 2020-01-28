@@ -189,9 +189,15 @@ async function calculateGeoIpDistance(ip1, ip2) {
         loc2 = (await ipStack.get(ip2)).data;
     } catch (error) {
         return {
+            loc1,
+            loc2,
             error
         };
     }
+    Logger.info("Token refresh locations.", {
+        loc1,
+        loc2
+    })
 
 
     let lon1 = loc1.longitude;
