@@ -63,7 +63,7 @@ export default {
         );
         if (response.data.success) {
           // remove any current user credentials.
-          UserService.logoutUser({ fullyLogout: true });
+          UserService.logoutUser();
           // send user to login page
           this.$router.push("/auth/login");
         } else {

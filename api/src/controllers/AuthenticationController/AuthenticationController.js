@@ -261,7 +261,7 @@ async function refreshAccessToken(req, res) {
             select: "+password"
         });
         if (!foundSession) {
-            Logger.warn("Possible token fraud.", {
+            Logger.warn("Invalid refresh token.", {
                 req
             });
             return response.failure("Invalid refresh token", 401);
@@ -280,7 +280,7 @@ async function refreshAccessToken(req, res) {
 
         // invalidate request and refresh token if above credentials don't match - the token may have been stolen.
         if (!isValid) {
-            Logger.warn("Possible token fraud", {
+            Logger.warn("Invalid computed token.", {
                 req,
                 foundSession
             });
@@ -317,7 +317,7 @@ async function refreshAccessToken(req, res) {
             const oneHundredKilometers = 100000;
             if (distance > oneHundredKilometers) {
                 // 100km
-                Logger.warn("Possible token fraud", {
+                Logger.warn("User is using refresh token from wrong location.", {
                     requestIp,
                     foundSession,
                     distance

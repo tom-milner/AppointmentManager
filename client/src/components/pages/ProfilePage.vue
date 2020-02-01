@@ -172,7 +172,7 @@ export default {
       try {
         let response = await UserService.deleteUser(this.user._id);
         if (response.data.success) {
-          UserService.logoutUser({ fullyLogout: true });
+          UserService.logoutUser();
         }
       } catch (error) {
         console.log(error);

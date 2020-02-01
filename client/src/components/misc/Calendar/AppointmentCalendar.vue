@@ -42,9 +42,9 @@
     <ViewAppointment
       :appointment="selectedAppointment"
       :isCounsellor="$store.getters['authentication/isCounsellor']"
-      v-if="viewAppointmentModalDisplayed"
+      v-if="showAppointmentModal"
       v-on:close-modal="
-                viewAppointmentModalDisplayed = false;
+                showAppointmentModal = false;
                 updateEvents();
             "
     ></ViewAppointment>
@@ -57,24 +57,25 @@ import FullCalendar from "@fullcalendar/vue";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-// custom components
+
+// Custom Components
 import AddEvent from "./AddEvent.vue";
 import CalendarPopup from "./CalendarPopup";
 import ViewAppointment from "@/components/misc/ViewAppointment/ViewAppointment";
 
+// Import services.
 import AppointmentService from "@/services/AppointmentService";
 import Utils from "@/utils";
 
 export default {
   data() {
     return {
-      calendarPlugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-      showAddEventPopup: false,
-      showViewEventPopup: false,
-      screenToAvoid: {},
-      chosenDay: {},
-      businessHours: [],
-      viewAppointmentModalDisplayed: false,
+      calendarPlugins: [dayGridPlugin, timeGridPlugin, interactionPlugin], // The 3rd party plugins to use.
+      showAddEventPopup: false, // Whether to show the 'Add Event' popup or not.
+      screenToAvoid: {}, // The area of screen to avoid when displaying a popup.
+      chosenDay: {}, // The day chosen by the user for their appointment.
+      businessHours: [], // The working hours of the counsellor.
+      showAppointmentModal: false, // Whether to show the view appointment modal or not.
 
       // events to display in the calendar.
       events: {
@@ -84,12 +85,10 @@ export default {
     };
   },
   props: {
-    clientAppointments: Array,
+    clientAppointments: Array, // The client's appointments.
     counsellor: Object,
-    // whether the user can add events or not.
-    userCanAddEvents: Boolean,
-    allowViewEvents: Boolean,
-    mandAppointmentType: {}
+    userCanAddEvents: Boolean, // Whether the user can add events or not.
+    mandAppointmentType: {} // The mandatory appointment type (used if an appointment is being booked).
   },
 
   components: {
@@ -169,7 +168,7 @@ export default {
     // triggered when an event is clicked
     handleEventClick(event) {
       if (this.userCanAddEvents) return;
-      this.viewAppointmentModalDisplayed = true;
+      this.showAppointmentModal = true;
       this.selectedAppointment = this.clientAppointments.find(
         appointment => event.event.id == appointment._id
       );
@@ -197,11 +196,6 @@ export default {
     // show or hide the add event popup
     toggleAddEventPopup() {
       this.showAddEventPopup = !this.showAddEventPopup;
-    },
-
-    // show or hide the event popup
-    toggleViewEventPopup() {
-      this.showViewEventPopup = !this.showViewEventPopup;
     },
 
     // This function removes any duplicate events in the counsellor events array (where the counsellor will be counselling the current user)

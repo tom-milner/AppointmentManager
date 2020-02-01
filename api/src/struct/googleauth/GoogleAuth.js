@@ -123,6 +123,7 @@ class GoogleAuth {
         this.oauth2Client.credentials = tokens;
     }
 
+    // TODO: contain all this functionality in an express route so that the API can run without having to be connected to an email account.
 
     /**
      * This function authenticates the API with the google API. 

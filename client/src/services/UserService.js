@@ -62,16 +62,14 @@ function registerUser(newUser, role) {
 
 
 // Logout User
-async function logoutUser({
-    fullyLogout
-}) {
+async function logoutUser() {
     try {
         if (Store.getters["authentication/isLoggedIn"]) {
             // send request to logout user.
-            await Api.post("/auth/logout", fullyLogout);
+            await Api.post("/auth/logout");
         }
 
-        Store.commit("authentication/auth_logout", fullyLogout);
+        Store.commit("authentication/auth_logout");
         Router.push("/");
     } catch (err) {
         Store.commit("authentication/auth_error");

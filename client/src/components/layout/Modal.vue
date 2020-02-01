@@ -25,23 +25,28 @@ export default {
   mixins: [clickaway],
 
   props: {
+    //   Whether the user can print the modal or not.
     canPrint: Boolean
   },
 
   data() {
     return {
-      isFullscreen: false,
-      isPrintView: false
+      // Whether the modal is in fullscreen mode or not.
+      isFullscreen: false
     };
   },
 
   methods: {
+    // Call the parent to close the modal.
     close: function() {
       return this.$emit("close-modal");
     },
+    // Make the modal fulscreen or not fullscreen.
     toggleFullscreen() {
       this.isFullscreen = !this.isFullscreen;
     },
+
+    // Pring the modal by  opening an invisible window containing the modal contents and printing the new window
     printModal() {
       // Get HTML to print from element
       const prtHtml = document.getElementById("printContents").innerHTML;
@@ -70,10 +75,13 @@ export default {
     ${prtHtml}
   </body>
 </html>`;
-
+      // Write the modal html to the window.
       winPrint.document.write(printHTML);
 
+      // Instantly close the document so that the user doesn't see it.
       winPrint.document.close();
+
+      // Print and close the window.
       winPrint.focus();
       winPrint.print();
       winPrint.close();
