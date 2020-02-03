@@ -54,7 +54,7 @@ async function getCurrentCommit(req, res) {
 }
 
 function pullLatest(req, res) {
-  if (!req.method == "POST") res.end("Invalid method.");
+  if (req.method != "POST") res.end("Invalid method.");
 
   // get body
   let body;
@@ -87,10 +87,10 @@ function pullLatest(req, res) {
         console.log(response);
 
         response = await exec(`cd ${repo}/api; npm i --save; npm audit fix`);
-
+        console.log(response);
         // rebuild client
         response = await exec(`cd ${repo}/client; npm i --save; npm audit fix `);
-
+        console.log(response);
         response = await exec(`cd ${repo}/client; npm run build;`);
         console.log(response);
 

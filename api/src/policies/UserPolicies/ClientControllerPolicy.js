@@ -2,7 +2,6 @@ const AppResponse = require("../../struct/AppResponse");
 const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
 const Utils = require("../../utils/Utils");
 const Roles = require("../../models/Roles");
-const Logger = require("../../struct/Logger");
 
 /**
  * This function verifies that a user trying to update a client is allowed to.

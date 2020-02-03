@@ -45,7 +45,7 @@ async function registerCounsellor(req, res) {
     if (!foundReg) return response.failure("Invalid token.", 400);
 
     // Make sure the provided email is the same as the original email that the registration link was sent to.
-    if (!(foundReg.email == email)) return response.failure("Invalid email for provided token.", 400);
+    if (foundReg.email != email) return response.failure("Invalid email for provided token.", 400);
 
     // Hash the counsellor's password
     let passwordHash = await AuthenticationControllerHelpers.hashPassword(password);

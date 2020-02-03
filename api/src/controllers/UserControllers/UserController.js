@@ -11,7 +11,7 @@ async function getReducedUsers(req, res) {
   try {
     let userIds = req.query.userIds.split(",").filter(Boolean);
     let users = [];
-    for (id of userIds) {
+    for (let id of userIds) {
       let user = await UserModel.findOne(
         {
           _id: id

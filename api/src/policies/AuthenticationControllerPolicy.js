@@ -55,15 +55,15 @@ function updateUser({ isGuest, isNew }) {
     });
 
     // If the error is more specific these will be overwritten.
-    let errorMessage = "Error registering user.";
-    let errorCode = 500;
+    let errorMessage = "";
+    let errorCode = 400;
 
     if (error) {
       switch (error.details[0].context.key) {
         case "password":
           errorMessage =
             "Password must be at least 8 characters in length and not greater than 32 characters in length.";
-          errorCode = 400;
+
           break;
         case "firstname":
         case "lastname":
@@ -74,11 +74,10 @@ function updateUser({ isGuest, isNew }) {
           } else {
             errorMessage = `Invalid ${errorDetails.path[0]}.`;
           }
-          errorCode = 400;
+
           break;
         default:
           errorMessage = `Invalid ${error.details[0].context.key}`;
-          errorCode = 400;
       }
       // return an error
       return response.failure(errorMessage, errorCode);
@@ -160,7 +159,6 @@ function resetPassword(req, res, next) {
         errorCode = 400;
     }
     return response.failure(errorMessage, errorCode);
-    return;
   }
   next();
 }

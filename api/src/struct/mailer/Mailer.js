@@ -124,17 +124,16 @@ class Mailer {
    * @param {String} token - The counsellor registration token for the new counsellor to use.
    */
   newCounsellorEmail(referringCounsellor, toEmail, token) {
-    let email = this.email;
-    email.to = toEmail;
+    this.email.to = toEmail;
 
-    email.subject = "Create a Counsellor Account.";
+    this.email.subject = "Create a Counsellor Account.";
 
-    email.html = ` <p> Hi there, </p> 
+    this.email.html = ` <p> Hi there, </p> 
       <p> Welcome to appointment manager. </p>
       <p> ${referringCounsellor.firstname} ${referringCounsellor.lastname} has given you authentication to create a counsellor's account.</p>
       <p > To create your new account, follow this link:</p> 
       <a href = "${Config.CLIENT_URL}/auth/register?token=${token}">Create Account</a>`;
-    this.email = email;
+
     return this;
   }
 
@@ -193,7 +192,7 @@ class Mailer {
                       <p>Clients: ${clients.reduce(
                         (acc, client, index) =>
                           // This turns the array of clients into a single string containing each users firstname and lastname. Each client is seperated by commas.
-                          (acc += `${client.firstname} ${client.lastname}${!index == clients.length - 1 ? ", " : ""}`),
+                          (acc += `${client.firstname} ${client.lastname}${index != clients.length - 1 ? ", " : ""}`),
                         ""
                       )}</p>
                       <p>Appointment Type: ${appointment.appointmentType.name}</p>

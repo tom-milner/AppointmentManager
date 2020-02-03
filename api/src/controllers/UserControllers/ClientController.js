@@ -1,6 +1,5 @@
 const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
 const AppResponse = require("../../struct/AppResponse");
-const Logger = require("../../struct/Logger");
 const Utils = require("../../utils/Utils");
 const ErrorCodes = require("../../models/ErrorCodes");
 const Roles = require("../../models/Roles");
