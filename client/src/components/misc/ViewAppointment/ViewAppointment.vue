@@ -171,7 +171,7 @@ export default {
     getFormattedClients() {
       return this.clients.reduce(
         (acc, client, index) =>
-          (acc += `${client.firstname} ${client.lastname}${!index == this.clients.length - 1 ? ", " : ""}`),
+          (acc += `${client.firstname} ${client.lastname}${index != this.clients.length - 1 ? ", " : ""}`),
         ""
       );
     }

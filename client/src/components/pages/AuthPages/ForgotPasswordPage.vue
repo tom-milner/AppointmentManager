@@ -39,7 +39,8 @@ export default {
       message: "", // The error/success message.
       sentSuccessfully: false, // Whether the email was sent successfully or not.
       buttonContent: "Send Email", // The message inside the 'send' button.
-      triesRemaining: 3 // The amount of tries the user has for sending the email.
+      triesRemaining: 3, // The amount of tries the user has for sending the email.
+      timer: {} // The timer for resetiting the number of tries for sending an email.
     };
   },
   methods: {
@@ -56,7 +57,7 @@ export default {
         return;
       }
 
-      // Ssend the request.
+      // Send the request.
       let response;
       try {
         // Send the request.
@@ -70,9 +71,13 @@ export default {
       this.sentSuccessfully = response.data.success;
     }
   },
+  beforeDestroy() {
+    // Destroy the timer.
+    clearInterval(this.timer);
+  },
   mounted() {
     // Reset amount of password tries every minute
-    setInterval(function() {
+    this.timer = setInterval(function() {
       this.triesRemaining = 3;
     }, 60000);
   }
