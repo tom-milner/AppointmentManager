@@ -1,15 +1,11 @@
 #!/usr/bin/env node
 
-// TOOD: use .env
-
 const http = require("http");
 const crypto = require("crypto");
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const path = require("path");
-const fs = require("fs");
 const dotenv = require("dotenv"); // Required for loading custom environment variables.
-const port = 3360;
 
 // Load in custom environment variables
 const envFilePath = path.join(__dirname, "./.env");
@@ -17,7 +13,7 @@ const envFilePath = path.join(__dirname, "./.env");
 dotenv.config({
   path: envFilePath
 });
-
+const port = process.env.PORT;
 const secret = process.env.SECRET;
 const repo = process.env.REPO;
 const token = process.env.REPO_TOKEN;

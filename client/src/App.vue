@@ -45,6 +45,7 @@ export default {
     Navigation
   },
   computed: {
+    // Style the page differently if there is no navbar.
     getNoNavbarStyle() {
       if (this.$route.meta.hideNavigation) {
         return { "border-radius": "0", margin: "0" };
@@ -54,11 +55,12 @@ export default {
     }
   },
   created() {
+    // Hide the navigagtion bar if required.
     this.hideNavigation = this.$route.meta.hideNavigation;
   },
   data() {
     return {
-      hideNavigation: false
+      hideNavigation: false // Whether to hide the navigation bar or not.
     };
   }
 };

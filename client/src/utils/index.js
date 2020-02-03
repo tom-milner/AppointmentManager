@@ -1,6 +1,5 @@
-// utility functions
+// Utility functions
 
-// import libs
 import moment from "moment";
 
 export default {
@@ -19,23 +18,9 @@ export default {
     return JSON.parse(decoded);
   },
 
+  // Return the number of a given day in the week.
   getNumberOfDayInWeek(dayName) {
-    switch (dayName) {
-      case "Monday":
-        return 1;
-      case "Tuesday":
-        return 2;
-      case "Wednesday":
-        return 3;
-      case "Thursday":
-        return 4;
-      case "Friday":
-        return 5;
-      case "Saturday":
-        return 6;
-      case "Sunday":
-        return 0;
-    }
+    return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].indexOf(dayName);
   },
 
   // This function creates a moment object on the same day as another, but with a different time.
@@ -49,22 +34,26 @@ export default {
     return newMoment.hours(hours).minutes(minutes);
   },
 
+  // Check if a value is a string.
   isString(value) {
     return Object.prototype.toString.call(value) == "[object String]";
   },
 
-  // copy a string to the clipboard
+  // Copy a string to the clipboard
   copyToClipboard(value, document) {
     const input = document.createElement("input");
     input.value = value;
-    // just in case
+
+    // Set the input to be invisible.
     input.style.opacity = 0;
     input.style.height = "1rem";
     input.style.width = "1rem";
 
+    //  Add the text to the page.
     document.body.appendChild(input);
     input.focus();
     input.select();
+    // Copy the text.
     let success = document.execCommand("copy");
     document.body.removeChild(input);
     return success;

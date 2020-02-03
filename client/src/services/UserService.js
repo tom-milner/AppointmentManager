@@ -14,11 +14,12 @@ function getUsersFromIds(userIds) {
   });
 }
 
-// delete user
+// Delete user
 function deleteUser(userId) {
   return Api.post(`/user/delete/${userId}`);
 }
 
+// Request the API to send a new counsellor email.
 function sendNewCounsellorEmail(toEmail, password) {
   return Api.post("/user/counsellors/send-email", {
     email: toEmail,
@@ -26,15 +27,18 @@ function sendNewCounsellorEmail(toEmail, password) {
   });
 }
 
-// get list of all counsellors
+// Get list of all counsellors
 function getAllCounsellors() {
   return Api.get("/user/counsellors");
 }
 
+// Update an existing user.
 function updateUser(userId, userInfo, isCounsellor) {
   return new Promise(async (resolve, reject) => {
     try {
       let response;
+
+      // Request either the counsellor or client endpoint depending on the user's role.
       if (isCounsellor) {
         response = await Api.post(`/user/counsellors/${userId}`, {
           counsellorInfo: userInfo
@@ -65,18 +69,22 @@ function updateUser(userId, userInfo, isCounsellor) {
   });
 }
 
+// Get a counsellor's full information.
 function getCounsellor(counsellorId) {
   return Api.get(`/user/counsellors/full/${counsellorId}`);
 }
 
+// Get a counsellor's reduced information.
 function getReducedCounsellor(counsellorId) {
   return Api.get(`/user/counsellors/${counsellorId}`);
 }
 
+// Get all the clients on the system.
 function getAllClients() {
   return Api.get("/user/clients");
 }
 
+// Get full info about a client.
 function getClient(clientId) {
   return Api.get(`/user/clients/full/${clientId}`);
 }

@@ -10,6 +10,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   modules: {
+    // Import the authentication store module.
     authentication
   }
 });

@@ -18,7 +18,7 @@ const mutations = {
     if (user) state.user = user;
     state.status = "SUCCESS";
 
-    // make tokens persistent.
+    // make tokens persistent (store them in the browser).
     localStorage.setItem("accessToken", state.accessToken);
     localStorage.setItem("refreshToken", state.refreshToken);
   },
@@ -31,7 +31,7 @@ const mutations = {
     state.status = "ERROR";
   },
 
-  // resets token and user
+  // Reset tokens and user
   auth_logout(state, removeRefreshToken) {
     state.status = "";
     state.accessToken = "";

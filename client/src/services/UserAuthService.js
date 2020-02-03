@@ -2,6 +2,10 @@ import Api from "./Api";
 import Store from "../store/store";
 import Roles from "../models/Roles";
 import Router from "../routes/index";
+
+// This file handles any authentication to do with specifically user authentication.
+// The content of this file was originally a part of AuthenticationService.js, but was moved into this file to avoid circular dependencies.
+
 // Login user
 function loginUser(username, password) {
   // Send post request to login route
@@ -62,7 +66,6 @@ async function logoutUser() {
       // send request to logout user.
       await Api.post("/auth/logout");
     }
-
     Store.commit("authentication/auth_logout");
     Router.push("/");
   } catch (err) {

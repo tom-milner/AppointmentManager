@@ -5,14 +5,16 @@ import Utils from "@/utils";
 import Roles from "../models/Roles";
 import UserService from "./UserService";
 
-// Service for interacting with authentication
+// Service for interacting with authentication.
 
+// Send a request to the forgot password route.
 function forgotPassword(email) {
   return Api.post("/auth/forgot-password", {
     email: email
   });
 }
 
+// Send a request to the reset password route.
 function resetPassword(password, token) {
   return Api.post("/auth/reset-password", {
     token: token,
@@ -140,13 +142,15 @@ async function setupAccessDeniedResponseInterceptor(err) {
   return Promise.reject(err);
 }
 
+// Request a new access token from the API.
 function refreshAccessToken() {
-  // let other services know token is changing
   return new Promise(async (resolve, reject) => {
     console.log("Refreshing access token...");
     try {
+      // let other services know token is changing
       Store.commit("authentication/auth_request");
 
+      // Fetch a new access token from the API, using teh refresh token.
       const refreshToken = Store.state.authentication.refreshToken;
       let response = await Api.get("/auth/token", {
         params: {
@@ -155,6 +159,7 @@ function refreshAccessToken() {
       });
 
       const accessToken = response.data.accessToken;
+      // Store the new access token.
       Store.commit("authentication/auth_success", {
         accessToken
       });
@@ -162,7 +167,6 @@ function refreshAccessToken() {
       resolve(accessToken);
     } catch (error) {
       // If there is an error refreshing a token, flush the tokens (As the refresh token is likely invalid).
-      console.log(error);
       Store.commit("authentication/auth_logout", true);
       reject(error);
     }
