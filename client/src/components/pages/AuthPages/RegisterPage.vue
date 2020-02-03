@@ -38,7 +38,7 @@
 
 <script>
 import Card from "@/components/layout/Card";
-import AuthenticationService from "@/services/AuthenticationService";
+import UserAuthService from "@/services/UserAuthService";
 import Roles from "@/models/Roles";
 export default {
   components: {
@@ -83,9 +83,9 @@ export default {
         // If the user has been sent here by an email telling them to register a counsellor, there will be a registration token as part of the url.
         // This is required to register a new counsellor.
         if (newUser.counsellorToken) {
-          await AuthenticationService.registerUser(newUser, Roles.COUNSELLOR);
+          await UserAuthService.registerUser(newUser, Roles.COUNSELLOR);
         } else {
-          await AuthenticationService.registerUser(newUser, Roles.CLIENT);
+          await UserAuthService.registerUser(newUser, Roles.CLIENT);
         }
 
         // redirect user to the login page, so they can aquire tokens for their new account.

@@ -52,7 +52,7 @@
 </template>
 <script>
 import UserService from "@/services/UserService";
-import AuthenticationService from "@/services/AuthenticationService";
+import UserAuthService from "@/services/UserAuthService";
 
 import Card from "@/components/layout/Card";
 import BookAppointmentForm from "@/components/misc/BookAppointmentForm";
@@ -110,7 +110,7 @@ export default {
       };
 
       try {
-        let response = await AuthenticationService.registerUser(guest, Roles.GUEST);
+        let response = await UserAuthService.registerUser(guest, Roles.GUEST);
         let { user, accessToken } = response.data;
 
         // Log the guest in.

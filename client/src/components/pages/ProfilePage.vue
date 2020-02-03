@@ -95,6 +95,7 @@
 import Utils from "@/utils";
 import UserService from "@/services/UserService";
 import AuthenticationService from "@/services/AuthenticationService";
+import UserAuthService from "@/services/UserAuthService";
 import Dialogue from "@/components/layout/DialogueBox";
 
 export default {
@@ -171,7 +172,7 @@ export default {
     async deleteUser() {
       try {
         await UserService.deleteUser(this.user._id);
-        AuthenticationService.logoutUser(); // This will automatically redirect the user.
+        UserAuthService.logoutUser(); // This will automatically redirect the user.
       } catch (error) {
         this.messages.delete.content = error.response.data.message;
         this.messages.delete.success = false;

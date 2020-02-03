@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import AuthenticationService from "@/services/AuthenticationService";
+import UserAuthService from "@/services/UserAuthService";
 
 export default {
   data() {
@@ -66,7 +66,7 @@ export default {
   methods: {
     // Logout the user.
     logout: async function() {
-      AuthenticationService.logoutUser();
+      UserAuthService.logoutUser();
     }
   },
 

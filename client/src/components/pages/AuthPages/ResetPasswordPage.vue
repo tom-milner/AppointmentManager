@@ -27,6 +27,9 @@
 <script>
 import Card from "@/components/layout/Card";
 import AuthenticationService from "@/services/AuthenticationService";
+
+import UserAuthService from "@/services/UserAuthService";
+
 import Utils from "@/utils";
 
 export default {
@@ -56,7 +59,7 @@ export default {
         let response = await AuthenticationService.resetPassword(this.password, this.token);
         if (response.data.success) {
           // remove any current user credentials.
-          AuthenticationService.logoutUser();
+          UserAuthService.logoutUser();
           // send user to login page
           this.$router.push("/auth/login");
         } else {

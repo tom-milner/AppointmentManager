@@ -1,9 +1,6 @@
 import axios from "axios";
 
-import UserService from "./UserService";
-console.log(UserService);
-
-import AuthenticationService from "/Users/tommilner/Projects/AppointmentManager/client/src/services/AuthenticationService.js";
+import AuthenticationService from "@/services/AuthenticationService";
 
 // The axios instance to use for all requests.
 const axiosInstance = axios.create({

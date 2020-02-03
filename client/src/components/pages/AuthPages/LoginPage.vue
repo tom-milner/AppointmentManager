@@ -28,7 +28,7 @@
 
 <script>
 import Card from "@/components/layout/Card";
-import AuthenticationService from "@/services/AuthenticationService";
+import UserAuthService from "@/services/UserAuthService";
 export default {
   components: {
     Card
@@ -46,7 +46,7 @@ export default {
       const username = this.username;
       const password = this.password;
       try {
-        await AuthenticationService.loginUser(username, password);
+        await UserAuthService.loginUser(username, password);
         this.$router.push("/home"); // Redirect the user to the home page on successful login.
       } catch (err) {
         this.errorMessage = err.response.data.message;
