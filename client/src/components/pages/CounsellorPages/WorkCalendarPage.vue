@@ -12,7 +12,9 @@
           :key="day"
           class="btn btn-approved"
           v-bind:class="{ checked: isDayAvailable(day) }"
-        >{{ day }}</button>
+        >
+          {{ day }}
+        </button>
       </div>
     </div>
 
@@ -51,43 +53,37 @@
     <!-- Save Button -->
     <div class="container save">
       <button @click="saveSettings" class="btn btn-primary save-button">Save</button>
-      <h4
-        class="heading-4 error message"
-        :class="{ success: message.success }"
-      >{{ message.contents }}</h4>
+      <h4 class="heading-4 error message" :class="{ success: message.success }">{{ message.contents }}</h4>
     </div>
   </div>
 </template>
 
 <script>
 import UserService from "@/services/UserService";
-import WorkDay from "@/models/WorkDay";
+
+// WorkDay model for easy manipulation of work days.
+function WorkDay(name, startTime, endTime) {
+  this.name = name;
+  this.startTime = startTime;
+  this.endTime = endTime;
+}
 
 export default {
   data() {
     return {
-      counsellor: {},
-      appointments: [],
+      counsellor: {}, // The current counsellor.
       message: {
+        // The success/error message.
         success: false,
         contents: ""
       },
-      workDays: [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday"
-      ],
-      availableWorkDays: []
+      workDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      availableWorkDays: [] // The days the counsellor can work
     };
   },
   async mounted() {
-    let counsellorId = this.$store.state.authentication.user._id;
-    let result = await UserService.getCounsellor(counsellorId);
-    this.counsellor = result.data.counsellor;
+    // Get the counsellor.
+    this.counsellor = this.$store.state.authentication.user;
     this.availableWorkDays = this.counsellor.workingDays;
   },
   watch: {
@@ -96,9 +92,10 @@ export default {
       deep: true,
       handler(val) {
         if (val.contents != "")
+          // Only if the message contains text. (So that this won't trigger an infinite loop).
           setTimeout(
             function() {
-              this.message.contents = "";
+              this.setMessage("");
             }.bind(this),
             5000
           );
@@ -106,11 +103,15 @@ export default {
     }
   },
   methods: {
-    formatTime(time) {
-      let formattedTime = this.moment(time);
-      return formattedTime;
+    // Set the error/success message
+    setMessage(message, success) {
+      this.message.contents = message;
+      this.message.success = success;
     },
+
+    // Check that the supplied day is available.
     isDayAvailable(chosenDay) {
+      // Find the day in the available work days.
       return this.availableWorkDays.find(day => day.name == chosenDay);
     },
 
@@ -131,12 +132,10 @@ export default {
     sortAvailableWorkDays() {
       // sort available week days
       let days = this.workDays;
-
-      return this.availableWorkDays.sort(
-        (a, b) => days.indexOf(a.name) - days.indexOf(b.name)
-      );
+      return this.availableWorkDays.sort((a, b) => days.indexOf(a.name) - days.indexOf(b.name));
     },
 
+    // Save the counsellor settings.
     async saveSettings() {
       let response;
       try {
@@ -145,14 +144,12 @@ export default {
           {
             workingDays: this.availableWorkDays
           },
-          true
+          true // The user is a counsellor.
         );
       } catch (error) {
         response = error.response;
       }
-
-      this.message.success = response.data.success;
-      this.message.contents = response.data.message;
+      this.setMessage(response.data.message, response.data.success);
     }
   }
 };

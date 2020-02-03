@@ -20,11 +20,15 @@ router.use("/counsellors", CounsellorRoutes);
 router.get("/", UserControllerPolicy.getReducedUsers, UserController.getReducedUsers);
 
 // delete a user
-router.post("/delete/:userId", AuthenticationMiddleware.isLoggedIn, AuthenticationMiddleware.roleCheck({
+router.post(
+  "/delete/:userId",
+  AuthenticationMiddleware.isLoggedIn,
+  AuthenticationMiddleware.roleCheck({
     userSpecific: true,
     role: Roles.CLIENT
-}), UserController.deleteUser)
-
+  }),
+  UserController.deleteUser
+);
 
 // export the router.
 module.exports = router;

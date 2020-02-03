@@ -1,14 +1,17 @@
 import axios from "axios";
-import AuthenticationService from "@/services/AuthenticationService";
 
+import UserService from "./UserService";
+console.log(UserService);
 
+import AuthenticationService from "/Users/tommilner/Projects/AppointmentManager/client/src/services/AuthenticationService.js";
+
+// The axios instance to use for all requests.
 const axiosInstance = axios.create({
-    baseURL: process.env.VUE_APP_API_URL || `http://${window.document.location.hostname}:8081`,
-    timeout: 30 * 1000 // 30s timeout
+  baseURL: process.env.VUE_APP_API_URL || `http://${window.document.location.hostname}:8081`,
+  timeout: 30 * 1000 // 30s timeout
 });
 
-// TODO: make sure user is connected to the internet before making request.
-// authorization interceptors
+// Authorization interceptors
 axiosInstance.interceptors.request.use(AuthenticationService.setupTokenRefresher);
 
 // The first argument to this function is 'onFulfilled', a function to run when a successful request has been made.
@@ -16,6 +19,5 @@ axiosInstance.interceptors.request.use(AuthenticationService.setupTokenRefresher
 // We're  only interested in failed requests, so we supply the first function with 'undefined'.
 axiosInstance.interceptors.response.use(undefined, AuthenticationService.setupAccessDeniedResponseInterceptor);
 
-
-// object to use for any api interactions
+// Object to use for any api interactions
 export default axiosInstance;

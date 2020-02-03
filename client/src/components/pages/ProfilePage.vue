@@ -6,14 +6,12 @@
       <!-- Booking Link -->
       <div v-if="userIsCounsellor" class="container">
         <h3 class="heading-3">Your Booking Link</h3>
-        <p class="paragraph">
-          <span>Note:</span> Click to copy.
-        </p>
+        <p class="paragraph"><span>Note:</span> Click to copy.</p>
         <h4 @click="copyToClipboard" class="heading-4 booking-link">{{ generateBookingLink() }}</h4>
         <h4 class="heading-4 success copy-message">Link Copied!</h4>
         <p class="paragraph info">
-          Send this link to anyone that needs to book an appointment but doesn't have an account. It will
-          create a guest account for them, which they can activate (turn into a real account) later.
+          Send this link to anyone that needs to book an appointment but doesn't have an account. It will create a guest
+          account for them, which they can activate (turn into a real account) later.
         </p>
       </div>
 
@@ -23,25 +21,19 @@
         <div class="icon-box" @click="toggleUserCanEdit">
           <icon name="edit" class="edit-icon"></icon>
         </div>
-        <form
-          v-on:submit.prevent="updateUserDetails"
-          @click="userCanEdit ? null : toggleUserCanEdit()"
-        >
+        <form v-on:submit.prevent="updateUserDetails" @click="userCanEdit ? null : toggleUserCanEdit()">
           <ul class="details">
-            <li v-for="detail in getUserKeys" :key="detail">
-              <h4 class="heading-4">{{detail}}</h4>
-              <input
-                type="text"
-                class="form-input"
-                v-if="userCanEdit"
-                v-model="user[detail.toLowerCase()]"
-              />
-              <h4 v-else class="heading-4">{{user[detail.toLowerCase()]}}</h4>
+            <li v-for="detail in getUserEditKeys" :key="detail">
+              <h4 class="heading-4">{{ detail }}</h4>
+              <input type="text" class="form-input" v-if="userCanEdit" v-model="user[detail.toLowerCase()]" />
+              <h4 v-else class="heading-4">{{ user[detail.toLowerCase()] }}</h4>
             </li>
           </ul>
           <!--  Message -->
-          <div class="response-message" v-if="updateInfoMessage.length > 0">
-            <h4 class="heading-4" :class="requestOk ? 'success' : 'error'">{{ updateInfoMessage }}</h4>
+          <div class="response-message" v-if="messages.updateInfo.content.length > 0">
+            <h4 class="heading-4" :class="messages.updateInfo.success ? 'success' : 'error'">
+              {{ messages.updateInfo.content }}
+            </h4>
           </div>
           <button v-if="userCanEdit" class="btn btn-secondary save-button">Save</button>
         </form>
@@ -51,19 +43,17 @@
       <div v-if="userIsCounsellor" class="container create-counsellor">
         <h3 class="heading-3">Create a Counsellor</h3>
         <p class="paragraph info">
-          This will send an email to the user that will enable them to change their account status to a
-          counsellor.
+          This will send an email to the user that will enable them to change their account status to a counsellor.
         </p>
         <form v-on:submit.prevent="sendNewCounsellorEmail">
           <h4 class="form-heading">Enter email of new counsellor:</h4>
           <input class="form-input" type="email" v-model="newCounsellorEmail" />
           <h4 class="form-heading">Your password:</h4>
           <input class="form-input" type="password" v-model="createCounsellorPassword" />
-          <div class="response-message" v-if="createCounsellorMessage.length > 0">
-            <h4
-              class="heading-4"
-              :class="requestOk ? 'success' : 'error'"
-            >{{ createCounsellorMessage }}</h4>
+          <div class="response-message" v-if="messages.createCounsellor.content.length > 0">
+            <h4 class="heading-4" :class="messages.createCounsellor.success ? 'success' : 'error'">
+              {{ messages.createCounsellor.content }}
+            </h4>
           </div>
           <button class="btn btn-secondary send-button">Send Email</button>
         </form>
@@ -71,10 +61,10 @@
 
       <!-- Send Forgot Password Email -->
       <div class="container reset-password">
-        <button @click="sendResetPasswordEmail" class="btn btn-primary">{{ buttonContent }}</button>
+        <button @click="sendResetPasswordEmail" class="btn btn-primary">{{ emailButtonContent }}</button>
         <p class="paragraph info">
-          Pressing this button will send an email to your account containing a link to reset your password. If
-          you ignore the email, your password will remain unchanged.
+          Pressing this button will send an email to your account containing a link to reset your password. If you
+          ignore the email, your password will remain unchanged.
         </p>
       </div>
 
@@ -82,6 +72,9 @@
       <div class="container delete-account">
         <button @click="showDeleteDialogue = true" class="btn btn-disapproved">Delete Your Account</button>
         <p class="paragraph info">This will remove all of your appointment from the system.</p>
+        <h4 class="heading-4" :class="messages.delete.success ? 'success' : 'error'">
+          {{ messages.delete.content }}
+        </h4>
       </div>
     </div>
 
@@ -110,33 +103,40 @@ export default {
   },
   data() {
     return {
-      user: {},
-      updateInfoMessage: "",
-      createCounsellorMessage: "",
-      userCanEdit: false,
-      requestOk: false,
-      buttonContent: "Send Reset Password Email",
-      emailsLeft: 3,
-      showDeleteDialogue: false,
-      newCounsellorEmail: "",
-      confirmNewCounsellorEmail: "",
-      createCounsellorPassword: ""
+      user: {}, // The current user.
+      userCanEdit: false, // Whether the user can edit their details.
+      emailButtonContent: "Send Reset Password Email", // The message to display inside the email button.
+      emailsLeft: 3, // The amount of tries the user has left.
+      showDeleteDialogue: false, // Whether to show the 'Delete User' dialogue or not.
+      newCounsellorEmail: "", // The email of the new counsellor.
+      createCounsellorPassword: "", // The password to use to create the new counsellor.
+      messages: {
+        // The error/success messages.
+        updateInfo: {
+          content: "",
+          success: false
+        },
+        createCounsellor: {
+          content: "",
+          success: false
+        },
+        delete: {
+          content: "",
+          success: false
+        }
+      }
     };
   },
 
   async beforeMount() {
+    // Store the user locally.
     this.user = this.$store.state.authentication.user;
-    let response;
-    if (this.userIsCounsellor)
-      response = await UserService.getCounsellor(this.user._id);
-    else response = await UserService.getClient(this.user._id);
-    this.user = response.data.counsellor || response.data.client;
   },
   mounted() {
-    if (this.userIsCounsellor)
-      document.querySelector(".copy-message").style.animation = "none";
+    // CSS for the booking link styling - make sure it doesn't animate until it's clicked.
+    if (this.userIsCounsellor) document.querySelector(".copy-message").style.animation = "none";
 
-    // reset number of emails left every 3 minutes
+    // Reset number of emails left every 3 minutes
     setTimeout(
       function() {
         this.emailsLeft = 3;
@@ -145,121 +145,107 @@ export default {
     );
   },
   computed: {
+    // Fetch whether the user is a counsellor or not from the store.
     userIsCounsellor: function() {
       return this.$store.getters["authentication/isCounsellor"];
     },
-    getUserKeys() {
-      //   return Object.keys(this.user);
+    // The fields that the user can edit.
+    getUserEditKeys() {
       return ["Email", "Username", "Firstname", "Lastname"];
     }
   },
   methods: {
+    // Send the specified new counsellor an email allowing them to create a counsellor account.
     async sendNewCounsellorEmail() {
       let response;
       try {
-        response = await UserService.sendNewCounsellorEmail(
-          this.newCounsellorEmail,
-          this.createCounsellorPassword
-        );
+        response = await UserService.sendNewCounsellorEmail(this.newCounsellorEmail, this.createCounsellorPassword);
       } catch (error) {
         response = error.response;
       }
-      this.createCounsellorMessage = response.data.message;
-      this.requestOk = response.data.success;
+      this.messages.createCounsellor.content = response.data.message;
+      this.messages.createCounsellor.success = response.data.success;
     },
 
+    // Delete the user.
     async deleteUser() {
       try {
-        let response = await UserService.deleteUser(this.user._id);
-        if (response.data.success) {
-          UserService.logoutUser();
-        }
+        await UserService.deleteUser(this.user._id);
+        AuthenticationService.logoutUser(); // This will automatically redirect the user.
       } catch (error) {
-        console.log(error);
+        this.messages.delete.content = error.response.data.message;
+        this.messages.delete.success = false;
       }
     },
 
+    // Send a reset password email to the user.
     async sendResetPasswordEmail() {
+      if (this.emailsLeft < 1) {
+        this.emailButtonContent = "You can only send 3 emails per minute.";
+        return;
+      }
       try {
-        if (this.emailsLeft < 1) {
-          this.buttonContent = "You can only send 3 emails per minute.";
-          return;
-        }
-        let response = await AuthenticationService.forgotPassword(
-          this.user.email
-        );
-        console.log(response);
-        this.buttonContent = response.data.message;
+        let response = await AuthenticationService.forgotPassword(this.user.email);
+        this.emailButtonContent = response.data.message;
         this.emailsLeft--;
       } catch (error) {
-        this.buttonContent = Utils.isString(error)
-          ? error
-          : error.response.data.message;
+        this.emailButtonContent = Utils.isString(error) ? error : error.response.data.message;
       }
     },
 
+    // Toggle edit mode for the user details.
     toggleUserCanEdit() {
       this.userCanEdit = !this.userCanEdit;
       if (this.userCanEdit) {
-        this.updateInfoMessage = "";
+        this.messages.updateInfo.content = ""; // Reset the message.
       }
     },
 
+    // Update the user's details.
     async updateUserDetails() {
+      let response;
       try {
-        let response;
-        // send different requests depending on whether the user is a client or a counsellor.
-        if (this.userIsCounsellor) {
-          response = await UserService.updateUser(
-            this.user._id,
-            this.user,
-            true
-          );
-        } else {
-          response = await UserService.updateUser(this.user._id, this.user);
-        }
-        if (!response.data.success) {
-          throw { response };
-        }
-        this.requestOk = true;
-        this.updateInfoMessage = response.data.message;
-        this.userCanEdit = false;
-
-        // remove the message after 2 seconds
-        setTimeout(
-          function() {
-            this.message = "";
-          }.bind(this),
-          2000
-        );
-
-        // reset the user object in the store.
-        this.$store.commit("authentication/auth_success", {
-          token: this.$store.state.authentication.token,
-          user: this.user
-        });
+        response = await UserService.updateUser(this.user._id, this.user, this.userIsCounsellor);
       } catch (error) {
-        console.log(error);
-        this.requestOk = false;
-        this.updateInfoMessage = Utils.isString(error)
-          ? error
-          : error.response.data.message;
+        this.messages.updateInfo.success = false;
+        this.messages.updateInfo.content = Utils.isString(error) ? error : error.response.data.message;
       }
+      this.userCanEdit = false;
+
+      // remove the message after 2 seconds
+      setTimeout(
+        function() {
+          this.message = "";
+        }.bind(this),
+        2000
+      );
+
+      // reset the user object in the store.
+      this.$store.commit("authentication/auth_success", {
+        token: this.$store.state.authentication.token,
+        user: this.user
+      });
+
+      this.messages.updateInfo.success = true;
+      this.messages.updateInfo.content = response.data.message;
     },
 
+    // Generate the counsellor's booking link
     generateBookingLink() {
-      return `${window.location.origin}/auth/guest/${window.btoa(
-        this.user._id
-      )}`;
+      // The link is just '/auth/guest' followed by the counsellors ID in base64
+      return `${window.location.origin}/auth/guest/${window.btoa(this.user._id)}`;
     },
-    copyToClipboard(event) {
-      let link = event.target.innerText;
-      console.log(link);
 
+    // Copy the booking link to the clipboard.
+    copyToClipboard(event) {
+      // Get the link from the HTML element.
+      let link = event.target.innerText;
+
+      // Trigger the 'link copied' message to animate.
       this.linkCopied = Utils.copyToClipboard(link, document);
 
+      // CSS tweak for making the 'Link Copied' message animate correctly
       let copyMessage = document.querySelector(".copy-message");
-
       copyMessage.style.animation = "none";
       copyMessage.offsetHeight;
       copyMessage.style.animation = null;
@@ -400,6 +386,11 @@ export default {
       display: inline;
       vertical-align: middle;
       margin-left: 2rem;
+    }
+
+    .error {
+      margin-top: 0.5rem;
+      width: 25rem;
     }
   }
 }

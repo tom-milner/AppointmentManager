@@ -13,51 +13,50 @@ const AuthenticationControllerPolicy = require("../../policies/AuthenticationCon
 router.get("/", CounsellorController.getAllCounsellorsReduced);
 
 // send an email to an existing user allowing them to upgrade their account status.
-router.post("/send-email",
-    AuthenticationMiddleware.isLoggedIn,
-    AuthenticationMiddleware.roleCheck({
-        role: Roles.COUNSELLOR
-    }),
-    CounsellorControllerPolicy.sendNewCounsellorEmail,
-    CounsellorController.sendNewCounsellorEmail
+router.post(
+  "/send-email",
+  AuthenticationMiddleware.isLoggedIn,
+  AuthenticationMiddleware.roleCheck({
+    role: Roles.COUNSELLOR
+  }),
+  CounsellorControllerPolicy.sendNewCounsellorEmail,
+  CounsellorController.sendNewCounsellorEmail
 );
 
 // update counsellor
 router.post(
-    "/:counsellorId",
-    AuthenticationMiddleware.isLoggedIn,
-    AuthenticationMiddleware.roleCheck({
-        role: Roles.COUNSELLOR,
-        useSpecific: true
-    }),
-    AuthenticationControllerPolicy.updateUser({
-        isGuest: false,
-        isNew: false
-    }),
-    CounsellorControllerPolicy.updateCounsellor,
-    CounsellorController.updateCounsellor
+  "/:counsellorId",
+  AuthenticationMiddleware.isLoggedIn,
+  AuthenticationMiddleware.roleCheck({
+    role: Roles.COUNSELLOR,
+    useSpecific: true
+  }),
+  AuthenticationControllerPolicy.updateUser({
+    isGuest: false,
+    isNew: false
+  }),
+  CounsellorControllerPolicy.updateCounsellor,
+  CounsellorController.updateCounsellor
 );
 
 // get all info about a counsellor
 router.get(
-    "/full/:counsellorId",
-    AuthenticationMiddleware.isLoggedIn,
-    AuthenticationMiddleware.roleCheck({
-        role: Roles.COUNSELLOR
-    }),
-    CounsellorController.getCounsellor({
-        reduced: false
-    })
+  "/full/:counsellorId",
+  AuthenticationMiddleware.isLoggedIn,
+  AuthenticationMiddleware.roleCheck({
+    role: Roles.COUNSELLOR
+  }),
+  CounsellorController.getCounsellor({
+    reduced: false
+  })
 );
 
 // get reduced info about a counsellor (wokring hours, name etc)
 router.get(
-    "/:counsellorId",
-    CounsellorController.getCounsellor({
-        reduced: true
-    })
+  "/:counsellorId",
+  CounsellorController.getCounsellor({
+    reduced: true
+  })
 );
-
-
 
 module.exports = router;

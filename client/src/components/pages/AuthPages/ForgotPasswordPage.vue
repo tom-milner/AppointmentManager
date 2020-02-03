@@ -9,15 +9,16 @@
             <input class="form-input" v-model="email" type="email" />
           </div>
           <div class="row">
-            <p
-              class="paragraph"
-            >Pressing the send button will send a password reset email to the above address. Follow the instructions in the email to reset your password.</p>
+            <p class="paragraph">
+              Pressing the send button will send a password reset email to the above address. Follow the instructions in
+              the email to reset your password.
+            </p>
           </div>
           <div class="row" v-if="message">
-            <h4 class="heading-4 error message" :class="{success: sentSuccessfully  }">{{message}}</h4>
+            <h4 class="heading-4 error message" :class="{ success: sentSuccessfully }">{{ message }}</h4>
           </div>
           <div :disabled="triesRemaining < 1" class="row send-button">
-            <button class="btn btn-primary">{{buttonContent}}</button>
+            <button class="btn btn-primary">{{ buttonContent }}</button>
           </div>
         </form>
       </div>
@@ -34,30 +35,31 @@ export default {
   },
   data() {
     return {
-      email: "",
-      message: "",
-      sentSuccessfully: false,
-      buttonContent: "Send Email",
-      triesRemaining: 3
+      email: "", // The user's email
+      message: "", // The error/success message.
+      sentSuccessfully: false, // Whether the email was sent successfully or not.
+      buttonContent: "Send Email", // The message inside the 'send' button.
+      triesRemaining: 3 // The amount of tries the user has for sending the email.
     };
   },
   methods: {
     async sendEmail() {
-      // data validation
+      // Data validation
       if (!this.email) {
         this.message = "Please enter a valid email.";
         return;
       }
-
+      // Don't let the user send the email if they've run out of tries.
       if (this.triesRemaining < 1) {
         this.message = "You can only send 3 emails a minute";
         this.sentSuccessfully = false;
         return;
       }
 
-      // send the request.
+      // Ssend the request.
       let response;
       try {
+        // Send the request.
         response = await AuthenticationService.forgotPassword(this.email);
         this.triesRemaining--;
         this.buttonContent = "Didn't get it? Send again.";
@@ -69,7 +71,7 @@ export default {
     }
   },
   mounted() {
-    // reset amount of password tries every minute
+    // Reset amount of password tries every minute
     setInterval(function() {
       this.triesRemaining = 3;
     }, 60000);

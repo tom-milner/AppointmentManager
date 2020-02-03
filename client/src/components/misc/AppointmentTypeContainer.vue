@@ -68,12 +68,9 @@
       <div class="recurring">
         <h4 class="form-heading dropdown-heading">Recurring Appointment:</h4>
         <p v-if="!isEditable" class="dropdown-info">{{ isRecurringText }}</p>
-        <button
-          @click="toggleIsRecurring"
-          class="btn checked"
-          :class="getRecurringButtonClass"
-          v-else
-        >{{ isRecurringText }}</button>
+        <button @click="toggleIsRecurring" class="btn checked" :class="getRecurringButtonClass" v-else>
+          {{ isRecurringText }}
+        </button>
         <div class="recurring-duration" v-if="appointmentType.isRecurring">
           <input
             v-if="isEditable"
@@ -125,16 +122,17 @@ import ColorPicker from "@/components/misc/ColorPicker";
 export default {
   data() {
     return {
-      isEditable: false,
-      errorMessage: "",
-      maxNameLength: 20,
-      maxDescriptionLength: 200,
-      maxDuration: 120,
-      minDuration: 50,
-      showFullType: false,
-      showDeleteDialogue: false,
-      appointmentType: {},
+      isEditable: false, // Whether the appointment type is in edit mode or not.
+      errorMessage: "", // The error message.
+      maxNameLength: 20, // The maximum name length.
+      maxDescriptionLength: 500, // The maximum number of characters for the description.
+      maxDuration: 120, // The maximum duration for an appointment type.
+      minDuration: 50, // The minimum duraiton for an appointment type.
+      showFullType: false, // Whether to show the full appointment type information or not.
+      showDeleteDialogue: false, // Whether to show the 'Delete Appointment Type' dialogue or not.
+      appointmentType: {}, // The appointment type information.
       appointmentTypeColours: [
+        // The colors an appointment type can be.
         "#3398d3",
         "#65ca35",
         "#2300ED",
@@ -151,56 +149,66 @@ export default {
     Dialogue
   },
   props: {
-    type: {},
-    userCanEdit: Boolean,
-    forceOpen: Boolean
+    type: {}, // The provided appointment type. This is passed to a data property (appointmentType) instantly.
+    userCanEdit: Boolean, // Whether the user is allowed to edit the appointment or not.
+    forceOpen: Boolean // If true, the appointment type will be forced to remain open (show full appointment type open).
   },
   computed: {
+    // Render the border of the appointment type container depending on the color stored in the database.
     getBorder() {
       return {
         "border-left": `5px solid ${this.appointmentType.color} !important`
       };
     },
-
+    // Supply different CSS classes to the 'Recurring' button depending on the recurring status of the appointment type.
     getRecurringButtonClass() {
       return {
         "btn-approved ": this.appointmentType.isRecurring,
         "btn-disapproved ": !this.appointmentType.isRecurring
       };
     },
+
+    // Display 'Yes' or 'No' instead of 'True' or 'False'
     isRecurringText() {
       return this.appointmentType.isRecurring ? "Yes:" : "No";
     }
   },
   beforeMount() {
-    // assign to data to avoid mutating props
+    // Copy the appointment type prop to data to avoid mutating the prop, as the prop is overwritten.
     this.appointmentType = this.type;
+
+    // If the appointment type is new (not in the database), set some default variables.
     if (!this.appointmentType._id) {
-      this.isEditable = true;
-      const randomInt = Math.round(
-        Math.random() * this.appointmentTypeColours.length
-      );
+      this.isEditable = true; // Make the appointment type editable.
+
+      // Generate a random integer to use to choose a random color.
+      const randomInt = Math.round(Math.random() * this.appointmentTypeColours.length);
       this.appointmentType.color = this.appointmentTypeColours[randomInt];
     }
-
+    // If the forceOpen prop was specified, open the appointment type.
     this.showFullType = this.forceOpen;
   },
 
   methods: {
-    // sends request to delete appointment
+    // Sends request to delete appointment
     async deleteAppointmentType() {
-      // send delete request
+      // Send delete request
       if (this.appointmentType._id)
-        await AppointmentTypeService.deleteAppointmentType(
-          this.appointmentType._id
-        );
-      // refresh appointments
+        try {
+          await AppointmentTypeService.deleteAppointmentType(this.appointmentType._id);
+        } catch (error) {
+          this.errorMessage = error.response.data.message;
+        }
+      // Refresh appointments
       this.$emit("refresh-appointments");
     },
 
+    // Change the recurring status of the appointment.
     toggleIsRecurring() {
       this.appointmentType.isRecurring = !this.appointmentType.isRecurring;
     },
+
+    // Toggle the full appointment view.
     toggleShowFullAppointmentType() {
       this.showFullType = !this.showFullType;
     },
@@ -210,7 +218,7 @@ export default {
       return Math.round((mins / 60) * 10) / 10;
     },
 
-    // validate all user input
+    // Validate all user input
     validateData() {
       let name = this.appointmentType.name;
       let duration = this.appointmentType.duration;
@@ -228,77 +236,75 @@ export default {
 
       // check duration
       if (duration < this.minDuration || duration > this.maxDuration) {
+        // Find whether the appointment type duration is too large or too small, and return an error.
         let isMin = duration < this.minDuration;
         let violatedDuration = isMin ? this.minDuration : this.maxDuration;
-        this.errorMessage = `${
-          isMin ? "Min" : "Max"
-        } duration is ${violatedDuration} minutes (${this.minsToHours(
+        this.errorMessage = `${isMin ? "Min" : "Max"} duration is ${violatedDuration} minutes (${this.minsToHours(
           violatedDuration
         )} hours)`;
         return false;
       }
 
+      // All data is valid.
       return true;
     },
 
-    // change whether the user can edit the appointment type.
+    // Change whether the user can edit the appointment type.
     toggleIsEditable() {
+      // only if the user is allowed to edit the appointment type.
       if (this.userCanEdit) {
         this.isEditable = !this.isEditable;
+
+        // This opens the appointment type if edit mode is turned on, but makes sure it doesn't close once edit mode is turned off.
         if (this.isEditable) this.showFullType = true;
       }
     },
 
+    // Update a preexisting appointment type.
     async updateAppointmentType() {
-      // send a request to the api to update the appointment type.
-
-      // send request
-      let response = await AppointmentTypeService.updateAppointmentType(
-        this.appointmentType._id,
-        this.appointmentType
-      );
-      // check for server error.
+      // Send request
+      let response = await AppointmentTypeService.updateAppointmentType(this.appointmentType._id, this.appointmentType);
+      // Check for error.
       if (!response.data.success) {
         throw { response };
       }
-      // reset variables
-      this.isEditable = false;
     },
 
+    // Create a new appointment type.
     async createAppointmentType() {
-      let response = await AppointmentTypeService.createAppointmentType(
-        this.appointmentType
-      );
+      let response = await AppointmentTypeService.createAppointmentType(this.appointmentType);
       if (!response.data.success) {
         throw {
           response
         };
       }
+      // Refresh the appointments to load the created appointment type.
       this.$emit("refresh-appointments");
-      // reset variables
-      this.isEditable = false;
     },
 
-    // save the appointment
+    // Save the appointment
     async saveAppointmentType() {
-      // validate the user entered data.
+      // Validate the user entered data.
       let isValid = this.validateData();
       if (!isValid) {
         this.isEditable = true;
         return;
       }
+
       try {
-        // check to see if the appointment is new.
+        // If the appointment is new, create it.
         if (!this.appointmentType._id) {
           await this.createAppointmentType();
         } else {
-          // update appointment type
+          // Else update the existing appointment type.
           await this.updateAppointmentType();
         }
+
+        // Close edit mode.
+        this.isEditable = false;
         this.errorMessage = "";
       } catch (error) {
         this.errorMessage = error.response.data.message;
-        this.isEditable = true;
       }
     }
   }

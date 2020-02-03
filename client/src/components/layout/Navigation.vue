@@ -17,7 +17,7 @@
           </li>
         </router-link>
 
-        <router-link to="/create">
+        <router-link to="/book">
           <li class="nav-item">
             <icon name="plus-square" class="nav-icon" />
             <h4 class="nav-heading">Book Appointment</h4>
@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import UserService from "@/services/UserService";
+import AuthenticationService from "@/services/AuthenticationService";
 
 export default {
   data() {
@@ -66,7 +66,7 @@ export default {
   methods: {
     // Logout the user.
     logout: async function() {
-      UserService.logoutUser();
+      AuthenticationService.logoutUser();
     }
   },
 

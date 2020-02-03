@@ -1,76 +1,77 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import Vue from "vue";
+import Router from "vue-router";
 
-
-
-import LandingPage from '@/components/pages/LandingPage.vue'
+import LandingPage from "@/components/pages/LandingPage.vue";
 import HomePage from "@/components/pages/HomePage/HomePage.vue";
-import CreateAppointmentPage from "@/components/pages/CreateAppointmentPage";
-import ProfilePage from "@/components/pages/ProfilePage"
+import BookAppointmentPage from "@/components/pages/BookAppointmentPage";
+import ProfilePage from "@/components/pages/ProfilePage";
 import Roles from "@/models/Roles";
 
-// import other routes 
+// import other routes
 import CounsellorRoutes from "./CounsellorRoutes";
 import AuthRoutes from "./AuthRoutes";
 
-// Sets up the different frontend routes 
+// Sets up the different frontend routes
 // e.g. /login will lead to the login page
 
-Vue.use(Router)
+Vue.use(Router);
 
-// define the routes for the app.
+// Define the routes for the app.
 let router = new Router({
-    mode: "history",
-    routes: [
+  mode: "history",
+  routes: [
+    // Add the imported routes.
+    ...CounsellorRoutes,
+    ...AuthRoutes,
 
-        ...CounsellorRoutes,
-        ...AuthRoutes,
+    // Landing Page
+    {
+      path: "/",
+      name: "LandingPage",
+      component: LandingPage,
+      meta: {
+        hideNavigation: true
+      }
+    },
 
-        // Landing Page
-        {
-            path: "/",
-            name: "LandingPage",
-            component: LandingPage,
-            meta: {
-                hideNavigation: true
-            }
-        },
+    // Home page
+    {
+      path: "/home",
+      name: "HomePage",
+      component: HomePage,
+      meta: {
+        minimumAuthRole: Roles.CLIENT,
+        hideNavigation: false
+      }
+    },
 
-        // Home page
-        {
-            path: "/home",
-            name: "HomePage",
-            component: HomePage,
-            meta: {
-                minimumAuthRole: Roles.CLIENT,
-                hideNavigation: false
-            }
-        }, {
-            path: "/create",
-            name: "CreateAppointmentPage",
-            component: CreateAppointmentPage,
-            meta: {
-                minimumAuthRole: Roles.CLIENT,
-                hideNavigation: false
-            }
-        },
-        // Profile Page
-        {
-            path: "/profile",
-            name: "ProfilePage",
-            component: ProfilePage,
-            meta: {
-                minimumAuthRole: Roles.CLIENT,
-                hideNavigation: false
-            }
-        },
-        // 404
-        {
-            path: "*",
-            redirect: "/"
-        }
-    ]
+    // Book Appointment Route
+    {
+      path: "/book",
+      name: "BookAppointmentPage",
+      component: BookAppointmentPage,
+      meta: {
+        minimumAuthRole: Roles.CLIENT,
+        hideNavigation: false
+      }
+    },
+
+    // Profile Page
+    {
+      path: "/profile",
+      name: "ProfilePage",
+      component: ProfilePage,
+      meta: {
+        minimumAuthRole: Roles.CLIENT,
+        hideNavigation: false
+      }
+    },
+    // Redirect the user to the home page if they try and access anywhere else.
+    {
+      path: "*",
+      redirect: "/"
+    }
+  ]
 });
-
 
 export default router;

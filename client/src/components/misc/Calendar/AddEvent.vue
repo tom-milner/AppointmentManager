@@ -10,11 +10,9 @@
     <div v-if="!!!appointmentType" class="segment">
       <h4 class="form-heading">Choose an appointment type:</h4>
       <select v-model="chosenAppointmentType" class="form-input select">
-        <option
-          v-for="type in appointmentTypes"
-          :key="type._id"
-          :value="type"
-        >{{ type.name }} - {{ type.duration }} minutes</option>
+        <option v-for="type in appointmentTypes" :key="type._id" :value="type"
+          >{{ type.name }} - {{ type.duration }} minutes</option
+        >
       </select>
     </div>
 
@@ -22,14 +20,8 @@
     <div v-if="chosenAppointmentType.duration" class="segment">
       <h4 class="form-heading">Choose a time slot:</h4>
       <select v-model="chosenTime" class="form-input select">
-        <option
-          v-for="timeSlot in timeSlots"
-          :value="timeSlot"
-          :key="timeSlot.startTime.toString()"
-        >
-          {{
-          getFormattedTimeSlot(timeSlot)
-          }}
+        <option v-for="timeSlot in timeSlots" :value="timeSlot" :key="timeSlot.startTime.toString()">
+          {{ getFormattedTimeSlot(timeSlot) }}
         </option>
       </select>
     </div>
@@ -40,11 +32,12 @@
       <h4
         class="heading-4"
         :class="{ success: chosenAppointmentType.isRecurring, error: !chosenAppointmentType.isRecurring }"
-      >{{ chosenAppointmentType.isRecurring ? "Yes" : "No" }}</h4>
-      <h4
-        v-if="chosenAppointmentType.isRecurring"
-        class="form-heading"
-      >{{ chosenAppointmentType.recurringDuration }} weeks.</h4>
+      >
+        {{ chosenAppointmentType.isRecurring ? "Yes" : "No" }}
+      </h4>
+      <h4 v-if="chosenAppointmentType.isRecurring" class="form-heading">
+        {{ chosenAppointmentType.recurringDuration }} weeks.
+      </h4>
     </div>
 
     <!-- Error Message -->
@@ -129,9 +122,7 @@ export default {
       this.chosenAppointmentType = this.appointmentType;
     } else {
       // Fetch all the appointment types
-      this.appointmentTypes = (
-        await AppointmentTypeService.getAppointmentTypes()
-      ).data.appointmentTypes;
+      this.appointmentTypes = (await AppointmentTypeService.getAppointmentTypes()).data.appointmentTypes;
     }
   },
   methods: {
@@ -147,7 +138,7 @@ export default {
         return;
       }
 
-      // Emit an event to send the information back to CreateAppointmentPage
+      // Emit an event to send the information back to BookAppointmentPage
       let appointmentStartTime = this.chosenTime.startTime;
       let appointmentType = this.chosenAppointmentType;
       this.$emit("date-chosen", {
@@ -159,28 +150,15 @@ export default {
     // Generate the possible time slots for the chosen appointment type.
     getPossibleTimeSlots() {
       // Make sure the data is valid.
-      if (
-        this.businessHours == null ||
-        this.businessHours.length > 0 ||
-        this.chosenAppointmentType.duration == null
-      )
+      if (this.businessHours == null || this.businessHours.length > 0 || this.chosenAppointmentType.duration == null)
         return;
 
       // Get the start and end of the day as moment objects.
-      let dayStart = Utils.getMomentFromTimeString(
-        this.day.start,
-        this.businessHours.startTime
-      );
-      let dayEnd = Utils.getMomentFromTimeString(
-        this.day.start,
-        this.businessHours.endTime
-      );
+      let dayStart = Utils.getMomentFromTimeString(this.day.start, this.businessHours.startTime);
+      let dayEnd = Utils.getMomentFromTimeString(this.day.start, this.businessHours.endTime);
 
       // Create a moment duration of the duration of the appointment type.
-      let appointmentDuration = this.moment.duration(
-        this.chosenAppointmentType.duration,
-        "minutes"
-      );
+      let appointmentDuration = this.moment.duration(this.chosenAppointmentType.duration, "minutes");
 
       // Initialize empty timeSlots array
       let timeSlots = [];
@@ -199,12 +177,8 @@ export default {
 
         // Calculate the next time slot
         let nextTimeSlot = {};
-        nextTimeSlot.startTime = this.moment(lastTimeSlot.startTime).add(
-          oneHour
-        );
-        nextTimeSlot.endTime = this.moment(nextTimeSlot.startTime).add(
-          appointmentDuration
-        );
+        nextTimeSlot.startTime = this.moment(lastTimeSlot.startTime).add(oneHour);
+        nextTimeSlot.endTime = this.moment(nextTimeSlot.startTime).add(appointmentDuration);
         lastTimeSlot = nextTimeSlot;
       }
 
@@ -235,13 +209,7 @@ export default {
               bookedTime.endTime,
               null, // Granularity: This could be set to 'day', 'week', 'year' etc, but isn't needed here.
               "[]" // [] - Inclusion: allow the time slot if it starts at the exact same time as when the appointment buffer time finishes.
-            ) || // Check both the start and end times.
-            timeSlot.endTime.isBetween(
-              bookedTime.startTime,
-              bookedTime.endTime,
-              null,
-              "[]"
-            )
+            ) || timeSlot.endTime.isBetween(bookedTime.startTime, bookedTime.endTime, null, "[]") // Check both the start and end times.
           );
         });
         // Only include the timeslot if it doesn't clash with any other appointments.
@@ -254,11 +222,7 @@ export default {
 
     // Format a timeslot to be easily readable. (09:00 - 17:00)
     getFormattedTimeSlot(timeSlot) {
-      return (
-        timeSlot.startTime.format("HH:mm") +
-        " - " +
-        timeSlot.endTime.format("HH:mm")
-      );
+      return timeSlot.startTime.format("HH:mm") + " - " + timeSlot.endTime.format("HH:mm");
     }
   },
   watch: {

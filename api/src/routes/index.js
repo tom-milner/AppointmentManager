@@ -15,5 +15,4 @@ router.use("/appointments", AppointmentRoutes); // The appointment routes.
 router.use("/user", UserRoutes); // The user routes.
 router.use("/admin", AdminRoutes); // The admin routes.
 
-
 module.exports = router;

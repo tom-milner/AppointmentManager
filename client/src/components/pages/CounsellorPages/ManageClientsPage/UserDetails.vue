@@ -67,16 +67,12 @@ import AppointmentService from "@/services/AppointmentService";
 import AppointmentCalendar from "@/components/misc/Calendar/AppointmentCalendar";
 
 export default {
-  props: {},
   data() {
     return {
-      fullClient: {},
-      message: { content: "", success: false },
-      showDeleteDialogue: false,
-      clientEvents: {},
-      clientAppointments: [],
-      selectedAppointment: {},
-      modalDisplayed: false
+      fullClient: {}, // The full information about a client.
+      message: { content: "", success: false }, // The response message.
+      showDeleteDialogue: false, // Whether to show the "Delete Client" dialogue or not.
+      clientAppointments: [] // The client's appointments.
     };
   },
   components: {
@@ -84,13 +80,24 @@ export default {
     AppointmentCalendar
   },
   async created() {
-    let response = await UserService.getClient(this.$route.params.clientId);
-    this.fullClient = response.data.client;
-
+    try {
+      // Get the client from the url
+      let response = await UserService.getClient(this.$route.params.clientId);
+      this.fullClient = response.data.client;
+    } catch (error) {
+      this.setMessage(error.response.data.message, false);
+    }
     await this.getUserAppointments();
   },
 
   methods: {
+    // Set the message contents and status.
+    setMessage(message, success) {
+      this.message.content = message || "Error getting client info";
+      this.message.success = success;
+    },
+
+    // Get the user's appointments.
     async getUserAppointments() {
       try {
         let response = await AppointmentService.getAppointmentsOfUser({
@@ -98,24 +105,24 @@ export default {
         });
         this.clientAppointments = response.data.appointments;
       } catch (error) {
-        console.log(error);
+        this.setMessage(error.response.data.message, false);
       }
     },
 
+    // Delete the client
     async deleteUser() {
       let response;
       try {
         response = await UserService.deleteUser(this.fullClient._id);
         this.showDeleteDialogue = false;
-        this.$router.go(-1);
+        this.$router.go(-1); // Navigate back to the 'Manage Clients' page.
       } catch (error) {
-        console.log(error);
         response = error.response;
       }
-      this.message.content = response.data.message;
-      this.message.success = response.data.success;
+      this.setMessage(response.data.message, response.data.success);
     },
 
+    // Save the clinical notes.
     async saveClinicalNotes() {
       let response;
       try {
@@ -124,15 +131,16 @@ export default {
           this.message.success = false;
           return;
         }
+
+        // Update the client.
         response = await UserService.updateUser(this.fullClient._id, {
           clinicalNotes: this.fullClient.clinicalNotes
         });
       } catch (error) {
-        if (Utils.isString(error)) return (this.message = error);
+        if (Utils.isString(error)) return this.setMessage(error, false);
         response = error.response;
       }
-      this.message.content = response.data.message;
-      this.message.success = response.data.success;
+      this.setMessage(response.data.message, response.data.success);
     }
   }
 };

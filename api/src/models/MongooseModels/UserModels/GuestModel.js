@@ -7,11 +7,10 @@ const Roles = require("../../Roles");
 
 // Guest Schema
 const guestSchema = new mongoose.Schema({
-
-    timeCreated: {
-        type: Date,
-        default: Date.now()
-    }
+  timeCreated: {
+    type: Date,
+    default: Date.now()
+  }
 });
 
 // GuestModel extends UserModel

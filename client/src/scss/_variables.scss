@@ -1,16 +1,10 @@
-// COLOURS 
-// #3398d3
-// #65ca35
+// COLOURS
 $color-primary: #3398d3;
 $color-primary-light: lighten($color-primary, 25%);
 $color-primary-dark: darken($color-primary, 25%);
 
-$color-secondary: #65ca35;
-$color-secondary-light: lighten($color-secondary, 25%);
-$color-secondary-dark: darken($color-secondary, 25%);
-
 $color-error: rgb(196, 72, 72);
-$color-approved:#3dd189;
+$color-approved: #3dd189;
 
 $color-white: #fff;
 $color-black: #000;
@@ -20,9 +14,7 @@ $color-grey: rgb(138, 138, 138);
 $color-grey-light: #efefef;
 $color-grey-very-light: #ffffff;
 
-
-$color-inactive: #C4C7CF;
-
+$color-inactive: #c4c7cf;
 
 $color-canvas: #f3f3f3;
 

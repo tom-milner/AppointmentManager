@@ -20,27 +20,20 @@
           class="form-input short-input select"
           v-model="chosenCounsellor"
         >
-          <option
-            v-for="counsellor in counsellors"
-            :key="counsellor._id"
-            :value="counsellor"
-          >{{ counsellor.firstname }} {{ counsellor.lastname }}</option>
+          <option v-for="counsellor in counsellors" :key="counsellor._id" :value="counsellor"
+            >{{ counsellor.firstname }} {{ counsellor.lastname }}</option
+          >
         </select>
-        <h4
-          v-else
-          class="heading-4"
-        >{{ chosenCounsellor.firstname }} {{ chosenCounsellor.lastname }}</h4>
+        <h4 v-else class="heading-4">{{ chosenCounsellor.firstname }} {{ chosenCounsellor.lastname }}</h4>
       </div>
 
       <!-- Client selection dropdown - only for counsellors!! -->
       <div class="form-field" v-if="userIsCounsellor">
         <h4 class="form-heading">Client</h4>
         <select class="form-input short-input select" v-model="chosenClient">
-          <option
-            v-for="client in clients"
-            :key="client._id"
-            :value="client"
-          >{{ client.firstname }} {{ client.lastname }}</option>
+          <option v-for="client in clients" :key="client._id" :value="client"
+            >{{ client.firstname }} {{ client.lastname }}</option
+          >
         </select>
       </div>
 
@@ -57,7 +50,9 @@
           v-if="canDisplayOpenCalendarButton"
           class="btn btn-secondary short-input"
           @click="toggleAppointmentCalendarModal"
-        >Choose from calendar</button>
+        >
+          Choose from calendar
+        </button>
       </div>
 
       <!-- Displays the chosen appointment type (if present) -->
@@ -75,9 +70,7 @@
       <!-- Client Notes Input (Only for clients)-->
       <div v-else class="form-field">
         <h4 class="form-heading">Client Notes</h4>
-        <p class="paragraph note">
-          <span>Note:</span> These are viewable by your chosen counsellor
-        </p>
+        <p class="paragraph note"><span>Note:</span> These are viewable by your chosen counsellor</p>
         <textarea v-model="clientNotes" class="form-input"></textarea>
       </div>
 
@@ -93,7 +86,7 @@
     </div>
 
     <!-- Calendar Modal -->
-    <Modal v-on:close-modal="toggleAppointmentCalendarModal()" v-if="appointmentCalendarDisplayed">
+    <Modal v-on:close-modal="toggleAppointmentCalendarModal()" v-if="showAppointmentCalendar">
       <div class="calendar">
         <AppointmentCalendar
           userCanAddEvents
@@ -122,20 +115,21 @@ export default {
   },
 
   computed: {
+    // Call the store to determine whether the user is a counsellor or not.
     userIsCounsellor: function() {
       return this.$store.getters["authentication/isCounsellor"];
     },
-    // whether the user can open the calendar or not
+    // Whether the user can open the calendar or not.
     canDisplayOpenCalendarButton() {
       if (this.userIsCounsellor) {
-        // must have chosen counsellor and client
+        // Must have chosen counsellor and client
         return this.chosenClient._id && this.chosenCounsellor._id;
       } else {
-        // must have chosen counsellor
+        // Must have chosen counsellor
         return this.chosenCounsellor._id;
       }
     },
-    // Formats the date
+    // Formats the date - 'September 4, 1986 8:30 PM'
     getFormattedChosenDate() {
       if (Utils.objIsEmpty(this.chosenStartTime)) return "No date chosen";
       return this.moment(this.chosenStartTime).format("LLL");
@@ -143,39 +137,32 @@ export default {
   },
   data() {
     return {
-      clientDates: [], // the dates where the user is busy
-      counsellorDates: [], // the dates where the counsellor is busy
-      businessHours: [], // dates that the counsellor isn't available
-      counsellors: [], // a list of all the counsellors
-      clients: [], // all the clients
-      chosenClient: {}, // the chosen client for the appointment
-      chosenCounsellor: {}, // the counsellor the user has chosen
-      chosenStartTime: {}, // the desired start time of the appointment
-      chosenTitle: "", // the desired title of the appointment
-      chosenAppointmentType: {}, // the desired type of the appointment
-      clientNotes: "", // any notes the client (current user) has about the appointment.
-      counsellorNotes: "",
-      appointmentCalendarDisplayed: false,
-      errorMessage: "", // if there is an error message it is stored here.
-
-      clientAppointments: []
+      clientDates: [], // The dates where the user is busy
+      counsellorDates: [], // The dates where the counsellor is busy
+      businessHours: [], // Dates that the counsellor isn't available
+      counsellors: [], // A list of all the counsellors
+      clients: [], // All the clients
+      chosenClient: {}, // The chosen client for the appointment
+      chosenCounsellor: {}, // The counsellor the user has chosen
+      chosenStartTime: {}, // The desired start time of the appointment
+      chosenTitle: "", // The desired title of the appointment
+      chosenAppointmentType: {}, // The desired type of the appointment
+      clientNotes: "", // Any notes the client has about the appointment.
+      counsellorNotes: "", // The notes the counsellor has made about the appointment.
+      showAppointmentCalendar: false, // Whether to show the appointment calendar or not.
+      errorMessage: "", // If there is an error message it is stored here.
+      clientAppointments: [] // The client's appointments.
     };
   },
   props: {
+    // The specific counsellor to have the appointment with.
     specificCounsellor: {}
   },
   methods: {
-    // validate any input from the user. This process is also repeated on the server.
-    // returns an object containing error and message.
+    // Validate any input from the user. This process is also repeated on the server.
+    // Returns an object containing error and message.
     validateInput() {
-      // // check for title
-      // if (!this.chosenTitle) {
-      //     return {
-      //         error: true,
-      //         message: "Please enter a title for your appointment."
-      //     };
-      // }
-      // check if user has chosen a counsellor
+      // Check if user has chosen a counsellor
       if (!this.chosenCounsellor._id) {
         return {
           error: true,
@@ -194,8 +181,7 @@ export default {
       if (!this.chosenAppointmentType.duration) {
         return {
           error: true,
-          message:
-            "Please choose a valid appointment type for your appointment."
+          message: "Please choose a valid appointment type for your appointment."
         };
       }
 
@@ -238,68 +224,69 @@ export default {
           throw { response };
         }
 
-        // request was a success (appointment has been made)
+        // Request was a success (appointment has been made).
         this.$emit("appointment-created");
       } catch (error) {
+        // If the error is a string, use it to set the error message and return.
         if (Utils.isString(error)) {
           this.errorMessage = error;
           return;
         }
-        console.log(error.response.data);
+
+        // If there is clash information with the error message.
         if (error.response.data.clashInfo) {
+          // Create an error message describing the clashing appointments:
+          // "Appointment Clash: 4:00 PM - 4:50 PM is booked from Wednesday 5th to Wednesday 5th"
           let clashInfo = error.response.data.clashInfo;
           let startTime = this.moment(clashInfo.startTime);
           let endTime = this.moment(clashInfo.endTime);
-          let endDay = startTime
-            .clone()
-            .add(clashInfo.noFutureAppointments, "days");
+          let endDay = startTime.clone().add(clashInfo.noFutureAppointments, "days");
 
-          this.errorMessage = `Appointment Clash:\n${startTime.format(
+          this.errorMessage = `Appointment Clash:\n${startTime.format("LT")} - ${endTime.format(
             "LT"
-          )} - ${endTime.format("LT")} is booked from ${startTime.format(
-            "dddd Do"
-          )} to ${endDay.format("dddd Do")}`;
+          )} is booked from ${startTime.format("dddd Do")} to ${endDay.format("dddd Do")}`;
           return;
         }
-        ``;
+
         this.errorMessage = error.response.data.message;
       }
     },
 
-    // when a date has been chosen from the calendar, set the local state.
+    // When a date has been chosen from the calendar, set the local state.
     dateChosen({ appointmentStartTime, appointmentType }) {
       this.chosenStartTime = appointmentStartTime;
       this.chosenAppointmentType = appointmentType;
     },
 
-    // gets all the appointments that involve the clients
+    // Gets all the appointments that involve the clients
     getAppointmentsOfClient: async function() {
-      // get appointments of current user
-      let result = await AppointmentService.getAppointmentsOfUser({
-        userId: this.chosenClient._id,
-        isCounsellor: false,
-        reduced: true,
-        params: {
-          fromTime: this.moment()
-            .startOf("week")
-            .toString()
-        }
-      });
-
-      console.log(result);
-      return result.data.appointments;
+      try {
+        let result = await AppointmentService.getAppointmentsOfUser({
+          userId: this.chosenClient._id,
+          isCounsellor: false,
+          reduced: true,
+          params: {
+            // Get the appointments from the start of the week.
+            fromTime: this.moment()
+              .startOf("week")
+              .toString()
+          }
+        });
+        return result.data.appointments;
+      } catch (error) {
+        this.errorMessage = error.response.data.message;
+      }
     },
 
     // open and close appointment calendar
     toggleAppointmentCalendarModal() {
-      this.appointmentCalendarDisplayed = !this.appointmentCalendarDisplayed;
+      this.showAppointmentCalendar = !this.showAppointmentCalendar;
     }
   },
 
   watch: {
-    // watch chosenCounsellor and get their appointments whenever one is chosen
     chosenCounsellor: async function() {
-      // reset the chosen start time.
+      // reset the chosen start time so the user has to choose a new one.
       this.chosenStartTime = undefined;
     },
     chosenClient: async function() {
@@ -315,19 +302,25 @@ export default {
   async mounted() {
     // store user in local variable
     this.user = this.$store.state.authentication.user;
-    if (this.userIsCounsellor) {
-      this.clients = (await UserService.getAllClients()).data.clients;
-    } else {
-      this.chosenClient = this.user;
-    }
 
-    if (this.specificCounsellor) {
-      this.chosenCounsellor = this.specificCounsellor;
-    } else {
-      // get all counsellors
-      this.counsellors = (
-        await UserService.getAllCounsellors()
-      ).data.counsellors;
+    try {
+      if (this.userIsCounsellor) {
+        // Fetch all the clients, as counsellors can choose their clients.
+        this.clients = (await UserService.getAllClients()).data.clients;
+      } else {
+        // Clients can only book appointments with themselves as the client.
+        this.chosenClient = this.user;
+      }
+
+      // If the appointment is for a specific counsellor, set that counsellor to be a chosen counsellor.
+      if (this.specificCounsellor) {
+        this.chosenCounsellor = this.specificCounsellor;
+      } else {
+        // Get all counsellors.
+        this.counsellors = (await UserService.getAllCounsellors()).data.counsellors;
+      }
+    } catch (error) {
+      this.errorMessage = error.response.data.message;
     }
   }
 };

@@ -22,24 +22,14 @@
           </div>
           <div class="login-field">
             <h4 class="form-heading">Password</h4>
-            <input
-              class="form-input"
-              v-on:input="checkConfirmPassword()"
-              v-model="password"
-              type="password"
-            />
+            <input class="form-input" v-on:input="checkConfirmPassword()" v-model="password" type="password" />
           </div>
           <div class="login-field">
             <h4 class="form-heading">Confirm Password</h4>
-            <input
-              class="form-input"
-              v-on:input="checkConfirmPassword()"
-              v-model="confirmPassword"
-              type="password"
-            />
+            <input class="form-input" v-on:input="checkConfirmPassword()" v-model="confirmPassword" type="password" />
           </div>
         </div>
-        <h4 class="heading-4 error errorText">{{errorMessage}}</h4>
+        <h4 class="heading-4 error errorText">{{ errorMessage }}</h4>
         <button class="btn btn-primary">Submit</button>
       </form>
     </card>
@@ -48,7 +38,7 @@
 
 <script>
 import Card from "@/components/layout/Card";
-import UserService from "@/services/UserService";
+import AuthenticationService from "@/services/AuthenticationService";
 import Roles from "@/models/Roles";
 export default {
   components: {
@@ -56,24 +46,25 @@ export default {
   },
   data() {
     return {
-      username: null,
-      email: null,
-      password: null,
-      confirmPassword: null,
-      firstname: null,
-      lastname: null,
-      errorMessage: null,
-      passwordsMatch: false
+      username: null, // The new username.
+      email: null, // The new email.
+      password: null, // The new password.
+      confirmPassword: null, // The confirmed password.
+      firstname: null, // The firstname of the new user.
+      lastname: null, // The lastname of the new user.
+      errorMessage: null, // The response error message (if there is one)
+      passwordsMatch: false // Whether the password's match or not.
     };
   },
-  methods: {
-    checkConfirmPassword: async function() {
-      // ternary operator to reduce code
-      this.passwordsMatch = this.password == this.confirmPassword;
-    },
 
+  computed: {
+    checkConfirmPassword() {
+      return this.password == this.confirmPassword;
+    }
+  },
+  methods: {
     register: async function() {
-      if (!this.passwordsMatch) {
+      if (!this.checkConfirmPassword) {
         this.errorMessage = "Passwords don't match.";
         return;
       }
@@ -85,23 +76,22 @@ export default {
         password: this.password,
         firstname: this.firstname,
         lastname: this.lastname,
-        counsellorToken: this.$route.query.token || ""
+        counsellorToken: this.$route.query.token || "" // This included in the url for counsellors so they can can create counsellor accounts.
       };
 
       try {
         // If the user has been sent here by an email telling them to register a counsellor, there will be a registration token as part of the url.
         // This is required to register a new counsellor.
         if (newUser.counsellorToken) {
-          await UserService.registerUser(newUser, Roles.COUNSELLOR);
+          await AuthenticationService.registerUser(newUser, Roles.COUNSELLOR);
         } else {
-          await UserService.registerUser(newUser, Roles.CLIENT);
+          await AuthenticationService.registerUser(newUser, Roles.CLIENT);
         }
 
         // redirect user to the login page, so they can aquire tokens for their new account.
         this.$router.push("/login");
       } catch (err) {
-        this.errorMessage =
-          err.response.data.message || "Error registering user.";
+        this.errorMessage = err.response.data.message || "Error registering user.";
       }
     }
   }
@@ -148,4 +138,3 @@ export default {
   text-align: center;
 }
 </style>
-

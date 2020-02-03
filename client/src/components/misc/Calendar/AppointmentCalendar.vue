@@ -8,10 +8,10 @@
       defaultView="timeGridWeek"
       :weekends="true"
       :header="{
-                left: 'prev,next, today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
-            }"
+        left: 'prev,next, today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      }"
       :plugins="calendarPlugins"
       :eventSources="[{ events: getClientEvents }, { events: getCounsellorEvents }]"
       :businessHours="businessHours"
@@ -21,11 +21,7 @@
 
     <!-- Add Event Popup -->
     <div v-if="userCanAddEvents">
-      <CalendarPopup
-        v-if="showAddEventPopup"
-        :spaceClicked="screenToAvoid"
-        v-on:close-popup="toggleAddEventPopup"
-      >
+      <CalendarPopup v-if="showAddEventPopup" :spaceClicked="screenToAvoid" v-on:close-popup="toggleAddEventPopup">
         <!-- Add Event Form -->
         <AddEvent
           :day="chosenDay"
@@ -44,9 +40,9 @@
       :isCounsellor="$store.getters['authentication/isCounsellor']"
       v-if="showAppointmentModal"
       v-on:close-modal="
-                showAppointmentModal = false;
-                updateEvents();
-            "
+        showAppointmentModal = false;
+        updateEvents();
+      "
     ></ViewAppointment>
   </div>
 </template>
@@ -116,10 +112,7 @@ export default {
       // Filter all the events, excluding any events that don't have a start or end time that falls on the same day.
       let dayEvents = allEvents.filter(event => {
         // check to see if event is on the same day
-        return (
-          chosenDayTime.isSame(event.start, "day") ||
-          chosenDayTime.isSame(event.end, "day")
-        );
+        return chosenDayTime.isSame(event.start, "day") || chosenDayTime.isSame(event.end, "day");
       });
 
       // return all the events of that given day.
@@ -138,6 +131,7 @@ export default {
   },
 
   // TODO: add temporary event to show user (color it green(?) to show its temporary)
+
   methods: {
     updateEvents() {
       this.$emit("update-events");
@@ -169,9 +163,7 @@ export default {
     handleEventClick(event) {
       if (this.userCanAddEvents) return;
       this.showAppointmentModal = true;
-      this.selectedAppointment = this.clientAppointments.find(
-        appointment => event.event.id == appointment._id
-      );
+      this.selectedAppointment = this.clientAppointments.find(appointment => event.event.id == appointment._id);
     },
 
     // triggered when user clicks on a day
@@ -204,14 +196,10 @@ export default {
       let counsellorEvents = this.getCounsellorEvents;
       if (counsellorEvents) {
         // filter counsellorEvents, only including events that don't match the start or end time of a user event.
-        this.events.counsellorEvents = counsellorEvents.filter(function(
-          counsellorEvent
-        ) {
+        this.events.counsellorEvents = counsellorEvents.filter(function(counsellorEvent) {
           // see if clientEvents contains the current counsellor event, and find it's index.
           let dup = clientEvents.find(
-            userEvent =>
-              userEvent.start == counsellorEvent.start ||
-              userEvent.end == counsellorEvent.end
+            userEvent => userEvent.start == counsellorEvent.start || userEvent.end == counsellorEvent.end
           );
           return !dup;
         });
@@ -246,14 +234,10 @@ export default {
       ).data.appointments;
 
       this.createBusinessHours();
-      this.events.counsellorEvents = this.mapAppointmentsToEvents(
-        counsellorAppointments
-      );
+      this.events.counsellorEvents = this.mapAppointmentsToEvents(counsellorAppointments);
     }
 
-    this.events.clientEvents = this.mapAppointmentsToEvents(
-      this.clientAppointments
-    );
+    this.events.clientEvents = this.mapAppointmentsToEvents(this.clientAppointments);
 
     this.removeDuplicateEvents();
   },

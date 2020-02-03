@@ -18,17 +18,10 @@
       :clientAppointments="clientAppointments"
       :mandAppointmentType="appointment.appointmentType"
     ></appointment-calendar>
-    <button
-      v-else
-      @click="showCalendar = true"
-      class="btn btn-secondary choose-time-button"
-    >Choose a new time</button>
+    <button v-else @click="showCalendar = true" class="btn btn-secondary choose-time-button">Choose a new time</button>
 
     <h4 class="heading-4 error" :class="{ success: message.success }">{{ message.content }}</h4>
-    <button
-      class="btn btn-primary reschedule-button"
-      @click="rescheduleAppointment"
-    >Reschedule Appointment</button>
+    <button class="btn btn-primary reschedule-button" @click="rescheduleAppointment">Reschedule Appointment</button>
 
     <p class="paragraph">This will not affect any other appointments.</p>
   </div>
@@ -60,8 +53,7 @@ export default {
   },
   components: {
     // Import the appointment calendar component asynchronously to avoid an import loop.
-    AppointmentCalendar: () =>
-      import("@/components/misc/Calendar/AppointmentCalendar.vue")
+    AppointmentCalendar: () => import("@/components/misc/Calendar/AppointmentCalendar.vue")
   },
   methods: {
     // Reschedule the appointment.
@@ -98,9 +90,7 @@ export default {
     // Set the new selected time, and hide the appointment calendar.
     setNewTime({ appointmentStartTime, appointmentType }) {
       this.newTime.startTime = appointmentStartTime;
-      this.newTime.endTime = appointmentStartTime
-        .clone()
-        .add(appointmentType.duration, "minutes");
+      this.newTime.endTime = appointmentStartTime.clone().add(appointmentType.duration, "minutes");
       this.showCalendar = false;
     },
 
@@ -122,39 +112,37 @@ export default {
           });
 
           // Add the appointments of the clients to the list of all client appointments.
-          this.clientAppointments = this.clientAppointments.concat(
-            res.data.appointments
-          );
+          this.clientAppointments = this.clientAppointments.concat(res.data.appointments);
         }
+      } catch (error) {
+        // Display the error messages.
+        this.message.contents = error.response.message;
+        this.message.success = error.response.success;
+      }
+    },
+
+    // Get the counsellor of the appointment.
+    async getCounsellor() {
+      // Get the counsellor
+      try {
+        let res = await UserService.getReducedCounsellor(this.appointment.counsellorId);
+
+        this.counsellor = res.data.counsellor;
       } catch (error) {
         this.message.contents = error.response.message;
         this.message.success = error.response.success;
       }
     },
 
-    async getCounsellor() {
-      // Get the counsellor
-      try {
-        let res = await UserService.getReducedCounsellor(
-          this.appointment.counsellorId
-        );
-
-        this.counsellor = res.data.counsellor;
-        console.log(res);
-      } catch (error) {
-        console.log(error);
-      }
-    },
-
+    // Get an appointment time in the format '07:00-07:50, Tuesday 28th January'.
     getFullAppointmentTime(start, end) {
       start = this.moment(start);
       end = this.moment(end);
-      return `${start.format("HH:mm")}-${end.format(
-        "HH:mm"
-      )}, ${start.clone().format("dddd Do MMMM")}`;
+      return `${start.format("HH:mm")}-${end.format("HH:mm")}, ${start.clone().format("dddd Do MMMM")}`;
     }
   },
   async mounted() {
+    // Get the client appointments and the counsellor information.
     await this.getClientAppointments();
     await this.getCounsellor();
   }

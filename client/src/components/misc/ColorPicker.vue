@@ -12,27 +12,30 @@
   </div>
 </template>
 
-
 <script>
 export default {
   props: {
-    colors: Array
+    colors: Array // The colors to choose from.
   },
   data() {
     return {
-      chosenColor: ""
+      chosenColor: "" // The color chosen.
     };
   },
   methods: {
+    // Set the chosen color.
     setColor(color) {
       this.chosenColor = color;
-      this.$emit("input", color);
+      this.$emit("input", color); // Emit the chosen color to the parent.
     },
+
+    // Style the color box.
     getColorStyle(color) {
       let styleObject = {
         "background-color": color
       };
 
+      // If this color matches the chosen color, enlarge it.
       if (this.chosenColor == color) {
         styleObject.width = "4rem";
         styleObject.height = "4rem";

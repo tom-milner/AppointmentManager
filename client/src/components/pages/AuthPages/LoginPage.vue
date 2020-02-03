@@ -28,28 +28,27 @@
 
 <script>
 import Card from "@/components/layout/Card";
-import UserService from "@/services/UserService";
+import AuthenticationService from "@/services/AuthenticationService";
 export default {
   components: {
     Card
   },
   data() {
     return {
-      username: null,
-      password: null,
-      errorMessage: null
+      username: null, // The user's username
+      password: null, // The user's password
+      errorMessage: null // The error message (if there is one).
     };
   },
   methods: {
+    // Log the user in - this works for any type of user.
     login: async function() {
       const username = this.username;
       const password = this.password;
       try {
-        let response = await UserService.loginUser(username, password);
-        console.log(response);
-        this.$router.push("/home");
+        await AuthenticationService.loginUser(username, password);
+        this.$router.push("/home"); // Redirect the user to the home page on successful login.
       } catch (err) {
-        console.log(err);
         this.errorMessage = err.response.data.message;
       }
     }

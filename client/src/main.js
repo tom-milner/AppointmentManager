@@ -4,22 +4,10 @@ import router from "./routes";
 import store from "./store/store";
 import AuthenticationService from "@/services/AuthenticationService";
 
-// Setup error monitoring
-// import * as Sentry from '@sentry/browser';
-// import * as Integrations from '@sentry/integrations';
-// Sentry.init({
-//     dsn: 'https://56454897973441c8a6a4d93b7286e72f@sentry.io/1804724',
-//     integrations: [new Integrations.Vue({
-//         Vue,
-//         attachProps: true
-//     })]
-// });
-
-
+console.log("main", AuthenticationService);
 // Attach Icon component to all components.
 import Icon from "vue-icon/lib/vue-feather.esm";
 Vue.component("icon", Icon);
-
 
 // setup moment for date time formatting
 import moment from "moment";
@@ -34,7 +22,7 @@ AuthenticationService.initializeNavigationGuard();
 Vue.config.productionTip = false;
 
 new Vue({
-    router,
-    store,
-    render: h => h(App)
+  router,
+  store,
+  render: h => h(App)
 }).$mount("#app");

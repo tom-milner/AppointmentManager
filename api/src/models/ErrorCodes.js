@@ -3,6 +3,6 @@
 */
 
 module.exports = {
-    // The MongoDB duplicate item error code.
-    MONGO_DUPLICATE_KEY: 11000
-}
+  // The MongoDB duplicate item error code.
+  MONGO_DUPLICATE_KEY: 11000
+};

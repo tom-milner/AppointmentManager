@@ -18,15 +18,12 @@
       </div>
     </div>
 
+    <h4 class="heading-4 error">{{ message.content }}</h4>
+
     <!-- List of clients -->
     <div class="container">
       <ul class="client-list">
-        <router-link
-          @click="viewClient(client)"
-          v-for="client in getFilteredClients"
-          :key="client._id"
-          :to="getClientUrl(client)"
-        >
+        <router-link v-for="client in getFilteredClients" :key="client._id" :to="getClientUrl(client)">
           <li class="client-item">
             <div class="client-content">
               <h4 class="heading-4 fullname">{{ client.firstname }} {{ client.lastname }}</h4>
@@ -45,18 +42,20 @@ import UserService from "@/services/UserService";
 export default {
   data() {
     return {
-      allClients: [],
-      sortKey: "Firstname",
-      searchQuery: "",
-      chosenClient: {},
-      showViewClient: false
+      allClients: [], // All the clients in the database.
+      sortKey: "Firstname", // The key to sort the clients with.
+      searchQuery: "", // The query to search the clients with.
+      message: {
+        content: "", // The message contents.
+        success: false // Whether the message is an error or success message.
+      }
     };
   },
-  components: {},
   mounted() {
-    this.getAllClients();
+    this.getAllClients(); // Fetch all the clients when the page loads.
   },
   computed: {
+    // Filter the clients using the search query.
     getFilteredClients() {
       if (this.allClients.length < 1) return [];
       // create local copies of variables - you can't use "this" in  a forEach
@@ -75,35 +74,43 @@ export default {
 
       return filteredClients;
     },
+
+    // The keys that can be used to sort the clients with.
     getClientKeys() {
       return ["Username", "Firstname", "Lastname", "Email"];
     }
   },
   watch: {
+    // When the sort key changes, resort the clients.
     sortKey() {
       this.sortClientsAlphabetically();
     }
   },
   methods: {
+    // Get the url of the clients user details page.
     getClientUrl(client) {
       return `clients/${client._id}`;
     },
 
+    // Get all the clients on the system.
     async getAllClients() {
       try {
         let response = await UserService.getAllClients();
         this.allClients = response.data.clients;
         this.sortClientsAlphabetically();
       } catch (error) {
-        console.log(error);
+        this.message.content = error.response.data.message || "Error fetching clients.";
+        this.message.success = false;
       }
     },
+
+    // Sort the clients alphabetically.
     sortClientsAlphabetically() {
       const sortKey = this.sortKey.toLowerCase();
-      this.allClients.sort(function(client, nextClient) {
-        let clientName = client[sortKey].toUpperCase();
-        let nextClientName = nextClient[sortKey].toUpperCase();
-
+      this.allClients.sort((client, nextClient) => {
+        const clientName = client[sortKey].toLowerCase();
+        const nextClientName = nextClient[sortKey].toLowerCase();
+        // Javascript will automatically compare the strings alphabetically.
         if (clientName < nextClientName) return -1;
         if (clientName > nextClientName) return 1;
         return 0;
@@ -173,5 +180,10 @@ export default {
   select {
     width: 30rem;
   }
+}
+
+.error {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 </style>

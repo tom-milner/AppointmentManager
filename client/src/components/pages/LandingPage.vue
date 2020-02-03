@@ -17,14 +17,10 @@ import Card from "@/components/layout/Card";
 
 export default {
   components: { Card },
-  mounted: function() {
-    this.checkUserLoggedIn();
-  },
-  methods: {
-    checkUserLoggedIn: function() {
-      if (this.$store.getters["authentication/isLoggedIn"]) {
-        this.$router.push("/home");
-      }
+  created() {
+    // If the user is already logged in, redirect them to the home page.
+    if (this.$store.getters["authentication/isLoggedIn"]) {
+      this.$router.push("/home");
     }
   }
 };

@@ -17,24 +17,31 @@ router.use(AuthenticationMiddleware.isLoggedIn);
 // get all clients.
 router.get("/", ClientController.getClients);
 
-
 // get info about client
-router.get("/full/:clientId", AuthenticationMiddleware.roleCheck({
+router.get(
+  "/full/:clientId",
+  AuthenticationMiddleware.roleCheck({
     role: Roles.CLIENT,
     userSpecific: true
-}), ClientController.getClient({
+  }),
+  ClientController.getClient({
     reduced: false
-}));
-
+  })
+);
 
 // update client details
-router.post("/:clientId", AuthenticationMiddleware.roleCheck({
-        role: Roles.CLIENT,
-        userSpecific: true,
-    }),
-    AuthenticationControllerPolicy.updateUser({
-        isGuest: false,
-        isNew: false
-    }), ClientControllerPolicy.updateClient, ClientController.updateClient);
+router.post(
+  "/:clientId",
+  AuthenticationMiddleware.roleCheck({
+    role: Roles.CLIENT,
+    userSpecific: true
+  }),
+  AuthenticationControllerPolicy.updateUser({
+    isGuest: false,
+    isNew: false
+  }),
+  ClientControllerPolicy.updateClient,
+  ClientController.updateClient
+);
 
 module.exports = router;

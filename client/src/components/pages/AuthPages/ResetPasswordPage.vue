@@ -4,10 +4,6 @@
       <div class="container">
         <h2 class="heading-2">Reset Password</h2>
         <form v-on:submit.prevent="resetPassword">
-          <!-- <div class="row"> -->
-          <!-- <h3 class="form-heading">Enter Email</h3> -->
-          <!-- <input v-model="email" type="email" class="form-input" /> -->
-          <!-- </div> -->
           <div class="row">
             <h3 class="form-heading">New Password</h3>
             <input v-model="password" type="password" class="form-input" />
@@ -17,7 +13,7 @@
             <input v-model="confirmedPassword" type="password" class="form-input" />
           </div>
           <div class="row">
-            <h4 class="heading-4 error message">{{message}}</h4>
+            <h4 class="heading-4 error message">{{ message }}</h4>
           </div>
           <div class="row reset-button">
             <button class="btn btn-primary">Reset Password</button>
@@ -31,17 +27,15 @@
 <script>
 import Card from "@/components/layout/Card";
 import AuthenticationService from "@/services/AuthenticationService";
-import UserService from "@/services/UserService";
 import Utils from "@/utils";
 
 export default {
   data() {
     return {
-      token: "",
-      email: "",
-      password: "",
-      confirmedPassword: "",
-      message: ""
+      token: "", // The password reset token.
+      password: "", // The new password
+      confirmedPassword: "", // The new password confirmed.
+      message: "" // The error/success message.
     };
   },
   components: {
@@ -49,21 +43,20 @@ export default {
   },
 
   methods: {
+    // Reset the user's password.
     async resetPassword() {
+      // Make sure the user has entered the same password twice.
       if (this.password != this.confirmedPassword) {
         this.message = "Passwords don't match";
         return;
       }
 
-      // send request
+      // Send request
       try {
-        let response = await AuthenticationService.resetPassword(
-          this.password,
-          this.token
-        );
+        let response = await AuthenticationService.resetPassword(this.password, this.token);
         if (response.data.success) {
           // remove any current user credentials.
-          UserService.logoutUser();
+          AuthenticationService.logoutUser();
           // send user to login page
           this.$router.push("/auth/login");
         } else {
@@ -78,10 +71,9 @@ export default {
   },
 
   mounted() {
-    // get token from url
-    console.log(this.$route);
+    // Get token from url
     if (!this.$route.query.token) {
-      // if there's no token redirect the user.
+      // If there's no token redirect the user back to the landing page.
       this.$router.push("/");
     } else {
       this.token = this.$route.query.token;
@@ -89,7 +81,6 @@ export default {
   }
 };
 </script>
-
 
 <style lang="scss" scoped>
 @import "src/scss/global";

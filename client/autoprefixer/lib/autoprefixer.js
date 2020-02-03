@@ -1,21 +1,21 @@
 "use strict";
 
-var browserslist = require('browserslist');
+var browserslist = require("browserslist");
 
-var postcss = require('postcss');
+var postcss = require("postcss");
 
-var agents = require('caniuse-lite').agents;
+var agents = require("caniuse-lite").agents;
 
-var Browsers = require('./browsers');
+var Browsers = require("./browsers");
 
-var Prefixes = require('./prefixes');
+var Prefixes = require("./prefixes");
 
-var data = require('../data/prefixes');
+var data = require("../data/prefixes");
 
-var info = require('./info');
+var info = require("./info");
 
 function isPlainObject(obj) {
-  return Object.prototype.toString.apply(obj) === '[object Object]';
+  return Object.prototype.toString.apply(obj) === "[object Object]";
 }
 
 var cache = {};
@@ -34,11 +34,14 @@ function timeCapsule(result, prefixes) {
   }
   /* istanbul ignore next */
 
-
-  result.warn('Greetings, time traveller. ' + 'We are in the golden age of prefix-less CSS, ' + 'where Autoprefixer is no longer needed for your stylesheet.');
+  result.warn(
+    "Greetings, time traveller. " +
+      "We are in the golden age of prefix-less CSS, " +
+      "where Autoprefixer is no longer needed for your stylesheet."
+  );
 }
 
-module.exports = postcss.plugin('autoprefixer', function () {
+module.exports = postcss.plugin("autoprefixer", function() {
   for (var _len = arguments.length, reqs = new Array(_len), _key = 0; _key < _len; _key++) {
     reqs[_key] = arguments[_key];
   }
@@ -48,12 +51,12 @@ module.exports = postcss.plugin('autoprefixer', function () {
   if (reqs.length === 1 && isPlainObject(reqs[0])) {
     options = reqs[0];
     reqs = undefined;
-  } else if (reqs.length === 0 || reqs.length === 1 && !reqs[0]) {
+  } else if (reqs.length === 0 || (reqs.length === 1 && !reqs[0])) {
     reqs = undefined;
   } else if (reqs.length <= 2 && (reqs[0] instanceof Array || !reqs[0])) {
     options = reqs[1];
     reqs = reqs[0];
-  } else if (typeof reqs[reqs.length - 1] === 'object') {
+  } else if (typeof reqs[reqs.length - 1] === "object") {
     options = reqs.pop();
   }
 
@@ -62,16 +65,16 @@ module.exports = postcss.plugin('autoprefixer', function () {
   }
 
   if (options.browser) {
-    throw new Error('Change `browser` option to `browsers` in Autoprefixer');
+    throw new Error("Change `browser` option to `browsers` in Autoprefixer");
   } else if (options.browserslist) {
-    throw new Error('Change `browserslist` option to `browsers` in Autoprefixer');
+    throw new Error("Change `browserslist` option to `browsers` in Autoprefixer");
   }
 
   if (options.browsers) {
     reqs = options.browsers;
   }
 
-  if (typeof options.grid === 'undefined') {
+  if (typeof options.grid === "undefined") {
     options.grid = false;
   }
 
@@ -83,7 +86,7 @@ module.exports = postcss.plugin('autoprefixer', function () {
   function loadPrefixes(opts) {
     var d = module.exports.data;
     var browsers = new Browsers(d.browsers, reqs, opts, brwlstOpts);
-    var key = browsers.selected.join(', ') + JSON.stringify(options);
+    var key = browsers.selected.join(", ") + JSON.stringify(options);
 
     if (!cache[key]) {
       cache[key] = new Prefixes(d.prefixes, browsers, options);
@@ -111,7 +114,7 @@ module.exports = postcss.plugin('autoprefixer', function () {
   plugin.options = options;
   plugin.browsers = reqs;
 
-  plugin.info = function (opts) {
+  plugin.info = function(opts) {
     opts = opts || {};
     opts.from = opts.from || process.cwd();
     return info(loadPrefixes(opts));
@@ -129,13 +132,12 @@ module.exports.data = {
   /**
    * Autoprefixer default browsers
    */
-
 };
 module.exports.defaults = browserslist.defaults;
 /**
  * Inspect with default Autoprefixer
  */
 
-module.exports.info = function () {
+module.exports.info = function() {
   return module.exports().info();
 };

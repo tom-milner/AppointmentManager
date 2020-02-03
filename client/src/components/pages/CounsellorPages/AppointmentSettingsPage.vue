@@ -28,17 +28,13 @@
       <p class="paragraph note">This is the minimum time inbetween appointments.</p>
       <form v-on:submit.prevent="updateBufferTime">
         <h4 class="heading-4">Buffer Time:</h4>
-        <input
-          type="number"
-          v-model="counsellor.appointmentBufferTime"
-          class="form-input"
-          max="30"
-          min="10"
-        />
+        <input type="number" v-model="counsellor.appointmentBufferTime" class="form-input" max="30" min="10" />
         <h4 class="heading-4">mins</h4>
         <button class="btn btn-primary">Save</button>
       </form>
     </div>
+
+    <h4 class="heading-4 error" :class="{ success: message.success }">{{ message.content }}</h4>
   </div>
 </template>
 
@@ -53,33 +49,51 @@ export default {
   },
   data() {
     return {
-      appointmentTypes: [],
-      counsellor: {}
+      appointmentTypes: [], // All the appoinment types.
+      counsellor: {}, // The current counsellor.
+      message: {
+        // The response error/success message and status.
+        content: "",
+        success: false
+      }
     };
   },
   computed: {
+    // Whether the counsellor is in the process of adding a new appointment type or not.
     addingNewAppointmentType() {
-      if (this.appointmentTypes.length > 0)
-        return !this.appointmentTypes[this.appointmentTypes.length - 1]._id;
+      // The last appointment in the appointment types list doesn't have an ID, the counsellor is adding a new appointment type.
+      if (this.appointmentTypes.length > 0) return !this.appointmentTypes[this.appointmentTypes.length - 1]._id;
       return false;
     }
   },
   methods: {
+    // Set the message.
+    setMessage(message, success) {
+      this.message.content = message;
+      this.message.success = success;
+    },
+
+    //  Update the appointment buffer time.
     async updateBufferTime() {
+      let res;
       try {
-        await UserService.updateUser(
+        res = await UserService.updateUser(
           this.counsellor._id,
           {
             appointmentBufferTime: this.counsellor.appointmentBufferTime
           },
-          true
+          true // The user is a counsellor.
         );
       } catch (error) {
-        console.log(error);
+        res = error.response;
       }
+      this.setMessage(res.data.message, res.data.success);
     },
+
+    // Add a new appointment type to the list.
     addNewAppointmentType() {
       if (!this.addingNewAppointmentType)
+        // If we're not already adding to the appointment type.
         this.appointmentTypes.push({
           name: "",
           description: "",
@@ -89,18 +103,20 @@ export default {
         });
     },
 
+    // Get all the appointment types.
     async getAppointmentTypes() {
-      let result = await AppointmentTypeService.getAppointmentTypes();
-      if (result.data.success) {
-        this.appointmentTypes = result.data.appointmentTypes;
+      try {
+        let res = await AppointmentTypeService.getAppointmentTypes();
+        this.appointmentTypes = res.data.appointmentTypes;
+      } catch (error) {
+        this.setMessage(error.response.data.message, error.response.data.success);
       }
     }
   },
   async mounted() {
-    let response = await UserService.getCounsellor(
-      this.$store.state.authentication.user._id
-    );
-    this.counsellor = response.data.counsellor;
+    // Get the counsellor info.
+    this.counsellor = this.$store.state.authentication.user;
+
     this.getAppointmentTypes();
   }
 };
@@ -136,5 +152,8 @@ export default {
       margin-right: 2rem;
     }
   }
+}
+.error {
+  margin-top: 2rem;
 }
 </style>
