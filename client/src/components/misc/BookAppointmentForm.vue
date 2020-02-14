@@ -20,7 +20,7 @@
           class="form-input short-input select"
           v-model="chosenCounsellor"
         >
-          <option v-for="counsellor in counsellors" :key="counsellor._id" :value="counsellor"
+          <option v-for="counsellor in counsellors" :key="counsellor._id" value="counsellor"
             >{{ counsellor.firstname }} {{ counsellor.lastname }}</option
           >
         </select>
@@ -40,12 +40,7 @@
       <!-- Appointment Date Selection -->
       <div class="form-field">
         <h4 class="form-heading">Appointment Date</h4>
-        <input
-          :value="getFormattedChosenDate"
-          :v-model="getFormattedChosenDate"
-          class="form-input short-input"
-          disabled
-        />
+        <input v-model="getFormattedChosenDate" class="form-input short-input" disabled />
         <button
           v-if="canDisplayOpenCalendarButton"
           class="btn btn-secondary short-input"
