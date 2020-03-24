@@ -165,17 +165,18 @@ async function createPasswordReset(user) {
  * @returns {Number} distance - The (approximate) geographical distance between the 2 ip addresses.
  */
 async function calculateGeoIpDistance(ip1, ip2) {
-  // get rough location of ips
+  // Get the  rough location of the Ip addresses using the IP Stack web service.
   const ipStack = axios.create({
-    baseURL: Config.location.IPSTACK_API
+    baseURL: Config.location.IPSTACK_API // Add the base API url to Axios.
   });
   ipStack.interceptors.request.use(config => {
     config.params = {
-      access_key: Config.location.IPSTACK_API_KEY
+      access_key: Config.location.IPSTACK_API_KEY // Add the API key to any API calls.
     };
     return config;
   });
 
+  // Get the location data.
   // These would preferably be a single request, but IpStack don't allow querying multiple Ips at once on their free plan.
   let loc1, loc2;
   try {
@@ -199,28 +200,32 @@ async function calculateGeoIpDistance(ip1, ip2) {
   let lon2 = loc2.longitude;
   let lat2 = loc2.latitude;
 
-  // calculate distance using Haversine formula
+  // Calculate distance using Haversine formula (https://en.wikipedia.org/wiki/Haversine_formula). Referenced in Analysis.
   // haversine(θ) = sin²(θ / 2)
-  // a = sin²(φB - φA / 2) + cos φA * cos φB * sin²(λB - λA / 2)
-  // c = 2 * atan2(√a, √(1− a))
-  // d = R⋅ c
+  // a = sin²(φB - φA / 2) + cos φA * cos φB * sin²(λB - λA / 2)    : haversine(theta) = haversine(phi2 - phi1) + cos(phi1)cos(phi2)haversine(lambda2 - lambda1)  'theta' is the angle between the two points on the surface of the sphere.
+  // c = 2 * atan2(√a, √(1− a))                                     : apply the inverse haversine formula to obtain the angle the two points make through the sphere.
+  // d = R⋅ c                                                       : apply the arc length formula to find the distance between the two points.
 
   // Radius of the Earth (in meters)
   const R = 6371e3;
 
-  // convert degrees into radians.
+  // Latitude and longitude are stored in degrees. In order to use them in the formula, we need to convert them into radians.
+  // Convert degrees into radians.
   const phi1 = degToRadians(lat1);
   const phi2 = degToRadians(lat2);
 
-  // change difference between longitudes and  latitudes (and turn to radians)
+  // Change differences between longitudes and latitudes into radians.
   const delta_phi = degToRadians(lat2 - lat1);
   const delta_lambda = degToRadians(lon2 - lon1);
 
+  // calculate haversine(theta)
   const a =
     Math.pow(Math.sin(delta_phi / 2), 2) + Math.cos(phi1) * Math.cos(phi2) * Math.pow(Math.sin(delta_lambda / 2), 2);
 
+  // Inverse haversine 'haversine(theta)' to obtain theta, the angle made between the two coordinates on the sphere.
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
+  // Use formula for Arc Length (l = r * theta) to calculate final length.
   const distance = R * c; // Resulting distance in meters.
 
   Logger.info("Ip distance calculated.", {
@@ -234,7 +239,7 @@ async function calculateGeoIpDistance(ip1, ip2) {
 }
 
 /**
- * Ths function turns a degree measurement into radians.
+ * This function turns a degree measurement into radians.
  * @param {Number} deg - The angle in degrees.
  * @returns {Number} rad - The angle in radians.
  */

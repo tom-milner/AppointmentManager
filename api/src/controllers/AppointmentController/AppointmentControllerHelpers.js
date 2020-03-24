@@ -72,7 +72,7 @@ async function checkAllAppointments(appointmentInfo) {
 
 /**
  * Check that a counsellor is working on the day and time of an appointment.
- * @param {[]]} workingDays - An array of the days the counsellor is working on.
+ * @param {[]} workingDays - An array of the days the counsellor is working on.
  * @param {moment} desiredStartTime - The desired start time of the appointment.
  * @param {moment} desiredEndTime - The desired end time of the appointment.
  * @returns {{}} {message} An object containing an error message to be sent back to the user.
@@ -204,7 +204,7 @@ async function checkUserAvailability(desiredStartTime, desiredEndTime, userId) {
 
 /**
  * Create reduced info about a list of clashing appointments.
- * @param {[]]} clashingAppointments - A list of appointments that clash with the chosen appointment.
+ * @param {[]} clashingAppointments - A list of appointments that clash with the chosen appointment.
  * @returns {[]} clashInfo - An array of objects each containing reduced information about a clashing appointment.
  */
 function createClashInfo(clashingAppointments) {

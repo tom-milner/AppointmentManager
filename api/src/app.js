@@ -18,10 +18,9 @@ const Config = require("./struct/Config");
 // ** SETUP APP MIDDLEWARE **
 // This includes error tracking & monitoring, application routes, and global middleware.
 
-// TODO: lock down cors
 // Automatic CORS-policy handling
 // This allows any origin to access the api routes.
-app.use(cors());
+app.use(cors()); // Currently any 'origin' can access the API as my client has not yet decided on a domain name.
 
 // Setup app to handle POST requests. (Read a http request body)
 app.use(

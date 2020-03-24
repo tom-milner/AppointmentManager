@@ -17,7 +17,7 @@ Vue.prototype.moment = moment;
 // setup navigation guard
 AuthenticationService.initializeNavigationGuard();
 
-// Set document title.
+// Set title.
 document.title = "Appointment Manager";
 
 Vue.config.productionTip = false;

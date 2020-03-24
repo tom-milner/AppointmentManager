@@ -17,7 +17,7 @@
       :businessHours="businessHours"
       :selectConstraint="businessHours"
       :selectable="userCanAddEvents"
-    ></full-calendar>
+    />
 
     <!-- Add Event Popup -->
     <div v-if="userCanAddEvents">
@@ -30,7 +30,7 @@
           :appointmentBufferTime="counsellor.appointmentBufferTime"
           v-on:date-chosen="dateChosen"
           :appointmentType="mandAppointmentType"
-        ></AddEvent>
+        />
       </CalendarPopup>
     </div>
 
@@ -43,7 +43,7 @@
         showAppointmentModal = false;
         updateEvents();
       "
-    ></ViewAppointment>
+    />
   </div>
 </template>
 

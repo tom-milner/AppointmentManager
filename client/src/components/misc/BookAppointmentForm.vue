@@ -20,7 +20,7 @@
           class="form-input short-input select"
           v-model="chosenCounsellor"
         >
-          <option v-for="counsellor in counsellors" :key="counsellor._id" value="counsellor"
+          <option v-for="counsellor in counsellors" :key="counsellor._id" :value="counsellor"
             >{{ counsellor.firstname }} {{ counsellor.lastname }}</option
           >
         </select>

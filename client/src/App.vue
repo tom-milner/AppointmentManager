@@ -55,7 +55,7 @@ export default {
     }
   },
   created() {
-    // Hide the navigagtion bar if required.
+    // Hide the navigation bar if required.
     this.hideNavigation = this.$route.meta.hideNavigation;
   },
   data() {

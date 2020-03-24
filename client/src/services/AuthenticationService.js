@@ -53,6 +53,7 @@ function initializeNavigationGuard() {
         accessToken = await refreshAccessToken();
       } catch (error) {
         console.log("Error refreshing token");
+        return next('/');
       }
     }
     // Make sure the user exists in store
@@ -74,7 +75,7 @@ function initializeNavigationGuard() {
           user: currentUser
         });
       } catch (error) {
-        return console.log("auth error");
+        return next('/');
       }
     }
     // check to see if the user has the required access levels

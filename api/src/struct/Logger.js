@@ -41,7 +41,7 @@ const logger = createLogger({
   ]
 });
 
-// If not in production, log to console and colorise output for debugging purposes.
+// If not in production, log to console and colorize output for debugging purposes.
 if (process.env.NODE_ENV !== "production") {
   const customFormat = format.printf(({ level, message, timestamp, error }) => {
     return `${level} [${timestamp}] : ${message} ${error || ""}`;

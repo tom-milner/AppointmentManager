@@ -1,4 +1,4 @@
-const { google } = require("googleapis");
+const {google} = require("googleapis");
 const http = require("http");
 const destroyer = require("server-destroy");
 const url = require("url");
@@ -61,7 +61,7 @@ class GoogleAuth {
     Logger.info("Setting up google APIs...");
 
     //Load in config variables.
-    let { CLIENT_ID, CLIENT_SECRET, REDIRECT_URI } = Config.googleAuth;
+    let {CLIENT_ID, CLIENT_SECRET, REDIRECT_URI} = Config.googleAuth;
 
     if (!(CLIENT_ID && CLIENT_SECRET && REDIRECT_URI)) {
       throw new Error("No google mail config found.");
@@ -134,7 +134,7 @@ class GoogleAuth {
             Logger.info(`Received code.`);
 
             // Generate new tokens.
-            const { tokens } = await this.oauth2Client.getToken(code);
+            const {tokens} = await this.oauth2Client.getToken(code);
 
             // send success message to webpage
             res.end("Authentication Successfull.");
