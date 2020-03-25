@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="content">
       <!-- Heading-->
-      <div class="icon-box" v-on:click="$router.go(-1)">
+      <div class="icon-box" v-on:click="$router.push('/counsellor/clients')">
         <icon name="arrow-left"></icon>
       </div>
       <h2 class="heading-2">{{ fullClient.firstname }} {{ fullClient.lastname }}</h2>

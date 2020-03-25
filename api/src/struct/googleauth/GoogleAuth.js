@@ -71,7 +71,7 @@ class GoogleAuth {
     this.oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
 
     // This is a temporary file, so it's name isn't stored with the environment variables.
-    const tokenFileName = "googleTokens.json";
+    const tokenFileName = "GoogleTokens.json";
     let tokenFilePath = path.resolve(__dirname, tokenFileName);
 
     // Save file path to the class.

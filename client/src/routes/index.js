@@ -1,3 +1,8 @@
+/*
+    This file is responsible for setting up the web app routes. It imports the Authentication and Counsellor routes and sets up others.
+    It then exports the created routes.
+*/
+
 import Vue from "vue";
 import Router from "vue-router";
 

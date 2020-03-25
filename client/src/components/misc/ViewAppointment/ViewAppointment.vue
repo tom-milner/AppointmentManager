@@ -194,7 +194,7 @@ export default {
     Modal,
     RescheduleView
   },
-  mounted() {
+  created() {
     // Get the client and counsellors names as soon as the component loads.
     this.getClientsNames();
     this.getCounsellorName();

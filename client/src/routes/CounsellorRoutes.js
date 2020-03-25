@@ -1,3 +1,8 @@
+/*
+    This file is for setting up the Counsellor Routes. These are routes that are responsible for any Counsellor operations,
+    and so therefore can only be accessed by users with a role of COUNSELLOR or above.
+ */
+
 import WorkCalendarPage from "@/components/pages/CounsellorPages/WorkCalendarPage.vue";
 import ManageClientsPage from "@/components/pages/CounsellorPages/ManageClientsPage/ManageClientsPage";
 import AppointmentSettingsPage from "@/components/pages/CounsellorPages/AppointmentSettingsPage";
@@ -5,7 +10,6 @@ import UserDetailsPage from "@/components/pages/CounsellorPages/ManageClientsPag
 import Roles from "@/models/Roles";
 
 // Counsellor Routes
-
 export default [
   // Work Calendar Route.
   {

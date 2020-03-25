@@ -1,3 +1,7 @@
+/*
+    This file is for setting up the Authentication Routes - all the routes to do with authenticating a user e.g. logging in, signing up etc.
+ */
+
 import LoginPage from "@/components/pages/AuthPages/LoginPage.vue";
 import RegisterPage from "@/components/pages/AuthPages/RegisterPage.vue";
 import ForgotPasswordPage from "@/components/pages/AuthPages/ForgotPasswordPage";

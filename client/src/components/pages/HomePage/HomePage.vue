@@ -1,4 +1,3 @@
-rR
 <template>
   <div>
     <div class="wrapper">
@@ -27,12 +26,12 @@ rR
 
       <div class="container options">
         <div class="search">
-          <icon class="icon" name="search"></icon>
+          <icon class="icon" name="search"/>
           <h3 class="heading-3">Search:</h3>
           <input type="text" v-model="searchQuery" class="form-input search-box"/>
         </div>
         <div class="filter">
-          <icon name="filter"></icon>
+          <icon name="filter"/>
           <h3 class="heading-3">Filter:</h3>
           <select v-model="chosenTimePeriod" class="form-input select">
             <option v-for="timePeriod in timePeriods" :key="timePeriod" :value="timePeriod">
@@ -50,7 +49,7 @@ rR
 
         <div
             v-if="
-            searchAppointments(approvedAppointments) != undefined && searchAppointments(approvedAppointments).length > 0
+            searchAppointments(approvedAppointments) !== undefined && searchAppointments(approvedAppointments).length > 0
           "
             class="scrolling-appointments"
         >
@@ -59,7 +58,7 @@ rR
               v-bind:key="appointment.startTime"
               :appointment="appointment"
               @click.native="toggleModal(appointment)"
-          ></AppointmentCard>
+          />
         </div>
         <div class="no-appointments-box" v-else>
           <h4 class="heading-4 error">No Upcoming Appointments!</h4>
@@ -72,7 +71,7 @@ rR
 
         <div
             v-if="
-            searchAppointments(pendingAppointments) != undefined && searchAppointments(pendingAppointments).length > 0
+            searchAppointments(pendingAppointments) !== undefined && searchAppointments(pendingAppointments).length > 0
           "
             class="scrolling-appointments"
         >
@@ -81,7 +80,7 @@ rR
               v-bind:key="appointment.startTime"
               :appointment="appointment"
               @click.native="toggleModal(appointment)"
-          ></AppointmentCard>
+          />
         </div>
         <div class="no-appointments-box" v-else>
           <h4 class="heading-4 error">No Pending Appointments!</h4>
@@ -95,7 +94,7 @@ rR
             v-on:update-events="getUserAppointments"
             :clientAppointments="appointments"
             class="calendar"
-        ></appointment-calendar>
+        />
       </div>
 
       <!-- Modal -->
@@ -107,7 +106,7 @@ rR
           modalDisplayed = false;
           getUserAppointments();
         "
-      ></ViewAppointment>
+      />
     </div>
   </div>
 </template>
@@ -248,7 +247,7 @@ rR
       },
 
       // Toggle the view appointment modal.
-      toggleModal: async function (chosenAppointment) {
+      toggleModal:  function (chosenAppointment) {
         // If an appointment is supplied, show the modal containing the appointment.
         if (chosenAppointment) {
           this.selectedAppointment = chosenAppointment;
@@ -259,7 +258,7 @@ rR
         }
 
         // Refresh the appointments.
-        await this.getUserAppointments();
+         this.getUserAppointments();
       }
     },
     data() {

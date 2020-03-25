@@ -1,7 +1,12 @@
+<!--
+  This file is for the card component that is used throughout the app.
+  The card is a white box with rounded corners and sometimes a back arrow in the top left corner
+-->
+
 <template>
   <div class="background">
     <div v-on-clickaway="closeDialogue" class="dialogue-box">
-      <slot></slot>
+      <slot/>
     </div>
   </div>
 </template>
@@ -12,10 +17,6 @@ import { mixin as clickaway } from "vue-clickaway";
 export default {
   mixins: [clickaway],
   methods: {
-    // Forward on the dialogue-resolved event to the parent.
-    resolveDialogue(state) {
-      this.$emit("dialogue-resolved", state);
-    },
 
     // Forward on the close-dialogue event to the parent.
     closeDialogue() {
