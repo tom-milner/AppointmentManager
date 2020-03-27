@@ -1,3 +1,8 @@
+<!--
+  This file is for the 'Book Appointment' form.
+  It handles all user input regarding booking an appointment.
+-->
+
 <template>
   <div>
     <!-- Form -->
@@ -42,7 +47,7 @@
         <h4 class="form-heading">Appointment Date</h4>
         <input v-model="getFormattedChosenDate" class="form-input short-input" disabled />
         <button
-          v-if="canDisplayOpenCalendarButton"
+          v-if="showOpenCalendarButton"
           class="btn btn-secondary short-input"
           @click="toggleAppointmentCalendarModal"
         >
@@ -114,8 +119,8 @@ export default {
     userIsCounsellor: function() {
       return this.$store.getters["authentication/isCounsellor"];
     },
-    // Whether the user can open the calendar or not.
-    canDisplayOpenCalendarButton() {
+    // Returns a boolean value stating whether the Open Calendar button can be shown or not.
+    showOpenCalendarButton() {
       if (this.userIsCounsellor) {
         // Must have chosen counsellor and client
         return this.chosenClient._id && this.chosenCounsellor._id;
@@ -208,7 +213,7 @@ export default {
           title: this.chosenTitle,
           typeId: this.chosenAppointmentType._id,
           counsellorId: this.chosenCounsellor._id,
-          clients: [this.chosenClient._id],
+          clients: [this.chosenClient._id], // In the future support could be added for multiple clients. That's why this is an array.
           clientNotes: this.clientNotes,
           counsellorNotes: this.counsellorNotes
         };
@@ -228,7 +233,7 @@ export default {
           return;
         }
 
-        // If there is clash information with the error message.
+        // If there is clash information with the error message...
         if (error.response.data.clashInfo) {
           // Create an error message describing the clashing appointments:
           // "Appointment Clash: 4:00 PM - 4:50 PM is booked from Wednesday 5th to Wednesday 5th"
@@ -253,7 +258,7 @@ export default {
       this.chosenAppointmentType = appointmentType;
     },
 
-    // Gets all the appointments that involve the clients
+    // Gets all the appointments that involve the client
     getAppointmentsOfClient: async function() {
       try {
         let result = await AppointmentService.getAppointmentsOfUser({

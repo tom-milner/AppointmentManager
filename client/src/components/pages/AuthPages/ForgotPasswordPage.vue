@@ -1,3 +1,8 @@
+<!--
+  This file is for the Forgot Password page.
+  The user can enter their email to request a password reset.
+-->
+
 <template>
   <div class="wrapper">
     <card showBack>
@@ -44,6 +49,8 @@ export default {
     };
   },
   methods: {
+
+    // This function requests the API to send the forgot password email to the user.
     async sendEmail() {
       // Data validation
       if (!this.email) {

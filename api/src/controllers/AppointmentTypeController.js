@@ -18,6 +18,7 @@ async function createAppointmentType(req, res) {
     let description = req.body.description;
     let isRecurring = req.body.isRecurring;
     let recurringDuration = req.body.recurringDuration;
+    let color = req.body.color;
 
     // create new appointment type
     let createdAppointmentType = await AppointmentTypeModel.create({
@@ -25,7 +26,8 @@ async function createAppointmentType(req, res) {
       duration: duration,
       description: description,
       isRecurring: isRecurring,
-      recurringDuration: recurringDuration
+      recurringDuration: recurringDuration,
+      color: color
     });
 
     // appointment type created successfully - return it

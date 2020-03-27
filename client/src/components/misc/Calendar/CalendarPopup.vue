@@ -1,7 +1,12 @@
+<!--
+  This file is for any Calendar Popups.
+  It handles dynamically displaying popups on a calendar so that they don't block any important details.
+-->
+
 <template>
   <div class="wrapper">
     <div v-on-clickaway="closePopup" :style="positionPopup" id="popup">
-      <slot id="slot"></slot>
+      <slot id="slot"/>
     </div>
   </div>
 </template>
@@ -26,7 +31,6 @@ export default {
 
     // Get the dimensions of the popup.
     getPopupDimensions() {
-      // adjust dimensions to fit content
       this.popupEl = document.querySelector("#popup");
       const popupRect = this.popupEl.getBoundingClientRect();
       this.popupWidth = popupRect.width;
@@ -40,11 +44,11 @@ export default {
     this.popupObserver = new MutationObserver(this.getPopupDimensions);
 
     // Setup the observer
-    this.popupObserver.observe(this.popup, {
+    this.popupObserver.observe(this.popupEl, {
       attributes: true, // Watch the popup attributes.
       childList: true, // Watch for addition/removal of child nodes.
       characterData: true, // Watch for character changes within nodes.
-      subtree: true // Watch every child of the popup aswell.
+      subtree: true // Watch every child of the popup as well.
     });
   },
 
@@ -59,9 +63,10 @@ export default {
 
   mixins: [clickaway],
   computed: {
+
+    // This function returns a css class that will position the dialogue box somewhere that doesn't obstruct the user's view of the day.
+    // It also positions the dialogue somewhere not off the screen
     positionPopup() {
-      // This function returns a css class that will position the dialogue box somewhere that doesn't obstruct the user's view of the day.
-      // It also positions the dialogue somewhere not off the screenzs
 
       // Get window dimensions
       let windowWidth = window.innerWidth;
@@ -84,7 +89,7 @@ export default {
       }
 
       // Check to see if the dialoge will fit on the screen
-      if (this.spaceClicked.top >= windowHeight - this.popupHeight - offsetY) {
+      if (this.spaceClicked.top >= windowHeight - this.popupHeight - offsetY ) {
         // Dialogue won't fit - set it's positioning using the "bottom" property so that it remains on the screen.
         finalStyle.bottom = `${offsetY}px`;
       } else {

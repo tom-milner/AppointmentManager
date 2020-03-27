@@ -1,3 +1,9 @@
+<!--
+  This file is for the WorkCalendarPage component.
+  The work calendar page is for the counsellor to manage what days they are working on,
+  and what times they are working for each day.
+
+-->
 <template>
   <div class="wrapper">
     <!-- Work Day Settings -->

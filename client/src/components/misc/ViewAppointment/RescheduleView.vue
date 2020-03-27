@@ -1,3 +1,8 @@
+<!--
+    This component is for rescheduling an appointment. It lets the user choose a new appointment time using the appointment calendar,
+    and requests an appointment reschedule to the API.
+-->
+
 <template>
   <div class="reschedule-dialogue-content">
     <h2 class="heading-2">Reschedule Appointment</h2>
@@ -10,14 +15,14 @@
       {{ newTime.startTime ? getFullAppointmentTime(newTime.startTime, newTime.endTime) : "No time selected" }}
     </h4>
     <appointment-calendar
-      v-if="showCalendar"
-      class="calendar"
-      :counsellor="counsellor"
-      userCanAddEvents
-      @date-chosen="setNewTime"
-      :clientAppointments="clientAppointments"
-      :mandAppointmentType="appointment.appointmentType"
-    ></appointment-calendar>
+        v-if="showCalendar"
+        class="calendar"
+        :counsellor="counsellor"
+        userCanAddEvents
+        @date-chosen="setNewTime"
+        :clientAppointments="clientAppointments"
+        :mandAppointmentType="appointment.appointmentType"
+    />
     <button v-else @click="showCalendar = true" class="btn btn-secondary choose-time-button">Choose a new time</button>
 
     <h4 class="heading-4 error" :class="{ success: message.success }">{{ message.content }}</h4>

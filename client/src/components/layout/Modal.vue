@@ -4,7 +4,7 @@
 -->
 
 <template>
-  <transition appear name="slide" >
+  <transition appear name="slide">
     <div class="modal-content" :class="{ 'fullscreen-modal': isFullscreen}" v-on-clickaway="close">
       <div class="icons">
         <div class="icon-box">
@@ -64,14 +64,15 @@
         const winPrint = window.open("", "", "left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0");
 
         const printHTML = `<!DOCTYPE html>
-<html>
-  <head>
-    ${stylesHtml}
-  </head>
-  <body>
-    ${prtHtml}
-  </body>
-</html>`;
+                            <html>
+                              <head>
+                                ${stylesHtml}
+                              </head>
+                              <body>
+                                ${prtHtml}
+                              </body>
+                            </html>`;
+
         // Write the modal html to the window.
         winPrint.document.write(printHTML);
 
@@ -121,12 +122,13 @@
   // Animation styles.
   .slide-enter-active,
   .slide-leave-active {
-    transition: transform .3s ease-out;
+    /*transition: transform .6s cubic-bezier(0.68, -0.6, 0.32, 1.6);*/
+    transition: transform .6s cubic-bezier(0.25, 1, 0.5, 1)
   }
 
   .slide-enter,
   .slide-leave-to {
-    transform: translateX(100%);
+    transform: translateX(calc(100% + 2rem));
   }
 
 
@@ -138,7 +140,8 @@
     box-shadow: 0 10px 75px rgba(0, 0, 0, 0.30);
     position: fixed;
     top: 2.5%;
-    right: 1rem;
+    right: 0;
+    margin-right: 1rem;
 
     overflow: auto;
     padding: 2rem;
@@ -146,9 +149,9 @@
 
 
   .fullscreen-modal {
-      width: 90%;
-      right: 5%;
-      margin-right: 0;
+    width: 90%;
+    right: 5%;
+    margin-right: 0;
   }
 
   #printContents {

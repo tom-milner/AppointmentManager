@@ -1,3 +1,11 @@
+<!--
+  This file is for the appointment type container component.
+  This component is a white box with a coloured strip down the left side.
+  There is a dropdown icon on the right, which when pressed will open the container to display more information about the appointment type.
+  If the user is a counsellor, they will be able to put the appointment container in 'edit mode',
+  which will allow them to change the appointment type details.
+-->
+
 <template>
   <div
     @click="!isEditable ? toggleShowFullAppointmentType() : null"
@@ -57,11 +65,11 @@
       <div class="description" v-if="appointmentType.description || isEditable">
         <h4 class="form-heading dropdown-heading">Description:</h4>
         <textarea
-          :disabled="!isEditable"
-          class="dropdown-info form-input"
-          v-model="appointmentType.description"
-          :maxlength="maxDescriptionLength"
-        ></textarea>
+            :disabled="!isEditable"
+            class="dropdown-info form-input"
+            v-model="appointmentType.description"
+            :maxlength="maxDescriptionLength"
+        />
       </div>
 
       <!-- IsRecurring -->
@@ -90,7 +98,7 @@
       <div v-if="isEditable" class="bottom-row">
         <div>
           <h4 class="form-heading dropdown-heading">Color:</h4>
-          <ColorPicker v-model="appointmentType.color" :colors="appointmentTypeColours"></ColorPicker>
+          <ColorPicker v-model="appointmentType.color" :colors="appointmentTypeColours"/>
         </div>
         <!-- Delete appointment type -->
         <button @click="showDeleteDialogue = true" class="btn btn-disapproved delete-button">Delete</button>
@@ -126,7 +134,7 @@ export default {
       errorMessage: "", // The error message.
       maxNameLength: 20, // The maximum name length.
       maxDescriptionLength: 500, // The maximum number of characters for the description.
-      maxDuration: 120, // The maximum duration for an appointment type.
+      maxDuration: 110, // The maximum duration for an appointment type.
       minDuration: 50, // The minimum duraiton for an appointment type.
       showFullType: false, // Whether to show the full appointment type information or not.
       showDeleteDialogue: false, // Whether to show the 'Delete Appointment Type' dialogue or not.
@@ -351,7 +359,7 @@ export default {
       display: inline-block;
       .small {
         font-size: 1.8rem;
-        margin: none;
+        margin: 0;
       }
     }
 

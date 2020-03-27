@@ -1,3 +1,9 @@
+<!--
+  This file is for the Login page.
+  It allows the user to log in to the application, and stores the access and refresh tokens returned to it by the server.
+-->
+
+
 <template>
   <div class="container">
     <card :showBack="true" backUrl="/">

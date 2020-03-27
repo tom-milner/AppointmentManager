@@ -47,19 +47,20 @@
       <div class="container">
         <h3 class="heading-3">Upcoming Approved Appointments</h3>
 
-        <div
-            v-if="
+        <transition-group appear
+                          v-if="
             searchAppointments(approvedAppointments) !== undefined && searchAppointments(approvedAppointments).length > 0
           "
-            class="scrolling-appointments"
+                          class="scrolling-appointments" name="scrolling-appointments"
         >
+
           <AppointmentCard
               v-for="appointment in searchAppointments(approvedAppointments)"
               v-bind:key="appointment.startTime"
               :appointment="appointment"
               @click.native="toggleModal(appointment)"
           />
-        </div>
+        </transition-group>
         <div class="no-appointments-box" v-else>
           <h4 class="heading-4 error">No Upcoming Appointments!</h4>
         </div>
@@ -69,11 +70,11 @@
       <div class="container">
         <h3 class="heading-3">Upcoming Pending Appointments</h3>
 
-        <div
+        <transition-group appear
             v-if="
             searchAppointments(pendingAppointments) !== undefined && searchAppointments(pendingAppointments).length > 0
           "
-            class="scrolling-appointments"
+                          class="scrolling-appointments" name="scrolling-appointments"
         >
           <AppointmentCard
               v-for="appointment in searchAppointments(pendingAppointments)"
@@ -81,7 +82,7 @@
               :appointment="appointment"
               @click.native="toggleModal(appointment)"
           />
-        </div>
+        </transition-group>
         <div class="no-appointments-box" v-else>
           <h4 class="heading-4 error">No Pending Appointments!</h4>
         </div>
@@ -224,7 +225,7 @@
 
         // Determine the limit time for appointments using the chosen time period.
         let limitTime =
-            this.chosenTimePeriod === "All" ? undefined // If the time period is 'all', don't limit the appointments.
+            this.chosenTimePeriod == "All" ? undefined // If the time period is 'all', don't limit the appointments.
                 : this.moment()
                     .endOf(this.chosenTimePeriod)
                     .toString(); // Limit the appointments to the end of the time period.
@@ -233,7 +234,7 @@
           // Get the user's appointments.
           let response = await AppointmentService.getAppointmentsOfUser({
             userId: this.user._id,
-            isCounsellor:  this.user.role >= Roles.COUNSELLOR,
+            isCounsellor: this.user.role >= Roles.COUNSELLOR,
             params: {
               fromTime: twoMonthsAgo,
               limitTime: limitTime
@@ -247,7 +248,7 @@
       },
 
       // Toggle the view appointment modal.
-      toggleModal:  function (chosenAppointment) {
+      toggleModal: function (chosenAppointment) {
         // If an appointment is supplied, show the modal containing the appointment.
         if (chosenAppointment) {
           this.selectedAppointment = chosenAppointment;
@@ -258,7 +259,7 @@
         }
 
         // Refresh the appointments.
-         this.getUserAppointments();
+        this.getUserAppointments();
       }
     },
     data() {
@@ -294,6 +295,17 @@
 
 <style lang="scss" scoped>
   @import "src/scss/global";
+
+
+  .scrolling-appointments-enter-active, .scrolling-appointments-leave-active {
+    transition: all .5s;
+  }
+
+  .scrolling-appointments-enter, .scrolling-appointments-leave-to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
 
   .wrapper {
     position: relative;

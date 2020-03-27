@@ -1,3 +1,10 @@
+<!--
+  This is the ViewAppointment component. It fetches all the appointment details from the API and displays it to the user.
+  It also allows the user to edit some of the appointment details (Counsellor Approval, Client Attendance, Client Notes, Counsellor Notes, Appointment Time).
+  Counsellors can also delete the appointment.
+  Different information is displayed depending on the user's role.
+-->
+
 <template>
   <!-- Modal -->
   <Modal canPrint v-on:close-modal="$emit('close-modal')">
@@ -8,19 +15,19 @@
       <!-- Counsellor  -->
       <ul class="appointment-details">
         <li class="appointment-details-row">
-          <icon class="icon" name="user"></icon>
+          <icon class="icon" name="user"/>
           <h4 class="heading-4">{{ counsellor.firstname }} {{ counsellor.lastname }}</h4>
         </li>
 
         <!-- Clients -->
         <li class="appointment-details-row">
-          <icon class="icon" name="users"></icon>
+          <icon class="icon" name="users"/>
           <h4 class="heading-4">{{ getFormattedClients }}</h4>
         </li>
 
         <!-- Start Time -->
         <li class="appointment-details-row">
-          <icon class="icon" name="clock"></icon>
+          <icon class="icon" name="clock"/>
           <h4 class="heading-4">
             {{ getFormattedTime(appointment.startTime) }} - {{ getFormattedTime(appointment.endTime) }}
           </h4>
@@ -28,13 +35,13 @@
 
         <!-- Date -->
         <li class="appointment-details-row">
-          <icon class="icon" name="calendar"></icon>
+          <icon class="icon" name="calendar"/>
           <h4 class="heading-4">{{ getFormattedDate }}</h4>
         </li>
 
         <!-- No. of appointment in recurring series -->
         <li v-if="appointment.appointmentType.isRecurring" class="appointment-details-row">
-          <icon class="icon" name="refresh-ccw"></icon>
+          <icon class="icon" name="refresh-ccw"/>
           <h4 class="heading-4">
             {{ appointment.recurringNo + 1 }} / {{ appointment.appointmentType.recurringDuration }} appointments
           </h4>
@@ -42,31 +49,31 @@
 
         <!-- Appointment Approval Status -->
         <li class="appointment-details-row">
-          <icon class="icon" name="check"></icon>
+          <icon class="icon" name="check"/>
           <h4 class="heading-4" :class="getApprovalColor">{{ getApprovalStatus }}</h4>
         </li>
 
         <!-- Appointment Type -->
         <li class="section">
           <h4 class="heading-4">Appointment Type</h4>
-          <AppointmentTypeContainer class="type" :type="appointment.appointmentType"></AppointmentTypeContainer>
+          <AppointmentTypeContainer class="type" :type="appointment.appointmentType"/>
         </li>
 
         <!-- Cient Notes -->
         <li class="section notes">
           <h4 class="heading-4">Client Notes (for counsellor to see) :</h4>
-          <textarea :disabled="isCounsellor" class="form-input" v-model="appointment.clientNotes"></textarea>
+          <textarea :disabled="isCounsellor" class="form-input" v-model="appointment.clientNotes"/>
           <button @click="saveNotes(false)" v-if="!isCounsellor" class="save btn btn-secondary">Save</button>
         </li>
 
         <!-- Counsellor Notes -->
         <li v-if="isCounsellor" class="section notes">
           <h4 class="heading-4">(private) Counsellor Notes:</h4>
-          <textarea :disabled="!isCounsellor" class="form-input" v-model="appointment.counsellorNotes"></textarea>
+          <textarea :disabled="!isCounsellor" class="form-input" v-model="appointment.counsellorNotes"/>
           <button @click="saveNotes(true)" v-if="isCounsellor" class="save btn btn-secondary">Save</button>
         </li>
 
-        <!-- Client Attendence Buttons -->
+        <!-- Client Attendance Buttons -->
         <li class="section attendance">
           <h4 class="heading-4">Can client attend?</h4>
           <button
@@ -109,7 +116,7 @@
 
       <!-- Reschedule Appointment Dialogue -->
       <Dialogue @close-dialogue="showRescheduleDialogue = false" v-if="showRescheduleDialogue">
-        <RescheduleView :appointment="appointment"></RescheduleView>
+        <RescheduleView :appointment="appointment"/>
       </Dialogue>
 
       <!-- Delete Appointment Dialogue -->
@@ -152,7 +159,7 @@ export default {
     isCounsellor: Boolean
   },
   computed: {
-    // Get the date formatted as 'September 4, 1986'
+    // Get the date formatted as 'September 4, 1986'.
     getFormattedDate: function() {
       return this.moment(this.appointment.startTime).format("LL");
     },
@@ -171,7 +178,7 @@ export default {
     getFormattedClients() {
       return this.clients.reduce(
         (acc, client, index) =>
-          (acc += `${client.firstname} ${client.lastname}${index != this.clients.length - 1 ? ", " : ""}`),
+          (acc += `${client.firstname} ${client.lastname}${index != this.clients.length - 1 ? ", " : ""}`), // A comma is added if the name isn't the last name in the list.
         ""
       );
     }
@@ -289,7 +296,7 @@ export default {
         (acc, id, index) =>
           // Append the client's id to the string.
           (acc += `${id}${
-            index != this.appointment.clients.length - 1 ? "," : "" // Don't add a comma to the last client id of the array.
+            index !== this.appointment.clients.length - 1 ? "," : "" // Don't add a comma to the last client id of the array.
           }`),
         "" // Initial value of ''
       );

@@ -1,3 +1,8 @@
+<!--
+  This page is used to reset a user's password.
+  Users of any role can access this page via a link in a 'Forgot Password' email.
+-->
+
 <template>
   <div class="wrapper">
     <Card showBack backUrl="/">
@@ -59,7 +64,7 @@ export default {
         let response = await AuthenticationService.resetPassword(this.password, this.token);
         if (response.data.success) {
           // remove any current user credentials.
-          UserAuthService.logoutUser();
+          UserAuthService.logoutUser(); // We don't need to await this async call, same with the below.
           // send user to login page
           this.$router.push("/auth/login");
         } else {

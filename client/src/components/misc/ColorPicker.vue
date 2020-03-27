@@ -1,3 +1,9 @@
+<!--
+  This file is for the 'Colour Picker' component.
+  It displays a row of colours to the user and allows them to pick one of them.
+  When a colour has been picked it is 'emitted' to the parent component (via a 'v-model' binding).
+-->
+
 <template>
   <div class="wrapper">
     <div class="inner">
@@ -26,7 +32,8 @@ export default {
     // Set the chosen color.
     setColor(color) {
       this.chosenColor = color;
-      this.$emit("input", color); // Emit the chosen color to the parent.
+      // Emit the chosen color to the parent.
+      this.$emit("input", color); // 'input' is used as the event name so that this component can be used using v-model.
     },
 
     // Style the color box.
@@ -36,7 +43,7 @@ export default {
       };
 
       // If this color matches the chosen color, enlarge it.
-      if (this.chosenColor == color) {
+      if (this.chosenColor === color) {
         styleObject.width = "4rem";
         styleObject.height = "4rem";
       }

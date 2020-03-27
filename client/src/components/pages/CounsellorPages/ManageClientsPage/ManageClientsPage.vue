@@ -1,3 +1,9 @@
+<!--
+  This page is for a counsellor to use to manage their clients.
+  They can view all the clients on the system and view a specific client’s information by clicking on them.
+  This will lead them to the User Details page.
+-->
+
 <template>
   <div class="wrapper">
     <h2 class="heading-2">Manage Clients</h2>
@@ -71,7 +77,6 @@ export default {
           }
         }
       }
-
       return filteredClients;
     },
 

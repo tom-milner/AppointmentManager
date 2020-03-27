@@ -19,7 +19,7 @@ function isLoggedIn(req, res, next) {
     // All tokens
     token = token.replace("Bearer ", "");
     // Validate secret
-    jwt.verify(token, Config.ACCESS_TOKEN_SECRET, function(err, decoded) {
+    jwt.verify(token, Config.ACCESS_TOKEN_SECRET, function (err, decoded) {
       // Return error if token isn't valid
       if (err) return response.failure("Failed to authenticate token", 401);
 
@@ -35,15 +35,15 @@ function isLoggedIn(req, res, next) {
 }
 
 // middleware check if the user is required to access the given route
-function roleCheck({ role, userSpecific }) {
-  return function(req, res, next) {
+function roleCheck({role, userSpecific}) {
+  return function (req, res, next) {
     const response = new AppResponse(res);
 
-    // Check that
-    if (userSpecific && req.user.role == role) {
-      // check if endpoint can only be accessed by specific user.
+    // Check if endpoint can only be accessed by the specific user.
+
+    if (userSpecific) {
       let requestedId = req.params.userId || req.params.counsellorId || req.params.clientId;
-      if (req.user._id == requestedId) {
+      if (req.user._id == requestedId || req.user.role > role) {
         return next();
       } else {
         return response.failure("Access Denied", 403);

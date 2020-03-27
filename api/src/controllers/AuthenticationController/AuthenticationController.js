@@ -45,7 +45,7 @@ async function registerCounsellor(req, res) {
     if (!foundReg) return response.failure("Invalid token.", 400);
 
     // Make sure the provided email is the same as the original email that the registration link was sent to.
-    if (foundReg.email != email) return response.failure("Invalid email for provided token.", 400);
+    if (foundReg.email !== email) return response.failure("Invalid email for provided token.", 400);
 
     // Hash the counsellor's password
     let passwordHash = await AuthenticationControllerHelpers.hashPassword(password);
@@ -155,7 +155,7 @@ async function registerGuest(req, res) {
       accessToken: accessToken
     });
   } catch (error) {
-    if (error.code == ErrorCodes.MONGO_DUPLICATE_KEY) {
+    if (error.code === ErrorCodes.MONGO_DUPLICATE_KEY) {
       let fieldKey = Utils.getDuplicateMongoEntryKey(error.message);
       if (fieldKey == "userId") return response.failure("This user has already been sent a registration email.", 400);
 

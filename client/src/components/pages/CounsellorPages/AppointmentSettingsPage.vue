@@ -1,3 +1,8 @@
+<!--
+  This is the Appointment Settings Page component.
+  It is used to manage appointment types, and the appointment buffer times.
+  It can only be accessed by a counsellor.
+-->
 <template>
   <div class="wrapper">
     <!-- Work Day Settings -->
@@ -14,10 +19,10 @@
             userCanEdit
             @refresh-appointments="getAppointmentTypes"
             :type="type"
-            :forceOpen="!!!type.name"
+            :forceOpen="!!!type._id"
           />
         </li>
-        <li class="list-item" v-if="!addingNewAppointmentType">
+        <li class="list-item" v-if="!isAddingNewAppointmentType">
           <button @click="addNewAppointmentType" class="btn btn-secondary">Add New</button>
         </li>
       </ul>
@@ -60,7 +65,7 @@ export default {
   },
   computed: {
     // Whether the counsellor is in the process of adding a new appointment type or not.
-    addingNewAppointmentType() {
+    isAddingNewAppointmentType() {
       // The last appointment in the appointment types list doesn't have an ID, the counsellor is adding a new appointment type.
       if (this.appointmentTypes.length > 0) return !this.appointmentTypes[this.appointmentTypes.length - 1]._id;
       return false;
@@ -92,7 +97,7 @@ export default {
 
     // Add a new appointment type to the list.
     addNewAppointmentType() {
-      if (!this.addingNewAppointmentType)
+      if (!this.isAddingNewAppointmentType)
         // If we're not already adding to the appointment type.
         this.appointmentTypes.push({
           name: "",

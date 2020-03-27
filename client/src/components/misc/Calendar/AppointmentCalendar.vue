@@ -1,3 +1,8 @@
+<!--
+  This file is for the Appointment Calendar.
+  It handles modifying the fullcalendar library and adding any custom events.
+-->
+
 <template>
   <div>
     <!-- Customised Calendar -->
@@ -125,12 +130,11 @@ export default {
 
       // Find the businessHours object of the day clicked.
       return this.businessHours.find(day => {
-        return day.daysOfWeek[0] == chosenDay;
+        return day.daysOfWeek[0] === chosenDay;
       });
     }
   },
 
-  // TODO: add temporary event to show user (color it green(?) to show its temporary)
 
   methods: {
     updateEvents() {
@@ -163,19 +167,19 @@ export default {
     handleEventClick(event) {
       if (this.userCanAddEvents) return;
       this.showAppointmentModal = true;
-      this.selectedAppointment = this.clientAppointments.find(appointment => event.event.id == appointment._id);
+      this.selectedAppointment = this.clientAppointments.find(appointment => event.event.id === appointment._id);
     },
 
     // triggered when user clicks on a day
     handleDateClick: function(day) {
       // store the day clicked
       this.chosenDay = day;
-      if (day.view.type == "dayGridMonth") {
+      if (day.view.type === "dayGridMonth") {
         // get screen coordinates of day clicked
         this.screenToAvoid = day.dayEl.getBoundingClientRect();
         // toggle the add event popup.
       }
-      if (day.view.type == "timeGridWeek") {
+      if (day.view.type === "timeGridWeek") {
         // for this view, just move the modal out of the way of the mouse.
         // let mouseX = day.jsEvent.clientX;
         // let mouseY = day.jsEvent.clientY;
@@ -190,7 +194,8 @@ export default {
       this.showAddEventPopup = !this.showAddEventPopup;
     },
 
-    // This function removes any duplicate events in the counsellor events array (where the counsellor will be counselling the current user)
+    // This function removes any events in the counsellor events array that are also in the client events array.
+    // The duplicates will be events where the counsellor is counselling the current user.
     removeDuplicateEvents: function() {
       let clientEvents = this.getClientEvents;
       let counsellorEvents = this.getCounsellorEvents;
@@ -199,12 +204,14 @@ export default {
         this.events.counsellorEvents = counsellorEvents.filter(function(counsellorEvent) {
           // see if clientEvents contains the current counsellor event, and find it's index.
           let dup = clientEvents.find(
-            userEvent => userEvent.start == counsellorEvent.start || userEvent.end == counsellorEvent.end
+            userEvent => userEvent.start === counsellorEvent.start || userEvent.end === counsellorEvent.end
           );
           return !dup;
         });
       }
     },
+
+    // Map the business hours into the format required by fullcalendar.
     createBusinessHours() {
       this.businessHours = this.counsellor.workingDays.map(day => {
         // return start, end and title

@@ -1,3 +1,9 @@
+<!--
+   This is the page that displays the user’s information. A counsellor can make notes about clients and view all their appointments.
+   They can also view their personal details (firstname, lastname, email etc).
+   The only logic this file contains is for fetching and sending data to and from the API.
+-->
+
 <template>
   <div class="wrapper">
     <div class="content">

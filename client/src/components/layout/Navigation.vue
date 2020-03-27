@@ -1,3 +1,8 @@
+<!--
+  This file is for the Navigation sidebar.
+  Different sidebar items are displayed depending on the user's role.
+-->
+
 <template>
   <div>
     <div class="sidebar-wrapper">
@@ -46,7 +51,7 @@
         </div>
       </ul>
       <div class="nav-item logout-button-box" @click="logout">
-        <icon name="log-out" class="nav-icon"></icon>
+        <icon name="log-out" class="nav-icon"/>
         <h4 class="nav-heading">Logout</h4>
       </div>
     </div>
@@ -66,7 +71,7 @@ export default {
   methods: {
     // Logout the user.
     logout: async function() {
-      UserAuthService.logoutUser();
+      await UserAuthService.logoutUser();
     }
   },
 

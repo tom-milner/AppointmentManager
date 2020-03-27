@@ -24,15 +24,20 @@ app.use(cors()); // Currently any 'origin' can access the API as my client has n
 
 // Setup app to handle POST requests. (Read a http request body)
 app.use(
-  bodyParser.urlencoded({
-    extended: false
-  })
+    bodyParser.urlencoded({
+      extended: false
+    })
 );
 app.use(bodyParser.json()); // Load the http request body using JSON.
 
 // Load application routes
 const routes = require("./routes");
 app.use(routes);
+
+// Setup global error handler.
+app.use(function (err, req, res, next) {
+  res.status(500).json({success: false, message: "Unexpected app error."})
+});
 
 // Import internal packages.
 const GoogleAuth = require("./struct/googleauth/GoogleAuth"); // Used for authenticating with Google's API.
@@ -70,7 +75,7 @@ const database = new Database();
     scheduler.start();
 
     // Start the server.
-    app.listen(Config.PORT, function() {
+    app.listen(Config.PORT, function () {
       Logger.info(`Started server on port ${Config.PORT}`);
     });
   } catch (error) {

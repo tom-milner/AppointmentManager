@@ -132,8 +132,9 @@ async function createAppointment(req, res) {
     // Create apppointment start and end times.
     let appointmentStartTime = moment(req.body.startTime);
     // calculate end time
-    let appointmentEndTime = moment(appointmentStartTime);
-    appointmentEndTime.add(appointmentType.duration, "minutes");
+    let appointmentEndTime = moment(appointmentStartTime).add(appointmentType.duration, "minutes");
+    console.log('End time: ', appointmentEndTime.format('HH mm'));
+
 
     let appointmentInfo = {
       title: req.body.title || undefined, // If there is no appointment title, remove the property from the object.
@@ -203,7 +204,8 @@ async function updateAppointment(req, res) {
     if (!appointment) return response.failure("Appointment doesn't exist.", 400);
 
     // make sure clients can't edit other people's appointments.
-    if (req.user.role == Roles.CLIENT) {
+    if (req.user.role === Roles.CLIENT) {
+      console.log(appointment.clients, req.user._id);
       // Search for the user in the client field of the appointment.
       let validClient = appointment.clients.find(userId => userId == req.user._id);
       if (!validClient) return response.failure("You do not have permission to edit this appointment.", 403);

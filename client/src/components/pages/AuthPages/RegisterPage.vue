@@ -1,3 +1,9 @@
+<!--
+  This page is used to register a new user to the application.
+  Both clients and counsellors use this page to create an account, however if the user signing up is a counsellor they will have a counsellorToken token in the URL.
+  This token is already embedded in the link the new counsellors are sent to use to create an account.
+-->
+
 <template>
   <div class="container">
     <card v-bind:showBack="true">
@@ -88,7 +94,7 @@ export default {
           await UserAuthService.registerUser(newUser, Roles.CLIENT);
         }
 
-        // redirect user to the login page, so they can aquire tokens for their new account.
+        // redirect user to the login page, so they can acquire tokens for their new account.
         this.$router.push("/login");
       } catch (err) {
         this.errorMessage = err.response.data.message || "Error registering user.";

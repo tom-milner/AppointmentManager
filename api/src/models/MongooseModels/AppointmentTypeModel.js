@@ -7,7 +7,8 @@ let appointmentTypeSchema = new Schema({
   name: {
     type: String,
     required: true,
-    maxlength: 20
+    maxlength: 20,
+    unique: true
   },
 
   // The duration of the appointment type in minutes.

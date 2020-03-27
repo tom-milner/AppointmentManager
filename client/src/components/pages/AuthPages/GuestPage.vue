@@ -1,3 +1,9 @@
+<!--
+  This file is for the Guest Page.
+  It allows a guest to create a temporary guest account and then book an appointment with that account.
+  The booking form is the same one used on the Book Appointment page.
+-->
+
 <template>
   <div class="wrapper">
     <Card :showBack="true" backUrl="/">
@@ -127,10 +133,10 @@ export default {
   watch: {
     // Check the emails match whenever one of the is edited (Note: unfortunately these can't be combined under watcher.)
     email(value) {
-      this.emailsMatch = value == this.confirmedEmail;
+      this.emailsMatch = value === this.confirmedEmail;
     },
     confirmedEmail(value) {
-      this.emailsMatch = value == this.email;
+      this.emailsMatch = value === this.email;
     }
   },
 
