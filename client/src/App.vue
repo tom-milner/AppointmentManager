@@ -1,3 +1,8 @@
+<!--
+  This is the main component of the application.
+  The current page the user is on is rendered inside the <router-view> tags.
+-->
+
 <template>
   <!-- All displays are rendered within the app div -->
   <div class="app">

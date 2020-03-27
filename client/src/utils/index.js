@@ -1,4 +1,4 @@
-// Utility functions
+// This file contains utility functions that are used throughout the application.
 
 import moment from "moment";
 
@@ -13,9 +13,13 @@ export default {
 
   // get user object from jwt token
   getTokenPayload(token) {
-    let parts = token.split(".");
-    let decoded = atob(parts[1]);
-    return JSON.parse(decoded);
+    try {
+      let parts = token.split(".");
+      let decoded = atob(parts[1]);
+      return JSON.parse(decoded);
+    }catch{
+      return undefined;
+    }
   },
 
   // Return the number of a given day in the week.

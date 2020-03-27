@@ -16,7 +16,7 @@ router.use("/type", AppointmentTypeRoutes);
 
 // Get all  reduced appointments of a counsellor.
 router.get(
-  "/counsellor/:userId",
+  "/counsellor/reduced/:userId",
   AppointmentController.getAppointmentsOfUser({
     reduced: true,
     isCounsellor: true
@@ -28,7 +28,7 @@ router.use(AuthenticationMiddleware.isLoggedIn);
 
 // Get all appointments of a specific user
 router.get(
-  "/client/full/:userId",
+  "/client/:userId",
   AuthenticationMiddleware.roleCheck({
     role: Roles.CLIENT,
     userSpecific: true
@@ -41,7 +41,7 @@ router.get(
 
 // get reduced appointments about user
 router.get(
-  "/client/:userId",
+  "/client/reduced/:userId",
   AuthenticationMiddleware.roleCheck({
     role: Roles.CLIENT,
     userSpecific: true
@@ -54,7 +54,7 @@ router.get(
 
 // get all full appointments of a counsellor
 router.get(
-  "/counsellor/full/:userId",
+  "/counsellor/:userId",
   AuthenticationMiddleware.roleCheck({
     role: Roles.COUNSELLOR
   }),

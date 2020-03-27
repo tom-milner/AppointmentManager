@@ -221,6 +221,7 @@
                     bookedTime.startTime,
                     bookedTime.endTime,
                     null, // Granularity: This could be set to 'day', 'week', 'year' etc, but isn't needed here.
+
                     // [ - Inclusion: return true if the time slot time slot start time is the same as the booked time start time.
                     // ) - Exclusion: return false if the time slot start time matches the booked time end time (this will be the end of the appointment buffer time).
                     "[)"

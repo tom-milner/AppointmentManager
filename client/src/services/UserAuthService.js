@@ -4,7 +4,7 @@ import Roles from "../models/Roles";
 import Router from "../routes/index";
 
 // This file handles any authentication to do with specifically user authentication.
-// The content of this file was originally a part of AuthenticationService.js, but was moved into this file to avoid circular dependencies.
+// The content of this file was originally a part of AuthenticationService.js, but was moved into this file to avoid circular dependencies and for added clarity.
 
 // Login user
 function loginUser(username, password) {
@@ -39,9 +39,10 @@ function loginUser(username, password) {
 }
 
 // Register User
-function registerUser(newUser, role) {
+function registerUser(newUser) {
+  console.log(newUser);
   let userEndpoint = "";
-  switch (role) {
+  switch (newUser.role) {
     case Roles.GUEST:
       userEndpoint = "guest";
       break;

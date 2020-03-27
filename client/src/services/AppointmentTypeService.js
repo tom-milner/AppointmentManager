@@ -1,6 +1,9 @@
-import Api from "@/services/Api";
 
 // Service for interacting with appointment types.
+
+
+import Api from "@/services/Api";
+
 export default {
   getAppointmentTypes() {
     return Api.get("/appointments/type");
@@ -12,8 +15,8 @@ export default {
     });
   },
 
-  createAppointmentType(typeOptions) {
-    return Api.post("/appointments/type", typeOptions);
+  createAppointmentType(appointmentTypeInfo) {
+    return Api.post("/appointments/type", appointmentTypeInfo);
   },
 
   deleteAppointmentType(appointmentTypeId) {

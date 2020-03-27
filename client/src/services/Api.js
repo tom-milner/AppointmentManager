@@ -1,11 +1,19 @@
-import axios from "axios";
+/*
+*   This file imports the base URL of the API from a configuration file and sets up the request interceptors.
+*   Interceptors are functions to be run either before or after a request is made.
+*   All the request interceptors are stored in AuthenticationService.js as they all have to do with authentication.
+*   Every other service must make requests to the API through this file, so that the requests are all standardised.
+*/
 
+import axios from "axios";
 import AuthenticationService from "@/services/AuthenticationService";
+
 
 // The axios instance to use for all requests.
 const axiosInstance = axios.create({
   baseURL: process.env.VUE_APP_API_URL || `http://${window.document.location.hostname}:8081`,
-  timeout: 30 * 1000 // 30s timeout
+  timeout: 30 * 1000, // 30s timeout
+
 });
 
 // Authorization interceptors

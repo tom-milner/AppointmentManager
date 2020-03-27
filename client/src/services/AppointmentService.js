@@ -1,9 +1,13 @@
+/*
+*   This file is the Appointment Service. It contains all the API requests and functions to do with managing appointments.
+*/
+
 import Api from "@/services/Api.js";
 
-// Fetch all available appointments - not actually used in production.
-function getAllAppointments() {
-  return Api.get("/appointments");
-}
+// Fetch all available appointments - not actually used in production, only in testing/debugging.
+// function getAllAppointments() {
+//   return Api.get("/appointments");
+// }
 
 // get appointments of a user.
 function getAppointmentsOfUser({ isCounsellor, userId, reduced, params }) {
@@ -15,8 +19,8 @@ function getAppointmentsOfUser({ isCounsellor, userId, reduced, params }) {
   // user is requesting client (normal user) appointments
   else url += "/client";
 
-  // if the user wants full appointments (more detail) append 'full'
-  if (!reduced) url += "/full";
+  // if the user wants reduced appointments (less detail) append 'reduced'
+  if (reduced) url += "/reduced";
 
   // append the userId to the url, to specify which user you want to get the appointments of.
   url += `/${userId}`;
@@ -48,6 +52,6 @@ export default {
   updateAppointment,
   requestAppointment,
   getAppointmentsOfUser,
-  getAllAppointments,
+  // getAllAppointments,
   deleteAppointment
 };

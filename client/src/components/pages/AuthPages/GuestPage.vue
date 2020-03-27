@@ -112,11 +112,12 @@ export default {
       let guest = {
         firstname: this.firstname,
         lastname: this.lastname,
-        email: this.email
+        email: this.email,
+        role: Roles.GUEST
       };
 
       try {
-        let response = await UserAuthService.registerUser(guest, Roles.GUEST);
+        let response = await UserAuthService.registerUser(guest);
         let { user, accessToken } = response.data;
 
         // Log the guest in.
