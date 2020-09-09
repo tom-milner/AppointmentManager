@@ -1,11 +1,11 @@
+// This file is for setting up and maintaining the database.
+
 // import necessary packages
 const mongoose = require("mongoose"); // needed for interacting with databases
 const fs = require("fs");
 const path = require("path");
 const { spawn, execSync } = require("child_process");
 const Logger = require("./Logger");
-
-// This file is for setting up and maintaining the database.
 
 class Database {
   /**

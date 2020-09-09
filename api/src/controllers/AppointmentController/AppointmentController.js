@@ -1,3 +1,6 @@
+
+// Controller for all appointment related operations.
+
 // Import required models
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel");
 const AppointmentTypeModel = require("../../models/MongooseModels/AppointmentTypeModel");

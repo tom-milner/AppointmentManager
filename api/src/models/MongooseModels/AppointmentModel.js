@@ -1,3 +1,6 @@
+// This contains the mongoose model for appointments.
+
+
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const moment = require("moment");

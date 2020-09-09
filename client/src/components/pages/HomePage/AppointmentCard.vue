@@ -1,4 +1,9 @@
-AgeTH<template>
+<!--
+  This file contains the AppointmentCard component.
+  It visually conveys essential appointment information to the user by having colour-coded borders and icons.
+-->
+
+<template>
   <div class="appointment-card-wrapper" :style="getColor">
     <div class="client-status" :class="{ 'can-attend': appointment.clientCanAttend }"></div>
     <div class="heading-box">

@@ -1,3 +1,5 @@
+// This contains the mongoose model for password resets.
+
 const mongoose = require("mongoose");
 
 const passwordResetSchema = new mongoose.Schema({

@@ -1,3 +1,6 @@
+// Controller for all Authentication related operations.
+
+
 const bcrypt = require("bcrypt");
 const moment = require("moment");
 const Mailer = require("../../struct/mailer/Mailer");

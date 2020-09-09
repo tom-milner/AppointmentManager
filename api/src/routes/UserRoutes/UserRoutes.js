@@ -1,3 +1,5 @@
+// This file contains routes for user related operations.
+
 const express = require("express");
 const router = express.Router();
 

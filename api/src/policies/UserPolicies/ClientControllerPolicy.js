@@ -1,3 +1,5 @@
+// This file contains policies for the client controller.
+
 const AppResponse = require("../../struct/AppResponse");
 const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
 const Utils = require("../../utils/Utils");

@@ -1,6 +1,4 @@
-
 // Service for interacting with appointment types.
-
 
 import Api from "@/services/Api";
 

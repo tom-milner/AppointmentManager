@@ -1,3 +1,5 @@
+// This file contains policies for the user controller.
+
 const Joi = require("joi");
 const Utils = require("../../utils/Utils");
 const AppResponse = require("../../struct/AppResponse");

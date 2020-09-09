@@ -1,4 +1,5 @@
-// const nodemailer = require("nodemailer");
+// This file contains the Mailer class. It handles all email related operations.
+
 const Config = require("../Config");
 const moment = require("moment");
 const nodemailer = require("nodemailer");

@@ -1,3 +1,5 @@
+// This file contains policies for the authentication controller.
+
 const Joi = require("joi");
 const AppResponse = require("../struct/AppResponse");
 

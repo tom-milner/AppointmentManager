@@ -1,5 +1,7 @@
-const mongoose = require("mongoose");
+// This contains the mongoose model for counsellors.
 
+
+const mongoose = require("mongoose");
 const UserModel = require("./UserModel");
 
 // Counsellor Schema

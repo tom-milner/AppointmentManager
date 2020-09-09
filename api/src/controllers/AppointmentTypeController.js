@@ -1,3 +1,5 @@
+// Controller for any appointment type related operations.
+
 // Import required models
 const AppointmentTypeModel = require("../models/MongooseModels/AppointmentTypeModel");
 const AppResponse = require("../struct/AppResponse");

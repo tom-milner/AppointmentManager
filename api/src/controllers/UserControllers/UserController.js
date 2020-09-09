@@ -1,3 +1,5 @@
+// Controller for any user related operations.
+
 const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 const AppResponse = require("../../struct/AppResponse");
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel");

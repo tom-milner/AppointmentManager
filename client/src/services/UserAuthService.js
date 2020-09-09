@@ -1,10 +1,10 @@
+// This file handles any authentication to do with users.
+// The content of this file was originally a part of AuthenticationService.js, but was moved into this file to avoid circular dependencies and for added clarity.
+
 import Api from "./Api";
 import Store from "../store/store";
 import Roles from "../models/Roles";
 import Router from "../routes/index";
-
-// This file handles any authentication to do with specifically user authentication.
-// The content of this file was originally a part of AuthenticationService.js, but was moved into this file to avoid circular dependencies and for added clarity.
 
 // Login user
 function loginUser(username, password) {

@@ -1,3 +1,5 @@
+// This file contains policies for the appointment controller.
+
 const Joi = require("joi");
 const Roles = require("../models/Roles");
 const AppointmentModel = require("../models/MongooseModels/AppointmentModel");

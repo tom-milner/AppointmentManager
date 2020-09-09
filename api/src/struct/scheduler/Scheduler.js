@@ -1,3 +1,7 @@
+/*
+    This file is for performing maintenance on the API and for running scheduled tasks.
+*/
+
 const cron = require("node-cron");
 const moment = require("moment");
 const GuestModel = require("../../models/MongooseModels/UserModels/GuestModel");
@@ -7,10 +11,6 @@ const Mailer = require("../mailer/Mailer");
 const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 const Config = require("../Config");
 const Logger = require("../Logger");
-
-/*
-    This file is for performing maintenance on the API and for running scheduled tasks.
-*/
 
 class Scheduler {
   constructor() {

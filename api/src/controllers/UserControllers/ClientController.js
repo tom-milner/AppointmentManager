@@ -1,3 +1,5 @@
+// Controller for any client related operations.
+
 const ClientModel = require("../../models/MongooseModels/UserModels/ClientModel");
 const AppResponse = require("../../struct/AppResponse");
 const Utils = require("../../utils/Utils");

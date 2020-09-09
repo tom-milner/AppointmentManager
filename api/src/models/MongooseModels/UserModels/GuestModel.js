@@ -1,5 +1,6 @@
-const mongoose = require("mongoose");
+// This contains the mongoose model for guests.
 
+const mongoose = require("mongoose");
 const UserModel = require("./UserModel");
 
 // Guests don't have access to anything - they are only created when someone makes a one off appointment without registering an account.

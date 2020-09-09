@@ -1,3 +1,5 @@
+// This file contains any middleware involving authentication.
+
 const jwt = require("jsonwebtoken"); // used for using token based authentication
 const AppResponse = require("../struct/AppResponse");
 const Config = require("../struct/Config");

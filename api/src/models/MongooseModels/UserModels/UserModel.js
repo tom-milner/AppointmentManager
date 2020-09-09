@@ -1,3 +1,6 @@
+// This contains the mongoose model for users.
+
+
 const mongoose = require("mongoose");
 const Roles = require("../../Roles");
 

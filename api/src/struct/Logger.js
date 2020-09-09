@@ -1,11 +1,11 @@
-const { createLogger, format, transports } = require("winston");
-
-/* 
+/*
     This file is for logging any events notable events in the API. It uses the Winston logger.
     There are two log files:
         1. general.log - General purpose logging. Everything that is logged is stored in here.
         2. error.log - This log only stores errors, so that debugging is easier.
 */
+
+const { createLogger, format, transports } = require("winston");
 
 // Due to a bug in Winston, the error message is automatically appended to the info message. (https://github.com/winstonjs/winston/issues/1660#issuecomment-512226578)
 // This format "unconcatenates" the two messages.

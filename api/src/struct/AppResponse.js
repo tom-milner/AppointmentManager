@@ -1,6 +1,7 @@
+// This is the response handler for every request. All the responses are piped through this file so that they are standardised.
+
 const Logger = require("./Logger");
 
-// This is the response handler for every request. All the responses are piped through this file so that they are standardised.
 class AppResponse {
   constructor(res) {
     // Attach the response data to the class.

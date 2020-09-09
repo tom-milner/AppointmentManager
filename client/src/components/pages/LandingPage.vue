@@ -1,3 +1,8 @@
+<!--
+  This file contains the Landing Page component.
+  It allows the user to either login or register (via links).
+-->
+
 <template>
   <div class="container">
     <card>

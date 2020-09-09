@@ -1,3 +1,5 @@
+// This file contains policies for the appointment type controller.
+
 const Utils = require("../utils/Utils");
 const AppResponse = require("../struct/AppResponse");
 const Joi = require("joi");

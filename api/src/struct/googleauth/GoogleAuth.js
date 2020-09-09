@@ -1,3 +1,7 @@
+// This file is for authenticating with google's gmail API.
+// It exposes the gmail access and refresh tokens stored in googleTokens.js
+// If the file can't be found, or is corrupt, then new tokens will be requested and the user will have to allow the server access to their gmail account.
+
 const {google} = require("googleapis");
 const http = require("http");
 const destroyer = require("server-destroy");
@@ -7,9 +11,6 @@ const fs = require("fs");
 const path = require("path");
 const Logger = require("../Logger");
 
-// This file is for authenticating with google's gmail API.
-// It exposes the gmail access and refresh tokens stored in googleTokens.js
-// If the file can't be found, or is corrupt, then new tokens will be requested and the user will have to allow the server access to their gmail account.
 class GoogleAuth {
   // Here I use the singleton pattern, so that only one GoogleAuth instance exists at once.
   // Javascript normally uses a module system similar to the singleton pattern which would worked fine, but I wanted to try the singleton pattern.

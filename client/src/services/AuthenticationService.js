@@ -9,7 +9,6 @@ import Utils from "@/utils";
 import Roles from "../models/Roles";
 import UserService from "./UserService";
 
-
 // Send a request to the forgot password route.
 function forgotPassword(email) {
   return Api.post("/auth/forgot-password", {
@@ -120,7 +119,7 @@ async function setupTokenRefresher(config) {
       if (timeToExpire <= 0) await refreshAccessToken();
 
     }
-  }catch(error){
+  } catch (error) {
     // If the above fails, the user will be logged out.
     console.log("Error checking access token");
     console.log(error);

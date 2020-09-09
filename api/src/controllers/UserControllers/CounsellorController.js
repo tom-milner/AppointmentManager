@@ -1,3 +1,6 @@
+// Controller for any counsellor related operations.
+
+
 const CounsellorModel = require("../../models/MongooseModels/UserModels/CounsellorModel");
 const CounsellorRegistrationModel = require("../../models/MongooseModels/CounsellorRegistrationModel");
 const AuthenticationControllerHelpers = require("../AuthenticationController/AuthenticationControllerHelpers");

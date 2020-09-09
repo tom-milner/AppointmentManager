@@ -1,10 +1,13 @@
+/*
+  This is the root file of the client app.
+  It sets up Vue and attaches it to the page.
+*/
 import Vue from "vue";
 import App from "./App.vue";
 import router from "./routes";
 import store from "./store/store";
 import AuthenticationService from "@/services/AuthenticationService";
 
-// This is the root file of the client app.
 
 // Attach Icon component to all components.
 import Icon from "vue-icon/lib/vue-feather.esm";

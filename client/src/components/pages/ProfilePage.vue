@@ -1,3 +1,8 @@
+<!--
+  This file contains the Profile Page component.
+  It allows the user to edit their details, and allows counsellors to share a booking link and add new counsellors.
+-->
+
 <template>
   <div class="wrapper">
     <div>

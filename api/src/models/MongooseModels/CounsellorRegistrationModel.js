@@ -1,3 +1,6 @@
+
+// This contains the mongoose model for counsellor registrations.
+
 const mongoose = require("mongoose");
 
 // Counsellor Schema

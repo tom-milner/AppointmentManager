@@ -1,3 +1,8 @@
+<!--
+  This file contains the Book Appointment Page.
+  It uses the Book Appointment Form to allow the user to book an appointment.
+-->
+
 <template>
   <div>
     <!-- Header -->

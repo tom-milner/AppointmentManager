@@ -1,3 +1,5 @@
+// This contains the mongoose model for sessions.
+
 const mongoose = require("mongoose");
 
 const sessionSchema = new mongoose.Schema({

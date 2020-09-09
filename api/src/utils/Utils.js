@@ -1,8 +1,6 @@
-const MongooseObjectId = require("mongoose").Types.ObjectId;
-
 // This file contains miscellaneous utility functions that are needed frequently throughout the API by many different files.
 
-// Chech that a supplied ID is of the mongoose format.
+const MongooseObjectId = require("mongoose").Types.ObjectId;
 
 /**
  * This function asserts that a MongoDB ID is valid.

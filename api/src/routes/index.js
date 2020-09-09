@@ -1,7 +1,7 @@
+// This file is the root router file. It imports all the other routers and exposes them under "/"
+
 const express = require("express");
 const router = express.Router();
-
-// This file is the root router file. It imports all the other routers and exposes them under "/"
 
 // Import the routers for the different sections of the API.
 const AuthenticationRoutes = require("./AuthenticationRoutes");

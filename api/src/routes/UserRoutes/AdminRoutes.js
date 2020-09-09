@@ -1,3 +1,5 @@
+// This file contains routes for admin related operations.
+
 const express = require("express");
 const router = express.Router();
 const path = require("path");

@@ -1,3 +1,5 @@
+// Helper functions for appointment controller.
+
 const UserModel = require("../../models/MongooseModels/UserModels/UserModel");
 const AppointmentModel = require("../../models/MongooseModels/AppointmentModel");
 const MongooseObjectId = require("mongoose").Types.ObjectId;

@@ -1,3 +1,5 @@
+// This contains the mongoose model for clients.
+
 const mongoose = require("mongoose");
 const UserModel = require("./UserModel");
 

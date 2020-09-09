@@ -1,7 +1,8 @@
+// This file maps the environment variables to a javascript object, and sets any defaut variables if the environment variables can't be found.
+
 const dotenv = require("dotenv"); // Required for loading custom environment variables.
 const path = require("path");
 
-// This file maps the environment variables to a javascript object, and sets any defaut variables if the environment variables can't be found.
 
 // Load in custom environment variables
 const envFilePath = path.join(__dirname, "../../.env");

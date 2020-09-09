@@ -1,3 +1,5 @@
+// This file contains policies for the counsellor controller.
+
 const AppResponse = require("../../struct/AppResponse");
 const Joi = require("joi");
 

@@ -1,3 +1,8 @@
+<!--
+  This file contains the Home Page component.
+  It shows the user basic information about upcoming appointments, as well as their appointment calendar.
+-->
+
 <template>
   <div>
     <div class="wrapper">

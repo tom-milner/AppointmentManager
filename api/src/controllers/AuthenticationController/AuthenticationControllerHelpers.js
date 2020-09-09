@@ -1,3 +1,5 @@
+// Helper functions for authentication controller.
+
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");

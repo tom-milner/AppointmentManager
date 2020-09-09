@@ -1,3 +1,5 @@
+// This contains the mongoose model for appointment types.
+
 const mongoose = require("mongoose");
 let Schema = mongoose.Schema;
 
